@@ -1,52 +1,52 @@
-use cl204219;
-
-
-create table Usuario (
-id int primary key auto_increment,
-username varchar(50) unique not null,
-senha_hash varchar(255) not null,
-email varchar(100) unique not null,
-status_conta boolean default true,
-foto_perfil varchar(500)
-);
-
-
-CREATE TABLE comentarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT,
-    post_id INT,
-    comentario TEXT,
-    data_comentario DATETIME,
-    FOREIGN KEY (Usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (Post_id) REFERENCES Posts(id)
-);
-
-
-CREATE TABLE curtidas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT,
-    post_id INT,
-    data_curtida DATETIME,
-    FOREIGN KEY (Usuario_id) REFERENCES Usuario(id),
-    FOREIGN KEY (Post_id) REFERENCES Posts(id)
-);
-
-
-CREATE TABLE Posts (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT,
-    conteudo TEXT,
-    imagem VARCHAR(255),
-    data_postagem DATETIME,
-    FOREIGN KEY (Usuario_id) REFERENCES Usuario(id)
-);
-
-CREATE TABLE seguidores (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    seguidor_id INT,
-    seguindo_id INT,
-    data_follow DATETIME,
-    FOREIGN KEY (seguidor_id) REFERENCES Usuario(id),
-    FOREIGN KEY (seguindo_id) REFERENCES Usuario(id)
-);	
-
+	create table Usuarios (
+	id int primary key auto_increment,
+	username varchar(50) unique not null,
+	senha_hash varchar(255) not null,
+	email varchar(100) unique not null,
+	status_conta boolean default true,
+	foto_perfil varchar(500)
+	);
+	
+	CREATE TABLE Posts (
+	    id INT PRIMARY KEY AUTO_INCREMENT,
+	    usuario_id INT NOT NULL,
+	    conteudo TEXT NOT NULL,
+	    imagem VARCHAR(255),
+	    data_postagem DATETIME DEFAULT CURRENT_TIMESTAMP,
+	    FOREIGN KEY (Usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE
+	);
+	
+	
+	CREATE TABLE comentarios (
+	    id INT PRIMARY KEY AUTO_INCREMENT,
+	    usuario_id INT NOT NULL,
+	    post_id INT NOT NULL,
+	    comentario TEXT NOT NULL,
+	    data_comentario DATETIME DEFAULT CURRENT_TIMESTAMP,
+	    FOREIGN KEY (Usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+	    FOREIGN KEY (Post_id) REFERENCES Posts(id)
+	);
+	
+	
+	CREATE TABLE curtidas (
+	    usuario_id INT NOT NULL,
+	    post_id INT NOT NULL,
+	    PRIMARY KEY(usuario_id, post_id),
+	    data_curtida DATETIME DEFAULT CURRENT_TIMESTAMP ,
+	    FOREIGN KEY (Usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+	    FOREIGN KEY (Post_id) REFERENCES Posts(id)
+	);
+	
+	
+	
+	
+	CREATE TABLE seguidores (
+	    seguidor_id INT NOT NULL,
+	    seguindo_id INT NOT NULL,
+	    PRIMARY KEY(seguidor_id, seguindo_id),
+	    CHECK (seguidor_id <> seguindo_id),
+	    data_follow DATETIME DEFAULT CURRENT_TIMESTAMP,
+	    FOREIGN KEY (seguidor_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+	    FOREIGN KEY (seguindo_id) REFERENCES Usuarios(id) ON DELETE CASCADE
+	);	
+	
