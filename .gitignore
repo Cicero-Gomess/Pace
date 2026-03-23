@@ -1,0 +1,14 @@
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/venv/
+backend/.venv/
+backend/env/
+backend/.env
+backend/*.log
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.cache/
+backend/.vscode/
+backend/*.swp
+backend/*.swo
