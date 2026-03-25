@@ -1,20 +1,37 @@
 from fastapi import APIRouter, HTTPException, Depends
 from schemas import UsuarioSchema
-from dependencies import pegar_sessao
+from dependencies import pegar_sessao, pegar_usuario_atual
 from sqlalchemy.orm import Session
 from models import User
 from pwdlib import PasswordHash
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
+from datetime import timedelta, datetime
+from jose import jwt
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 password_hasher = PasswordHash.recommended()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def fazer_hash(senha: str) -> str:
     return password_hasher.hash(senha)
 
 def verificar_senha(senha: str, senha_hash: str) -> bool:
     return password_hasher.verify(senha, senha_hash)
+
+def criar_token(data: dict):
+    criptografar = data.copy()
+    expirar = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    criptografar.update({"exp": expirar})
+
+    return jwt.encode(criptografar, SECRET_KEY, algorithm=ALGORITHM)
+
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -42,11 +59,19 @@ def criar_usuario(usuario_schema: UsuarioSchema, session: Session = Depends(pega
     
     return {"message": "Usuário criado com sucesso!", "usuario_id": novo_usuario.id}
 
-@auth_router.post("/login")
-def login(username: str, senha: str, session: Session = Depends(pegar_sessao), token: str = Depends(oauth2_scheme)):
-    usuario = session.query(User).filter(User.username == username).first()
+@auth_router.post("/token")
+def login(form_data: OAuth2PasswordRequestForm = Depends(),session: Session = Depends(pegar_sessao)):
+    usuario = session.query(User).filter(User.username == form_data.username).first()
     
-    if not usuario or not verificar_senha(senha, usuario.senha_hash):
+    if not usuario or not verificar_senha(form_data.password, usuario.senha_hash):
         raise HTTPException(status_code=401, detail="Credenciais inválidas.")
     
-    return {"token": token}
+    access_token = criar_token(data={"sub": usuario.username})
+
+    return {"access_token": access_token,
+            "token_type": "bearer"}
+
+
+@auth_router.get("/me")
+def me(usuario: User = Depends(pegar_usuario_atual)):
+    return usuario
