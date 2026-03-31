@@ -1,0 +1,299 @@
+/* ================= RESET ================= */
+
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f5f7fa;
+color:#333;
+transition:background 0.3s, color 0.3s;
+}
+
+/* ================= CONTEÚDO ================= */
+
+.conteudo{
+margin-left:80px;
+padding:40px;
+transition:0.3s;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.sidebar:hover ~ .conteudo{
+margin-left:220px;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+position:fixed;
+top:0;
+left:0;
+
+width:80px;
+height:100vh;
+
+background:#FEFCFD;
+border-right:1px solid #eee;
+
+display:flex;
+flex-direction:column;
+
+padding:20px 10px;
+gap:10px;
+
+transition:0.3s;
+overflow:hidden;
+}
+
+.sidebar:hover{
+width:220px;
+}
+
+.logo{
+margin-bottom:70px;
+}
+
+.sidebar a{
+display:flex;
+align-items:center;
+gap:15px;
+
+text-decoration:none;
+color:#333;
+font-weight:600;
+
+padding:12px;
+border-radius:10px;
+
+transition:0.2s;
+white-space:nowrap;
+}
+
+.sidebar a:hover{
+background:#f0f0f0;
+}
+
+.sidebar a.active{
+background:#e7efff;
+color:#3059AA;
+}
+
+.icon{
+font-size:20px;
+min-width:25px;
+text-align:center;
+}
+
+/* ================= CARDS ================= */
+
+.card{
+background:white;
+padding:25px;
+border-radius:16px;
+
+margin:0 auto 25px auto;
+max-width:550px;
+width:100%;
+
+box-shadow:0 4px 20px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* ================= INPUTS (VOLTANDO AO DESIGN LIMPO) ================= */
+
+.card input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+
+border-radius:10px;
+border:1px solid #ddd;
+
+outline:none;
+font-size:14px;
+
+transition:0.2s;
+}
+
+/* foco bonito */
+
+.card input:focus{
+border-color:#3059AA;
+box-shadow:0 0 0 2px rgba(48,89,170,0.1);
+}
+
+/* ================= BOTÕES ================= */
+
+.btn{
+width:100%;
+padding:12px;
+
+border:none;
+border-radius:10px;
+
+background:#3059AA;
+color:white;
+
+font-weight:600;
+cursor:pointer;
+
+transition:0.2s;
+}
+
+.btn:hover{
+transform:scale(1.03);
+}
+
+/* BOTÃO SAIR */
+
+.btn-logout{
+background:#EE8434;
+margin-top:10px;
+}
+
+.btn-logout:hover{
+background:#d96f1f;
+}
+
+/* ================= SWITCH (ON/OFF) ================= */
+
+.switch{
+position:relative;
+display:inline-block;
+margin-left:auto;
+width:50px;
+height:26px;
+}
+
+.linha-config{
+display:flex;
+align-items:center;
+justify-content:space-between; /* 🔥 joga pra direita */
+}
+
+.switch input{
+opacity:0;
+width:0;
+height:0;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+
+top:0;
+left:0;
+right:0;
+bottom:0;
+
+background:#ccc;
+border-radius:30px;
+
+transition:0.3s;
+}
+
+.slider:before{
+position:absolute;
+content:"";
+
+height:20px;
+width:20px;
+
+left:3px;
+bottom:3px;
+
+background:white;
+border-radius:50%;
+
+transition:0.3s;
+}
+
+
+/* ON */
+
+.switch input:checked + .slider{
+background:#3059AA;
+}
+
+.switch input:checked + .slider:before{
+transform:translateX(24px);
+}
+
+/* ================= DARK MODE ================= */
+
+body.dark{
+background:#000;
+color:#FEFCFD;
+}
+
+/* SIDEBAR DARK */
+
+body.dark .sidebar{
+background:#000;
+border-right:1px solid #111;
+}
+
+body.dark .sidebar a{
+color:#FEFCFD;
+}
+
+body.dark .sidebar a:hover{
+background:#111;
+}
+
+body.dark .sidebar a.active{
+background:#e8f0ff;
+color:#3059AA;
+}
+
+body.dark .sidebar a.active .icon{
+stroke:#3059AA;
+}
+
+body.dark .icon{
+stroke:#FEFCFD;
+}
+
+/* CARDS DARK */
+
+body.dark .card{
+background:#0D0D0D;
+
+box-shadow:
+0 0 0 1px #111,
+0 15px 40px rgba(0,0,0,0.9);
+}
+
+/* INPUT DARK */
+
+body.dark .card input{
+background:#000;
+color:#fff;
+border:1px solid #222;
+}
+
+body.dark .card input:focus{
+border-color:#3059AA;
+}
+
+/* BOTÕES DARK */
+
+body.dark .btn{
+background:#3059AA;
+}
+
+body.dark .btn-logout{
+background:#EE8434;
+}

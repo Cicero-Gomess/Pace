@@ -1,0 +1,178 @@
+/* ===== RESET ===== */
+
+
+body {
+  background: #f5f7fb;
+}
+
+/* ===== HERO ===== */
+
+.sobre-hero {
+  height: 100vh;
+  position: relative;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 30px;
+  overflow: hidden;
+}
+
+/* EFEITO DE LUZ (overlay) */
+
+.sobre-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(0,0,0,0.25), transparent 50%);
+}
+
+/* CONTEÚDO ORGANIZADO */
+
+.sobre-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* TÍTULO */
+
+.sobre-hero h1 {
+  font-size: 52px;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.sobre-hero h1 span {
+  color: #5EB1BF;
+}
+
+/* TEXTO */
+
+.sobre-hero p {
+  font-size: 18px;
+  color: rgba(255,255,255,0.85);
+  max-width: 600px;
+}
+
+/* BOTÃO */
+
+.btn-principal {
+  background: #ff8c42;
+  color: white;
+  padding: 14px 30px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-principal:hover {
+  background: #ff7a26;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* ===== SEÇÕES ===== */
+
+section {
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* TÍTULOS */
+
+h2 {
+  font-size: 36px;
+  color: #3059AA;
+  margin-bottom: 20px;
+}
+
+/* TEXTOS */
+
+p {
+  color: #444;
+  line-height: 1.6;
+}
+
+/* ===== CARDS ===== */
+
+.cards-objetivos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.card h3 {
+  color: #3059AA;
+  margin-bottom: 10px;
+}
+
+/* ===== CTA ===== */
+
+.sobre-cta {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+}
+
+.sobre-cta h2 {
+  color: white;
+}
+
+/* ===== ANIMAÇÕES ===== */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVO ===== */
+
+@media (max-width: 700px) {
+
+  .cards-objetivos {
+    grid-template-columns: 1fr;
+  }
+
+  .sobre-hero h1 {
+    font-size: 32px;
+  }
+
+  .sobre-hero p {
+    font-size: 16px;
+  }
+}

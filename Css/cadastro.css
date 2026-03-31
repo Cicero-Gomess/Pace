@@ -1,0 +1,75 @@
+/* ===== CADASTRO ===== */
+
+.cadastro {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa, #eef2f7);
+}
+
+/* CARD */
+
+.cadastro-container {
+  width: 380px;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+/* TEXTO */
+
+.cadastro-sub {
+  color: #6e6e73;
+  margin-bottom: 25px;
+}
+
+/* FORM */
+
+.cadastro form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* INPUTS */
+
+.cadastro input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.cadastro input:focus {
+  outline: none;
+  border: 1px solid #3059AA;
+  box-shadow: 0 0 0 3px rgba(48,89,170,0.1);
+}
+
+/* BOTÃO */
+
+.cadastro-submit {
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #3059AA;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cadastro-submit:hover {
+  transform: scale(1.04);
+}
+
+/* MENSAGEM */
+
+#cadastroMensagem {
+  margin-top: 15px;
+  font-size: 14px;
+}

@@ -1,0 +1,63 @@
+/* ===== LOGIN ===== */
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa, #eef2f7);
+}
+
+/* CARD */
+
+.login-container {
+  width: 380px;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+/* TEXTO */
+
+.login-sub {
+  color: #6e6e73;
+  margin-bottom: 25px;
+}
+
+/* FORM */
+
+.login form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* INPUTS */
+
+.login input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* BOTÃO */
+
+.login-submit {
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #3059AA;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* MENSAGEM */
+
+#loginMensagem {
+  margin-top: 15px;
+  font-size: 14px;
+}

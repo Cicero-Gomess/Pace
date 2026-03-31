@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configurações - Pace</title>
+<link rel="stylesheet" href="../Css/feed.css">
+<link rel="stylesheet" href="../Css/config.css">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR (igual você já tem) -->
+<div class="sidebar">
+
+  <img src="../Images/Ícone_Pace.png" class="logo">
+
+  <a href="../Html/feed.html">
+    <i data-lucide="home" class="icon"></i>
+    <span class="text">Feed</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="target" class="icon"></i>
+    <span class="text">Metas</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="compass" class="icon"></i>
+    <span class="text">Explorar</span>
+  </a>
+
+  <a href="postar.html">
+    <i data-lucide="plus-square" class="icon"></i>
+    <span class="text">Postar</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="bell" class="icon"></i>
+    <span class="text">Notificações</span>
+  </a>
+
+  <div class="divisor"></div>
+
+  <a href="../Html/configurações.html" class="active">
+    <i data-lucide="settings" class="icon"></i>
+    <span class="text">Configurações</span>
+  </a>
+
+  <a href="#" class="perfil">
+    <img src="../Images/image.person.png" class="foto-perfil">
+    <span class="text">Perfil</span>
+  </a>
+
+</div>
+
+<!-- CONTEÚDO -->
+<div class="conteudo">
+
+  <h1>Configurações</h1>
+
+  <!-- CONTA -->
+  <div class="card">
+    <h2>Alterações Na Conta</h2>
+
+    <div class="item">
+      <label>Nome de usuário</label>
+      <input type="text" placeholder="Seu nome">
+    </div>
+
+    <div class="item">
+      <label>Email</label>
+      <input type="email" placeholder="Seu email">
+    </div>
+
+    <button class="btn">Salvar alterações</button>
+  </div>
+
+  <!-- SEGURANÇA -->
+  <div class="card">
+    <h2>Segurança</h2>
+
+    <div class="item">
+      <label>Nova senha</label>
+      <input type="password" placeholder="Digite nova senha">
+    </div>
+
+    <div class="item">
+      <label>Confirmar senha</label>
+      <input type="password" placeholder="Confirme senha">
+    </div>
+
+    <button class="btn">Alterar senha</button>
+  </div>
+
+  <!-- APARÊNCIA -->
+  <div class="card">
+    <h2>Aparência</h2>
+
+    <div class="item row">
+        <div class="linha-config">
+      <span>Modo escuro</span>
+
+      <label class="switch">
+        <input type="checkbox" id="darkToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    </div>
+
+  </div>
+
+  <!-- AÇÕES -->
+  <div class="card">
+    <h2>Conta</h2>
+
+    <button class="btn logout">Sair da conta</button>
+  </div>
+
+</div>
+
+<script src="../JavaScript/config.js"></script>
+
+</body>
+</html>
