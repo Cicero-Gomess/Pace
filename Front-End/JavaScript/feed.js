@@ -32,7 +32,7 @@ function renderPosts(){
         ? "Você"
         : post.nome;
 
-    /* ===== BOTÃO EXCLUIR ===== */
+    /* ===== BOTÃO EXCLUIR POST ===== */
     const botaoExcluir =
       usuarioLogado && post.userId === usuarioLogado.id
         ? `<button class="btn-excluir">
@@ -44,10 +44,17 @@ function renderPosts(){
     const comentariosHTML = (post.comentarios || []).map(c => `
       <div class="comentario">
         <img src="../Images/image.person.png" class="comentario-avatar">
+
         <div class="comentario-conteudo">
           <span class="comentario-nome">${c.nome}</span>
           <span class="comentario-texto">${c.texto}</span>
         </div>
+
+        ${
+          usuarioLogado && c.userId === usuarioLogado.id
+            ? `<button class="btn-excluir-comentario">✖</button>`
+            : ""
+        }
       </div>
     `).join("");
 
@@ -84,7 +91,6 @@ function renderPosts(){
     feed.appendChild(card);
   });
 
-  /* 🔥 recria os ícones */
   lucide.createIcons();
 }
 
@@ -126,6 +132,7 @@ document.addEventListener("click", (e) => {
     if (index === -1) return;
 
     const comentario = {
+      userId: usuarioLogado ? usuarioLogado.id : null,
       nome: usuarioLogado ? usuarioLogado.username : "Usuário",
       texto: texto
     };
@@ -140,7 +147,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* EXCLUIR */
+  /* EXCLUIR POST */
   if (e.target.closest(".btn-excluir")) {
 
     const card = e.target.closest(".card");
@@ -158,7 +165,35 @@ document.addEventListener("click", (e) => {
     posts.splice(index, 1);
 
     localStorage.setItem("posts", JSON.stringify(posts));
+    renderPosts();
+  }
 
+  /* EXCLUIR COMENTÁRIO */
+  if (e.target.classList.contains("btn-excluir-comentario")) {
+
+    const comentarioEl = e.target.closest(".comentario");
+    const card = e.target.closest(".card");
+
+    const posts = getPosts();
+    const cards = document.querySelectorAll(".card");
+    const postIndex = Array.from(cards).indexOf(card);
+
+    if (postIndex === -1) return;
+
+    const comentarios = posts[postIndex].comentarios || [];
+    const comentariosEls = card.querySelectorAll(".comentario");
+    const comentarioIndex = Array.from(comentariosEls).indexOf(comentarioEl);
+
+    if (comentarioIndex === -1) return;
+
+    if (comentarios[comentarioIndex].userId !== usuarioLogado.id) {
+      alert("Você não pode excluir este comentário.");
+      return;
+    }
+
+    comentarios.splice(comentarioIndex, 1);
+
+    localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
