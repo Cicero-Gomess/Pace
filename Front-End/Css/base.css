@@ -1,0 +1,131 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: #f4f4f4;
+}
+
+/* LOGO */
+.logo img {
+  height: 50px;
+}
+
+.logo {
+  transition: 0.3s;
+}
+
+.logo:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background:#3059AA;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  position: relative;
+  transition: 0.3s;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background: #EE8434;
+  left: 0;
+  bottom: -5px;
+  transition: 0.3s;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.nav-links a:not(.btn-entrar):not(.btn-cadastro):hover {
+  color: #ff9216;
+}
+
+/* BOTÕES NAV */
+.btn-entrar {
+  border: 2px solid white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  color:#5EB1BF;
+  font-weight: 600;
+}
+
+.btn-entrar:hover {
+  background: white;
+  color: #3059AA;
+}
+
+.btn-cadastro {
+  background: #5EB1BF;
+  padding: 8px 18px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-cadastro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+/* BOTÕES GERAIS */
+.btn-principal {
+  background-color: #5EB1BF;
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-principal:hover {
+  background-color: #3059AA;
+  transform: scale(1.05);
+}
+
+.btn-secundario {
+  border: 2px solid white;
+  padding: 14px 32px;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-secundario:hover {
+  background: white;
+  color: #3059AA;
+}
+
+/* REMOVE LINHA LARANJA DOS BOTÕES */
+
+.btn-entrar::after,
+.btn-cadastro::after {
+  display: none;
+}
