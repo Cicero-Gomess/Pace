@@ -20,25 +20,15 @@
     <span class="text">Feed</span>
   </a>
 
-  <a href="#">
-    <i data-lucide="target" class="icon"></i>
-    <span class="text">Metas</span>
-  </a>
-
-  <a href="#">
-    <i data-lucide="compass" class="icon"></i>
-    <span class="text">Explorar</span>
-  </a>
+  <a href="#"><i data-lucide="target" class="icon"></i><span class="text">Metas</span></a>
+  <a href="#"><i data-lucide="compass" class="icon"></i><span class="text">Explorar</span></a>
 
   <a href="#" class="active">
     <i data-lucide="plus-square" class="icon"></i>
     <span class="text">Postar</span>
   </a>
 
-  <a href="#">
-    <i data-lucide="bell" class="icon"></i>
-    <span class="text">Notificações</span>
-  </a>
+  <a href="#"><i data-lucide="bell" class="icon"></i><span class="text">Notificações</span></a>
 
   <div class="divisor"></div>
 
@@ -60,6 +50,17 @@
     <h2>Criar Post</h2>
 
     <textarea id="textoPost" maxlength="200" placeholder="O que você está pensando?"></textarea>
+
+    <!-- BOTÃO BONITO -->
+    <label for="imagemPost" class="btn-imagem">📷 Adicionar imagem</label>
+    <input type="file" id="imagemPost" accept="image/*" hidden>
+
+    <!-- PREVIEW -->
+    <div id="previewImagem" class="preview-imagem hidden">
+      <img id="imgPreview" src="">
+      <span id="nomeImagem"></span>
+      <button id="removerImagem">✖</button>
+    </div>
 
     <div class="contador" id="contador">0/200</div>
 

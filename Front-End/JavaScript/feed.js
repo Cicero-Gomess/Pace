@@ -26,7 +26,7 @@ function renderPosts(){
     const card = document.createElement("div");
     card.classList.add("card");
 
-    /* ===== "VOCÊ" ===== */
+    /* ===== NOME (VOCÊ) ===== */
     const nomeExibido =
       usuarioLogado && post.userId === usuarioLogado.id
         ? "Você"
@@ -40,7 +40,7 @@ function renderPosts(){
            </button>`
         : "";
 
-    /* ===== COMENTÁRIOS ===== */
+    /* ===== COMENTÁRIOS (SEM IMAGEM) ===== */
     const comentariosHTML = (post.comentarios || []).map(c => `
       <div class="comentario">
         <img src="../Images/image.person.png" class="comentario-avatar">
@@ -70,7 +70,13 @@ function renderPosts(){
         ${botaoExcluir}
       </div>
 
-      <p class="post-texto">${post.texto}</p>
+      <p class="post-texto">${post.texto || ""}</p>
+
+      ${
+        post.imagem
+          ? `<img src="${post.imagem}" class="post-img">`
+          : ""
+      }
 
       <div class="post-acoes">
         <span class="like ${post.liked ? "liked" : ""}">
@@ -91,6 +97,7 @@ function renderPosts(){
     feed.appendChild(card);
   });
 
+  /* recria ícones */
   lucide.createIcons();
 }
 
@@ -99,7 +106,7 @@ renderPosts();
 /* ===== EVENTOS ===== */
 document.addEventListener("click", (e) => {
 
-  /* LIKE */
+  /* ===== LIKE ===== */
   const like = e.target.closest(".like");
   if (like) {
 
@@ -107,7 +114,7 @@ document.addEventListener("click", (e) => {
     const cards = document.querySelectorAll(".card");
     const index = Array.from(cards).indexOf(like.closest(".card"));
 
-    if(index === -1) return;
+    if (index === -1) return;
 
     posts[index].liked = !posts[index].liked;
     posts[index].likes += posts[index].liked ? 1 : -1;
@@ -116,7 +123,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* COMENTAR */
+  /* ===== COMENTAR ===== */
   if (e.target.classList.contains("btn-comentar")) {
 
     const card = e.target.closest(".card");
@@ -147,7 +154,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* EXCLUIR POST */
+  /* ===== EXCLUIR POST ===== */
   if (e.target.closest(".btn-excluir")) {
 
     const card = e.target.closest(".card");
@@ -168,7 +175,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* EXCLUIR COMENTÁRIO */
+  /* ===== EXCLUIR COMENTÁRIO ===== */
   if (e.target.classList.contains("btn-excluir-comentario")) {
 
     const comentarioEl = e.target.closest(".comentario");

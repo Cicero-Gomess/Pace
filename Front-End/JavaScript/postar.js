@@ -28,25 +28,55 @@ if (logado) {
 const btn = document.getElementById("btnPostar");
 const textarea = document.getElementById("textoPost");
 const contador = document.getElementById("contador");
+const fileInput = document.getElementById("imagemPost");
+
+/* PREVIEW */
+const previewBox = document.getElementById("previewImagem");
+const imgPreview = document.getElementById("imgPreview");
+const nomeImagem = document.getElementById("nomeImagem");
+const removerBtn = document.getElementById("removerImagem");
 
 /* ===== CONTADOR ===== */
 if (textarea && contador) {
     textarea.addEventListener("input", () => {
-        const atual = textarea.value.length;
-        contador.innerText = `${atual}/200`;
+        contador.innerText = `${textarea.value.length}/200`;
     });
 }
 
+/* ===== PREVIEW IMAGEM ===== */
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        imgPreview.src = reader.result;
+        nomeImagem.innerText = file.name;
+        previewBox.classList.remove("hidden");
+    };
+
+    reader.readAsDataURL(file);
+});
+
+/* ===== REMOVER IMAGEM ===== */
+removerBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    previewBox.classList.add("hidden");
+});
+
 /* ===== POSTAR ===== */
-if (btn) {
-    btn.addEventListener("click", () => {
+btn.addEventListener("click", () => {
 
-        const texto = textarea.value.trim();
+    const texto = textarea.value.trim();
+    const file = fileInput.files[0];
 
-        if (!texto) {
-            alert("Escreva algo!");
-            return;
-        }
+    if (!texto && !file) {
+        alert("Escreva algo ou selecione uma imagem!");
+        return;
+    }
+
+    const salvarPost = (imagemBase64 = null) => {
 
         const novoPost = {
             id: Date.now(),
@@ -54,6 +84,7 @@ if (btn) {
             nome: user.nome,
             usuario: user.usuario,
             texto: texto,
+            imagem: imagemBase64,
             likes: 0,
             liked: false,
             foto: user.foto,
@@ -67,5 +98,13 @@ if (btn) {
         localStorage.setItem("posts", JSON.stringify(posts));
 
         window.location.href = "feed.html";
-    });
-}
+    };
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => salvarPost(reader.result);
+        reader.readAsDataURL(file);
+    } else {
+        salvarPost();
+    }
+});
