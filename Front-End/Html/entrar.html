@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
+  <title>Pace</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../Css/base.css">
+  <link rel="stylesheet" href="../Css/entrar.css">
+</head>
+
+<body>
+
+<nav class="navbar">
+  <div class="logo">
+    <a href="../Html/index.html">
+      <img src="../Images/Ícone_Pace.png" alt="Logo do site">
+    </a>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="sobre.html">Sobre</a></li>
+    <li><a class="btn-entrar" href="entrar.html">Entrar</a></li>
+    <li><a class="btn-cadastro" href="cadastro.html">Cadastre-se</a></li>
+  </ul>
+</nav>
+
+<section class="login">
+
+  <div class="login-container">
+
+    <h1>Entrar</h1>
+    <p class="login-sub">Acesse sua conta</p>
+
+    <form id="loginForm">
+
+      <input type="text" id="loginEmail" placeholder="Seu email">
+
+      <input type="password" id="loginSenha" placeholder="Sua senha">
+
+      <button type="submit" class="login-submit">
+        Login
+      </button>
+
+    </form>
+
+    <p id="loginMensagem"></p>
+
+  </div>
+
+</section>
+
+<!-- JS -->
+<script src="../JavaScript/entrar.js"></script>
+
+</body>
+</html>
