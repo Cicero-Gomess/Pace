@@ -13,7 +13,6 @@ if (formCadastro) {
 
     const mensagem = document.getElementById("cadastroMensagem");
 
-    // Validações
     if (usuario === "" || email === "" || senha === "" || confirmar === "") {
       mensagem.innerText = "Preencha todos os campos.";
       mensagem.style.color = "red";
@@ -32,7 +31,6 @@ if (formCadastro) {
       return;
     }
 
-    // Enviar para API
     fetch("http://localhost:8000/auth/criar_usuario", {
       method: "POST",
       headers: {
@@ -59,6 +57,7 @@ if (formCadastro) {
         }, 1000);
       })
       .catch(error => {
+        console.error(error);
         mensagem.innerText = error.detail || "Erro ao cadastrar.";
         mensagem.style.color = "red";
       });
