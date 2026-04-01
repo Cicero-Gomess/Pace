@@ -26,13 +26,13 @@ function renderPosts(){
     const card = document.createElement("div");
     card.classList.add("card");
 
-    /* ===== NOME (VOCÊ) ===== */
+    /* ===== NOME ===== */
     const nomeExibido =
       usuarioLogado && post.userId === usuarioLogado.id
         ? "Você"
         : post.nome;
 
-    /* ===== BOTÃO EXCLUIR POST ===== */
+    /* ===== EXCLUIR POST ===== */
     const botaoExcluir =
       usuarioLogado && post.userId === usuarioLogado.id
         ? `<button class="btn-excluir">
@@ -40,7 +40,7 @@ function renderPosts(){
            </button>`
         : "";
 
-    /* ===== COMENTÁRIOS (SEM IMAGEM) ===== */
+    /* ===== COMENTÁRIOS ===== */
     const comentariosHTML = (post.comentarios || []).map(c => `
       <div class="comentario">
         <img src="../Images/image.person.png" class="comentario-avatar">
@@ -52,7 +52,9 @@ function renderPosts(){
 
         ${
           usuarioLogado && c.userId === usuarioLogado.id
-            ? `<button class="btn-excluir-comentario">✖</button>`
+            ? `<button class="btn-excluir-comentario">
+                 <i data-lucide="x"></i>
+               </button>`
             : ""
         }
       </div>
@@ -106,7 +108,7 @@ renderPosts();
 /* ===== EVENTOS ===== */
 document.addEventListener("click", (e) => {
 
-  /* ===== LIKE ===== */
+  /* LIKE */
   const like = e.target.closest(".like");
   if (like) {
 
@@ -123,7 +125,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* ===== COMENTAR ===== */
+  /* COMENTAR */
   if (e.target.classList.contains("btn-comentar")) {
 
     const card = e.target.closest(".card");
@@ -154,7 +156,7 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* ===== EXCLUIR POST ===== */
+  /* EXCLUIR POST */
   if (e.target.closest(".btn-excluir")) {
 
     const card = e.target.closest(".card");
@@ -175,8 +177,8 @@ document.addEventListener("click", (e) => {
     renderPosts();
   }
 
-  /* ===== EXCLUIR COMENTÁRIO ===== */
-  if (e.target.classList.contains("btn-excluir-comentario")) {
+  /* EXCLUIR COMENTÁRIO */
+  if (e.target.closest(".btn-excluir-comentario")) {
 
     const comentarioEl = e.target.closest(".comentario");
     const card = e.target.closest(".card");
