@@ -318,3 +318,18 @@ background:#111;
 body.dark .preview-imagem span{
 color:#aaa;
 }
+
+.select-comunidade{
+margin-top:10px;
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+body.dark .select-comunidade{
+background:#111;
+color:white;
+border:1px solid #222;
+}

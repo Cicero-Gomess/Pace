@@ -9,6 +9,9 @@ lucide.createIcons();
 /* ===== USUÁRIO LOGADO ===== */
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
+/* ===== COMUNIDADE ATIVA ===== */
+let comunidadeAtiva = "todas";
+
 /* ===== POSTS ===== */
 function getPosts(){
   return JSON.parse(localStorage.getItem("posts")) || [];
@@ -19,7 +22,12 @@ function renderPosts(){
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
 
-  const posts = getPosts();
+  let posts = getPosts();
+
+  /* 🔥 FILTRO DE COMUNIDADE */
+  if (comunidadeAtiva !== "todas") {
+    posts = posts.filter(p => p.comunidade === comunidadeAtiva);
+  }
 
   posts.forEach(post => {
 
@@ -67,6 +75,7 @@ function renderPosts(){
         <div class="info">
           <strong>${nomeExibido}</strong>
           <span>${post.usuario}</span>
+          <span class="tag-comunidade">${post.comunidade || "geral"}</span>
         </div>
 
         ${botaoExcluir}
@@ -207,3 +216,19 @@ document.addEventListener("click", (e) => {
   }
 
 });
+
+/* ===== FILTRO DE COMUNIDADE ===== */
+document.querySelectorAll(".filtro-comunidade button")
+  .forEach(btn => {
+    btn.addEventListener("click", () => {
+
+      comunidadeAtiva = btn.dataset.com;
+
+      document.querySelectorAll(".filtro-comunidade button")
+        .forEach(b => b.classList.remove("active"));
+
+      btn.classList.add("active");
+
+      renderPosts();
+    });
+  });

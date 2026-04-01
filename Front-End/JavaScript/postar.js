@@ -30,7 +30,10 @@ const textarea = document.getElementById("textoPost");
 const contador = document.getElementById("contador");
 const fileInput = document.getElementById("imagemPost");
 
-/* PREVIEW */
+/* ===== COMUNIDADE ===== */
+const selectComunidade = document.getElementById("comunidadePost");
+
+/* ===== PREVIEW ===== */
 const previewBox = document.getElementById("previewImagem");
 const imgPreview = document.getElementById("imgPreview");
 const nomeImagem = document.getElementById("nomeImagem");
@@ -85,6 +88,7 @@ btn.addEventListener("click", () => {
             usuario: user.usuario,
             texto: texto,
             imagem: imagemBase64,
+            comunidade: selectComunidade.value, // 🔥 CORRETO
             likes: 0,
             liked: false,
             foto: user.foto,
