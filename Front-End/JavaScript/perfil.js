@@ -9,12 +9,21 @@ lucide.createIcons();
 /* ===== USUÁRIO ===== */
 let usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
 
+if (!usuario) {
+  alert("Você precisa estar logado.");
+  window.location.href = "login.html";
+}
+
+/* ===== ELEMENTOS ===== */
 const nomeEl = document.getElementById("nomeUsuario");
 const emailEl = document.getElementById("emailUsuario");
 const fotoEl = document.getElementById("fotoPerfil");
 const inputFoto = document.getElementById("inputFoto");
 
-/* ===== FUNÇÃO GLOBAL DE FOTO ===== */
+const bioInput = document.getElementById("bioUsuario");
+const btnSalvarBio = document.getElementById("salvarBio");
+
+/* ===== FOTO GLOBAL ===== */
 function atualizarFotoGlobal() {
 
   const user = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -23,28 +32,44 @@ function atualizarFotoGlobal() {
   if (!user) return;
 
   const userData = usuarios[user.username];
-
   const foto = userData?.foto || "../Images/image.person.png";
 
-  // atualiza sidebar
+  // sidebar
   document.querySelectorAll(".foto-perfil").forEach(f => {
     f.src = foto;
   });
 
-  // atualiza perfil
+  // perfil
   if (fotoEl) {
     fotoEl.src = foto;
   }
 }
 
 /* ===== MOSTRAR DADOS ===== */
-if (usuario) {
-  nomeEl.innerText = usuario.username;
-  emailEl.innerText = usuario.email;
+nomeEl.innerText = usuario.username;
+emailEl.innerText = usuario.email;
+
+/* ===== CARREGAR BIO ===== */
+const usuariosStorage = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+if (usuariosStorage[usuario.username]?.bio) {
+  bioInput.value = usuariosStorage[usuario.username].bio;
 }
 
-/* inicial */
-atualizarFotoGlobal();
+/* ===== SALVAR BIO ===== */
+btnSalvarBio.addEventListener("click", () => {
+
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+  usuarios[usuario.username] = {
+    ...usuarios[usuario.username],
+    username: usuario.username,
+    bio: bioInput.value,
+    foto: usuarios[usuario.username]?.foto || usuario.foto
+  };
+
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+});
 
 /* ===== TROCAR FOTO ===== */
 inputFoto.addEventListener("change", () => {
@@ -57,24 +82,79 @@ inputFoto.addEventListener("change", () => {
   reader.onload = () => {
 
     const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+    const userAtual = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-    const user = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (!userAtual) return;
 
-    // 🔥 salva por usuário
-    usuarios[user.username] = {
-      ...usuarios[user.username],
-      username: user.username,
-      foto: reader.result
+    usuarios[userAtual.username] = {
+      ...usuarios[userAtual.username],
+      username: userAtual.username,
+      foto: reader.result,
+      bio: usuarios[userAtual.username]?.bio || ""
     };
 
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-    // atualiza usuário logado
-    user.foto = reader.result;
-    localStorage.setItem("usuarioLogado", JSON.stringify(user));
+    userAtual.foto = reader.result;
+    localStorage.setItem("usuarioLogado", JSON.stringify(userAtual));
 
     atualizarFotoGlobal();
   };
 
   reader.readAsDataURL(file);
 });
+
+/* ===== STATS ===== */
+function carregarStatsUsuario(){
+
+  const posts = JSON.parse(localStorage.getItem("posts")) || [];
+
+  const meusPosts = posts.filter(p => p.userId === usuario.id);
+
+  let totalLikes = 0;
+  let totalComentarios = 0;
+
+  meusPosts.forEach(post => {
+    totalLikes += post.likes || 0;
+    totalComentarios += (post.comentarios || []).length;
+  });
+
+  document.getElementById("totalPosts").innerText = meusPosts.length;
+  document.getElementById("totalLikes").innerText = totalLikes;
+  document.getElementById("totalComentarios").innerText = totalComentarios;
+}
+
+/* ===== POSTS DO USUÁRIO ===== */
+function carregarPostsUsuario(){
+
+  const posts = JSON.parse(localStorage.getItem("posts")) || [];
+  const container = document.getElementById("postsUsuario");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const meusPosts = posts.filter(p => p.userId === usuario.id);
+
+  meusPosts.forEach(post => {
+
+    const div = document.createElement("div");
+    div.classList.add("card");
+
+    div.innerHTML = `
+      <p>${post.texto || ""}</p>
+      ${
+        post.imagem
+          ? `<img src="${post.imagem}" class="post-img">`
+          : ""
+      }
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+/* ===== INIT ===== */
+atualizarFotoGlobal();
+carregarStatsUsuario();
+carregarPostsUsuario();

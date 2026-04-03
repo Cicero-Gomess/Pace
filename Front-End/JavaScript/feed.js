@@ -44,6 +44,8 @@ function renderPosts(){
     posts = posts.filter(p => p.comunidade === comunidadeAtiva);
   }
 
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
   posts.forEach(post => {
 
     const card = document.createElement("div");
@@ -54,6 +56,10 @@ function renderPosts(){
       usuarioLogado && post.userId === usuarioLogado.id
         ? "Você"
         : post.nome;
+
+    /* ===== FOTO DINÂMICA ===== */
+    const fotoUsuario =
+      usuarios[post.username]?.foto || "../Images/image.person.png";
 
     /* ===== EXCLUIR POST ===== */
     const botaoExcluir =
@@ -85,7 +91,7 @@ function renderPosts(){
 
     card.innerHTML = `
       <div class="post-topo">
-        <img src="${post.foto}" class="avatar">
+        <img src="${fotoUsuario}" class="avatar">
 
         <div class="info">
           <strong>${nomeExibido}</strong>

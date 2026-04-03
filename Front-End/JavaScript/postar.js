@@ -107,7 +107,7 @@ btn.addEventListener("click", () => {
             comunidade: selectComunidade.value, // 🔥 CORRETO
             likes: 0,
             liked: false,
-            foto: user.foto,
+            username: user.nome,
             data: new Date().toLocaleString("pt-BR"),
             comentarios: []
         };
