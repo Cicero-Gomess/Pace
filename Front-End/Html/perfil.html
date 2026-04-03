@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil</title>
+
+<link rel="stylesheet" href="../Css/perfil.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar">
+
+  <img src="../Images/Ícone_Pace.png" class="logo">
+
+  <a href="feed.html">
+    <i data-lucide="home" class="icon"></i>
+    <span class="text">Feed</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="target" class="icon"></i>
+    <span class="text">Metas</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="compass" class="icon"></i>
+    <span class="text">Explorar</span>
+  </a>
+
+  <a href="postar.html">
+    <i data-lucide="plus-square" class="icon"></i>
+    <span class="text">Postar</span>
+  </a>
+
+  <a href="#">
+    <i data-lucide="bell" class="icon"></i>
+    <span class="text">Notificações</span>
+  </a>
+
+  <div class="divisor"></div>
+
+  <a href="../Html/configurações.html">
+    <i data-lucide="settings" class="icon"></i>
+    <span class="text">Configurações</span>
+  </a>
+
+  <a href="perfil.html" class="perfil active">
+    <img class="foto-perfil">
+    <span class="text">Perfil</span>
+  </a>
+
+</div>
+
+<!-- ===== CONTEÚDO ===== -->
+<div class="conteudo">
+
+  <div class="card-perfil">
+
+    <h2>Meu Perfil</h2>
+
+    <!-- FOTO -->
+    <div class="foto-container">
+      <img id="fotoPerfil">
+
+      <label for="inputFoto" class="btn-trocar">
+        📷 Trocar foto
+      </label>
+
+      <input type="file" id="inputFoto" accept="image/*" hidden>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-perfil">
+      <p><strong>Nome:</strong> <span id="nomeUsuario"></span></p>
+      <p><strong>Email:</strong> <span id="emailUsuario"></span></p>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="../JavaScript/perfil.js"></script>
+</body>
+</html>

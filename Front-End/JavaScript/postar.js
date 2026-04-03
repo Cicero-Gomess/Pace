@@ -1,3 +1,19 @@
+/* ===== SINCRONIZAR FOTO GLOBAL ===== */
+(function () {
+  const user = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+  if (!user) return;
+
+  const userData = usuarios[user.username];
+  const foto = userData?.foto || "../Images/image.person.png";
+
+  document.querySelectorAll(".foto-perfil").forEach(f => {
+    f.src = foto;
+  });
+})();
+
+
 /* ===== CONFIG ===== */
 const darkMode = localStorage.getItem("darkMode");
 if (darkMode === "true") document.body.classList.add("dark");

@@ -1,23 +1,29 @@
-const formLogin = document.getElementById("loginForm");
+/* ===== CONFIG ===== */
+const API_URL = "http://localhost:8000";
 
+/* ===== ELEMENTOS ===== */
+const formLogin = document.getElementById("loginForm");
+const mensagem = document.getElementById("loginMensagem");
+
+/* ===== LOGIN ===== */
 if (formLogin) {
 
   formLogin.addEventListener("submit", function (e) {
 
     e.preventDefault();
 
-    const usuario = document.getElementById("loginEmail").value;
-    const senha = document.getElementById("loginSenha").value;
+    const usuario = document.getElementById("loginEmail").value.trim();
+    const senha = document.getElementById("loginSenha").value.trim();
 
-    const mensagem = document.getElementById("loginMensagem");
-
+    /* ===== VALIDAÇÃO ===== */
     if (usuario === "" || senha === "") {
       mensagem.innerText = "Preencha todos os campos.";
       mensagem.style.color = "red";
       return;
     }
 
-    fetch("http://localhost:8000/auth/token", {
+    /* ===== REQUISIÇÃO LOGIN ===== */
+    fetch(`${API_URL}/auth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -33,28 +39,46 @@ if (formLogin) {
         }
         return response.json();
       })
+
       .then(data => {
 
-        // 🔐 salva token
+        /* ===== SALVA TOKEN ===== */
         localStorage.setItem("token", data.access_token);
 
-        // 🔥 buscar dados do usuário
-        return fetch("http://localhost:8000/auth/me", {
+        /* ===== BUSCAR USUÁRIO ===== */
+        return fetch(`${API_URL}/auth/me`, {
+          method: "GET",
           headers: {
             "Authorization": "Bearer " + data.access_token
           }
         });
 
       })
-      .then(response => response.json())
+
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Erro ao obter usuário.");
+        }
+        return response.json();
+      })
+
       .then(usuarioData => {
 
-        /* ===== NÃO MEXER (SEU PEDIDO) ===== */
+        /* ===== BUSCAR FOTO SALVA LOCAL ===== */
+        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+        let fotoUsuario = "../Images/image.person.png";
+
+        if (usuarios[usuarioData.username] && usuarios[usuarioData.username].foto) {
+          fotoUsuario = usuarios[usuarioData.username].foto;
+        }
+
+        /* ===== SALVAR USUÁRIO LOGADO ===== */
         localStorage.setItem("usuarioLogado", JSON.stringify({
           id: usuarioData.id,
           username: usuarioData.username,
           email: usuarioData.email,
-          foto: "../Images/image.person.png"
+          foto: fotoUsuario
         }));
 
         /* ===== SUCESSO ===== */
@@ -66,9 +90,10 @@ if (formLogin) {
         }, 1000);
 
       })
+
       .catch(error => {
         console.error(error);
-        mensagem.innerText = error.detail || "Erro ao fazer login.";
+        mensagem.innerText = error.detail || error.message || "Erro ao fazer login.";
         mensagem.style.color = "red";
       });
 
