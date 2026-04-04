@@ -136,37 +136,6 @@ color:#3059AA;
 font-size:14px;
 }
 
-/* DARK MODE */
-body.dark{
-background:#000;
-color:#fff;
-}
-
-body.dark .sidebar{
-background:#000;
-border-right:1px solid #111;
-}
-
-body.dark .sidebar a{
-color:#fff;
-}
-
-body.dark .sidebar a:hover{
-background:#111;
-}
-
-body.dark .sidebar a.active{
-background:#e8f0ff;
-color:#3059AA;
-}
-
-body.dark .card-perfil{
-background:#0D0D0D;
-box-shadow:
-0 0 0 1px #111,
-0 15px 40px rgba(0,0,0,0.9);
-}
-
 /* ===== STATS ===== */
 .perfil-stats{
 display:flex;
@@ -203,14 +172,266 @@ border-radius:10px;
 cursor:pointer;
 }
 
-/* POSTS */
-#postsUsuario .card{
-margin-top:15px;
+/* ===== GRID POSTS (INSTAGRAM REFINADO) ===== */
+#postsUsuario{
+max-width:500px;
+margin:20px auto;
+display:grid;
+grid-template-columns:repeat(3, 1fr);
+gap:8px;
 }
 
-/* DARK */
+.post-item{
+position:relative;
+aspect-ratio:1/1;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+transition:0.2s;
+}
+
+.post-item:hover{
+transform:scale(0.97);
+}
+
+.post-item img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.post-text{
+display:flex;
+align-items:center;
+justify-content:center;
+height:100%;
+padding:10px;
+font-size:13px;
+background:#f0f2f5;
+text-align:center;
+}
+
+/* OVERLAY */
+.post-overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:0;
+transition:0.2s;
+font-size:14px;
+}
+
+.post-item:hover .post-overlay{
+opacity:1;
+}
+
+/* ===== MODAL ===== */
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+.modal-content{
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:400px;
+width:90%;
+text-align:center;
+position:relative;
+}
+
+.modal-content img{
+width:100%;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+#fecharModal{
+position:absolute;
+top:10px;
+right:15px;
+font-size:20px;
+cursor:pointer;
+}
+
+.modal-info{
+margin-top:10px;
+font-size:14px;
+}
+
+.hidden{
+display:none;
+}
+
+/* ===== DARK MODE ===== */
+body.dark{
+background:#000;
+color:#fff;
+}
+
+body.dark .sidebar{
+background:#000;
+border-right:1px solid #111;
+}
+
+body.dark .sidebar a{
+color:#fff;
+}
+
+body.dark .sidebar a:hover{
+background:#111;
+}
+
+body.dark .sidebar a.active{
+background:#e8f0ff;
+color:#3059AA;
+}
+
+body.dark .card-perfil{
+background:#0D0D0D;
+box-shadow:
+0 0 0 1px #111,
+0 15px 40px rgba(0,0,0,0.9);
+}
+
 body.dark .perfil-bio textarea{
 background:#111;
 border:1px solid #222;
+color:white;
+}
+
+body.dark .post-text{
+background:#111;
+color:white;
+}
+
+body.dark .modal-content{
+background:#0D0D0D;
+color:white;
+}
+
+/* ===== TITULOS ===== */
+.titulo-secao{
+max-width:500px;
+margin:30px auto 10px;
+font-size:16px;
+font-weight:600;
+color:#555;
+}
+
+/* ===== GRID IMAGENS ===== */
+#postsImagem{
+max-width:500px;
+margin:0 auto;
+display:grid;
+grid-template-columns:repeat(3, 1fr);
+gap:8px;
+}
+
+/* ===== LISTA TEXTO ===== */
+#postsTexto{
+max-width:500px;
+margin:0 auto;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+/* TEXTO CARD */
+.post-texto-card{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* GRID ITEM */
+.post-item{
+position:relative;
+aspect-ratio:1/1;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+}
+
+.post-item img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.post-overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:0;
+transition:0.2s;
+}
+
+.post-item:hover .post-overlay{
+opacity:1;
+}
+
+/* MODAL */
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+.modal-content{
+background:white;
+padding:20px;
+border-radius:12px;
+max-width:400px;
+width:90%;
+text-align:center;
+position:relative;
+}
+
+.hidden{
+display:none;
+}
+
+body.dark .post-texto-card{
+background:#0D0D0D;
+}
+
+body.dark .titulo-secao{
+color:#aaa;
+}
+
+body.dark .modal-content{
+background:#0D0D0D;
 color:white;
 }

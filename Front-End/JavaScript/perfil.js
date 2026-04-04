@@ -34,29 +34,24 @@ function atualizarFotoGlobal() {
   const userData = usuarios[user.username];
   const foto = userData?.foto || "../Images/image.person.png";
 
-  // sidebar
   document.querySelectorAll(".foto-perfil").forEach(f => {
     f.src = foto;
   });
 
-  // perfil
-  if (fotoEl) {
-    fotoEl.src = foto;
-  }
+  if (fotoEl) fotoEl.src = foto;
 }
 
 /* ===== MOSTRAR DADOS ===== */
 nomeEl.innerText = usuario.username;
 emailEl.innerText = usuario.email;
 
-/* ===== CARREGAR BIO ===== */
+/* ===== BIO ===== */
 const usuariosStorage = JSON.parse(localStorage.getItem("usuarios")) || {};
 
 if (usuariosStorage[usuario.username]?.bio) {
   bioInput.value = usuariosStorage[usuario.username].bio;
 }
 
-/* ===== SALVAR BIO ===== */
 btnSalvarBio.addEventListener("click", () => {
 
   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
@@ -124,35 +119,78 @@ function carregarStatsUsuario(){
   document.getElementById("totalComentarios").innerText = totalComentarios;
 }
 
-/* ===== POSTS DO USUÁRIO ===== */
+/* ===== POSTS SEPARADOS ===== */
 function carregarPostsUsuario(){
 
   const posts = JSON.parse(localStorage.getItem("posts")) || [];
-  const container = document.getElementById("postsUsuario");
 
-  if (!container) return;
+  const imagensContainer = document.getElementById("postsImagem");
+  const textoContainer = document.getElementById("postsTexto");
 
-  container.innerHTML = "";
+  if (!imagensContainer || !textoContainer) return;
+
+  imagensContainer.innerHTML = "";
+  textoContainer.innerHTML = "";
 
   const meusPosts = posts.filter(p => p.userId === usuario.id);
 
   meusPosts.forEach(post => {
 
-    const div = document.createElement("div");
-    div.classList.add("card");
+    /* IMAGENS */
+    if (post.imagem) {
+      const div = document.createElement("div");
+      div.classList.add("post-item");
 
-    div.innerHTML = `
-      <p>${post.texto || ""}</p>
-      ${
-        post.imagem
-          ? `<img src="${post.imagem}" class="post-img">`
-          : ""
-      }
-    `;
+      div.innerHTML = `
+        <img src="${post.imagem}">
+        <div class="post-overlay">
+          ❤️ ${post.likes || 0} • 💬 ${(post.comentarios || []).length}
+        </div>
+      `;
 
-    container.appendChild(div);
+      div.onclick = () => abrirModal(post);
+
+      imagensContainer.appendChild(div);
+    }
+
+    /* TEXTO */
+    if (post.texto) {
+      const div = document.createElement("div");
+      div.classList.add("post-texto-card");
+
+      div.innerHTML = `
+        <p>${post.texto}</p>
+        <small>❤️ ${post.likes || 0} • 💬 ${(post.comentarios || []).length}</small>
+      `;
+
+      textoContainer.appendChild(div);
+    }
+
   });
 }
+
+/* ===== MODAL ===== */
+const modal = document.getElementById("modalPost");
+const modalImg = document.getElementById("modalImg");
+const modalTexto = document.getElementById("modalTexto");
+const modalLikes = document.getElementById("modalLikes");
+const modalComentarios = document.getElementById("modalComentarios");
+const fecharModal = document.getElementById("fecharModal");
+
+function abrirModal(post){
+  modalImg.src = post.imagem || "";
+  modalTexto.innerText = post.texto || "";
+  modalLikes.innerText = post.likes || 0;
+  modalComentarios.innerText = (post.comentarios || []).length;
+
+  modal.classList.remove("hidden");
+}
+
+fecharModal.onclick = () => modal.classList.add("hidden");
+
+modal.onclick = (e) => {
+  if (e.target === modal) modal.classList.add("hidden");
+};
 
 /* ===== INIT ===== */
 atualizarFotoGlobal();
