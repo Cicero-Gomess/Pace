@@ -13,7 +13,6 @@
   });
 })();
 
-
 /* ===== CONFIG ===== */
 const darkMode = localStorage.getItem("darkMode");
 if (darkMode === "true") document.body.classList.add("dark");
@@ -46,10 +45,8 @@ const textarea = document.getElementById("textoPost");
 const contador = document.getElementById("contador");
 const fileInput = document.getElementById("imagemPost");
 
-/* ===== COMUNIDADE ===== */
 const selectComunidade = document.getElementById("comunidadePost");
 
-/* ===== PREVIEW ===== */
 const previewBox = document.getElementById("previewImagem");
 const imgPreview = document.getElementById("imgPreview");
 const nomeImagem = document.getElementById("nomeImagem");
@@ -84,6 +81,29 @@ removerBtn.addEventListener("click", () => {
     previewBox.classList.add("hidden");
 });
 
+/* ===== ENVIAR PARA API ===== */
+async function enviarPost(conteudo, imagem) {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://127.0.0.1:8000/post/criar_post", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            conteudo: conteudo,
+            imagem: imagem
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error("Erro ao postar");
+    }
+
+    return await response.json();
+}
+
 /* ===== POSTAR ===== */
 btn.addEventListener("click", () => {
 
@@ -97,6 +117,7 @@ btn.addEventListener("click", () => {
 
     const salvarPost = (imagemBase64 = null) => {
 
+        // 🔥 mantém local + API
         const novoPost = {
             id: Date.now(),
             userId: user.id,
@@ -104,7 +125,7 @@ btn.addEventListener("click", () => {
             usuario: user.usuario,
             texto: texto,
             imagem: imagemBase64,
-            comunidade: selectComunidade.value, // 🔥 CORRETO
+            comunidade: selectComunidade.value,
             likes: 0,
             liked: false,
             username: user.nome,
@@ -114,8 +135,10 @@ btn.addEventListener("click", () => {
 
         let posts = JSON.parse(localStorage.getItem("posts")) || [];
         posts.unshift(novoPost);
-
         localStorage.setItem("posts", JSON.stringify(posts));
+
+        // envia pra API também
+        enviarPost(texto, imagemBase64);
 
         window.location.href = "feed.html";
     };

@@ -91,6 +91,14 @@ min-width:25px;
 text-align:center;
 }
 
+.foto-perfil{
+width:28px;
+height:28px;
+border-radius:50%;
+object-fit:cover;
+}
+
+
 /* ================= CARDS ================= */
 
 .card{

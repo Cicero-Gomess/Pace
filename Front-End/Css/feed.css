@@ -69,6 +69,14 @@ min-width:25px;
 text-align:center;
 }
 
+.foto-perfil{
+width:28px;
+height:28px;
+border-radius:50%;
+object-fit:cover;
+}
+
+
 /* TEXTO */
 .text{
 opacity:0;
@@ -125,6 +133,122 @@ transition:0.3s;
 .card:hover{
 transform:translateY(-5px);
 box-shadow:0 15px 40px rgba(0,0,0,0.1);
+}
+
+/* ===== MODAL DE CONFIRMAÇÃO ===== */
+.hidden{
+	display:none !important;
+}
+
+.modal-overlay{
+	position:fixed;
+	inset:0;
+	background:rgba(0,0,0,0.48);
+	backdrop-filter:blur(2px);
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	padding:20px;
+	z-index:1000;
+}
+
+.confirm-modal{
+	width:100%;
+	max-width:420px;
+	background:#ffffff;
+	border-radius:24px;
+	padding:24px;
+	box-shadow:0 30px 80px rgba(15,23,42,0.2);
+	border:1px solid rgba(48,89,170,0.12);
+}
+
+.modal-header{
+	display:flex;
+	align-items:flex-start;
+	gap:16px;
+	margin-bottom:20px;
+}
+
+.modal-icon{
+	width:32px;
+	height:32px;
+	color:#ff4d4d;
+	flex-shrink:0;
+}
+
+.confirm-modal h2{
+	margin:0 0 8px;
+	font-size:20px;
+}
+
+.confirm-modal p{
+	margin:0;
+	color:#555;
+	line-height:1.5;
+}
+
+.modal-actions{
+	display:flex;
+	justify-content:flex-end;
+	gap:12px;
+	margin-top:10px;
+}
+
+.btn-secondary,
+.btn-danger{
+	border:none;
+	border-radius:999px;
+	padding:12px 20px;
+	font-weight:700;
+	cursor:pointer;
+	transition:transform 0.2s, background 0.2s;
+}
+
+.btn-secondary{
+	background:#f0f2f5;
+	color:#455572;
+}
+
+.btn-secondary:hover{
+	background:#e4e8f3;
+	transform:translateY(-1px);
+}
+
+.btn-danger{
+	background:#ff4d4d;
+	color:white;
+}
+
+.btn-danger:hover{
+	background:#e63939;
+	transform:translateY(-1px);
+}
+
+body.dark .confirm-modal{
+	background:#11151f;
+	border-color:rgba(255,255,255,0.08);
+}
+
+body.dark .confirm-modal h2,
+body.dark .confirm-modal p{
+	color:#f5f7ff;
+}
+
+body.dark .btn-secondary{
+	background:#1f2637;
+	color:#ccd4f2;
+}
+
+body.dark .btn-secondary:hover{
+	background:#273049;
+}
+
+body.dark .btn-danger{
+	background:#ff5c5c;
+}
+
+body.dark .btn-danger:hover{
+	background:#e63939;
 }
 
 /* TOPO */

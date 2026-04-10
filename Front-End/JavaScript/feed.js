@@ -24,22 +24,119 @@ lucide.createIcons();
 /* ===== USUÁRIO LOGADO ===== */
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
+let postParaExcluirId = null;
+let postParaExcluirIndex = null;
+
+const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+const confirmDeleteBtn = document.getElementById("confirmDelete");
+const cancelDeleteBtn = document.getElementById("cancelDelete");
+
+function abrirModalExcluir(postId, postIndex) {
+  postParaExcluirId = postId;
+  postParaExcluirIndex = postIndex;
+  confirmDeleteModal.classList.remove("hidden");
+}
+
+function fecharModalExcluir() {
+  postParaExcluirId = null;
+  postParaExcluirIndex = null;
+  confirmDeleteModal.classList.add("hidden");
+}
+
+confirmDeleteBtn?.addEventListener("click", async () => {
+  if (postParaExcluirId === null) return;
+  try {
+    await deletarPostAPI(postParaExcluirId);
+    const postsLocal = JSON.parse(localStorage.getItem("posts")) || [];
+    const indiceRemocao = postParaExcluirIndex !== null && postParaExcluirIndex >= 0 && postParaExcluirIndex < postsLocal.length
+      ? postParaExcluirIndex
+      : postsLocal.findIndex(item => item.id === postParaExcluirId);
+    if (indiceRemocao !== -1) {
+      postsLocal.splice(indiceRemocao, 1);
+      localStorage.setItem("posts", JSON.stringify(postsLocal));
+    }
+    fecharModalExcluir();
+    renderPosts();
+  } catch (err) {
+    alert("Erro ao deletar: " + err.message);
+    fecharModalExcluir();
+  }
+});
+
+cancelDeleteBtn?.addEventListener("click", () => {
+  fecharModalExcluir();
+});
+
+confirmDeleteModal?.addEventListener("click", (event) => {
+  if (event.target === confirmDeleteModal) {
+    fecharModalExcluir();
+  }
+});
+
 /* ===== COMUNIDADE ATIVA ===== */
 let comunidadeAtiva = "todas";
 
-/* ===== POSTS ===== */
-function getPosts(){
-  return JSON.parse(localStorage.getItem("posts")) || [];
+/* ===== BUSCAR POSTS DA API ===== */
+async function getPosts(){
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://127.0.0.1:8000/post/feed", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    return data.map(post => ({
+      id: post.id,
+      userId: post.usuario.id,
+      nome: post.usuario.username,
+      usuario: `@${post.usuario.username}`,
+      texto: post.conteudo,
+      imagem: post.imagem,
+      comunidade: "geral",
+      likes: 0,
+      liked: false,
+      username: post.usuario.username,
+      foto: post.usuario.foto_perfil || "../Images/image.person.png",
+      data: post.data_postagem,
+      comentarios: []
+    }));
+
+  } catch (e) {
+    console.error("Erro ao buscar feed:", e);
+    return JSON.parse(localStorage.getItem("posts")) || [];
+  }
+}
+
+/* ===== DELETAR POST NA API ===== */
+async function deletarPostAPI(postId) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`http://127.0.0.1:8000/post/deletar/${postId}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    const erro = await response.json();
+    throw new Error(erro.detail || "Erro ao deletar");
+  }
+
+  return await response.json();
 }
 
 /* ===== RENDER ===== */
-function renderPosts(){
+async function renderPosts(){
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
 
-  let posts = getPosts();
+  let posts = await getPosts();
 
-  /* 🔥 FILTRO DE COMUNIDADE */
   if (comunidadeAtiva !== "todas") {
     posts = posts.filter(p => p.comunidade === comunidadeAtiva);
   }
@@ -51,17 +148,13 @@ function renderPosts(){
     const card = document.createElement("div");
     card.classList.add("card");
 
-    /* ===== NOME ===== */
     const nomeExibido =
       usuarioLogado && post.userId === usuarioLogado.id
         ? "Você"
         : post.nome;
 
-    /* ===== FOTO DINÂMICA ===== */
-    const fotoUsuario =
-      usuarios[post.username]?.foto || "../Images/image.person.png";
+    const fotoUsuario = post.foto || "../Images/image.person.png";
 
-    /* ===== EXCLUIR POST ===== */
     const botaoExcluir =
       usuarioLogado && post.userId === usuarioLogado.id
         ? `<button class="btn-excluir">
@@ -69,7 +162,6 @@ function renderPosts(){
            </button>`
         : "";
 
-    /* ===== COMENTÁRIOS ===== */
     const comentariosHTML = (post.comentarios || []).map(c => `
       <div class="comentario">
         <img src="../Images/image.person.png" class="comentario-avatar">
@@ -129,29 +221,29 @@ function renderPosts(){
     feed.appendChild(card);
   });
 
-  /* recria ícones */
   lucide.createIcons();
 }
 
 renderPosts();
 
 /* ===== EVENTOS ===== */
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
+
+  let postsLocal = JSON.parse(localStorage.getItem("posts")) || [];
 
   /* LIKE */
   const like = e.target.closest(".like");
   if (like) {
 
-    const posts = getPosts();
     const cards = document.querySelectorAll(".card");
     const index = Array.from(cards).indexOf(like.closest(".card"));
 
     if (index === -1) return;
 
-    posts[index].liked = !posts[index].liked;
-    posts[index].likes += posts[index].liked ? 1 : -1;
+    postsLocal[index].liked = !postsLocal[index].liked;
+    postsLocal[index].likes += postsLocal[index].liked ? 1 : -1;
 
-    localStorage.setItem("posts", JSON.stringify(posts));
+    localStorage.setItem("posts", JSON.stringify(postsLocal));
     renderPosts();
   }
 
@@ -164,7 +256,6 @@ document.addEventListener("click", (e) => {
     const texto = input.value.trim();
     if (!texto) return;
 
-    const posts = getPosts();
     const cards = document.querySelectorAll(".card");
     const index = Array.from(cards).indexOf(card);
 
@@ -176,35 +267,33 @@ document.addEventListener("click", (e) => {
       texto: texto
     };
 
-    if (!posts[index].comentarios) {
-      posts[index].comentarios = [];
+    if (!postsLocal[index]?.comentarios) {
+      postsLocal[index].comentarios = [];
     }
 
-    posts[index].comentarios.push(comentario);
+    postsLocal[index].comentarios.push(comentario);
 
-    localStorage.setItem("posts", JSON.stringify(posts));
+    localStorage.setItem("posts", JSON.stringify(postsLocal));
     renderPosts();
   }
 
-  /* EXCLUIR POST */
+  /* EXCLUIR POST (AGORA API + LOCAL) */
   if (e.target.closest(".btn-excluir")) {
 
     const card = e.target.closest(".card");
-    const posts = getPosts();
     const cards = document.querySelectorAll(".card");
     const index = Array.from(cards).indexOf(card);
 
     if (index === -1) return;
 
-    if (posts[index].userId !== usuarioLogado.id) {
+    let postsAPI = await getPosts();
+    const post = postsAPI[index];
+
+    if (post.userId !== usuarioLogado.id) {
       alert("Você não pode excluir este post.");
       return;
     }
-
-    posts.splice(index, 1);
-
-    localStorage.setItem("posts", JSON.stringify(posts));
-    renderPosts();
+    abrirModalExcluir(post.id, index);
   }
 
   /* EXCLUIR COMENTÁRIO */
@@ -213,13 +302,12 @@ document.addEventListener("click", (e) => {
     const comentarioEl = e.target.closest(".comentario");
     const card = e.target.closest(".card");
 
-    const posts = getPosts();
     const cards = document.querySelectorAll(".card");
     const postIndex = Array.from(cards).indexOf(card);
 
     if (postIndex === -1) return;
 
-    const comentarios = posts[postIndex].comentarios || [];
+    const comentarios = postsLocal[postIndex]?.comentarios || [];
     const comentariosEls = card.querySelectorAll(".comentario");
     const comentarioIndex = Array.from(comentariosEls).indexOf(comentarioEl);
 
@@ -232,7 +320,7 @@ document.addEventListener("click", (e) => {
 
     comentarios.splice(comentarioIndex, 1);
 
-    localStorage.setItem("posts", JSON.stringify(posts));
+    localStorage.setItem("posts", JSON.stringify(postsLocal));
     renderPosts();
   }
 
