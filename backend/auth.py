@@ -72,22 +72,19 @@ def criar_usuario(usuario_schema: UsuarioSchema, session: Session = Depends(pega
         "usuario_id": novo_usuario.id
     }
 
-# 🔹 Login (username OU email)
+# 🔹 Login (email)
 @auth_router.post("/token")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(pegar_sessao)
 ):
 
-    usuario = session.query(User).filter(
-        (User.username == form_data.username) |
-        (User.email == form_data.username)
-    ).first()
+    usuario = session.query(User).filter(User.email == form_data.username).first()
 
     if not usuario or not verificar_senha(form_data.password, usuario.senha_hash):
         raise HTTPException(status_code=401, detail="Credenciais inválidas.")
 
-    access_token = criar_token(data={"sub": usuario.username})
+    access_token = criar_token(data={"sub": usuario.email})
 
     return {
         "access_token": access_token,

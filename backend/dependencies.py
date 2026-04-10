@@ -34,19 +34,17 @@ def pegar_usuario_atual(token: str = Depends(oauth2_scheme), session: Session = 
     )
 
     try:
-        # 🔓 decodifica o token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        username = payload.get("sub")
+        email = payload.get("sub")
 
-        if username is None:
+        if email is None:
             raise credentials_exception
 
     except JWTError:
         raise credentials_exception
 
-    # 🔍 busca no banco
-    usuario = session.query(User).filter(User.username == username).first()
+    usuario = session.query(User).filter(User.email == email).first()
 
     if usuario is None:
         raise credentials_exception

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from auth import auth_router
+from post import post_router
 
 app = FastAPI()
 app.add_middleware(
@@ -12,3 +13,4 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(post_router)
