@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from models import Post
-from schemas import PostSchema, PostResponseSchema
+from schemas import PostSchema, PostResponseSchema, FeedPostSchema
 from dependencies import pegar_sessao, pegar_usuario_atual
 
 
@@ -39,4 +39,45 @@ async def criar_post(
         raise HTTPException(
             status_code=500,
             detail=f"Erro ao criar o post: {str(e)}"
+        )
+
+
+@post_router.get("/feed", response_model=list[FeedPostSchema])
+async def obter_feed(
+    session: Session = Depends(pegar_sessao),
+    usuario_atual = Depends(pegar_usuario_atual)
+):
+    """
+    Obtém o feed da rede social com todos os posts existentes.
+    
+    Retorna posts ordenados por data de criação (mais recentes primeiro).
+    """
+    
+    try:
+        # Buscar posts com informações do usuário, ordenados por data decrescente
+        posts = session.query(Post).join(Post.usuario).order_by(Post.data_postagem.desc()).all()
+        
+        # Formatar resposta com dados do usuário
+        feed_posts = []
+        for post in posts:
+            feed_post = FeedPostSchema(
+                id=post.id,
+                conteudo=post.conteudo,
+                imagem=post.imagem,
+                data_postagem=post.data_postagem,
+                usuario={
+                    "id": post.usuario.id,
+                    "username": post.usuario.username,
+                    "email": post.usuario.email,
+                    "foto_perfil": post.usuario.foto_perfil
+                }
+            )
+            feed_posts.append(feed_post)
+        
+        return feed_posts
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao obter o feed: {str(e)}"
         )

@@ -28,3 +28,14 @@ class PostResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FeedPostSchema(BaseModel):
+    id: int
+    conteudo: str
+    imagem: Optional[str]
+    data_postagem: datetime
+    usuario: dict  # Informações básicas do usuário
+
+    class Config:
+        from_attributes = True
