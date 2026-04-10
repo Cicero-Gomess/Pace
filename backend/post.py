@@ -81,3 +81,52 @@ async def obter_feed(
             status_code=500,
             detail=f"Erro ao obter o feed: {str(e)}"
         )
+
+
+@post_router.delete("/deletar/{post_id}")
+async def deletar_post(
+    post_id: int,
+    usuario_atual = Depends(pegar_usuario_atual),
+    session: Session = Depends(pegar_sessao)
+):
+    """
+    Deleta um post específico.
+    
+    - **post_id**: ID do post a ser deletado
+    - Apenas o dono do post pode deletá-lo
+    """
+    
+    try:
+        # Buscar o post
+        post = session.query(Post).filter(Post.id == post_id).first()
+        
+        if not post:
+            raise HTTPException(
+                status_code=404,
+                detail="Post não encontrado."
+            )
+        
+        # Verificar se o usuário é o dono do post
+        if post.usuario_id != usuario_atual.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Você não tem permissão para deletar este post."
+            )
+        
+        # Deletar o post
+        session.delete(post)
+        session.commit()
+        
+        return {
+            "message": "Post deletado com sucesso!",
+            "post_id": post_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao deletar o post: {str(e)}"
+        )
