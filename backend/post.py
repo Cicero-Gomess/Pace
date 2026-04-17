@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from models import Post
+from models import Post, Curtida
 from schemas import PostSchema, PostResponseSchema, FeedPostSchema
 from dependencies import pegar_sessao, pegar_usuario_atual
 
@@ -130,3 +130,40 @@ async def deletar_post(
             status_code=500,
             detail=f"Erro ao deletar o post: {str(e)}"
         )
+
+@post_router.post("/curtir/{post_id}")
+async def curtir_post(post_id: int,session: Session = Depends(pegar_sessao), usuario_atual = Depends(pegar_usuario_atual)):
+    post = session.query(Post).filter(Post.id == post_id).first()
+
+    if not post:
+        raise HTTPException(status_code=404,detail="Post não encontrado")
+    
+    curtida = session.query(Curtida).filter(Curtida.post_id == post_id, Curtida.usuario_id == usuario_atual.id).first()
+    if curtida:
+        raise HTTPException(status_code=400, detail="Você já curtiu esse post")
+    nova_curtida = Curtida(
+        post_id = post_id,
+        usuario_id = usuario_atual.id
+    )
+
+    session.add(nova_curtida)
+    session.commit()
+    return {
+        "message": "Post curtido",
+        "post_id": post_id
+    }
+
+@post_router.delete("/remover_curtida")
+async def remover_curtida(post_id: int, session: Session = Depends(pegar_sessao), usuario_atual = Depends(pegar_usuario_atual)):
+    
+    curtida = session.query(Curtida).filter(Curtida.post_id == post_id, Curtida.usuario_id == usuario_atual.id).first()
+    if not curtida:
+        raise HTTPException(status_code=404, detail="Você não curtiu esse post")
+    
+    session.delete(curtida)
+    session.commit()
+    return {
+        "message": "Curtida removida com sucesso",
+        "post_id": post_id
+    }
+
