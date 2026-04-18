@@ -153,7 +153,7 @@ async def curtir_post(post_id: int,session: Session = Depends(pegar_sessao), usu
         "post_id": post_id
     }
 
-@post_router.delete("/remover_curtida")
+@post_router.delete("/remover_curtida/{post_id}")
 async def remover_curtida(post_id: int, session: Session = Depends(pegar_sessao), usuario_atual = Depends(pegar_usuario_atual)):
     
     curtida = session.query(Curtida).filter(Curtida.post_id == post_id, Curtida.usuario_id == usuario_atual.id).first()
