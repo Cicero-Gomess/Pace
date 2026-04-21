@@ -127,36 +127,44 @@ async def curtir_post(
     session: Session = Depends(pegar_sessao),
     usuario_atual=Depends(pegar_usuario_atual)
 ):
-    post = session.query(Post).filter(Post.id == post_id).first()
+    try:
+        post = session.query(Post).filter(Post.id == post_id).first()
 
-    if not post:
-        raise HTTPException(status_code=404, detail="Post não encontrado")
+        if not post:
+            raise HTTPException(status_code=404, detail="Post não encontrado")
 
-    curtida = (
-        session.query(Curtida)
-        .filter(
-            Curtida.post_id == post_id,
-            Curtida.usuario_id == usuario_atual.id
+        curtida = (
+            session.query(Curtida)
+            .filter(
+                Curtida.post_id == post_id,
+                Curtida.usuario_id == usuario_atual.id
+            )
+            .first()
         )
-        .first()
-    )
 
-    if curtida:
-        raise HTTPException(status_code=400, detail="Você já curtiu esse post")
+        if curtida:
+            raise HTTPException(status_code=400, detail="Você já curtiu esse post")
 
-    nova_curtida = Curtida(
-        post_id=post_id,
-        usuario_id=usuario_atual.id
-    )
+        nova_curtida = Curtida(
+            post_id=post_id,
+            usuario_id=usuario_atual.id
+        )
 
-    session.add(nova_curtida)
-    session.commit()
+        session.add(nova_curtida)
+        session.commit()
 
-    return {
-        "message": "Post curtido",
-        "post_id": post_id
-    }
-
+        return {
+            "message": "Post curtido",
+            "post_id": post_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao curtir o post: {str(e)}"
+        )
 
 @post_router.delete("/remover_curtida/{post_id}")
 async def remover_curtida(
@@ -164,22 +172,83 @@ async def remover_curtida(
     session: Session = Depends(pegar_sessao),
     usuario_atual=Depends(pegar_usuario_atual)
 ):
-    curtida = (
-        session.query(Curtida)
-        .filter(
-            Curtida.post_id == post_id,
-            Curtida.usuario_id == usuario_atual.id
+    try:
+        curtida = (
+            session.query(Curtida)
+            .filter(
+                Curtida.post_id == post_id,
+                Curtida.usuario_id == usuario_atual.id
+            )
+            .first()
         )
-        .first()
-    )
 
-    if not curtida:
-        raise HTTPException(status_code=404, detail="Você não curtiu esse post")
+        if not curtida:
+            raise HTTPException(status_code=404, detail="Você não curtiu esse post")
 
-    session.delete(curtida)
-    session.commit()
+        session.delete(curtida)
+        session.commit()
 
-    return {
-        "message": "Curtida removida com sucesso",
-        "post_id": post_id
-    }
+        return {
+            "message": "Curtida removida com sucesso",
+            "post_id": post_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao remover a curtida: {str(e)}"
+        )
+
+
+@post_router.get("/{post_id}", response_model=FeedPostSchema)
+async def obter_post_por_id(
+    post_id: int,
+    session: Session = Depends(pegar_sessao),
+    usuario_atual=Depends(pegar_usuario_atual)
+):
+    try:
+        post = (
+            session.query(Post)
+            .filter(Post.id == post_id)
+            .first()
+        )
+
+        if not post:
+            raise HTTPException(
+                status_code=404,
+                detail="Post não encontrado."
+            )
+
+        total_curtidas = len(post.curtidas)
+
+        usuario_curtiu = any(
+            curtida.usuario_id == usuario_atual.id
+            for curtida in post.curtidas
+        )
+
+        feed_post = FeedPostSchema(
+            id=post.id,
+            conteudo=post.conteudo,
+            imagem=post.imagem,
+            data_postagem=post.data_postagem,
+            likes=total_curtidas,
+            liked=usuario_curtiu,
+            usuario={
+                "id": post.usuario.id,
+                "username": post.usuario.username,
+                "email": post.usuario.email,
+                "foto_perfil": post.usuario.foto_perfil
+            }
+        )
+
+        return feed_post
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao obter o post: {str(e)}"
+        )

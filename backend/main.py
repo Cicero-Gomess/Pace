@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth import auth_router
 from post import post_router
 from profile import profile_router
+from comments import comments_router
 
 app = FastAPI()
 
@@ -20,3 +21,4 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(post_router)
 app.include_router(profile_router)
+app.include_router(comments_router)

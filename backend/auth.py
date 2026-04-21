@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from schemas import UsuarioSchema
+from schemas import UsuarioSchema, AtualizarSenhaSchema
 from dependencies import pegar_sessao, pegar_usuario_atual
 from sqlalchemy.orm import Session
 from models import User
@@ -99,3 +99,32 @@ def me(usuario: User = Depends(pegar_usuario_atual)):
         "username": usuario.username,
         "email": usuario.email
     }
+
+@auth_router.put("/atualizar_senha")
+async def atualizar_senha(
+    senha_schema: AtualizarSenhaSchema,
+    usuario=Depends(pegar_usuario_atual),
+    session: Session = Depends(pegar_sessao)
+):
+    try:
+        if not verificar_senha(senha_schema.senha_atual, usuario.senha_hash):
+            raise HTTPException(status_code=400, detail="Senha atual incorreta.")
+        if verificar_senha(senha_schema.nova_senha, usuario.senha_hash):
+            raise HTTPException(400, "A nova senha não pode ser igual à atual")
+
+        nova_senha_hash = fazer_hash(senha_schema.nova_senha)
+        usuario.senha_hash = nova_senha_hash
+
+        session.commit()
+        session.refresh(usuario)
+
+        return {"message": "Senha atualizada com sucesso!"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao atualizar a senha"
+        )
