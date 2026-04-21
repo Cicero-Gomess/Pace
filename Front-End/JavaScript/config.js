@@ -1,141 +1,159 @@
-/* ===== SINCRONIZAR FOTO GLOBAL ===== */
 (function () {
-  const user = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const API_URL = "http://127.0.0.1:8000";
+
+  const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
   const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+  const darkMode = localStorage.getItem("darkMode") === "true";
 
-  if (!user) return;
+  const fotoSidebar = document.getElementById("fotoSidebar");
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-  const userData = usuarios[user.username];
-  const foto = userData?.foto || user.foto || "../Images/image.person.png";
+  const senhaForm = document.getElementById("senhaForm");
+  const senhaAtualInput = document.getElementById("senhaAtual");
+  const novaSenhaInput = document.getElementById("novaSenha");
+  const confirmarSenhaInput = document.getElementById("confirmarSenha");
+  const senhaMensagem = document.getElementById("senhaMensagem");
+  const salvarSenhaBtn = document.getElementById("salvarSenhaBtn");
 
-  document.querySelectorAll(".foto-perfil").forEach(f => {
-    f.src = foto;
-  });
-})();
+  function definirMensagem(texto, tipo, titulo) {
+    senhaMensagem.classList.remove("hidden", "erro", "sucesso", "info");
 
-lucide.createIcons();
+    const icone =
+      tipo === "sucesso"
+        ? "check-circle-2"
+        : tipo === "erro"
+          ? "alert-circle"
+          : "info";
 
-/* ===== TEMA ===== */
-const toggle = document.getElementById("darkToggle");
+    senhaMensagem.classList.add(tipo);
+    senhaMensagem.innerHTML = `
+      <div class="mensagem-icone">
+        <i data-lucide="${icone}"></i>
+      </div>
+      <div class="mensagem-conteudo">
+        <strong>${titulo}</strong>
+        <span>${texto}</span>
+      </div>
+    `;
 
-if (localStorage.getItem("darkMode") === "true") {
-  document.body.classList.add("dark");
-  if (toggle) toggle.checked = true;
-}
+    lucide.createIcons();
+  }
 
-toggle?.addEventListener("change", () => {
-  if (toggle.checked) {
+  function mostrarErro(texto) {
+    definirMensagem(texto, "erro", "Não foi possível concluir");
+  }
+
+  function mostrarSucesso(texto) {
+    definirMensagem(texto, "sucesso", "Tudo certo");
+  }
+
+  function esconderMensagem() {
+    senhaMensagem.innerHTML = "";
+    senhaMensagem.classList.add("hidden");
+    senhaMensagem.classList.remove("erro", "sucesso", "info");
+  }
+
+  async function parseResponse(response, mensagemPadrao) {
+    const texto = await response.text();
+    let data = {};
+
+    try {
+      data = texto ? JSON.parse(texto) : {};
+    } catch {
+      data = { detail: texto };
+    }
+
+    if (!response.ok) {
+      throw new Error(data.detail || mensagemPadrao);
+    }
+
+    return data;
+  }
+
+  if (darkMode) {
     document.body.classList.add("dark");
-    localStorage.setItem("darkMode", "true");
-  } else {
-    document.body.classList.remove("dark");
-    localStorage.setItem("darkMode", "false");
-  }
-});
-
-/* ===== DADOS DO USUÁRIO ===== */
-const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
-const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
-
-const usernameInput = document.getElementById("usernameInput");
-const emailInput = document.getElementById("emailInput");
-const salvarContaBtn = document.getElementById("salvarConta");
-
-const senhaAtualInput = document.getElementById("senhaAtual");
-const novaSenhaInput = document.getElementById("novaSenha");
-const confirmarSenhaInput = document.getElementById("confirmarSenha");
-const alterarSenhaBtn = document.getElementById("alterarSenha");
-
-const logoutBtn = document.querySelector(".logout");
-
-if (usuarioLogado) {
-  if (usernameInput) {
-    usernameInput.value = usuarioLogado.username || "";
   }
 
-  if (emailInput) {
-    emailInput.value = usuarioLogado.email || "";
-  }
-}
-
-/* ===== SALVAR CONTA ===== */
-salvarContaBtn?.addEventListener("click", () => {
-  if (!usuarioLogado) {
-    alert("Nenhum usuário logado.");
-    return;
+  if (darkModeToggle) {
+    darkModeToggle.checked = darkMode;
   }
 
-  const novoUsername = usernameInput.value.trim();
-  const novoEmail = emailInput.value.trim();
+  if (usuarioLogado) {
+    const userData = usuarios[usuarioLogado.username] || {};
+    const foto = userData.foto || usuarioLogado.foto || "../Images/image.person.png";
 
-  if (!novoUsername || !novoEmail) {
-    alert("Preencha nome de usuário e email.");
-    return;
+    if (fotoSidebar) {
+      fotoSidebar.src = foto;
+    }
   }
 
-  const usernameAntigo = usuarioLogado.username;
-  const dadosUsuario = usuarios[usernameAntigo] || {};
+  darkModeToggle?.addEventListener("change", () => {
+    const ativado = darkModeToggle.checked;
+    document.body.classList.toggle("dark", ativado);
+    localStorage.setItem("darkMode", String(ativado));
+  });
 
-  delete usuarios[usernameAntigo];
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuarioLogado");
+    localStorage.removeItem("darkMode");
+    window.location.href = "./entrar.html";
+  });
 
-  usuarios[novoUsername] = {
-    ...dadosUsuario,
-    username: novoUsername,
-    email: novoEmail,
-    foto: dadosUsuario.foto || usuarioLogado.foto || "../Images/image.person.png",
-    bio: dadosUsuario.bio || ""
-  };
+  senhaForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+    esconderMensagem();
 
-  const atualizado = {
-    ...usuarioLogado,
-    username: novoUsername,
-    email: novoEmail,
-    foto: usuarios[novoUsername].foto
-  };
+    const senhaAtual = senhaAtualInput.value.trim();
+    const novaSenha = novaSenhaInput.value.trim();
+    const confirmarSenha = confirmarSenhaInput.value.trim();
+    const token = localStorage.getItem("token");
 
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
-  localStorage.setItem("usuarioLogado", JSON.stringify(atualizado));
+    if (!senhaAtual || !novaSenha || !confirmarSenha) {
+      mostrarErro("Preencha todos os campos antes de continuar.");
+      return;
+    }
 
-  alert("Alterações salvas com sucesso.");
-});
+    if (novaSenha.length < 6) {
+      mostrarErro("A nova senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
 
-/* ===== ALTERAR SENHA ===== */
-alterarSenhaBtn?.addEventListener("click", () => {
-  const senhaAtual = senhaAtualInput.value.trim();
-  const novaSenha = novaSenhaInput.value.trim();
-  const confirmarSenha = confirmarSenhaInput.value.trim();
+    if (novaSenha !== confirmarSenha) {
+      mostrarErro("A confirmação da nova senha não confere.");
+      return;
+    }
 
-  if (!senhaAtual || !novaSenha || !confirmarSenha) {
-    alert("Preencha todos os campos de senha.");
-    return;
-  }
+    if (!token) {
+      mostrarErro("Sua sessão expirou. Faça login novamente para alterar a senha.");
+      return;
+    }
 
-  if (novaSenha.length < 6) {
-    alert("A nova senha deve ter pelo menos 6 caracteres.");
-    return;
-  }
+    salvarSenhaBtn.disabled = true;
 
-  if (novaSenha !== confirmarSenha) {
-    alert("As novas senhas não coincidem.");
-    return;
-  }
+    try {
+      const response = await fetch(`${API_URL}/auth/atualizar_senha`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          senha_atual: senhaAtual,
+          nova_senha: novaSenha
+        })
+      });
 
-  if (senhaAtual === novaSenha) {
-    alert("A nova senha precisa ser diferente da senha atual.");
-    return;
-  }
+      const data = await parseResponse(response, "Erro ao atualizar a senha.");
+      mostrarSucesso(data.message || "Senha atualizada com sucesso!");
+      senhaForm.reset();
+    } catch (error) {
+      mostrarErro(error.message || "Erro ao atualizar a senha.");
+    } finally {
+      salvarSenhaBtn.disabled = false;
+    }
+  });
 
-  alert("Senha validada no front. Quando a API estiver pronta, essa troca será persistida.");
-
-  senhaAtualInput.value = "";
-  novaSenhaInput.value = "";
-  confirmarSenhaInput.value = "";
-});
-
-/* ===== LOGOUT ===== */
-logoutBtn?.addEventListener("click", () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("usuarioLogado");
-  sessionStorage.removeItem("logado");
-  window.location.href = "entrar.html";
-});
+  lucide.createIcons();
+})();

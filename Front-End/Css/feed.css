@@ -9,12 +9,17 @@
   --surface-strong: #ffffff;
   --text: #1b2233;
   --muted: #6f7b91;
-  --line: rgba(48, 89, 170, 0.12);
+  --line: rgba(48, 89, 170, 0.08);
   --primary: #3059aa;
   --primary-2: #4c71c7;
   --accent: #5eb1bf;
   --shadow-soft: 0 12px 40px rgba(20, 39, 77, 0.1);
   --shadow-strong: 0 24px 60px rgba(20, 39, 77, 0.16);
+}
+
+html,
+body {
+  min-height: 100%;
 }
 
 body {
@@ -23,6 +28,8 @@ body {
   background:
     radial-gradient(circle at top left, rgba(94, 177, 191, 0.12), transparent 30%),
     linear-gradient(180deg, #f6f9fd 0%, #eef3f9 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   transition: background 0.3s, color 0.3s;
   overflow-x: hidden;
@@ -153,7 +160,7 @@ body {
   position: relative;
   z-index: 1;
   margin-left: 84px;
-  padding: 42px 42px 70px;
+  padding: 42px 42px 90px;
   transition: 0.35s ease;
 }
 
@@ -326,6 +333,7 @@ body {
   opacity: 0;
   transform: translateY(24px) scale(0.985);
   animation: revealCard 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  overflow: hidden;
 }
 
 .card:nth-child(1) { animation-delay: 0.04s; }
@@ -404,7 +412,7 @@ body {
 
 /* TEXTO */
 .post-texto {
-  margin: 2px 0 16px;
+  margin: 2px 0 14px;
   line-height: 1.7;
   color: #24304a;
   font-size: 15px;
@@ -425,9 +433,10 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(48, 89, 170, 0.1);
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-top: 0;
+  border-top: none;
 }
 
 .like {
@@ -455,69 +464,89 @@ body {
 
 /* COMENTÁRIOS */
 .comentarios {
-  margin-top: 18px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .comentario {
   display: flex;
-  gap: 10px;
   align-items: flex-start;
+  gap: 12px;
 }
 
 .comentario-avatar {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 14px rgba(20, 39, 77, 0.14);
+}
+
+.comentario-bloco {
+  flex: 1;
+  min-width: 0;
 }
 
 .comentario-conteudo {
-  background: rgba(48, 89, 170, 0.06);
-  padding: 10px 13px;
-  border-radius: 14px;
-  max-width: 82%;
+  background: rgba(48, 89, 170, 0.08);
+  padding: 12px 14px;
+  border-radius: 16px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.comentario-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .comentario-nome {
+  display: block;
   font-weight: 700;
   font-size: 13px;
-  display: block;
-  margin-bottom: 3px;
+  color: var(--text);
 }
 
 .comentario-texto {
+  display: block;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
+  color: #24304a;
+  word-break: break-word;
 }
 
 .btn-excluir-comentario {
-  margin-left: 6px;
-  background: none;
+  margin-left: auto;
+  background: transparent;
   border: none;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: 0.2s ease;
-  opacity: 0.6;
+  opacity: 0.65;
+  flex-shrink: 0;
 }
 
 .btn-excluir-comentario i {
   width: 16px;
   height: 16px;
-  color: #999;
+  color: #8892a7;
 }
 
 .btn-excluir-comentario:hover {
   background: #ffe5e5;
   opacity: 1;
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .btn-excluir-comentario:hover i {
@@ -529,6 +558,8 @@ body {
   display: flex;
   gap: 10px;
   margin-top: 16px;
+  padding-top: 0;
+  border-top: none;
 }
 
 .input-comentario {
@@ -658,8 +689,8 @@ body.dark {
   --text: #f3f6ff;
   --muted: #9ca7be;
   background:
-    radial-gradient(circle at top left, rgba(48, 89, 170, 0.18), transparent 25%),
-    linear-gradient(180deg, #05070c 0%, #0b1018 100%);
+    radial-gradient(circle at top left, rgba(48, 89, 170, 0.12), transparent 22%),
+    linear-gradient(180deg, #05070c 0%, #05070c 100%);
   color: var(--text);
 }
 
@@ -685,14 +716,13 @@ body.dark .sidebar a.active {
 body.dark .card,
 body.dark .confirm-modal,
 body.dark .empty-feed {
-  background: rgba(13, 13, 16, 0.84);
-  border-color: rgba(255, 255, 255, 0.04);
+  background: rgba(13, 13, 16, 0.92);
+  border-color: rgba(255, 255, 255, 0.05);
   color: white;
 }
 
 body.dark .hero-copy p,
 body.dark .info span,
-body.dark .comentario-texto,
 body.dark .confirm-modal p,
 body.dark .empty-feed p {
   color: #9ca7be;
@@ -703,12 +733,24 @@ body.dark .post-texto {
 }
 
 body.dark .comentario-conteudo {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body.dark .comentario-nome {
+  color: #f3f6ff;
+}
+
+body.dark .comentario-texto {
+  color: #c9d3ea;
+}
+
+body.dark .comentario-avatar {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 body.dark .input-comentario {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: white;
 }
 
@@ -804,5 +846,14 @@ body.dark .like {
 
   .empty-feed h3 {
     font-size: 24px;
+  }
+
+  .comentario-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .comentario-conteudo {
+    padding: 11px 12px;
   }
 }

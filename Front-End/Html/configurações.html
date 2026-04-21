@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configurações - Pace</title>
+  <title>Configurações</title>
 
   <link rel="stylesheet" href="../Css/config.css">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -15,7 +15,7 @@
   <aside class="sidebar">
     <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
-    <a href="../Html/feed.html">
+    <a href="feed.html">
       <i data-lucide="home" class="icon"></i>
       <span class="text">Feed</span>
     </a>
@@ -25,7 +25,7 @@
       <span class="text">Metas</span>
     </a>
 
-    <a href="explorar.html">
+    <a href="#">
       <i data-lucide="compass" class="icon"></i>
       <span class="text">Explorar</span>
     </a>
@@ -42,7 +42,7 @@
 
     <div class="divisor"></div>
 
-    <a href="../Html/configurações.html" class="active">
+    <a href="configurações.html" class="active">
       <i data-lucide="settings" class="icon"></i>
       <span class="text">Configurações</span>
     </a>
@@ -56,117 +56,96 @@
   <main class="conteudo">
     <section class="hero-config">
       <div class="hero-copy">
-        <span class="badge-config">Controle sua experiência</span>
-        <h1>Ajuste o Pace ao seu ritmo</h1>
+        <span class="badge-config">Personalização</span>
+        <h1>Configurações</h1>
         <p>
-          Atualize dados da conta, refine sua segurança e personalize a experiência
-          para deixar o ambiente mais confortável para sua rotina.
+          Ajuste sua experiência no Pace e deixe o ambiente mais confortável para sua rotina.
         </p>
-      </div>
-
-      <div class="hero-tip">
-        <i data-lucide="shield-check"></i>
-        <span>Pequenos ajustes deixam sua experiência mais sólida.</span>
       </div>
     </section>
 
-    <section class="config-grid">
-      <div class="config-col">
-        <article class="config-card">
-          <div class="card-head">
+    <section class="config-shell">
+      <div class="config-grid">
+        <article class="config-card senha-card">
+          <div class="card-top">
             <div>
               <span class="card-kicker">Conta</span>
-              <h2>Alterações na conta</h2>
+              <h2>Alterar senha</h2>
             </div>
-            <div class="head-icon">
-              <i data-lucide="user-round-cog"></i>
+
+            <div class="card-icon">
+              <i data-lucide="key-round"></i>
             </div>
           </div>
 
-          <div class="item">
-            <label for="usernameInput">Nome de usuário</label>
-            <input type="text" id="usernameInput" placeholder="Seu nome de usuário">
-          </div>
+          <form id="senhaForm" class="form-senha">
+            <div class="campo">
+              <label for="senhaAtual">Senha atual</label>
+              <input type="password" id="senhaAtual" placeholder="Digite sua senha atual" required>
+            </div>
 
-          <div class="item">
-            <label for="emailInput">Email</label>
-            <input type="email" id="emailInput" placeholder="Seu email">
-          </div>
+            <div class="campo">
+              <label for="novaSenha">Nova senha</label>
+              <input type="password" id="novaSenha" placeholder="Digite sua nova senha" required>
+            </div>
 
-          <button class="btn" id="salvarConta">Salvar alterações</button>
+            <div class="campo">
+              <label for="confirmarSenha">Confirmar nova senha</label>
+              <input type="password" id="confirmarSenha" placeholder="Confirme sua nova senha" required>
+            </div>
+
+            <p id="senhaMensagem" class="mensagem-form hidden"></p>
+
+            <button type="submit" class="primary-action" id="salvarSenhaBtn">
+              <i data-lucide="save"></i>
+              <span>Salvar alteração</span>
+            </button>
+          </form>
         </article>
 
         <article class="config-card">
-          <div class="card-head">
-            <div>
-              <span class="card-kicker">Segurança</span>
-              <h2>Senha e proteção</h2>
-            </div>
-            <div class="head-icon">
-              <i data-lucide="lock-keyhole"></i>
-            </div>
-          </div>
-
-          <div class="item">
-            <label for="senhaAtual">Senha atual</label>
-            <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
-          </div>
-
-          <div class="item">
-            <label for="novaSenha">Nova senha</label>
-            <input type="password" id="novaSenha" placeholder="Digite a nova senha">
-          </div>
-
-          <div class="item">
-            <label for="confirmarSenha">Confirmar nova senha</label>
-            <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
-          </div>
-
-          <button class="btn" id="alterarSenha">Alterar senha</button>
-        </article>
-      </div>
-
-      <div class="config-col">
-        <article class="config-card">
-          <div class="card-head">
+          <div class="card-top">
             <div>
               <span class="card-kicker">Aparência</span>
-              <h2>Visual da plataforma</h2>
+              <h2>Visual do app</h2>
             </div>
-            <div class="head-icon">
+
+            <div class="card-icon">
               <i data-lucide="moon-star"></i>
             </div>
           </div>
 
-          <div class="setting-row">
+          <div class="setting-item">
             <div>
               <strong>Modo escuro</strong>
-              <p>Troque entre um visual mais claro ou mais imersivo.</p>
+              <p>Ative um visual mais confortável para ambientes com pouca luz.</p>
             </div>
 
             <label class="switch">
-              <input type="checkbox" id="darkToggle">
+              <input type="checkbox" id="darkModeToggle">
               <span class="slider"></span>
             </label>
           </div>
         </article>
 
-        <article class="config-card danger-card">
-          <div class="card-head">
+        <article class="config-card">
+          <div class="card-top">
             <div>
               <span class="card-kicker">Sessão</span>
-              <h2>Conta e acesso</h2>
+              <h2>Acesso</h2>
             </div>
-            <div class="head-icon danger-icon">
-              <i data-lucide="log-out"></i>
+
+            <div class="card-icon">
+              <i data-lucide="shield-check"></i>
             </div>
           </div>
 
-          <p class="danger-copy">
-            Saia da sua conta neste dispositivo quando quiser proteger o acesso ou encerrar a sessão.
-          </p>
-
-          <button class="btn btn-logout logout">Sair da conta</button>
+          <div class="actions-box">
+            <button id="logoutBtn" class="danger-action" type="button">
+              <i data-lucide="log-out"></i>
+              <span>Sair da conta</span>
+            </button>
+          </div>
         </article>
       </div>
     </section>

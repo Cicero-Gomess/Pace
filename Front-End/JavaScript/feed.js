@@ -26,6 +26,8 @@ const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
 let postParaExcluirId = null;
 let postParaExcluirIndex = null;
+let comentarioParaExcluirId = null;
+let postDoComentarioId = null;
 
 /* ===== CACHE LOCAL DO FEED ===== */
 let postsCache = [];
@@ -35,10 +37,126 @@ const confirmDeleteModal = document.getElementById("confirmDeleteModal");
 const confirmDeleteBtn = document.getElementById("confirmDelete");
 const cancelDeleteBtn = document.getElementById("cancelDelete");
 
+const confirmDeleteCommentModal = document.getElementById("confirmDeleteCommentModal");
+const confirmDeleteCommentBtn = document.getElementById("confirmDeleteComment");
+const cancelDeleteCommentBtn = document.getElementById("cancelDeleteComment");
+
 /* ===== API ===== */
 const API_URL = "http://127.0.0.1:8000";
+const DEFAULT_AVATAR = "../Images/image.person.png";
 
-/* ===== MODAL EXCLUIR ===== */
+/* ===== HELPERS ===== */
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+async function parseResponse(response, mensagemPadrao) {
+  const texto = await response.text();
+  let data = {};
+
+  try {
+    data = texto ? JSON.parse(texto) : {};
+  } catch {
+    data = { detail: texto };
+  }
+
+  if (!response.ok) {
+    console.error("Erro da API:", {
+      url: response.url,
+      status: response.status,
+      data
+    });
+    throw new Error(data.detail || mensagemPadrao);
+  }
+
+  return data;
+}
+
+function formatarComentarioAPI(comentario) {
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+  const fotoUsuarioLogado =
+    usuarioLogado?.foto ||
+    usuarios[usuarioLogado?.username]?.foto ||
+    DEFAULT_AVATAR;
+
+  const nomeComentario =
+    comentario.nome ||
+    comentario.username ||
+    (usuarioLogado && comentario.usuario_id === usuarioLogado.id
+      ? usuarioLogado.username
+      : "Usuário");
+
+  const fotoComentario =
+    comentario.foto ||
+    comentario.foto_perfil ||
+    (usuarioLogado && comentario.usuario_id === usuarioLogado.id
+      ? fotoUsuarioLogado
+      : DEFAULT_AVATAR);
+
+  return {
+    id: comentario.id,
+    userId: comentario.usuario_id ?? null,
+    nome: nomeComentario,
+    texto: comentario.comentario || comentario.conteudo || comentario.texto || "",
+    foto: fotoComentario,
+    data: comentario.data_comentario || null
+  };
+}
+
+/* ===== API COMENTÁRIOS ===== */
+async function buscarComentariosPost(postId) {
+  try {
+    const response = await fetch(`${API_URL}/comments/comentarios/${postId}`, {
+      method: "GET"
+    });
+
+    const data = await parseResponse(response, "Erro ao buscar comentários.");
+    return Array.isArray(data) ? data.map(formatarComentarioAPI) : [];
+  } catch (erro) {
+    console.error(`Falha ao buscar comentários do post ${postId}:`, erro);
+    return [];
+  }
+}
+
+async function adicionarComentarioAPI(postId, conteudo) {
+  const token = getToken();
+
+  const response = await fetch(`${API_URL}/comments/adicionar_comentario/${postId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ conteudo })
+  });
+
+  const data = await parseResponse(response, "Erro ao adicionar comentário.");
+  return formatarComentarioAPI(data);
+}
+
+async function deletarComentarioAPI(comentarioId) {
+  const token = getToken();
+
+  const response = await fetch(`${API_URL}/comments/deletar_comentario/${comentarioId}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  return await parseResponse(response, "Erro ao deletar comentário.");
+}
+
+/* ===== MODAIS ===== */
 function abrirModalExcluir(postId, postIndex) {
   postParaExcluirId = postId;
   postParaExcluirIndex = postIndex;
@@ -49,6 +167,18 @@ function fecharModalExcluir() {
   postParaExcluirId = null;
   postParaExcluirIndex = null;
   confirmDeleteModal.classList.add("hidden");
+}
+
+function abrirModalExcluirComentario(comentarioId, postId) {
+  comentarioParaExcluirId = comentarioId;
+  postDoComentarioId = postId;
+  confirmDeleteCommentModal.classList.remove("hidden");
+}
+
+function fecharModalExcluirComentario() {
+  comentarioParaExcluirId = null;
+  postDoComentarioId = null;
+  confirmDeleteCommentModal.classList.add("hidden");
 }
 
 confirmDeleteBtn?.addEventListener("click", async () => {
@@ -80,9 +210,7 @@ confirmDeleteBtn?.addEventListener("click", async () => {
   }
 });
 
-cancelDeleteBtn?.addEventListener("click", () => {
-  fecharModalExcluir();
-});
+cancelDeleteBtn?.addEventListener("click", fecharModalExcluir);
 
 confirmDeleteModal?.addEventListener("click", event => {
   if (event.target === confirmDeleteModal) {
@@ -90,10 +218,39 @@ confirmDeleteModal?.addEventListener("click", event => {
   }
 });
 
+confirmDeleteCommentBtn?.addEventListener("click", async () => {
+  if (comentarioParaExcluirId === null || postDoComentarioId === null) return;
+
+  try {
+    await deletarComentarioAPI(comentarioParaExcluirId);
+
+    const post = postsCache.find(item => item.id === postDoComentarioId);
+    if (post) {
+      post.comentarios = (post.comentarios || []).filter(
+        item => item.id !== comentarioParaExcluirId
+      );
+    }
+
+    fecharModalExcluirComentario();
+    renderPostsFromCache();
+  } catch (err) {
+    alert(err.message);
+    fecharModalExcluirComentario();
+  }
+});
+
+cancelDeleteCommentBtn?.addEventListener("click", fecharModalExcluirComentario);
+
+confirmDeleteCommentModal?.addEventListener("click", event => {
+  if (event.target === confirmDeleteCommentModal) {
+    fecharModalExcluirComentario();
+  }
+});
+
 /* ===== POSTS ===== */
 async function getPosts() {
   try {
-    const token = localStorage.getItem("token");
+    const token = getToken();
 
     const response = await fetch(`${API_URL}/post/feed`, {
       headers: {
@@ -101,13 +258,9 @@ async function getPosts() {
       }
     });
 
-    if (!response.ok) {
-      throw new Error("Erro ao buscar feed.");
-    }
+    const data = await parseResponse(response, "Erro ao buscar feed.");
 
-    const data = await response.json();
-
-    return data.map(post => ({
+    const postsBase = data.map(post => ({
       id: post.id,
       userId: post.usuario.id,
       nome: post.usuario.username,
@@ -116,10 +269,18 @@ async function getPosts() {
       imagem: post.imagem,
       likes: post.likes ?? 0,
       liked: post.liked ?? false,
-      username: post.usuario.username,
-      foto: post.usuario.foto_perfil || "../Images/image.person.png",
+      foto: post.usuario.foto_perfil || DEFAULT_AVATAR,
       data: post.data_postagem,
       comentarios: []
+    }));
+
+    const comentariosPorPost = await Promise.all(
+      postsBase.map(post => buscarComentariosPost(post.id))
+    );
+
+    return postsBase.map((post, index) => ({
+      ...post,
+      comentarios: comentariosPorPost[index]
     }));
   } catch (e) {
     console.error("Erro ao buscar feed:", e);
@@ -134,7 +295,7 @@ async function carregarPosts() {
 
 /* ===== API POSTS ===== */
 async function deletarPostAPI(postId) {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const response = await fetch(`${API_URL}/post/deletar/${postId}`, {
     method: "DELETE",
@@ -143,16 +304,11 @@ async function deletarPostAPI(postId) {
     }
   });
 
-  if (!response.ok) {
-    const erro = await response.json();
-    throw new Error(erro.detail || "Erro ao deletar");
-  }
-
-  return await response.json();
+  return await parseResponse(response, "Erro ao deletar post.");
 }
 
 async function curtirPostAPI(postId) {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const response = await fetch(`${API_URL}/post/curtir/${postId}`, {
     method: "POST",
@@ -161,17 +317,11 @@ async function curtirPostAPI(postId) {
     }
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Erro ao curtir post.");
-  }
-
-  return data;
+  return await parseResponse(response, "Erro ao curtir post.");
 }
 
 async function removerCurtidaAPI(postId) {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const response = await fetch(`${API_URL}/post/remover_curtida/${postId}`, {
     method: "DELETE",
@@ -180,13 +330,7 @@ async function removerCurtidaAPI(postId) {
     }
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Erro ao remover curtida.");
-  }
-
-  return data;
+  return await parseResponse(response, "Erro ao remover curtida.");
 }
 
 /* ===== EMPTY STATE ===== */
@@ -231,51 +375,54 @@ function renderPostsFromCache() {
         ? "Você"
         : post.nome;
 
-    const fotoUsuario = post.foto || "../Images/image.person.png";
+    const fotoUsuario = post.foto || DEFAULT_AVATAR;
 
     const botaoExcluir =
       usuarioLogado && post.userId === usuarioLogado.id
-        ? `<button class="btn-excluir">
+        ? `<button class="btn-excluir" type="button" aria-label="Excluir post">
              <i data-lucide="trash-2"></i>
            </button>`
         : "";
 
     const comentariosHTML = (post.comentarios || []).map(c => `
-      <div class="comentario">
-        <img src="../Images/image.person.png" class="comentario-avatar">
+      <div class="comentario" data-comentario-id="${c.id ?? ""}">
+        <img src="${escapeHtml(c.foto || DEFAULT_AVATAR)}" class="comentario-avatar" alt="Foto de ${escapeHtml(c.nome)}">
 
-        <div class="comentario-conteudo">
-          <span class="comentario-nome">${c.nome}</span>
-          <span class="comentario-texto">${c.texto}</span>
+        <div class="comentario-bloco">
+          <div class="comentario-conteudo">
+            <div class="comentario-topo">
+              <span class="comentario-nome">${escapeHtml(c.nome)}</span>
+              ${
+                usuarioLogado && c.userId === usuarioLogado.id
+                  ? `<button class="btn-excluir-comentario" type="button" aria-label="Excluir comentário">
+                       <i data-lucide="x"></i>
+                     </button>`
+                  : ""
+              }
+            </div>
+            <span class="comentario-texto">${escapeHtml(c.texto)}</span>
+          </div>
         </div>
-
-        ${
-          usuarioLogado && c.userId === usuarioLogado.id
-            ? `<button class="btn-excluir-comentario">
-                 <i data-lucide="x"></i>
-               </button>`
-            : ""
-        }
       </div>
     `).join("");
 
     card.innerHTML = `
       <div class="post-topo">
-        <img src="${fotoUsuario}" class="avatar">
+        <img src="${escapeHtml(fotoUsuario)}" class="avatar">
 
         <div class="info">
-          <strong>${nomeExibido}</strong>
-          <span>${post.usuario}</span>
+          <strong>${escapeHtml(nomeExibido)}</strong>
+          <span>${escapeHtml(post.usuario)}</span>
         </div>
 
         ${botaoExcluir}
       </div>
 
-      <p class="post-texto">${post.texto || ""}</p>
+      <p class="post-texto">${escapeHtml(post.texto || "")}</p>
 
       ${
         post.imagem
-          ? `<img src="${post.imagem}" class="post-img">`
+          ? `<img src="${escapeHtml(post.imagem)}" class="post-img">`
           : ""
       }
 
@@ -291,7 +438,7 @@ function renderPostsFromCache() {
 
       <div class="add-comentario">
         <input type="text" placeholder="Escreva um comentário..." class="input-comentario">
-        <button class="btn-comentar">➤</button>
+        <button class="btn-comentar" type="button" aria-label="Enviar comentário">➤</button>
       </div>
     `;
 
@@ -305,8 +452,6 @@ carregarPosts();
 
 /* ===== EVENTOS ===== */
 document.addEventListener("click", async e => {
-  const postsLocal = JSON.parse(localStorage.getItem("posts")) || [];
-
   const like = e.target.closest(".like");
   if (like) {
     const card = like.closest(".card");
@@ -323,14 +468,10 @@ document.addEventListener("click", async e => {
     post.liked = !post.liked;
     post.likes += post.liked ? 1 : -1;
 
-    if (post.likes < 0) {
-      post.likes = 0;
-    }
+    if (post.likes < 0) post.likes = 0;
 
     const countEl = like.querySelector(".count");
-    if (countEl) {
-      countEl.textContent = post.likes;
-    }
+    if (countEl) countEl.textContent = post.likes;
 
     like.classList.toggle("liked", post.liked);
 
@@ -344,22 +485,21 @@ document.addEventListener("click", async e => {
       post.liked = likedAnterior;
       post.likes = likesAnterior;
 
-      if (countEl) {
-        countEl.textContent = post.likes;
-      }
-
+      if (countEl) countEl.textContent = post.likes;
       like.classList.toggle("liked", post.liked);
+
       alert(err.message);
     }
 
     return;
   }
 
-  if (e.target.classList.contains("btn-comentar")) {
-    const card = e.target.closest(".card");
+  const botaoComentar = e.target.closest(".btn-comentar");
+  if (botaoComentar) {
+    const card = botaoComentar.closest(".card");
     const input = card.querySelector(".input-comentario");
-
     const texto = input.value.trim();
+
     if (!texto) return;
 
     const postId = Number(card.dataset.postId);
@@ -367,31 +507,37 @@ document.addEventListener("click", async e => {
 
     if (!post) return;
 
-    const comentario = {
-      userId: usuarioLogado ? usuarioLogado.id : null,
-      nome: usuarioLogado ? usuarioLogado.username : "Usuário",
-      texto: texto
-    };
+    botaoComentar.disabled = true;
 
-    if (!post.comentarios) {
-      post.comentarios = [];
-    }
+    try {
+      const comentarioCriado = await adicionarComentarioAPI(postId, texto);
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
 
-    post.comentarios.push(comentario);
-
-    const cards = document.querySelectorAll(".card");
-    const index = Array.from(cards).indexOf(card);
-
-    if (index !== -1) {
-      if (!postsLocal[index]?.comentarios) {
-        postsLocal[index].comentarios = [];
+      if (!comentarioCriado.nome && usuarioLogado) {
+        comentarioCriado.nome = usuarioLogado.username;
       }
 
-      postsLocal[index].comentarios.push(comentario);
-      localStorage.setItem("posts", JSON.stringify(postsLocal));
+      if (!comentarioCriado.foto) {
+        comentarioCriado.foto =
+          usuarioLogado?.foto ||
+          usuarios[usuarioLogado?.username]?.foto ||
+          DEFAULT_AVATAR;
+      }
+
+      if (!post.comentarios) {
+        post.comentarios = [];
+      }
+
+      post.comentarios.unshift(comentarioCriado);
+      input.value = "";
+      renderPostsFromCache();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      botaoComentar.disabled = false;
     }
 
-    renderPostsFromCache();
+    return;
   }
 
   if (e.target.closest(".btn-excluir")) {
@@ -412,48 +558,38 @@ document.addEventListener("click", async e => {
     }
 
     abrirModalExcluir(post.id, index);
+    return;
   }
 
-  if (e.target.closest(".btn-excluir-comentario")) {
-    const comentarioEl = e.target.closest(".comentario");
-    const card = e.target.closest(".card");
+  const botaoExcluirComentario = e.target.closest(".btn-excluir-comentario");
+  if (botaoExcluirComentario) {
+    const comentarioEl = botaoExcluirComentario.closest(".comentario");
+    const card = botaoExcluirComentario.closest(".card");
     const postId = Number(card.dataset.postId);
+    const comentarioId = Number(comentarioEl.dataset.comentarioId);
 
     const post = postsCache.find(p => p.id === postId);
     if (!post) return;
 
-    const comentariosEls = card.querySelectorAll(".comentario");
-    const comentarioIndex = Array.from(comentariosEls).indexOf(comentarioEl);
+    const comentario = (post.comentarios || []).find(item => item.id === comentarioId);
+    if (!comentario) return;
 
-    if (comentarioIndex === -1) return;
-
-    const comentarios = post.comentarios || [];
-
-    if (!comentarios[comentarioIndex]) return;
-
-    if (comentarios[comentarioIndex].userId !== usuarioLogado.id) {
+    if (comentario.userId !== usuarioLogado.id) {
       alert("Você não pode excluir este comentário.");
       return;
     }
 
-    comentarios.splice(comentarioIndex, 1);
-
-    const cards = document.querySelectorAll(".card");
-    const postIndex = Array.from(cards).indexOf(card);
-
-    if (postIndex !== -1) {
-      const postsLocalAtualizados = JSON.parse(localStorage.getItem("posts")) || [];
-      const comentariosLocal = postsLocalAtualizados[postIndex]?.comentarios || [];
-
-      comentariosLocal.splice(comentarioIndex, 1);
-
-      if (postsLocalAtualizados[postIndex]) {
-        postsLocalAtualizados[postIndex].comentarios = comentariosLocal;
-      }
-
-      localStorage.setItem("posts", JSON.stringify(postsLocalAtualizados));
-    }
-
-    renderPostsFromCache();
+    abrirModalExcluirComentario(comentarioId, postId);
   }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || !e.target.classList.contains("input-comentario")) {
+    return;
+  }
+
+  e.preventDefault();
+  const card = e.target.closest(".card");
+  const botao = card?.querySelector(".btn-comentar");
+  botao?.click();
 });

@@ -54,7 +54,6 @@ class FeedPostSchema(BaseModel):
         from_attributes = True
 
 
-
 class AtualizarSenhaSchema(BaseModel):
     senha_atual: str
     nova_senha: str
@@ -62,17 +61,19 @@ class AtualizarSenhaSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ComentarioSchema(BaseModel):
     conteudo: str
 
     class Config:
         from_attributes = True
 
+
 class ComentarioResponseSchema(BaseModel):
     id: int
     usuario_id: int
     post_id: int
-    conteudo: str
+    comentario: str
     data_comentario: datetime
 
     class Config:
