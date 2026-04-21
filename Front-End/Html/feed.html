@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed</title>
 
-<link rel="stylesheet" href="../Css/feed.css">
-<script src="https://unpkg.com/lucide@latest"></script>
-
+  <link rel="stylesheet" href="../Css/feed.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
-  <img src="../Images/Ícone_Pace.png" class="logo">
+    <a href="feed.html" class="active">
+      <i data-lucide="home" class="icon"></i>
+      <span class="text">Feed</span>
+    </a>
 
-  <a href="feed.html" class="active">
-    <i data-lucide="home" class="icon"></i>
-    <span class="text">Feed</span>
-  </a>
+    <a href="#">
+      <i data-lucide="target" class="icon"></i>
+      <span class="text">Metas</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="target" class="icon"></i>
-    <span class="text">Metas</span>
-  </a>
+    <a href="explorar.html">
+      <i data-lucide="compass" class="icon"></i>
+      <span class="text">Explorar</span>
+    </a>
 
-  <a href="explorar.html">
-    <i data-lucide="compass" class="icon"></i>
-    <span class="text">Explorar</span>
-  </a>
+    <a href="postar.html">
+      <i data-lucide="plus-square" class="icon"></i>
+      <span class="text">Postar</span>
+    </a>
 
-  <a href="postar.html">
-    <i data-lucide="plus-square" class="icon"></i>
-    <span class="text">Postar</span>
-  </a>
+    <a href="#">
+      <i data-lucide="bell" class="icon"></i>
+      <span class="text">Notificações</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="bell" class="icon"></i>
-    <span class="text">Notificações</span>
-  </a>
+    <div class="divisor"></div>
 
-  <div class="divisor"></div>
+    <a href="../Html/configurações.html">
+      <i data-lucide="settings" class="icon"></i>
+      <span class="text">Configurações</span>
+    </a>
 
-  <a href="../Html/configurações.html">
-    <i data-lucide="settings" class="icon"></i>
-    <span class="text">Configurações</span>
-  </a>
+    <a href="perfil.html" class="perfil">
+      <img id="fotoSidebar" class="foto-perfil" alt="Foto do perfil">
+      <span class="text">Perfil</span>
+    </a>
+  </aside>
 
-<a href="perfil.html" class="perfil">
-    <img id="fotoSidebar" class="foto-perfil">
-    <span class="text">Perfil</span>
-  </a>
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="conteudo">
+    <section class="hero-feed">
+      <div class="hero-copy">
+        <span class="badge-feed">Comunidade em movimento</span>
+        <h1>Seu feed no Pace</h1>
+        <p>
+          Acompanhe o que a comunidade está construindo, compartilhe progresso e
+          mantenha sua rotina cercada de pessoas que também estão evoluindo.
+        </p>
+      </div>
 
-</div>
+      <a href="postar.html" class="hero-cta">
+        <i data-lucide="square-pen"></i>
+        <span>Criar post</span>
+      </a>
+    </section>
 
-<!-- ===== CONTEÚDO ===== -->
-<div class="conteudo">
+    <section class="feed-shell">
+      <div class="feed-header">
+        <div>
+          <span class="feed-kicker">Atualizações</span>
+          <h2>Posts recentes</h2>
+        </div>
+      </div>
 
-  <!-- FILTRO DE COMUNIDADE -->
-<div class="filtro-comunidade">
+      <div id="feed"></div>
+    </section>
+  </main>
 
-  <button data-com="todas" class="active">🌍 Todas</button>
-  <button data-com="programacao">💻 Programação</button>
-  <button data-com="estudos">📚 Estudos</button>
-  <button data-com="academia">💪 Academia</button>
-  <button data-com="mindset">🧠 Mindset</button>
-
-  <!-- 🔥 underline animado -->
-  <div class="underline-bar"></div>
-
-</div>
-
-  <!-- FEED DE POSTS -->
-  <div id="feed"></div>
-
-</div>
-
-  <!-- MODAL DE CONFIRMAÇÃO -->
+  <!-- ===== MODAL DE CONFIRMAÇÃO ===== -->
   <div id="confirmDeleteModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">
@@ -87,6 +94,7 @@
           <p>Tem certeza que deseja excluir este post?</p>
         </div>
       </div>
+
       <div class="modal-actions">
         <button id="cancelDelete" class="btn-secondary">Cancelar</button>
         <button id="confirmDelete" class="btn-danger">Excluir</button>
@@ -94,8 +102,6 @@
     </div>
   </div>
 
-<!-- ===== SCRIPT ===== -->
-<script src="../JavaScript/feed.js"></script>
-
+  <script src="../JavaScript/feed.js"></script>
 </body>
 </html>

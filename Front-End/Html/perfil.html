@@ -1,116 +1,158 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfil</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil</title>
 
-<link rel="stylesheet" href="../Css/perfil.css">
-<script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../Css/perfil.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
 
-  <img src="../Images/Ícone_Pace.png" class="logo">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
-  <a href="feed.html">
-    <i data-lucide="home" class="icon"></i>
-    <span class="text">Feed</span>
-  </a>
+    <a href="feed.html">
+      <i data-lucide="home" class="icon"></i>
+      <span class="text">Feed</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="target" class="icon"></i>
-    <span class="text">Metas</span>
-  </a>
+    <a href="#">
+      <i data-lucide="target" class="icon"></i>
+      <span class="text">Metas</span>
+    </a>
 
-  <a href="explorar.html">
-    <i data-lucide="compass" class="icon"></i>
-    <span class="text">Explorar</span>
-  </a>
+    <a href="explorar.html">
+      <i data-lucide="compass" class="icon"></i>
+      <span class="text">Explorar</span>
+    </a>
 
-  <a href="postar.html">
-    <i data-lucide="plus-square" class="icon"></i>
-    <span class="text">Postar</span>
-  </a>
+    <a href="postar.html">
+      <i data-lucide="plus-square" class="icon"></i>
+      <span class="text">Postar</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="bell" class="icon"></i>
-    <span class="text">Notificações</span>
-  </a>
+    <a href="#">
+      <i data-lucide="bell" class="icon"></i>
+      <span class="text">Notificações</span>
+    </a>
 
-  <div class="divisor"></div>
+    <div class="divisor"></div>
 
-  <a href="../Html/configurações.html">
-    <i data-lucide="settings" class="icon"></i>
-    <span class="text">Configurações</span>
-  </a>
+    <a href="../Html/configurações.html">
+      <i data-lucide="settings" class="icon"></i>
+      <span class="text">Configurações</span>
+    </a>
 
-  <a href="perfil.html" class="perfil active">
-    <img class="foto-perfil">
-    <span class="text">Perfil</span>
-  </a>
+    <a href="perfil.html" class="perfil active">
+      <img class="foto-perfil" alt="Foto do perfil">
+      <span class="text">Perfil</span>
+    </a>
+  </aside>
 
-</div>
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="conteudo">
+    <section class="hero-perfil">
+      <div class="hero-topo">
+        <span class="badge-perfil">Seu espaço no Pace</span>
+        <h1>Meu Perfil</h1>
+        <p class="hero-sub">
+          Acompanhe sua presença na comunidade, organize sua identidade e veja o impacto dos seus posts.
+        </p>
+      </div>
 
-<!-- ===== CONTEÚDO ===== -->
-<div class="conteudo">
+      <div class="card-perfil">
+        <div class="perfil-header">
+          <div class="foto-container">
+            <div class="foto-ring">
+              <img id="fotoPerfil" alt="Foto do perfil">
+            </div>
 
-  <div class="card-perfil">
+            <label for="inputFoto" class="btn-trocar">
+              <i data-lucide="camera"></i>
+              <span>Trocar foto</span>
+            </label>
 
-    <h2>Meu Perfil</h2>
+            <input type="file" id="inputFoto" hidden>
+          </div>
 
-    <div class="foto-container">
-      <img id="fotoPerfil">
+          <div class="info-perfil">
+            <div class="perfil-identidade">
+              <h2 id="nomeUsuario"></h2>
+              <p id="emailUsuario"></p>
+            </div>
 
-      <label for="inputFoto" class="btn-trocar">
-        📷 Trocar foto
-      </label>
+            <div class="perfil-stats">
+              <div class="stat-card">
+                <strong id="totalPosts">0</strong>
+                <span>Posts</span>
+              </div>
 
-      <input type="file" id="inputFoto" hidden>
+              <div class="stat-card">
+                <strong id="totalLikes">0</strong>
+                <span>Curtidas</span>
+              </div>
+
+              <div class="stat-card">
+                <strong id="totalComentarios">0</strong>
+                <span>Comentários</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="perfil-bio">
+          <div class="bio-topo">
+            <h3>Sua bio</h3>
+            <button id="salvarBio">Salvar</button>
+          </div>
+
+          <textarea id="bioUsuario" placeholder="Escreva algo sobre você, seus objetivos e sua jornada..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloco-posts">
+      <div class="secao-head">
+        <div>
+          <span class="secao-kicker">Galeria</span>
+          <h3 class="titulo-secao">Minhas Imagens</h3>
+        </div>
+      </div>
+
+      <div id="postsImagem"></div>
+    </section>
+
+    <section class="bloco-posts">
+      <div class="secao-head">
+        <div>
+          <span class="secao-kicker">Conteúdo</span>
+          <h3 class="titulo-secao">Meus Posts</h3>
+        </div>
+      </div>
+
+      <div id="postsTexto"></div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div id="modalPost" class="modal hidden">
+    <div class="modal-content">
+      <button id="fecharModal" aria-label="Fechar modal">&times;</button>
+      <img id="modalImg" alt="Imagem do post">
+      <p id="modalTexto"></p>
+      <div class="modal-info">
+        ❤️ <span id="modalLikes"></span>
+        💬 <span id="modalComentarios"></span>
+      </div>
     </div>
-
-    <div class="info-perfil">
-      <p><strong>Nome:</strong> <span id="nomeUsuario"></span></p>
-      <p><strong>Email:</strong> <span id="emailUsuario"></span></p>
-    </div>
-
-    <div class="perfil-stats">
-      <div><strong id="totalPosts">0</strong><span>Posts</span></div>
-      <div><strong id="totalLikes">0</strong><span>Likes</span></div>
-      <div><strong id="totalComentarios">0</strong><span>Comentários</span></div>
-    </div>
-
-    <div class="perfil-bio">
-      <textarea id="bioUsuario" placeholder="Escreva sua bio..."></textarea>
-      <button id="salvarBio">Salvar</button>
-    </div>
-
   </div>
 
-  <!-- 🔥 NOVA SEPARAÇÃO -->
-  <h3 class="titulo-secao">📸 Minhas Imagens</h3>
-  <div id="postsImagem"></div>
-
-  <h3 class="titulo-secao">📝 Meus Posts</h3>
-  <div id="postsTexto"></div>
-
-</div>
-
-<!-- MODAL -->
-<div id="modalPost" class="modal hidden">
-  <div class="modal-content">
-    <span id="fecharModal">&times;</span>
-    <img id="modalImg">
-    <p id="modalTexto"></p>
-    <div class="modal-info">
-      ❤️ <span id="modalLikes"></span>
-      💬 <span id="modalComentarios"></span>
-    </div>
-  </div>
-</div>
-
-<script src="../JavaScript/perfil.js"></script>
+  <script src="../JavaScript/perfil.js"></script>
 </body>
 </html>

@@ -1,79 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Explorar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar</title>
 
-<link rel="stylesheet" href="../Css/explorar.css">
-<script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../Css/explorar.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
+  <aside class="sidebar">
+    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
-  <img src="../Images/Ícone_Pace.png" class="logo">
+    <a href="feed.html">
+      <i data-lucide="home" class="icon"></i>
+      <span class="text">Feed</span>
+    </a>
 
-  <a href="feed.html">
-    <i data-lucide="home" class="icon"></i>
-    <span class="text">Feed</span>
-  </a>
+    <a href="#">
+      <i data-lucide="target" class="icon"></i>
+      <span class="text">Metas</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="target" class="icon"></i>
-    <span class="text">Metas</span>
-  </a>
+    <a href="explorar.html" class="active">
+      <i data-lucide="compass" class="icon"></i>
+      <span class="text">Explorar</span>
+    </a>
 
-  <a href="explorar.html" class="active">
-    <i data-lucide="compass" class="icon"></i>
-    <span class="text">Explorar</span>
-  </a>
+    <a href="postar.html">
+      <i data-lucide="plus-square" class="icon"></i>
+      <span class="text">Postar</span>
+    </a>
 
-  <a href="postar.html">
-    <i data-lucide="plus-square" class="icon"></i>
-    <span class="text">Postar</span>
-  </a>
+    <a href="#">
+      <i data-lucide="bell" class="icon"></i>
+      <span class="text">Notificações</span>
+    </a>
 
-  <a href="#">
-    <i data-lucide="bell" class="icon"></i>
-    <span class="text">Notificações</span>
-  </a>
+    <div class="divisor"></div>
 
-  <div class="divisor"></div>
+    <a href="../Html/configurações.html">
+      <i data-lucide="settings" class="icon"></i>
+      <span class="text">Configurações</span>
+    </a>
 
-  <a href="../Html/configurações.html">
-    <i data-lucide="settings" class="icon"></i>
-    <span class="text">Configurações</span>
-  </a>
+    <a href="perfil.html" class="perfil">
+      <img class="foto-perfil" alt="Foto do perfil">
+      <span class="text">Perfil</span>
+    </a>
+  </aside>
 
-  <a href="perfil.html" class="perfil">
-    <img class="foto-perfil">
-    <span class="text">Perfil</span>
-  </a>
+  <main class="conteudo">
+    <section class="hero-explorar">
+      <div class="hero-copy">
+        <span class="badge-explorar">Descubra novas conexões</span>
+        <h1>Explore pessoas, ideias e energia</h1>
+        <p>
+          Encontre perfis inspiradores, tópicos em alta e conteúdos que podem te
+          ajudar a construir uma rotina mais forte dentro do Pace.
+        </p>
+      </div>
 
-</div>
+      <a href="postar.html" class="hero-cta">
+        <i data-lucide="sparkles"></i>
+        <span>Compartilhar algo</span>
+      </a>
+    </section>
 
-<!-- CONTEÚDO -->
-<div class="conteudo">
+    <section class="painel-explorar">
+      <div class="busca-shell">
+        <div class="busca-box">
+          <i data-lucide="search"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Pesquisar pessoas, hábitos, ideias ou palavras-chave"
+          >
+        </div>
 
-  <h2>✨ Para você</h2>
-  <div id="explorarRecomendado" class="explorar-grid"></div>
+        <div class="chips" id="chips">
+          <button class="chip active" data-filter="todos">Tudo</button>
+          <button class="chip" data-filter="disciplina">Disciplina</button>
+          <button class="chip" data-filter="produtividade">Produtividade</button>
+          <button class="chip" data-filter="mindset">Mindset</button>
+          <button class="chip" data-filter="academia">Academia</button>
+          <button class="chip" data-filter="estudos">Estudos</button>
+        </div>
+      </div>
 
-  <h2>🔥 Em alta</h2>
-  <div id="explorarTrending" class="explorar-grid"></div>
+      <section class="destaque-grid">
+        <article class="highlight-card highlight-main">
+          <span class="highlight-kicker">Em alta agora</span>
+          <h2>Pequenas rotinas, grandes viradas</h2>
+          <p>
+            Descubra pessoas que estão mostrando consistência real e compartilhe
+            sua própria evolução com a comunidade.
+          </p>
+          <div class="highlight-meta">
+            <span><i data-lucide="flame"></i> Tendências quentes</span>
+            <span><i data-lucide="users"></i> Comunidade ativa</span>
+          </div>
+        </article>
 
-  <h2>💻 Programação</h2>
-  <div id="explorarProgramacao" class="explorar-grid"></div>
+        <article class="highlight-card">
+          <span class="mini-kicker">Sugestão do dia</span>
+          <h3>Encontre parceiros de evolução</h3>
+          <p>Perfis com hábitos parecidos com os seus podem acelerar sua constância.</p>
+        </article>
 
-  <h2>📚 Estudos</h2>
-  <div id="explorarEstudos" class="explorar-grid"></div>
+        <article class="highlight-card">
+          <span class="mini-kicker">Nova energia</span>
+          <h3>Conteúdos para sair da inércia</h3>
+          <p>Veja posts curtos e diretos para te colocar em movimento hoje.</p>
+        </article>
+      </section>
 
-  <h2>💪 Academia</h2>
-  <div id="explorarAcademia" class="explorar-grid"></div>
+      <section class="secao-explorar">
+        <div class="secao-topo">
+          <div>
+            <span class="secao-kicker">Perfis</span>
+            <h2>Pessoas para acompanhar</h2>
+          </div>
+        </div>
 
-</div>
+        <div id="profilesGrid" class="profiles-grid"></div>
+      </section>
 
-<script src="../JavaScript/explorar.js"></script>
+      <section class="secao-explorar">
+        <div class="secao-topo">
+          <div>
+            <span class="secao-kicker">Inspiração</span>
+            <h2>Ideias e trilhas de foco</h2>
+          </div>
+        </div>
+
+        <div id="ideasGrid" class="ideas-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="../JavaScript/explorar.js"></script>
 </body>
 </html>
