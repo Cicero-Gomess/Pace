@@ -8,6 +8,7 @@ lucide.createIcons();
 
 /* ===== API ===== */
 const API_URL = "http://127.0.0.1:8000";
+const PERFIL_STATS_CACHE_KEY = "perfilStatsCache";
 
 /* ===== USUÁRIO ===== */
 let usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -211,6 +212,27 @@ async function getPostsAPI() {
   }
 }
 
+/* ===== CACHE DE STATS ===== */
+function carregarStatsCache() {
+  const cache = JSON.parse(localStorage.getItem(PERFIL_STATS_CACHE_KEY));
+
+  if (!cache || cache.userId !== usuario.id) return;
+
+  document.getElementById("totalPosts").innerText = cache.totalPosts ?? 0;
+  document.getElementById("totalLikes").innerText = cache.totalLikes ?? 0;
+  document.getElementById("totalComentarios").innerText = cache.totalComentarios ?? 0;
+}
+
+function salvarStatsCache(stats) {
+  localStorage.setItem(
+    PERFIL_STATS_CACHE_KEY,
+    JSON.stringify({
+      userId: usuario.id,
+      ...stats
+    })
+  );
+}
+
 /* ===== STATS ===== */
 async function carregarStatsUsuario() {
   const posts = await getPostsAPI();
@@ -224,9 +246,17 @@ async function carregarStatsUsuario() {
     totalComentarios += (post.comentarios || []).length;
   });
 
-  document.getElementById("totalPosts").innerText = meusPosts.length;
-  document.getElementById("totalLikes").innerText = totalLikes;
-  document.getElementById("totalComentarios").innerText = totalComentarios;
+  const stats = {
+    totalPosts: meusPosts.length,
+    totalLikes,
+    totalComentarios
+  };
+
+  document.getElementById("totalPosts").innerText = stats.totalPosts;
+  document.getElementById("totalLikes").innerText = stats.totalLikes;
+  document.getElementById("totalComentarios").innerText = stats.totalComentarios;
+
+  salvarStatsCache(stats);
 }
 
 /* ===== REINICIAR ANIMAÇÃO ===== */
@@ -324,6 +354,7 @@ modal.onclick = e => {
 /* ===== INIT ===== */
 async function initPerfil() {
   atualizarFotoGlobal();
+  carregarStatsCache();
   await carregarStatsUsuario();
   await carregarPostsUsuario();
 }

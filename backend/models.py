@@ -46,7 +46,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), nullable=False)
     conteudo = Column(Text, nullable=False)
-    imagem = Column(String(255))
+    imagem = Column(Text)
     data_postagem = Column(DateTime, server_default=func.now())
 
     usuario = relationship("User", back_populates="posts")
