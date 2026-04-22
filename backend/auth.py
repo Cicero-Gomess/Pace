@@ -46,31 +46,39 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 # 🔹 Criar usuário
 @auth_router.post("/criar_usuario")
 def criar_usuario(usuario_schema: UsuarioSchema, session: Session = Depends(pegar_sessao)):
+    try:
+        usuario_existente = session.query(User).filter(
+            (User.username == usuario_schema.username) |
+            (User.email == usuario_schema.email)
+        ).first()
 
-    usuario_existente = session.query(User).filter(
-        (User.username == usuario_schema.username) |
-        (User.email == usuario_schema.email)
-    ).first()
+        if usuario_existente:
+            raise HTTPException(status_code=400, detail="Nome de usuário ou email já existe.")
 
-    if usuario_existente:
-        raise HTTPException(status_code=400, detail="Nome de usuário ou email já existe.")
+        senha_hash = fazer_hash(usuario_schema.senha)
 
-    senha_hash = fazer_hash(usuario_schema.senha)
+        novo_usuario = User(
+            username=usuario_schema.username,
+            email=usuario_schema.email,
+            senha_hash=senha_hash
+        )
 
-    novo_usuario = User(
-        username=usuario_schema.username,
-        email=usuario_schema.email,
-        senha_hash=senha_hash
-    )
+        session.add(novo_usuario)
+        session.commit()
+        session.refresh(novo_usuario)
 
-    session.add(novo_usuario)
-    session.commit()
-    session.refresh(novo_usuario)
-
-    return {
-        "message": "Usuário criado com sucesso!",
-        "usuario_id": novo_usuario.id
-    }
+        return {
+            "message": "Usuário criado com sucesso!",
+            "usuario_id": novo_usuario.id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao criar o usuário"
+        )
 
 # 🔹 Login (email)
 @auth_router.post("/token")

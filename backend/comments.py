@@ -37,6 +37,34 @@ async def adicionar_comentario(
         session.rollback()
         raise HTTPException(status_code=500, detail="Erro ao adicionar o comentário")
 
+@comments_router.put("/atualizar_comentario/{comentario_id}", response_model=ComentarioResponseSchema)
+async def atualizar_comentario(
+    comentario_id: int,
+    comentario_schema: ComentarioSchema,
+    usuario=Depends(pegar_usuario_atual),
+    session: Session = Depends(pegar_sessao)
+):
+    try:
+        comentario = session.query(Comentario).filter(Comentario.id == comentario_id).first()
+
+        if not comentario:
+            raise HTTPException(status_code=404, detail="Comentário não encontrado.")
+
+        if comentario.usuario_id != usuario.id:
+            raise HTTPException(status_code=403, detail="Você não tem permissão para atualizar este comentário.")
+
+        comentario.comentario = comentario_schema.conteudo
+        session.commit()
+        session.refresh(comentario)
+
+        return comentario
+
+    except HTTPException:
+        raise
+    except Exception:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="Erro ao atualizar o comentário")
+
 @comments_router.delete("/deletar_comentario/{comentario_id}")
 async def deletar_comentario(
     comentario_id: int,

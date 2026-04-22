@@ -252,3 +252,25 @@ async def obter_post_por_id(
             status_code=500,
             detail=f"Erro ao obter o post: {str(e)}"
         )
+@post_router.put("/atualizar_post/{post_id}")
+async def atualizar_post(post_id: int,post_schema: PostSchema, session: Session = Depends(pegar_sessao), usuario_atual=Depends(pegar_usuario_atual)):
+    try:
+        post = session.query(Post).filter(Post.id == post_id).first()
+
+        if not post:
+            raise HTTPException(status_code=404, detail="Post não encontrado")
+        if post.usuario_id != usuario_atual.id:
+            raise HTTPException(status_code=403, detail="Você não tem permissão para editar esse post")
+        post.conteudo = post_schema.conteudo
+        post.imagem = post_schema.imagem
+
+        session.commit()
+
+        return {"message": "post atualizado com sucesso"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="Erro ao atualizar post")
+        
