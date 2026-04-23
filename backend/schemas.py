@@ -69,12 +69,22 @@ class ComentarioSchema(BaseModel):
         from_attributes = True
 
 
+class UsuarioComentarioSchema(BaseModel):
+    id: int
+    username: str
+    foto_perfil: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 class ComentarioResponseSchema(BaseModel):
     id: int
     usuario_id: int
     post_id: int
     comentario: str
     data_comentario: datetime
+    usuario: UsuarioComentarioSchema
 
     class Config:
         from_attributes = True

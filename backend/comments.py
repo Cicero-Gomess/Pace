@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from dependencies import pegar_sessao, pegar_usuario_atual
 from models import Comentario, Post
 from schemas import ComentarioSchema, ComentarioResponseSchema
@@ -29,13 +29,23 @@ async def adicionar_comentario(
         session.commit()
         session.refresh(novo_comentario)
 
-        return novo_comentario
+        comentario_com_usuario = (
+            session.query(Comentario)
+            .options(joinedload(Comentario.usuario))
+            .filter(Comentario.id == novo_comentario.id)
+            .first()
+        )
+
+        return comentario_com_usuario
 
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Erro ao adicionar o comentário")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao adicionar comentário: {str(e)}"
+        )
 
 @comments_router.put("/atualizar_comentario/{comentario_id}", response_model=ComentarioResponseSchema)
 async def atualizar_comentario(
@@ -48,22 +58,34 @@ async def atualizar_comentario(
         comentario = session.query(Comentario).filter(Comentario.id == comentario_id).first()
 
         if not comentario:
-            raise HTTPException(status_code=404, detail="Comentário não encontrado.")
+            raise HTTPException(status_code=404, detail="Comentário não encontrado")
 
         if comentario.usuario_id != usuario.id:
-            raise HTTPException(status_code=403, detail="Você não tem permissão para atualizar este comentário.")
+            raise HTTPException(status_code=403, detail="Sem permissão")
 
         comentario.comentario = comentario_schema.conteudo
+
         session.commit()
         session.refresh(comentario)
 
-        return comentario
+        comentario_com_usuario = (
+            session.query(Comentario)
+            .options(joinedload(Comentario.usuario))
+            .filter(Comentario.id == comentario.id)
+            .first()
+        )
+
+        return comentario_com_usuario
 
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Erro ao atualizar o comentário")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao atualizar comentário: {str(e)}"
+        )
+
 
 @comments_router.delete("/deletar_comentario/{comentario_id}")
 async def deletar_comentario(
@@ -75,30 +97,47 @@ async def deletar_comentario(
         comentario = session.query(Comentario).filter(Comentario.id == comentario_id).first()
 
         if not comentario:
-            raise HTTPException(status_code=404, detail="Comentário não encontrado.")
+            raise HTTPException(status_code=404, detail="Comentário não encontrado")
 
         if comentario.usuario_id != usuario.id:
-            raise HTTPException(status_code=403, detail="Você não tem permissão para deletar este comentário.")
+            raise HTTPException(status_code=403, detail="Sem permissão")
 
         session.delete(comentario)
         session.commit()
 
-        return {"message": "Comentário deletado com sucesso!"}
+        return {
+            "message": "Comentário deletado com sucesso",
+            "comentario_id": comentario_id
+        }
 
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=500,
-            detail="Erro ao deletar o comentário"
+            detail=f"Erro ao deletar comentário: {str(e)}"
         )
 
 @comments_router.get("/comentarios/{post_id}", response_model=list[ComentarioResponseSchema])
-async def obter_comentarios(post_id: int, session: Session = Depends(pegar_sessao)):
+async def obter_comentarios(
+    post_id: int,
+    session: Session = Depends(pegar_sessao)
+):
     try:
-        comentarios = session.query(Comentario).filter(Comentario.post_id == post_id).order_by(Comentario.data_comentario.desc()).limit(20).all()
+        comentarios = (
+            session.query(Comentario)
+            .options(joinedload(Comentario.usuario))
+            .filter(Comentario.post_id == post_id)
+            .order_by(Comentario.data_comentario.desc())
+            .limit(20)
+            .all()
+        )
+
         return comentarios
 
-    except Exception:
-        raise HTTPException(500, "Erro ao obter os comentários")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao obter comentários: {str(e)}"
+        )

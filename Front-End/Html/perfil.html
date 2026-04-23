@@ -13,7 +13,6 @@
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
 
-  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
@@ -50,12 +49,11 @@
     </a>
 
     <a href="perfil.html" class="perfil active">
-      <img class="foto-perfil" alt="Foto do perfil">
+      <img class="foto-perfil" src="../Images/image.person.png" alt="Foto do perfil">
       <span class="text">Perfil</span>
     </a>
   </aside>
 
-  <!-- ===== CONTEÚDO ===== -->
   <main class="conteudo">
     <section class="hero-perfil">
       <div class="hero-topo">
@@ -70,7 +68,7 @@
         <div class="perfil-header">
           <div class="foto-container">
             <div class="foto-ring">
-              <img id="fotoPerfil" alt="Foto do perfil">
+              <img id="fotoPerfil" class="foto-perfil" src="../Images/image.person.png" alt="Foto do perfil">
             </div>
 
             <label for="inputFoto" class="btn-trocar">
@@ -78,7 +76,7 @@
               <span>Trocar foto</span>
             </label>
 
-            <input type="file" id="inputFoto" hidden>
+            <input type="file" id="inputFoto" accept="image/*" hidden>
           </div>
 
           <div class="info-perfil">
@@ -140,7 +138,6 @@
     </section>
   </main>
 
-  <!-- MODAL -->
   <div id="modalPost" class="modal hidden">
     <div class="modal-content">
       <button id="fecharModal" aria-label="Fechar modal">&times;</button>
@@ -152,6 +149,8 @@
       </div>
     </div>
   </div>
+
+  <div id="toast" class="toast hidden"></div>
 
   <script src="../JavaScript/perfil.js"></script>
 </body>

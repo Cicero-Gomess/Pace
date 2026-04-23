@@ -92,16 +92,10 @@ async def deletar_post(
         post = session.query(Post).filter(Post.id == post_id).first()
 
         if not post:
-            raise HTTPException(
-                status_code=404,
-                detail="Post não encontrado."
-            )
+            raise HTTPException(status_code=404, detail="Post não encontrado.")
 
         if post.usuario_id != usuario_atual.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Você não tem permissão para deletar este post."
-            )
+            raise HTTPException(status_code=403, detail="Sem permissão.")
 
         session.delete(post)
         session.commit()
@@ -143,7 +137,7 @@ async def curtir_post(
         )
 
         if curtida:
-            raise HTTPException(status_code=400, detail="Você já curtiu esse post")
+            raise HTTPException(status_code=400, detail="Já curtiu")
 
         nova_curtida = Curtida(
             post_id=post_id,
@@ -153,17 +147,15 @@ async def curtir_post(
         session.add(nova_curtida)
         session.commit()
 
-        return {
-            "message": "Post curtido",
-            "post_id": post_id
-        }
+        return {"message": "Curtido"}
+
     except HTTPException:
         raise
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao curtir o post: {str(e)}"
+            detail=f"Erro ao curtir: {str(e)}"
         )
 
 @post_router.delete("/remover_curtida/{post_id}")
@@ -183,23 +175,22 @@ async def remover_curtida(
         )
 
         if not curtida:
-            raise HTTPException(status_code=404, detail="Você não curtiu esse post")
+            raise HTTPException(status_code=404, detail="Você não curtiu")
 
         session.delete(curtida)
         session.commit()
 
-        return {
-            "message": "Curtida removida com sucesso",
-            "post_id": post_id
-        }
+        return {"message": "Curtida removida"}
+
     except HTTPException:
         raise
     except Exception as e:
         session.rollback()
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao remover a curtida: {str(e)}"
+            detail=f"Erro ao remover curtida: {str(e)}"
         )
+
 
 
 @post_router.get("/{post_id}", response_model=FeedPostSchema)
@@ -209,17 +200,10 @@ async def obter_post_por_id(
     usuario_atual=Depends(pegar_usuario_atual)
 ):
     try:
-        post = (
-            session.query(Post)
-            .filter(Post.id == post_id)
-            .first()
-        )
+        post = session.query(Post).filter(Post.id == post_id).first()
 
         if not post:
-            raise HTTPException(
-                status_code=404,
-                detail="Post não encontrado."
-            )
+            raise HTTPException(status_code=404, detail="Post não encontrado.")
 
         total_curtidas = len(post.curtidas)
 
@@ -228,7 +212,7 @@ async def obter_post_por_id(
             for curtida in post.curtidas
         )
 
-        feed_post = FeedPostSchema(
+        return FeedPostSchema(
             id=post.id,
             conteudo=post.conteudo,
             imagem=post.imagem,
@@ -243,8 +227,6 @@ async def obter_post_por_id(
             }
         )
 
-        return feed_post
-
     except HTTPException:
         raise
     except Exception as e:
@@ -252,25 +234,38 @@ async def obter_post_por_id(
             status_code=500,
             detail=f"Erro ao obter o post: {str(e)}"
         )
-@post_router.put("/atualizar_post/{post_id}")
-async def atualizar_post(post_id: int,post_schema: PostSchema, session: Session = Depends(pegar_sessao), usuario_atual=Depends(pegar_usuario_atual)):
+
+
+
+@post_router.put("/atualizar_post/{post_id}", response_model=PostResponseSchema)
+async def atualizar_post(
+    post_id: int,
+    post_schema: PostSchema,
+    session: Session = Depends(pegar_sessao),
+    usuario_atual=Depends(pegar_usuario_atual)
+):
     try:
         post = session.query(Post).filter(Post.id == post_id).first()
 
         if not post:
             raise HTTPException(status_code=404, detail="Post não encontrado")
+
         if post.usuario_id != usuario_atual.id:
-            raise HTTPException(status_code=403, detail="Você não tem permissão para editar esse post")
+            raise HTTPException(status_code=403, detail="Sem permissão")
+
         post.conteudo = post_schema.conteudo
         post.imagem = post_schema.imagem
 
         session.commit()
+        session.refresh(post)
 
-        return {"message": "post atualizado com sucesso"}
-    
+        return post
+
     except HTTPException:
         raise
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Erro ao atualizar post")
-        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao atualizar post: {str(e)}"
+        )

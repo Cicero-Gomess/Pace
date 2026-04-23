@@ -82,6 +82,7 @@
     </section>
   </main>
 
+  <!-- ===== MODAL EXCLUIR POST ===== -->
   <div id="confirmDeleteModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">
@@ -99,6 +100,7 @@
     </div>
   </div>
 
+  <!-- ===== MODAL EXCLUIR COMENTÁRIO ===== -->
   <div id="confirmDeleteCommentModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">
@@ -112,6 +114,51 @@
       <div class="modal-actions">
         <button id="cancelDeleteComment" class="btn-secondary">Cancelar</button>
         <button id="confirmDeleteComment" class="btn-danger">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalEditarPost" class="edit-modal hidden">
+  <div class="edit-modal-card">
+    <button id="fecharEditarPost" class="edit-close" aria-label="Fechar">&times;</button>
+
+    <div class="edit-head">
+      <span class="edit-kicker">Editor de post</span>
+      <h3>Refinar publicação</h3>
+      <p>Atualize sua legenda com mais clareza antes de salvar.</p>
+    </div>
+
+    <div class="edit-body">
+      <label for="editPostTexto">Texto do post</label>
+      <textarea id="editPostTexto" placeholder="Digite aqui..."></textarea>
+    </div>
+
+    <div class="edit-actions">
+      <button id="cancelarEditarPost" class="btn-ghost">Cancelar</button>
+      <button id="salvarEditarPost" class="btn-primary">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- ===== NOVO: MODAL EDITAR COMENTÁRIO ===== -->
+  <div id="editCommentModal" class="modal-overlay hidden">
+    <div class="confirm-modal">
+      <div class="modal-header">
+        <i data-lucide="pencil-line" class="modal-icon"></i>
+        <div>
+          <h2>Editar comentário</h2>
+          <p>Altere seu comentário</p>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <textarea id="editCommentInput" placeholder="Digite o novo comentário..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelEditComment" class="btn-secondary">Cancelar</button>
+        <button id="confirmEditComment" class="btn-primary">Salvar</button>
       </div>
     </div>
   </div>
