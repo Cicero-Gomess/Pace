@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'index.dart';
 import 'entrar.dart';
+import 'feed.dart'; 
 
 void main() {
   runApp(const PaceApp());
@@ -22,15 +23,19 @@ class PaceApp extends StatelessWidget {
           case '/':
             page = const HomePage();
             break;
+
           case '/entrar':
             page = const EntrarPage();
             break;
+
           case '/cadastro':
             page = const CadastroPage();
             break;
+
           case '/feed':
-            page = const FeedPage();
+            page = const FeedPage(); // ✅ agora usa a correta
             break;
+
           default:
             page = const HomePage();
         }
@@ -40,7 +45,8 @@ class PaceApp extends StatelessWidget {
           transitionDuration: const Duration(milliseconds: 650),
           reverseTransitionDuration: const Duration(milliseconds: 500),
           pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
             final curved = CurvedAnimation(
               parent: animation,
               curve: Curves.easeOutCubic,
@@ -87,19 +93,6 @@ class CadastroPage extends StatelessWidget {
     return const Scaffold(
       body: Center(
         child: Text('Pagina de cadastro'),
-      ),
-    );
-  }
-}
-
-class FeedPage extends StatelessWidget {
-  const FeedPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Pagina feed'),
       ),
     );
   }

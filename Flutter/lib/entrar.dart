@@ -20,14 +20,11 @@ class _EntrarPageState extends State<EntrarPage> {
   final TextEditingController _senhaController = TextEditingController();
 
   bool _carregando = false;
-  bool _mostrarSenha = false;
   String _mensagem = '';
   Color _corMensagem = Colors.red;
 
   String get apiUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:8000';
-    }
+    if (kIsWeb) return 'http://127.0.0.1:8000';
     return 'http://10.0.2.2:8000';
   }
 
@@ -49,60 +46,58 @@ class _EntrarPageState extends State<EntrarPage> {
     });
 
     try {
-      final tokenResponse = await http.post(
-        Uri.parse('$apiUrl/auth/token'),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'username': email,
-          'password': senha,
-        },
-      );
+      final tokenResponse = await http
+          .post(
+            Uri.parse('$apiUrl/auth/token'),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'username=$email&password=$senha',
+          )
+          .timeout(const Duration(seconds: 10));
 
-      final tokenData = jsonDecode(tokenResponse.body);
+      Map<String, dynamic> tokenData;
+
+      try {
+        tokenData = jsonDecode(tokenResponse.body);
+      } catch (_) {
+        throw Exception('Erro inesperado no servidor.');
+      }
 
       if (tokenResponse.statusCode != 200) {
-        throw Exception(tokenData['detail'] ?? 'Erro ao fazer login.');
+        throw Exception(tokenData['detail'] ?? 'Credenciais inválidas.');
       }
 
       final accessToken = tokenData['access_token'];
 
-      final meResponse = await http.get(
-        Uri.parse('$apiUrl/auth/me'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
+      final meResponse = await http
+          .get(
+            Uri.parse('$apiUrl/auth/me'),
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
-      final usuarioData = jsonDecode(meResponse.body);
+      Map<String, dynamic> usuarioData;
+
+      try {
+        usuarioData = jsonDecode(meResponse.body);
+      } catch (_) {
+        throw Exception('Erro ao obter usuário.');
+      }
 
       if (meResponse.statusCode != 200) {
         throw Exception(usuarioData['detail'] ?? 'Erro ao obter usuário.');
       }
 
       final prefs = await SharedPreferences.getInstance();
-
       await prefs.setString('token', accessToken);
-      await prefs.setString(
-        'usuarioLogado',
-        jsonEncode({
-          'id': usuarioData['id'],
-          'username': usuarioData['username'],
-          'email': usuarioData['email'],
-          'foto': usuarioData['foto_perfil'] ?? 'assets/images/image.person.png',
-        }),
-      );
-
-      setState(() {
-        _mensagem = 'Login realizado com sucesso!';
-        _corMensagem = Colors.green;
-      });
-
-      await Future.delayed(const Duration(seconds: 1));
+      await prefs.setString('usuarioLogado', jsonEncode(usuarioData));
 
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/feed');
+
     } catch (e) {
       setState(() {
         _mensagem = e.toString().replaceFirst('Exception: ', '');
@@ -117,11 +112,26 @@ class _EntrarPageState extends State<EntrarPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _senhaController.dispose();
-    super.dispose();
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: azulPrincipal),
+      ),
+    );
   }
 
   @override
@@ -135,22 +145,21 @@ class _EntrarPageState extends State<EntrarPage> {
           return Column(
             children: [
               _buildNavbar(isMobile),
+
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFFF5F7FA), Color(0xFFEEF2F7)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                     ),
                   ),
                   child: Center(
                     child: SingleChildScrollView(
                       child: Container(
                         width: isMobile ? double.infinity : 380,
-                        constraints: const BoxConstraints(maxWidth: 380),
                         padding: const EdgeInsets.all(40),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -164,96 +173,41 @@ class _EntrarPageState extends State<EntrarPage> {
                           ],
                         ),
                         child: Column(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const Text(
                               'Entrar',
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Acesse sua conta',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF6E6E73),
                               ),
                             ),
                             const SizedBox(height: 25),
+
                             TextField(
                               controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                hintText: 'Seu email',
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 14,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: azulPrincipal),
-                                ),
-                              ),
+                              decoration: _inputDecoration('Seu email'),
                             ),
+
                             const SizedBox(height: 15),
+
                             TextField(
                               controller: _senhaController,
-                              obscureText: !_mostrarSenha,
-                              decoration: InputDecoration(
-                                hintText: 'Sua senha',
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 14,
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _mostrarSenha = !_mostrarSenha;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _mostrarSenha ? Icons.visibility_off : Icons.visibility,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: azulPrincipal),
-                                ),
-                              ),
+                              obscureText: true,
+                              decoration: _inputDecoration('Sua senha'),
                             ),
+
                             const SizedBox(height: 15),
+
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _carregando ? null : _fazerLogin,
+                                onPressed:
+                                    _carregando ? null : _fazerLogin,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: azulPrincipal,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -262,26 +216,21 @@ class _EntrarPageState extends State<EntrarPage> {
                                     ? const SizedBox(
                                         height: 20,
                                         width: 20,
-                                        child: CircularProgressIndicator(
+                                        child:
+                                            CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text(
-                                        'Login',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
+                                    : const Text('Login'),
                               ),
                             ),
+
                             if (_mensagem.isNotEmpty) ...[
                               const SizedBox(height: 15),
                               Text(
                                 _mensagem,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _corMensagem,
-                                ),
+                                style: TextStyle(color: _corMensagem),
                               ),
                             ],
                           ],
@@ -298,6 +247,7 @@ class _EntrarPageState extends State<EntrarPage> {
     );
   }
 
+  // 🔥 NAVBAR COMPLETA
   Widget _buildNavbar(bool isMobile) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -317,6 +267,8 @@ class _EntrarPageState extends State<EntrarPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+
+          // 🔹 LOGO
           GestureDetector(
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
@@ -324,19 +276,27 @@ class _EntrarPageState extends State<EntrarPage> {
             child: Image.asset(
               'assets/images/Ícone_Pace.png',
               height: isMobile ? 40 : 50,
-              fit: BoxFit.contain,
             ),
           ),
+
           Row(
             children: [
-              _BotaoEntrarHover(
-                compact: isMobile,
+
+              // 🔸 ENTRAR
+              _botaoNavbar(
+                texto: 'Entrar',
                 ativo: true,
-                onTap: () {},
+                isMobile: isMobile,
+                onTap: () {
+                  Navigator.pushNamed(context, '/entrar');
+                },
               ),
+
               SizedBox(width: isMobile ? 12 : 20),
-              _BotaoCadastroHover(
-                compact: isMobile,
+
+              // 🔸 CADASTRO
+              _botaoCadastro(
+                isMobile: isMobile,
                 onTap: () {
                   Navigator.pushNamed(context, '/cadastro');
                 },
@@ -347,114 +307,58 @@ class _EntrarPageState extends State<EntrarPage> {
       ),
     );
   }
-}
 
-class _BotaoEntrarHover extends StatefulWidget {
-  final VoidCallback? onTap;
-  final bool compact;
-  final bool ativo;
-
-  const _BotaoEntrarHover({
-    this.onTap,
-    this.compact = false,
-    this.ativo = false,
-  });
-
-  @override
-  State<_BotaoEntrarHover> createState() => _BotaoEntrarHoverState();
-}
-
-class _BotaoEntrarHoverState extends State<_BotaoEntrarHover> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final horizontal = widget.compact ? 14.0 : 18.0;
-    final vertical = widget.compact ? 7.0 : 8.0;
-    final fontSize = widget.compact ? 14.0 : 16.0;
-
-    final fundoBranco = widget.ativo || _hover;
-    final corTexto = fundoBranco ? _EntrarPageState.azulPrincipal : Colors.white;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
-          decoration: BoxDecoration(
-            color: fundoBranco ? Colors.white : Colors.transparent,
-            border: Border.all(color: Colors.white, width: 2),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'Entrar',
-            style: TextStyle(
-              color: corTexto,
-              fontWeight: FontWeight.w600,
-              fontSize: fontSize,
-            ),
+  Widget _botaoNavbar({
+    required String texto,
+    required bool ativo,
+    required bool isMobile,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 14 : 18,
+          vertical: isMobile ? 7 : 8,
+        ),
+        decoration: BoxDecoration(
+          color: ativo ? Colors.white : Colors.transparent,
+          border: Border.all(color: Colors.white, width: 2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          texto,
+          style: TextStyle(
+            color: ativo ? azulPrincipal : Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: isMobile ? 14 : 16,
           ),
         ),
       ),
     );
   }
-}
 
-class _BotaoCadastroHover extends StatefulWidget {
-  final VoidCallback? onTap;
-  final bool compact;
-
-  const _BotaoCadastroHover({
-    this.onTap,
-    this.compact = false,
-  });
-
-  @override
-  State<_BotaoCadastroHover> createState() => _BotaoCadastroHoverState();
-}
-
-class _BotaoCadastroHoverState extends State<_BotaoCadastroHover> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final horizontal = widget.compact ? 14.0 : 18.0;
-    final vertical = widget.compact ? 7.0 : 8.0;
-    final fontSize = widget.compact ? 14.0 : 16.0;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
-          decoration: BoxDecoration(
-            color: _EntrarPageState.azulClaro,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: _hover
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            'Cadastre-se',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: fontSize,
-            ),
+  Widget _botaoCadastro({
+    required bool isMobile,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 14 : 18,
+          vertical: isMobile ? 7 : 8,
+        ),
+        decoration: BoxDecoration(
+          color: azulClaro,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          'Cadastre-se',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: isMobile ? 14 : 16,
           ),
         ),
       ),
