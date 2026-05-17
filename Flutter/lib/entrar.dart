@@ -34,8 +34,8 @@ class _EntrarPageState extends State<EntrarPage> {
 
     if (email.isEmpty || senha.isEmpty) {
       setState(() {
-        _mensagem = 'Preencha todos os campos.';
-        _corMensagem = Colors.red;
+        _mensagem = 'Por favor, preencha email e senha.';
+        _corMensagem = Colors.orange;
       });
       return;
     }
@@ -65,10 +65,14 @@ class _EntrarPageState extends State<EntrarPage> {
       }
 
       if (tokenResponse.statusCode != 200) {
-        throw Exception(tokenData['detail'] ?? 'Credenciais inválidas.');
+        final error = tokenData['detail'] ?? 'Credenciais inválidas.';
+        throw Exception(error);
       }
 
       final accessToken = tokenData['access_token'];
+      if (accessToken == null || accessToken.isEmpty) {
+        throw Exception('Token não recebido do servidor.');
+      }
 
       final meResponse = await http
           .get(
@@ -96,13 +100,31 @@ class _EntrarPageState extends State<EntrarPage> {
       await prefs.setString('usuarioLogado', jsonEncode(usuarioData));
 
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/feed');
+      
+      setState(() {
+        _mensagem = 'Login realizado com sucesso!';
+        _corMensagem = Colors.green;
+      });
+      
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/feed');
+        }
+      });
 
     } catch (e) {
       setState(() {
         _mensagem = e.toString().replaceFirst('Exception: ', '');
         _corMensagem = Colors.red;
       });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_mensagem),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {

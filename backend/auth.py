@@ -86,11 +86,14 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(pegar_sessao)
 ):
-
-    usuario = session.query(User).filter(User.email == form_data.username).first()
+    # Tenta buscar por email ou username
+    usuario = session.query(User).filter(
+        (User.email == form_data.username) | 
+        (User.username == form_data.username)
+    ).first()
 
     if not usuario or not verificar_senha(form_data.password, usuario.senha_hash):
-        raise HTTPException(status_code=401, detail="Credenciais inválidas.")
+        raise HTTPException(status_code=401, detail="Email, usuário ou senha inválidos.")
 
     access_token = criar_token(data={"sub": usuario.email})
 
@@ -105,7 +108,8 @@ def me(usuario: User = Depends(pegar_usuario_atual)):
     return {
         "id": usuario.id,
         "username": usuario.username,
-        "email": usuario.email
+        "email": usuario.email,
+        "foto_perfil": usuario.foto_perfil
     }
 
 @auth_router.put("/atualizar_senha")
