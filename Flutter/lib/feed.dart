@@ -20,10 +20,10 @@ class _FeedPageState extends State<FeedPage> {
 
   bool isLoading = true;
   bool sidebarHovered = false;
+  String? sidebarItemHovered;
 
   final TextEditingController editPostController = TextEditingController();
   final TextEditingController editCommentController = TextEditingController();
-
   final Map<int, TextEditingController> commentControllers = {};
 
   @override
@@ -64,6 +64,12 @@ class _FeedPageState extends State<FeedPage> {
     return const AssetImage('assets/user.png');
   }
 
+  String? _fotoUsuarioLogado() {
+    final foto = usuarioLogado['foto_perfil'] ?? usuarioLogado['foto'];
+    if (foto == null || foto.toString().trim().isEmpty) return null;
+    return foto.toString();
+  }
+
   Future<dynamic> _parseResponse(
     http.Response response,
     String fallbackMessage,
@@ -92,39 +98,49 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Map<String, dynamic> _normalizarComentario(Map<String, dynamic> comentario) {
+    final usuario = comentario['usuario'];
+
     return {
-      'id': comentario['id'],
+      'id': NumberParser.toInt(comentario['id']),
       'conteudo': comentario['conteudo'] ??
           comentario['texto'] ??
           comentario['comentario'] ??
           '',
       'usuario': {
-        'id': comentario['usuario']?['id'] ?? comentario['usuario_id'],
-        'username':
-            comentario['usuario']?['username'] ?? comentario['username'] ?? 'Usuário',
-        'foto_perfil':
-            comentario['usuario']?['foto_perfil'] ?? comentario['foto_perfil'],
+        'id': usuario is Map ? usuario['id'] : comentario['usuario_id'],
+        'username': usuario is Map
+            ? usuario['username'] ?? 'Usuário'
+            : comentario['username'] ?? 'Usuário',
+        'foto_perfil': usuario is Map
+            ? usuario['foto_perfil'] ?? usuario['foto']
+            : comentario['foto_perfil'] ?? comentario['foto'],
       },
     };
   }
 
   Map<String, dynamic> _normalizarPost(Map<String, dynamic> post) {
+    final usuario = post['usuario'];
+
     return {
-      'id': post['id'],
+      'id': NumberParser.toInt(post['id']),
       'conteudo': post['conteudo'] ?? post['texto'] ?? '',
       'imagem': post['imagem'] ?? '',
-      'likes': post['likes'] ?? 0,
+      'likes': NumberParser.toInt(post['likes']),
       'liked': post['liked'] ?? false,
       'data': post['data_postagem'] ?? post['data'],
       'usuario': {
-        'id': post['usuario']?['id'] ?? post['usuario_id'],
-        'username': post['usuario']?['username'] ?? 'Usuário',
-        'foto_perfil': post['usuario']?['foto_perfil'],
+        'id': usuario is Map ? usuario['id'] : post['usuario_id'],
+        'username': usuario is Map ? usuario['username'] ?? 'Usuário' : 'Usuário',
+        'foto_perfil': usuario is Map
+            ? usuario['foto_perfil'] ?? usuario['foto']
+            : post['foto_perfil'] ?? post['foto'],
       },
       'comentarios': post['comentarios'] is List
           ? (post['comentarios'] as List)
-              .whereType<Map<String, dynamic>>()
-              .map(_normalizarComentario)
+              .where((item) => item is Map)
+              .map((item) => _normalizarComentario(
+                    Map<String, dynamic>.from(item as Map),
+                  ))
               .toList()
           : <Map<String, dynamic>>[],
     };
@@ -180,7 +196,7 @@ class _FeedPageState extends State<FeedPage> {
     );
 
     final data = await _parseResponse(response, 'Erro ao buscar usuário.');
-    return Map<String, dynamic>.from(data);
+    return Map<String, dynamic>.from(data as Map);
   }
 
   Future<List<Map<String, dynamic>>> _getPostsAPI(String token) async {
@@ -194,8 +210,8 @@ class _FeedPageState extends State<FeedPage> {
     if (data is! List) return [];
 
     return data
-        .whereType<Map<String, dynamic>>()
-        .map(_normalizarPost)
+        .where((item) => item is Map)
+        .map((item) => _normalizarPost(Map<String, dynamic>.from(item as Map)))
         .toList();
   }
 
@@ -208,16 +224,15 @@ class _FeedPageState extends State<FeedPage> {
       headers: {'Authorization': 'Bearer $token'},
     );
 
-    final data = await _parseResponse(
-      response,
-      'Erro ao buscar comentários.',
-    );
+    final data = await _parseResponse(response, 'Erro ao buscar comentários.');
 
     if (data is! List) return [];
 
     return data
-        .whereType<Map<String, dynamic>>()
-        .map(_normalizarComentario)
+        .where((item) => item is Map)
+        .map((item) => _normalizarComentario(
+              Map<String, dynamic>.from(item as Map),
+            ))
         .toList();
   }
 
@@ -292,7 +307,7 @@ class _FeedPageState extends State<FeedPage> {
         orElse: () => {},
       );
 
-      if (post.isNotEmpty) {
+      if (post.isNotEmpty && data is Map) {
         setState(() {
           post['comentarios'].add(
             _normalizarComentario(Map<String, dynamic>.from(data)),
@@ -317,6 +332,11 @@ class _FeedPageState extends State<FeedPage> {
     }
 
     try {
+      final post = posts.firstWhere(
+        (item) => item['id'] == postId,
+        orElse: () => {},
+      );
+
       final response = await http.put(
         Uri.parse('$apiUrl/post/atualizar_post/$postId'),
         headers: {
@@ -325,16 +345,11 @@ class _FeedPageState extends State<FeedPage> {
         },
         body: jsonEncode({
           'conteudo': novoTexto.trim(),
-          'imagem': '',
+          'imagem': post['imagem'] ?? '',
         }),
       );
 
       await _parseResponse(response, 'Erro ao editar post.');
-
-      final post = posts.firstWhere(
-        (item) => item['id'] == postId,
-        orElse: () => {},
-      );
 
       if (post.isNotEmpty) {
         setState(() {
@@ -640,17 +655,17 @@ class _FeedPageState extends State<FeedPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                children: [
-                  const Icon(
+                children: const [
+                  Icon(
                     Icons.edit_outlined,
                     color: Color(0xFF3059AA),
                     size: 34,
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text('Editar comentário', style: AppText.dialogTitle),
                         SizedBox(height: 6),
                         Text('Altere seu comentário.', style: AppText.muted),
@@ -713,6 +728,10 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
+    final feedLeftPadding = screenWidth < 1000 ? 0.0 : 160.0;
+
     if (isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFF4F7FB),
@@ -734,38 +753,46 @@ class _FeedPageState extends State<FeedPage> {
               _buildSidebar(),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(42, 42, 42, 90),
+                  padding: EdgeInsets.fromLTRB(
+                    contentLeftPadding,
+                    48,
+                    42,
+                    90,
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHero(),
-                      const SizedBox(height: 30),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 780),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'ATUALIZAÇÕES',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.4,
-                                color: Color(0xFF5EB1BF),
+                      const SizedBox(height: 34),
+                      Padding(
+                        padding: EdgeInsets.only(left: feedLeftPadding),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 780),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'ATUALIZAÇÕES',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.4,
+                                  color: Color(0xFF5EB1BF),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Posts recentes',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1B2233),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Posts recentes',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1B2233),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            posts.isEmpty ? _buildEmptyFeed() : _buildPosts(),
-                          ],
+                              const SizedBox(height: 16),
+                              posts.isEmpty ? _buildEmptyFeed() : _buildPosts(),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -780,22 +807,54 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _buildHero() {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1100),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isSmall = constraints.maxWidth < 760;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmall = constraints.maxWidth < 900;
 
-          return Flex(
-            direction: isSmall ? Axis.vertical : Axis.horizontal,
-            crossAxisAlignment:
-                isSmall ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        if (isSmall) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
+              const _Badge(text: 'Comunidade em movimento'),
+              const SizedBox(height: 14),
+              const Text(
+                'Seu feed no Pace',
+                style: TextStyle(
+                  fontSize: 36,
+                  height: 1.05,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1B2233),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina cercada de pessoas que também estão evoluindo.',
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.65,
+                  color: Color(0xFF6F7B91),
+                ),
+              ),
+              const SizedBox(height: 18),
+              _PrimaryButton(
+                text: 'Criar post',
+                icon: Icons.edit_square,
+                onTap: () => Navigator.of(context).pushNamed('postar'),
+              ),
+            ],
+          );
+        }
+
+        return SizedBox(
+          width: 1100,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const SizedBox(
+                width: 720,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     _Badge(text: 'Comunidade em movimento'),
                     SizedBox(height: 14),
                     Text(
@@ -808,26 +867,20 @@ class _FeedPageState extends State<FeedPage> {
                       ),
                     ),
                     SizedBox(height: 12),
-                    SizedBox(
-                      width: 720,
-                      child: Text(
-                        'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina\ncercada de pessoas que também estão evoluindo.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.65,
-                          color: Color(0xFF6F7B91),
-                        ),
+                    Text(
+                      'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina\ncercada de pessoas que também estão evoluindo.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.65,
+                        color: Color(0xFF6F7B91),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: isSmall ? 0 : 20, height: isSmall ? 22 : 0),
+              const Spacer(),
               Padding(
-                padding: EdgeInsets.only(
-                  right: isSmall ? 0 : 110,
-                  bottom: isSmall ? 0 : 2,
-                ),
+                padding: const EdgeInsets.only(right: 20, bottom: 2),
                 child: _PrimaryButton(
                   text: 'Criar post',
                   icon: Icons.edit_square,
@@ -835,9 +888,9 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -857,13 +910,6 @@ class _FeedPageState extends State<FeedPage> {
                   const Color(0xFF5EB1BF).withOpacity(0.18),
                 ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF3059AA).withOpacity(0.14),
-                  blurRadius: 26,
-                  offset: const Offset(0, 12),
-                ),
-              ],
             ),
             child: const Icon(
               Icons.auto_awesome,
@@ -883,19 +929,13 @@ class _FeedPageState extends State<FeedPage> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Quando a comunidade começar a publicar, tudo vai aparecer aqui. Se quiser abrir os trabalhos, crie o primeiro post agora.',
+            'Quando a comunidade começar a publicar, tudo vai aparecer aqui.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
               height: 1.8,
               color: Color(0xFF6F7B91),
             ),
-          ),
-          const SizedBox(height: 24),
-          _PrimaryButton(
-            text: 'Criar post',
-            icon: Icons.edit_square,
-            onTap: () => Navigator.of(context).pushNamed('postar'),
           ),
         ],
       ),
@@ -925,10 +965,10 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _buildPostCard(Map<String, dynamic> post) {
-    final usuario = post['usuario'] as Map<String, dynamic>;
+    final usuario = Map<String, dynamic>.from(post['usuario'] ?? {});
     final comentarios = post['comentarios'] as List;
     final isMyPost = _isMine(usuario['id']);
-    final postId = post['id'] as int;
+    final postId = NumberParser.toInt(post['id']);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
@@ -940,7 +980,9 @@ class _FeedPageState extends State<FeedPage> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundImage: _avatarProvider(usuario['foto_perfil']),
+                  backgroundImage: _avatarProvider(
+                    usuario['foto_perfil']?.toString(),
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -1044,7 +1086,7 @@ class _FeedPageState extends State<FeedPage> {
               const SizedBox(height: 12),
               Column(
                 children: comentarios
-                    .map((comentario) => _buildComment(postId, comentario))
+                    .map((comentario) => _buildComment(comentario))
                     .toList(),
               ),
             ],
@@ -1056,7 +1098,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _buildComment(int postId, dynamic comentario) {
+  Widget _buildComment(dynamic comentario) {
     final item = Map<String, dynamic>.from(comentario);
     final usuario = Map<String, dynamic>.from(item['usuario'] ?? {});
     final isMyComment = _isMine(usuario['id']);
@@ -1068,7 +1110,9 @@ class _FeedPageState extends State<FeedPage> {
         children: [
           CircleAvatar(
             radius: 19,
-            backgroundImage: _avatarProvider(usuario['foto_perfil']),
+            backgroundImage: _avatarProvider(
+              usuario['foto_perfil']?.toString(),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1142,12 +1186,6 @@ class _FeedPageState extends State<FeedPage> {
                 horizontal: 16,
                 vertical: 12,
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(999),
-                borderSide: BorderSide(
-                  color: const Color(0xFF3059AA).withOpacity(0.14),
-                ),
-              ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(999),
                 borderSide: BorderSide(
@@ -1159,6 +1197,9 @@ class _FeedPageState extends State<FeedPage> {
                 borderSide: BorderSide(
                   color: const Color(0xFF3059AA).withOpacity(0.34),
                 ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(999),
               ),
             ),
           ),
@@ -1172,13 +1213,6 @@ class _FeedPageState extends State<FeedPage> {
               colors: [Color(0xFF3059AA), Color(0xFF4C71C7)],
             ),
             borderRadius: BorderRadius.circular(999),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF3059AA).withOpacity(0.2),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-            ],
           ),
           child: IconButton(
             icon: const Icon(Icons.send, color: Colors.white, size: 19),
@@ -1196,7 +1230,12 @@ class _FeedPageState extends State<FeedPage> {
 
     return MouseRegion(
       onEnter: (_) => setState(() => sidebarHovered = true),
-      onExit: (_) => setState(() => sidebarHovered = false),
+      onExit: (_) {
+        setState(() {
+          sidebarHovered = false;
+          sidebarItemHovered = null;
+        });
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeOut,
@@ -1221,31 +1260,35 @@ class _FeedPageState extends State<FeedPage> {
             filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: Column(
               children: [
-                Container(
-                  width: sidebarHovered ? 130 : 44,
-                  height: 44,
-                  margin: const EdgeInsets.only(bottom: 58),
-                  alignment: Alignment.centerLeft,
-                  child: Image.asset(
-                    'assets/images/Ícone_Pace.png',
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.contain,
+                SizedBox(
+                  height: 104,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10, top: 4),
+                      child: Image.asset(
+                        'assets/images/Ícone_Pace.png',
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: ListView(
+                    padding: EdgeInsets.zero,
                     children: [
                       _sidebarItem(Icons.home_outlined, 'Feed', 'feed', true),
                       _sidebarItem(Icons.track_changes, 'Metas', 'metas', false),
                       _sidebarItem(Icons.explore_outlined, 'Explorar', 'explorar', false),
                       _sidebarItem(Icons.add_box_outlined, 'Postar', 'postar', false),
                       _sidebarItem(Icons.notifications_none, 'Notificações', 'notificacoes', false),
-                      const SizedBox(height: 10),
-                      Divider(color: const Color(0xFF3059AA).withOpacity(0.16)),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 18),
+                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
+                      const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'Configurações', 'config', false),
-                      _sidebarItem(Icons.person_outline, 'Perfil', 'perfil', false),
+                      _sidebarProfileItem(),
                     ],
                   ),
                 ),
@@ -1257,79 +1300,141 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-Widget _sidebarItem(
-  IconData icon,
-  String label,
-  String route,
-  bool active,
-) {
-  return InkWell(
-    borderRadius: BorderRadius.circular(14),
-    onTap: () {
-      if (route != 'feed') {
-        Navigator.of(context).pushNamed(route);
-      }
-    },
-    child: Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-      decoration: BoxDecoration(
-        gradient: active
-            ? LinearGradient(
-                colors: [
-                  const Color(0xFF3059AA).withOpacity(0.12),
-                  const Color(0xFF5EB1BF).withOpacity(0.08),
-                ],
-              )
-            : null,
-        borderRadius: BorderRadius.circular(14),
-        border: active
-            ? Border.all(color: const Color(0xFF3059AA).withOpacity(0.08))
-            : null,
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final showText = sidebarHovered && constraints.maxWidth > 90;
+  Widget _sidebarProfileItem() {
+    const route = 'perfil';
+    final isHovered = sidebarItemHovered == route;
 
-          return Row(
-            children: [
-              SizedBox(
-                width: 24,
-                child: Icon(
-                  icon,
-                  color: active
-                      ? const Color(0xFF3059AA)
-                      : const Color(0xFF33415C),
-                  size: 24,
-                ),
-              ),
-              if (showText) ...[
-                const SizedBox(width: 15),
-                Expanded(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 160),
-                    opacity: showText ? 1 : 0,
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: active
-                            ? const Color(0xFF3059AA)
-                            : const Color(0xFF33415C),
-                        fontWeight: FontWeight.w700,
+    return MouseRegion(
+      onEnter: (_) => setState(() => sidebarItemHovered = route),
+      onExit: (_) => setState(() => sidebarItemHovered = null),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.of(context).pushNamed('perfil'),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isHovered ? const Color(0xFFEAF1F7) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final showText = sidebarHovered && constraints.maxWidth > 90;
+
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
+                  ),
+                  if (showText) ...[
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 160),
+                        opacity: showText ? 1 : 0,
+                        child: const Text(
+                          'Perfil',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Color(0xFF33415C),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ],
-          );
-        },
+                  ],
+                ],
+              );
+            },
+          ),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _sidebarItem(
+    IconData icon,
+    String label,
+    String route,
+    bool active,
+  ) {
+    final isHovered = sidebarItemHovered == route;
+    final shouldHighlight = active || isHovered;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => sidebarItemHovered = route),
+      onExit: (_) => setState(() => sidebarItemHovered = null),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          if (route != 'feed') {
+            Navigator.of(context).pushNamed(route);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: shouldHighlight ? const Color(0xFFEAF1F7) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: active
+                ? Border.all(color: const Color(0xFF3059AA).withOpacity(0.12))
+                : null,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final showText = sidebarHovered && constraints.maxWidth > 90;
+
+              return Row(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    child: Icon(
+                      icon,
+                      color: active
+                          ? const Color(0xFF3059AA)
+                          : const Color(0xFF33415C),
+                      size: 24,
+                    ),
+                  ),
+                  if (showText) ...[
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 160),
+                        opacity: showText ? 1 : 0,
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: active
+                                ? const Color(0xFF3059AA)
+                                : const Color(0xFF33415C),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _BackgroundDecor extends StatelessWidget {
@@ -1526,9 +1631,7 @@ class _PrimaryButton extends StatelessWidget {
         icon: Icon(icon, size: 21),
         label: Text(
           text,
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
@@ -1758,9 +1861,6 @@ class AppInput {
       filled: true,
       fillColor: Colors.white.withOpacity(0.95),
       contentPadding: const EdgeInsets.all(18),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(
@@ -1772,6 +1872,9 @@ class AppInput {
         borderSide: BorderSide(
           color: const Color(0xFF3059AA).withOpacity(0.35),
         ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
     );
   }
