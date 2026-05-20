@@ -4,6 +4,7 @@ import 'index.dart';
 import 'entrar.dart';
 import 'cadastro.dart';
 import 'feed.dart';
+import 'postar.dart';
 
 void main() {
   runApp(const PaceApp());
@@ -36,6 +37,10 @@ class PaceApp extends StatelessWidget {
 
           case '/feed':
             page = const FeedPage();
+            break;
+
+          case '/postar':
+            page = const PostarPage();
             break;
 
           default:

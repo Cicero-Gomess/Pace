@@ -839,7 +839,7 @@ class _FeedPageState extends State<FeedPage> {
               _PrimaryButton(
                 text: 'Criar post',
                 icon: Icons.edit_square,
-                onTap: () => Navigator.of(context).pushNamed('postar'),
+                onTap: () => Navigator.of(context).pushNamed('/postar'),
               ),
             ],
           );
@@ -1279,11 +1279,11 @@ class _FeedPageState extends State<FeedPage> {
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', 'feed', true),
-                      _sidebarItem(Icons.track_changes, 'Metas', 'metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', 'explorar', false),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', 'postar', false),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', 'notificacoes', false),
+                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', true),
+                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
+                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
+                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
+                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
                       const SizedBox(height: 18),
                       Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
                       const SizedBox(height: 18),
@@ -1373,7 +1373,7 @@ class _FeedPageState extends State<FeedPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          if (route != 'feed') {
+          if (route != '/feed') {
             Navigator.of(context).pushNamed(route);
           }
         },
