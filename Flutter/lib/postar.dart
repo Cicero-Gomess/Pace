@@ -33,6 +33,26 @@ class _PostarPageState extends State<PostarPage> {
   String? imagemNome;
   String? imagemBase64;
 
+  bool get darkMode => Theme.of(context).brightness == Brightness.dark;
+
+  Color get bgColor =>
+      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+
+  Color get textColor =>
+      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+
+  Color get mutedColor =>
+      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
+
+  Color get labelColor =>
+      darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF495874);
+
+  Color get sidebarTextColor =>
+      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
+
+  Color get inputFillColor =>
+      darkMode ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.86);
+
   final List<Map<String, String>> chips = const [
     {
       'label': 'Progresso',
@@ -287,19 +307,19 @@ class _PostarPageState extends State<PostarPage> {
     final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
 
     if (isLoadingUser) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF4F7FB),
-        body: Center(
+      return Scaffold(
+        backgroundColor: bgColor,
+        body: const Center(
           child: CircularProgressIndicator(color: Color(0xFF3059AA)),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB),
+      backgroundColor: bgColor,
       body: Stack(
         children: [
-          const _BackgroundDecor(),
+          _BackgroundDecor(darkMode: darkMode),
           Row(
             children: [
               _buildSidebar(),
@@ -340,9 +360,9 @@ class _PostarPageState extends State<PostarPage> {
 
           final copy = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              _Badge(text: 'Compartilhe sua jornada'),
-              SizedBox(height: 14),
+            children: [
+              const _Badge(text: 'Compartilhe sua jornada'),
+              const SizedBox(height: 14),
               SizedBox(
                 width: 650,
                 child: Text(
@@ -351,11 +371,11 @@ class _PostarPageState extends State<PostarPage> {
                     fontSize: 42,
                     height: 1.02,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1B2233),
+                    color: textColor,
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               SizedBox(
                 width: 720,
                 child: Text(
@@ -363,7 +383,7 @@ class _PostarPageState extends State<PostarPage> {
                   style: TextStyle(
                     fontSize: 16,
                     height: 1.75,
-                    color: Color(0xFF6F7B91),
+                    color: mutedColor,
                   ),
                 ),
               ),
@@ -371,15 +391,16 @@ class _PostarPageState extends State<PostarPage> {
           );
 
           final tip = _GlassSmall(
+            darkMode: darkMode,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.auto_awesome, color: Color(0xFF3059AA), size: 20),
-                SizedBox(width: 10),
+              children: [
+                const Icon(Icons.auto_awesome, color: Color(0xFF3059AA), size: 20),
+                const SizedBox(width: 10),
                 Text(
                   'Postagens autênticas geram mais conexão.',
                   style: TextStyle(
-                    color: Color(0xFF495874),
+                    color: labelColor,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -413,6 +434,7 @@ class _PostarPageState extends State<PostarPage> {
 
   Widget _buildComposerCard() {
     return _GlassCard(
+      darkMode: darkMode,
       radius: 30,
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -422,12 +444,12 @@ class _PostarPageState extends State<PostarPage> {
           const SizedBox(height: 20),
           _buildChips(),
           const SizedBox(height: 22),
-          const Text(
+          Text(
             'Conte para a comunidade o que está acontecendo',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF495874),
+              color: labelColor,
             ),
           ),
           const SizedBox(height: 10),
@@ -435,16 +457,21 @@ class _PostarPageState extends State<PostarPage> {
             controller: textoController,
             maxLength: 200,
             maxLines: 7,
+            style: TextStyle(color: textColor),
+            cursorColor: const Color(0xFF3059AA),
             decoration: InputDecoration(
               hintText: 'O que você está pensando?',
+              hintStyle: TextStyle(color: mutedColor),
               counterText: '',
               filled: true,
-              fillColor: Colors.white.withOpacity(0.86),
+              fillColor: inputFillColor,
               contentPadding: const EdgeInsets.all(18),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(22),
                 borderSide: BorderSide(
-                  color: const Color(0xFF3059AA).withOpacity(0.12),
+                  color: darkMode
+                      ? Colors.white.withOpacity(0.08)
+                      : const Color(0xFF3059AA).withOpacity(0.12),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -462,8 +489,8 @@ class _PostarPageState extends State<PostarPage> {
             alignment: Alignment.centerRight,
             child: Text(
               '${textoController.text.length}/200',
-              style: const TextStyle(
-                color: Color(0xFF6F7B91),
+              style: TextStyle(
+                color: mutedColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -492,8 +519,8 @@ class _PostarPageState extends State<PostarPage> {
 
         final title = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               'NOVO POST',
               style: TextStyle(
                 fontSize: 12,
@@ -502,13 +529,13 @@ class _PostarPageState extends State<PostarPage> {
                 color: Color(0xFF5EB1BF),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Criar publicação',
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1B2233),
+                color: textColor,
               ),
             ),
           ],
@@ -517,7 +544,7 @@ class _PostarPageState extends State<PostarPage> {
         final profile = Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFF3059AA).withOpacity(0.06),
+            color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.12 : 0.06),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Row(
@@ -533,16 +560,16 @@ class _PostarPageState extends State<PostarPage> {
                 children: [
                   Text(
                     _username(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1B2233),
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     'Compartilhando agora',
                     style: TextStyle(
-                      color: Color(0xFF6F7B91),
+                      color: mutedColor,
                       fontSize: 13,
                     ),
                   ),
@@ -586,13 +613,13 @@ class _PostarPageState extends State<PostarPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF3059AA).withOpacity(0.08),
+              color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.14 : 0.08),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               chip['label']!,
-              style: const TextStyle(
-                color: Color(0xFF4D5A73),
+              style: TextStyle(
+                color: darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF4D5A73),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -614,7 +641,7 @@ class _PostarPageState extends State<PostarPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF3059AA).withOpacity(0.08),
+              color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.14 : 0.08),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Row(
@@ -636,15 +663,15 @@ class _PostarPageState extends State<PostarPage> {
             ),
           ),
         ),
-        const Row(
+        Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.info_outline, color: Color(0xFF6F7B91), size: 18),
-            SizedBox(width: 8),
+            Icon(Icons.info_outline, color: mutedColor, size: 18),
+            const SizedBox(width: 8),
             Text(
               'Você pode postar só texto ou texto com imagem.',
               style: TextStyle(
-                color: Color(0xFF6F7B91),
+                color: mutedColor,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
@@ -659,9 +686,13 @@ class _PostarPageState extends State<PostarPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(0.05),
+        color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.10 : 0.05),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF3059AA).withOpacity(0.08)),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.08)
+              : const Color(0xFF3059AA).withOpacity(0.08),
+        ),
       ),
       child: Row(
         children: [
@@ -679,10 +710,10 @@ class _PostarPageState extends State<PostarPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Imagem pronta',
                   style: TextStyle(
-                    color: Color(0xFF1B2233),
+                    color: textColor,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -690,8 +721,8 @@ class _PostarPageState extends State<PostarPage> {
                 Text(
                   imagemNome ?? '',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF6F7B91),
+                  style: TextStyle(
+                    color: mutedColor,
                     fontSize: 13,
                   ),
                 ),
@@ -727,13 +758,19 @@ class _PostarPageState extends State<PostarPage> {
         height: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.78),
+          color: darkMode
+              ? const Color(0xC8080A0E)
+              : Colors.white.withOpacity(0.78),
           border: Border(
-            right: BorderSide(color: Colors.white.withOpacity(0.55)),
+            right: BorderSide(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.white.withOpacity(0.55),
+            ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
               blurRadius: 30,
               offset: const Offset(8, 0),
             ),
@@ -764,41 +801,14 @@ class _PostarPageState extends State<PostarPage> {
                     padding: EdgeInsets.zero,
                     children: [
                       _sidebarItem(Icons.home_outlined, 'Feed', '/feed', false),
-                      _sidebarItem(
-                        Icons.track_changes,
-                        'Metas',
-                        '/metas',
-                        false,
-                      ),
-                      _sidebarItem(
-                        Icons.explore_outlined,
-                        'Explorar',
-                        '/explorar',
-                        false,
-                      ),
-                      _sidebarItem(
-                        Icons.add_box_outlined,
-                        'Postar',
-                        '/postar',
-                        true,
-                      ),
-                      _sidebarItem(
-                        Icons.notifications_none,
-                        'Notificações',
-                        '/notificacoes',
-                        false,
-                      ),
+                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
+                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
+                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', true),
+                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
                       const SizedBox(height: 18),
-                      Divider(
-                        color: const Color(0xFF3059AA).withOpacity(0.10),
-                      ),
+                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
                       const SizedBox(height: 18),
-                      _sidebarItem(
-                        Icons.settings_outlined,
-                        'Configurações',
-                        '/config',
-                        false,
-                      ),
+                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
                     ],
                   ),
@@ -827,7 +837,11 @@ class _PostarPageState extends State<PostarPage> {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isHovered ? const Color(0xFFEAF1F7) : Colors.transparent,
+            color: isHovered
+                ? darkMode
+                    ? Colors.white.withOpacity(0.06)
+                    : const Color(0xFFEAF1F7)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: LayoutBuilder(
@@ -846,12 +860,12 @@ class _PostarPageState extends State<PostarPage> {
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 160),
                         opacity: showText ? 1 : 0,
-                        child: const Text(
+                        child: Text(
                           'Perfil',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Color(0xFF33415C),
+                            color: sidebarTextColor,
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
@@ -875,6 +889,7 @@ class _PostarPageState extends State<PostarPage> {
     bool active,
   ) {
     final isHovered = sidebarItemHovered == route;
+    final highlighted = active || isHovered;
 
     return MouseRegion(
       onEnter: (_) => setState(() => sidebarItemHovered = route),
@@ -892,8 +907,21 @@ class _PostarPageState extends State<PostarPage> {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isHovered ? const Color(0xFFEAF1F7) : Colors.transparent,
+            color: highlighted
+                ? darkMode
+                    ? Colors.white.withOpacity(0.06)
+                    : const Color(0xFFEAF1F7)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
+            border: highlighted
+                ? Border.all(
+                    color: darkMode
+                        ? Colors.white.withOpacity(0.08)
+                        : active
+                            ? const Color(0xFFB8CCEA)
+                            : const Color(0xFFC8D8F0),
+                  )
+                : null,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -905,9 +933,9 @@ class _PostarPageState extends State<PostarPage> {
                     width: 24,
                     child: Icon(
                       icon,
-                      color: active
+                      color: highlighted
                           ? const Color(0xFF3059AA)
-                          : const Color(0xFF33415C),
+                          : sidebarTextColor,
                       size: 24,
                     ),
                   ),
@@ -922,9 +950,9 @@ class _PostarPageState extends State<PostarPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: active
+                            color: highlighted
                                 ? const Color(0xFF3059AA)
-                                : const Color(0xFF33415C),
+                                : sidebarTextColor,
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
@@ -943,22 +971,26 @@ class _PostarPageState extends State<PostarPage> {
 }
 
 class _BackgroundDecor extends StatelessWidget {
-  const _BackgroundDecor();
+  final bool darkMode;
+
+  const _BackgroundDecor({required this.darkMode});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: const [
+      children: [
         DecoratedBox(
-          decoration: BoxDecoration(color: Color(0xFFF4F7FB)),
-          child: SizedBox.expand(),
+          decoration: BoxDecoration(
+            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
+          ),
+          child: const SizedBox.expand(),
         ),
         Positioned(
           top: -120,
           left: 40,
           child: _SoftOrb(
             size: 420,
-            color: Color(0x225EB1BF),
+            color: darkMode ? const Color(0x1C3059AA) : const Color(0x225EB1BF),
             blur: 120,
           ),
         ),
@@ -967,7 +999,7 @@ class _BackgroundDecor extends StatelessWidget {
           left: -120,
           child: _SoftOrb(
             size: 420,
-            color: Color(0x185EB1BF),
+            color: darkMode ? const Color(0x145EB1BF) : const Color(0x185EB1BF),
             blur: 130,
           ),
         ),
@@ -976,7 +1008,7 @@ class _BackgroundDecor extends StatelessWidget {
           right: -80,
           child: _SoftOrb(
             size: 360,
-            color: Color(0x143059AA),
+            color: darkMode ? const Color(0x1C5EB1BF) : const Color(0x143059AA),
             blur: 130,
           ),
         ),
@@ -1016,9 +1048,11 @@ class _GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsets padding;
   final double radius;
+  final bool darkMode;
 
   const _GlassCard({
     required this.child,
+    required this.darkMode,
     this.padding = const EdgeInsets.all(22),
     this.radius = 24,
   });
@@ -1030,7 +1064,7 @@ class _GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(0.16),
+            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.16),
             blurRadius: 60,
             offset: const Offset(0, 24),
           ),
@@ -1044,9 +1078,15 @@ class _GlassCard extends StatelessWidget {
             width: double.infinity,
             padding: padding,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.84),
+              color: darkMode
+                  ? const Color(0xE00D0D10)
+                  : Colors.white.withOpacity(0.84),
               borderRadius: BorderRadius.circular(radius),
-              border: Border.all(color: Colors.white.withOpacity(0.68)),
+              border: Border.all(
+                color: darkMode
+                    ? Colors.white.withOpacity(0.05)
+                    : Colors.white.withOpacity(0.68),
+              ),
             ),
             child: child,
           ),
@@ -1058,8 +1098,12 @@ class _GlassCard extends StatelessWidget {
 
 class _GlassSmall extends StatelessWidget {
   final Widget child;
+  final bool darkMode;
 
-  const _GlassSmall({required this.child});
+  const _GlassSmall({
+    required this.child,
+    required this.darkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1070,12 +1114,18 @@ class _GlassSmall extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.70),
+            color: darkMode
+                ? const Color(0xE00D0D10)
+                : Colors.white.withOpacity(0.70),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withOpacity(0.60)),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.05)
+                  : Colors.white.withOpacity(0.60),
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF14274D).withOpacity(0.10),
+                color: const Color(0xFF14274D).withOpacity(darkMode ? 0.24 : 0.10),
                 blurRadius: 40,
                 offset: const Offset(0, 12),
               ),

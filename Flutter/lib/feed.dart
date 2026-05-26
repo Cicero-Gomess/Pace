@@ -26,6 +26,29 @@ class _FeedPageState extends State<FeedPage> {
   final TextEditingController editCommentController = TextEditingController();
   final Map<int, TextEditingController> commentControllers = {};
 
+  bool get darkMode => Theme.of(context).brightness == Brightness.dark;
+
+  Color get bgColor =>
+      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+
+  Color get textColor =>
+      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+
+  Color get mutedColor =>
+      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
+
+  Color get bodyTextColor =>
+      darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF24304A);
+
+  Color get labelColor =>
+      darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF33415C);
+
+  Color get sidebarTextColor =>
+      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
+
+  Color get inputFillColor =>
+      darkMode ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.84);
+
   @override
   void initState() {
     super.initState();
@@ -152,7 +175,7 @@ class _FeedPageState extends State<FeedPage> {
     if (!mounted) return;
 
     if (token == null) {
-      Navigator.of(context).pushReplacementNamed('entrar');
+      Navigator.of(context).pushReplacementNamed('/entrar');
       return;
     }
 
@@ -174,7 +197,7 @@ class _FeedPageState extends State<FeedPage> {
     } catch (e) {
       if (e.toString().contains('AUTH_401')) {
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('entrar');
+          Navigator.of(context).pushReplacementNamed('/entrar');
         }
         return;
       }
@@ -510,9 +533,9 @@ class _FeedPageState extends State<FeedPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title, style: AppText.dialogTitle),
+                        Text(title, style: AppText.dialogTitle(darkMode)),
                         const SizedBox(height: 6),
-                        Text(message, style: AppText.muted),
+                        Text(message, style: AppText.muted(darkMode)),
                       ],
                     ),
                   ),
@@ -585,25 +608,30 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ),
               const SizedBox(height: 14),
-              const Text('Refinar publicação', style: AppText.bigTitle),
+              Text('Refinar publicação', style: AppText.bigTitle(darkMode)),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Atualize sua legenda com mais clareza antes de salvar.',
-                style: AppText.muted,
+                style: AppText.muted(darkMode),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Texto do post',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF33415C),
+                  color: labelColor,
                 ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: editPostController,
                 maxLines: 6,
-                decoration: AppInput.textArea('Digite aqui...'),
+                style: TextStyle(color: textColor),
+                cursorColor: const Color(0xFF3059AA),
+                decoration: AppInput.textArea(
+                  'Digite aqui...',
+                  darkMode: darkMode,
+                ),
               ),
               const SizedBox(height: 22),
               Row(
@@ -655,20 +683,26 @@ class _FeedPageState extends State<FeedPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                children: const [
-                  Icon(
+                children: [
+                  const Icon(
                     Icons.edit_outlined,
                     color: Color(0xFF3059AA),
                     size: 34,
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Editar comentário', style: AppText.dialogTitle),
-                        SizedBox(height: 6),
-                        Text('Altere seu comentário.', style: AppText.muted),
+                        Text(
+                          'Editar comentário',
+                          style: AppText.dialogTitle(darkMode),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Altere seu comentário.',
+                          style: AppText.muted(darkMode),
+                        ),
                       ],
                     ),
                   ),
@@ -678,7 +712,12 @@ class _FeedPageState extends State<FeedPage> {
               TextField(
                 controller: editCommentController,
                 maxLines: 4,
-                decoration: AppInput.textArea('Digite o novo comentário...'),
+                style: TextStyle(color: textColor),
+                cursorColor: const Color(0xFF3059AA),
+                decoration: AppInput.textArea(
+                  'Digite o novo comentário...',
+                  darkMode: darkMode,
+                ),
               ),
               const SizedBox(height: 22),
               Row(
@@ -733,9 +772,9 @@ class _FeedPageState extends State<FeedPage> {
     final feedLeftPadding = screenWidth < 1000 ? 0.0 : 160.0;
 
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF4F7FB),
-        body: Center(
+      return Scaffold(
+        backgroundColor: bgColor,
+        body: const Center(
           child: CircularProgressIndicator(
             color: Color(0xFF3059AA),
           ),
@@ -744,10 +783,10 @@ class _FeedPageState extends State<FeedPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB),
+      backgroundColor: bgColor,
       body: Stack(
         children: [
-          const _BackgroundDecor(),
+          _BackgroundDecor(darkMode: darkMode),
           Row(
             children: [
               _buildSidebar(),
@@ -781,12 +820,12 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              const Text(
+                              Text(
                                 'Posts recentes',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1B2233),
+                                  color: textColor,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -817,22 +856,22 @@ class _FeedPageState extends State<FeedPage> {
             children: [
               const _Badge(text: 'Comunidade em movimento'),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Seu feed no Pace',
                 style: TextStyle(
                   fontSize: 36,
                   height: 1.05,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1B2233),
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina cercada de pessoas que também estão evoluindo.',
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.65,
-                  color: Color(0xFF6F7B91),
+                  color: mutedColor,
                 ),
               ),
               const SizedBox(height: 18),
@@ -850,29 +889,29 @@ class _FeedPageState extends State<FeedPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 720,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Badge(text: 'Comunidade em movimento'),
-                    SizedBox(height: 14),
+                    const _Badge(text: 'Comunidade em movimento'),
+                    const SizedBox(height: 14),
                     Text(
                       'Seu feed no Pace',
                       style: TextStyle(
                         fontSize: 40,
                         height: 1.05,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1B2233),
+                        color: textColor,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina\ncercada de pessoas que também estão evoluindo.',
                       style: TextStyle(
                         fontSize: 16,
                         height: 1.65,
-                        color: Color(0xFF6F7B91),
+                        color: mutedColor,
                       ),
                     ),
                   ],
@@ -884,7 +923,7 @@ class _FeedPageState extends State<FeedPage> {
                 child: _PrimaryButton(
                   text: 'Criar post',
                   icon: Icons.edit_square,
-                  onTap: () => Navigator.of(context).pushNamed('postar'),
+                  onTap: () => Navigator.of(context).pushNamed('/postar'),
                 ),
               ),
             ],
@@ -918,23 +957,23 @@ class _FeedPageState extends State<FeedPage> {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Nenhum post por enquanto',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1B2233),
+              color: textColor,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Quando a comunidade começar a publicar, tudo vai aparecer aqui.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
               height: 1.8,
-              color: Color(0xFF6F7B91),
+              color: mutedColor,
             ),
           ),
         ],
@@ -989,12 +1028,15 @@ class _FeedPageState extends State<FeedPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(usuario['username'] ?? 'Usuário', style: AppText.name),
+                      Text(
+                        usuario['username'] ?? 'Usuário',
+                        style: AppText.name(darkMode),
+                      ),
                       const SizedBox(height: 3),
                       Text(
                         '@${usuario['username'] ?? 'usuario'}'
                         '${_formatDate(post['data']).isNotEmpty ? ' • ${_formatDate(post['data'])}' : ''}',
-                        style: AppText.mutedSmall,
+                        style: AppText.mutedSmall(darkMode),
                       ),
                     ],
                   ),
@@ -1017,10 +1059,10 @@ class _FeedPageState extends State<FeedPage> {
               const SizedBox(height: 14),
               Text(
                 post['conteudo'],
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   height: 1.7,
-                  color: Color(0xFF24304A),
+                  color: bodyTextColor,
                 ),
               ),
             ],
@@ -1035,9 +1077,12 @@ class _FeedPageState extends State<FeedPage> {
                   errorBuilder: (_, __, ___) {
                     return Container(
                       height: 220,
-                      color: Colors.grey.shade200,
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported_outlined),
+                      color: darkMode
+                          ? Colors.white.withOpacity(0.06)
+                          : Colors.grey.shade200,
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: mutedColor,
                       ),
                     );
                   },
@@ -1056,10 +1101,14 @@ class _FeedPageState extends State<FeedPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3059AA).withOpacity(0.06),
+                    color: const Color(0xFF3059AA).withOpacity(
+                      darkMode ? 0.12 : 0.06,
+                    ),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: const Color(0xFF3059AA).withOpacity(0.08),
+                      color: darkMode
+                          ? Colors.white.withOpacity(0.08)
+                          : const Color(0xFF3059AA).withOpacity(0.08),
                     ),
                   ),
                   child: Row(
@@ -1067,14 +1116,14 @@ class _FeedPageState extends State<FeedPage> {
                       Icon(
                         Icons.mode_comment_outlined,
                         size: 18,
-                        color: Colors.grey.shade600,
+                        color: mutedColor,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${comentarios.length}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5D6B84),
+                          color: mutedColor,
                         ),
                       ),
                     ],
@@ -1119,8 +1168,15 @@ class _FeedPageState extends State<FeedPage> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF3059AA).withOpacity(0.08),
+                color: const Color(0xFF3059AA).withOpacity(
+                  darkMode ? 0.12 : 0.08,
+                ),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: darkMode
+                      ? Colors.white.withOpacity(0.06)
+                      : Colors.transparent,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1130,10 +1186,10 @@ class _FeedPageState extends State<FeedPage> {
                       Expanded(
                         child: Text(
                           usuario['username'] ?? 'Usuário',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
-                            color: Color(0xFF1B2233),
+                            color: textColor,
                           ),
                         ),
                       ),
@@ -1154,10 +1210,10 @@ class _FeedPageState extends State<FeedPage> {
                   const SizedBox(height: 4),
                   Text(
                     item['conteudo'] ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       height: 1.55,
-                      color: Color(0xFF24304A),
+                      color: bodyTextColor,
                     ),
                   ),
                 ],
@@ -1178,10 +1234,13 @@ class _FeedPageState extends State<FeedPage> {
           child: TextField(
             controller: controller,
             onSubmitted: (_) => _criarComentario(postId),
+            style: TextStyle(color: textColor),
+            cursorColor: const Color(0xFF3059AA),
             decoration: InputDecoration(
               hintText: 'Compartilhe algo...',
+              hintStyle: TextStyle(color: mutedColor),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.84),
+              fillColor: inputFillColor,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
@@ -1189,7 +1248,9 @@ class _FeedPageState extends State<FeedPage> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(999),
                 borderSide: BorderSide(
-                  color: const Color(0xFF3059AA).withOpacity(0.14),
+                  color: darkMode
+                      ? Colors.white.withOpacity(0.08)
+                      : const Color(0xFF3059AA).withOpacity(0.14),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -1243,13 +1304,19 @@ class _FeedPageState extends State<FeedPage> {
         height: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.78),
+          color: darkMode
+              ? const Color(0xC8080A0E)
+              : Colors.white.withOpacity(0.78),
           border: Border(
-            right: BorderSide(color: Colors.white.withOpacity(0.55)),
+            right: BorderSide(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.white.withOpacity(0.55),
+            ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
               blurRadius: 30,
               offset: const Offset(8, 0),
             ),
@@ -1287,7 +1354,7 @@ class _FeedPageState extends State<FeedPage> {
                       const SizedBox(height: 18),
                       Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
                       const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', 'config', false),
+                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
                     ],
                   ),
@@ -1301,23 +1368,26 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _sidebarProfileItem() {
-    const route = 'perfil';
+    const route = '/perfil';
     final isHovered = sidebarItemHovered == route;
 
     return MouseRegion(
       onEnter: (_) => setState(() => sidebarItemHovered = route),
-      onExit: (_) => setState(() => sidebarItemHovered = null),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pushNamed('perfil'),
+        onTap: () => Navigator.of(context).pushNamed('/perfil'),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
           height: 50,
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isHovered ? const Color(0xFFEAF1F7) : Colors.transparent,
+            color: isHovered
+                ? darkMode
+                    ? Colors.white.withOpacity(0.06)
+                    : const Color(0xFFEAF1F7)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: LayoutBuilder(
@@ -1336,12 +1406,12 @@ class _FeedPageState extends State<FeedPage> {
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 160),
                         opacity: showText ? 1 : 0,
-                        child: const Text(
+                        child: Text(
                           'Perfil',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Color(0xFF33415C),
+                            color: sidebarTextColor,
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
@@ -1365,11 +1435,10 @@ class _FeedPageState extends State<FeedPage> {
     bool active,
   ) {
     final isHovered = sidebarItemHovered == route;
-    final shouldHighlight = active || isHovered;
+    final highlighted = active || isHovered;
 
     return MouseRegion(
       onEnter: (_) => setState(() => sidebarItemHovered = route),
-      onExit: (_) => setState(() => sidebarItemHovered = null),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
@@ -1378,16 +1447,26 @@ class _FeedPageState extends State<FeedPage> {
           }
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
           height: 50,
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: shouldHighlight ? const Color(0xFFEAF1F7) : Colors.transparent,
+            color: highlighted
+                ? darkMode
+                    ? Colors.white.withOpacity(0.06)
+                    : const Color(0xFFEAF1F7)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: active
-                ? Border.all(color: const Color(0xFF3059AA).withOpacity(0.12))
+            border: highlighted
+                ? Border.all(
+                    color: darkMode
+                        ? Colors.white.withOpacity(0.08)
+                        : active
+                            ? const Color(0xFFB8CCEA)
+                            : const Color(0xFFC8D8F0),
+                  )
                 : null,
           ),
           child: LayoutBuilder(
@@ -1400,9 +1479,9 @@ class _FeedPageState extends State<FeedPage> {
                     width: 24,
                     child: Icon(
                       icon,
-                      color: active
+                      color: highlighted
                           ? const Color(0xFF3059AA)
-                          : const Color(0xFF33415C),
+                          : sidebarTextColor,
                       size: 24,
                     ),
                   ),
@@ -1417,9 +1496,9 @@ class _FeedPageState extends State<FeedPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: active
+                            color: highlighted
                                 ? const Color(0xFF3059AA)
-                                : const Color(0xFF33415C),
+                                : sidebarTextColor,
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
@@ -1438,24 +1517,26 @@ class _FeedPageState extends State<FeedPage> {
 }
 
 class _BackgroundDecor extends StatelessWidget {
-  const _BackgroundDecor();
+  final bool darkMode;
+
+  const _BackgroundDecor({required this.darkMode});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: const [
+      children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: Color(0xFFF4F7FB),
+            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
           ),
-          child: SizedBox.expand(),
+          child: const SizedBox.expand(),
         ),
         Positioned(
           top: -120,
           left: 40,
           child: _SoftOrb(
             size: 420,
-            color: Color(0x225EB1BF),
+            color: darkMode ? const Color(0x1C3059AA) : const Color(0x225EB1BF),
             blur: 120,
           ),
         ),
@@ -1464,7 +1545,7 @@ class _BackgroundDecor extends StatelessWidget {
           left: -120,
           child: _SoftOrb(
             size: 420,
-            color: Color(0x185EB1BF),
+            color: darkMode ? const Color(0x145EB1BF) : const Color(0x185EB1BF),
             blur: 130,
           ),
         ),
@@ -1473,7 +1554,7 @@ class _BackgroundDecor extends StatelessWidget {
           right: -80,
           child: _SoftOrb(
             size: 360,
-            color: Color(0x143059AA),
+            color: darkMode ? const Color(0x1C5EB1BF) : const Color(0x143059AA),
             blur: 130,
           ),
         ),
@@ -1520,12 +1601,14 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(0.10),
+            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.10),
             blurRadius: 40,
             offset: const Offset(0, 12),
           ),
@@ -1539,9 +1622,15 @@ class _GlassCard extends StatelessWidget {
             width: double.infinity,
             padding: padding,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.84),
+              color: darkMode
+                  ? const Color(0xE00D0D10)
+                  : Colors.white.withOpacity(0.84),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.65)),
+              border: Border.all(
+                color: darkMode
+                    ? Colors.white.withOpacity(0.05)
+                    : Colors.white.withOpacity(0.65),
+              ),
             ),
             child: child,
           ),
@@ -1659,11 +1748,15 @@ class _GhostButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
+
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
-        foregroundColor: const Color(0xFF455572),
-        backgroundColor: const Color(0xFFF0F2F5),
+        foregroundColor:
+            darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF455572),
+        backgroundColor:
+            darkMode ? Colors.white.withOpacity(0.06) : const Color(0xFFF0F2F5),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1783,7 +1876,12 @@ class _LikeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = liked ? const Color(0xFFD8425C) : const Color(0xFF44536F);
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
+    final color = liked
+        ? const Color(0xFFD8425C)
+        : darkMode
+            ? const Color(0xFFD7DDF0)
+            : const Color(0xFF44536F);
 
     return InkWell(
       onTap: onTap,
@@ -1794,11 +1892,17 @@ class _LikeButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: liked
               ? const Color(0xFFE64862).withOpacity(0.12)
-              : const Color(0xFFEDF2FB),
+              : darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : const Color(0xFFEDF2FB),
           borderRadius: BorderRadius.circular(999),
-          border: liked
-              ? Border.all(color: const Color(0xFFE64862).withOpacity(0.14))
-              : null,
+          border: Border.all(
+            color: liked
+                ? const Color(0xFFE64862).withOpacity(0.14)
+                : darkMode
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.transparent,
+          ),
         ),
         child: Row(
           children: [
@@ -1823,48 +1927,68 @@ class _LikeButton extends StatelessWidget {
 }
 
 class AppText {
-  static const name = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-    color: Color(0xFF1B2233),
-  );
+  static TextStyle name(bool darkMode) {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233),
+    );
+  }
 
-  static const muted = TextStyle(
-    fontSize: 15,
-    height: 1.5,
-    color: Color(0xFF6F7B91),
-  );
+  static TextStyle muted(bool darkMode) {
+    return TextStyle(
+      fontSize: 15,
+      height: 1.5,
+      color: darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91),
+    );
+  }
 
-  static const mutedSmall = TextStyle(
-    fontSize: 13,
-    color: Color(0xFF6F7B91),
-  );
+  static TextStyle mutedSmall(bool darkMode) {
+    return TextStyle(
+      fontSize: 13,
+      color: darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91),
+    );
+  }
 
-  static const dialogTitle = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
-    color: Color(0xFF1B2233),
-  );
+  static TextStyle dialogTitle(bool darkMode) {
+    return TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233),
+    );
+  }
 
-  static const bigTitle = TextStyle(
-    fontSize: 28,
-    height: 1.05,
-    fontWeight: FontWeight.bold,
-    color: Color(0xFF1B2233),
-  );
+  static TextStyle bigTitle(bool darkMode) {
+    return TextStyle(
+      fontSize: 28,
+      height: 1.05,
+      fontWeight: FontWeight.bold,
+      color: darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233),
+    );
+  }
 }
 
 class AppInput {
-  static InputDecoration textArea(String hint) {
+  static InputDecoration textArea(
+    String hint, {
+    required bool darkMode,
+  }) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: TextStyle(
+        color: darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91),
+      ),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.95),
+      fillColor: darkMode
+          ? Colors.white.withOpacity(0.04)
+          : Colors.white.withOpacity(0.95),
       contentPadding: const EdgeInsets.all(18),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(
-          color: const Color(0xFF3059AA).withOpacity(0.14),
+          color: darkMode
+              ? Colors.white.withOpacity(0.08)
+              : const Color(0xFF3059AA).withOpacity(0.14),
         ),
       ),
       focusedBorder: OutlineInputBorder(

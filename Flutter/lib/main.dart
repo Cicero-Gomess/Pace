@@ -1,65 +1,97 @@
 import 'package:flutter/material.dart';
 
+import 'theme_controller.dart';
+
 import 'index.dart';
 import 'entrar.dart';
 import 'cadastro.dart';
 import 'feed.dart';
 import 'postar.dart';
+import 'configuracoes.dart';
 
-void main() {
-  runApp(const PaceApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final themeController = ThemeController();
+  await themeController.loadTheme();
+
+  runApp(PaceApp(themeController: themeController));
 }
 
 class PaceApp extends StatelessWidget {
-  const PaceApp({super.key});
+  final ThemeController themeController;
+
+  const PaceApp({
+    super.key,
+    required this.themeController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Pace',
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        Widget page;
+    return AnimatedBuilder(
+      animation: themeController,
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Pace',
+          themeMode: themeController.themeMode,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: const Color(0xFFF4F7FB),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF3059AA),
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF05070C),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF3059AA),
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          initialRoute: '/',
+          onGenerateRoute: (settings) {
+            Widget page;
 
-        switch (settings.name) {
-          case '/':
-            page = const HomePage();
-            break;
+            switch (settings.name) {
+              case '/':
+                page = const HomePage();
+                break;
 
-          case '/entrar':
-            page = const EntrarPage();
-            break;
+              case '/entrar':
+                page = const EntrarPage();
+                break;
 
-          case '/cadastro':
-            page = const CadastroPage();
-            break;
+              case '/cadastro':
+                page = const CadastroPage();
+                break;
 
-          case '/feed':
-            page = const FeedPage();
-            break;
+              case '/feed':
+                page = const FeedPage();
+                break;
 
-          case '/postar':
-            page = const PostarPage();
-            break;
+              case '/postar':
+                page = const PostarPage();
+                break;
 
-          default:
-            page = const HomePage();
-        }
+              case '/config':
+                page = ConfigPage(themeController: themeController);
+                break;
 
-        return PageRouteBuilder(
-          settings: settings,
-          transitionDuration:
-              const Duration(milliseconds: 650),
-          reverseTransitionDuration:
-              const Duration(milliseconds: 500),
+              default:
+                page = const HomePage();
+            }
 
-          pageBuilder:
-              (context, animation, secondaryAnimation) =>
-                  page,
-
-          transitionsBuilder:
-              (
+            return PageRouteBuilder(
+              settings: settings,
+              transitionDuration: const Duration(milliseconds: 650),
+              reverseTransitionDuration: const Duration(milliseconds: 500),
+              pageBuilder: (context, animation, secondaryAnimation) => page,
+              transitionsBuilder: (
                 context,
                 animation,
                 secondaryAnimation,
@@ -97,6 +129,8 @@ class PaceApp extends StatelessWidget {
                   ),
                 );
               },
+            );
+          },
         );
       },
     );
