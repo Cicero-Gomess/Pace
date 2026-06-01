@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from database import Base
+from database import Base, db
 
 
 # =========================
@@ -100,3 +100,6 @@ class Seguidor(Base):
 
     seguidor = relationship("User", foreign_keys=[seguidor_id], back_populates="seguindo")
     seguindo = relationship("User", foreign_keys=[seguindo_id], back_populates="seguidores")
+
+
+Base.metadata.create_all(db)

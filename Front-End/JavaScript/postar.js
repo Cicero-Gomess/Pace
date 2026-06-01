@@ -19,6 +19,7 @@
 })();
 
 /* ===== CONFIG ===== */
+const API_URL = "http://127.0.0.1:8000";
 const darkMode = localStorage.getItem("darkMode");
 if (darkMode === "true") document.body.classList.add("dark");
 lucide.createIcons();
@@ -142,7 +143,7 @@ async function compactarImagem(file, maxWidth = 1280, quality = 0.82) {
 async function enviarPost(conteudo, imagem) {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://127.0.0.1:8000/post/criar_post", {
+  const response = await fetch(`${API_URL}/post/criar_post`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
