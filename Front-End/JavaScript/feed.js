@@ -129,11 +129,41 @@ function formatarData(dataISO) {
   const data = new Date(dataISO);
   if (Number.isNaN(data.getTime())) return "";
 
-  return data.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
+  const agora = new Date();
+  const diferenca = agora - data;
+  const segundos = Math.floor(diferenca / 1000);
+  const minutos = Math.floor(segundos / 60);
+  const horas = Math.floor(minutos / 60);
+  const dias = Math.floor(horas / 24);
+  const semanas = Math.floor(dias / 7);
+  const meses = Math.floor(dias / 30);
+  const anos = Math.floor(dias / 365);
+
+  if (segundos < 60) {
+    return "há poucos segundos";
+  }
+
+  if (minutos < 60) {
+    return `há ${minutos} minuto${minutos === 1 ? "" : "s"}`;
+  }
+
+  if (horas < 24) {
+    return `há ${horas} hora${horas === 1 ? "" : "s"}`;
+  }
+
+  if (dias < 7) {
+    return `há ${dias} dia${dias === 1 ? "" : "s"}`;
+  }
+
+  if (semanas < 5) {
+    return `há ${semanas} semana${semanas === 1 ? "" : "s"}`;
+  }
+
+  if (meses < 12) {
+    return `há ${meses} mês${meses === 1 ? "" : "es"}`;
+  }
+
+  return `há ${anos} ano${anos === 1 ? "" : "s"}`;
 }
 
 function escaparHTML(valor) {

@@ -569,6 +569,10 @@ body {
   margin-bottom: 14px;
 }
 
+.loading-state i {
+  animation: spin 1.2s linear infinite;
+}
+
 .empty-state h3 {
   margin: 0 0 8px;
   font-size: 26px;
@@ -656,6 +660,218 @@ body.dark .idea-footer {
   color: #a9b4cb;
 }
 
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(8, 14, 28, 0.58);
+  z-index: 100;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-panel {
+  position: relative;
+  width: min(1040px, 100%);
+  max-height: min(95vh, 880px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 32px;
+  box-shadow: 0 28px 80px rgba(14, 26, 52, 0.24);
+}
+
+.modal-body {
+  padding: 28px 28px 22px;
+  overflow-y: auto;
+  max-height: 95vh;
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(20, 39, 77, 0.12);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.modal-close:hover {
+  transform: scale(1.03);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.modal-header {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+.modal-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  object-fit: cover;
+  box-shadow: 0 16px 34px rgba(48, 89, 170, 0.16);
+}
+
+.modal-meta h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.modal-meta p {
+  margin: 0 10px 12px 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.modal-meta .profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modal-meta .profile-tag {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(48, 89, 170, 0.08);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.modal-section {
+  margin-top: 24px;
+}
+
+.modal-section h3 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.modal-posts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.modal-post-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(48, 89, 170, 0.12);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+}
+
+.modal-post-card h4 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.modal-post-card p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.modal-post-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 18px;
+  margin-top: 16px;
+}
+
+.modal-post-meta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+  color: #516386;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.modal-empty,
+.modal-loading {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(48, 89, 170, 0.12);
+  border-radius: 22px;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+body.dark .modal-panel {
+  background: rgba(10, 12, 18, 0.95);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark .modal-body {
+  color: #e5ecff;
+}
+
+body.dark .modal-close {
+  background: rgba(20, 26, 44, 0.9);
+  color: white;
+}
+
+body.dark .modal-post-card {
+  background: rgba(8, 10, 14, 0.92);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark .modal-meta .profile-tag,
+body.dark .modal-post-meta {
+  color: #a9b4cb;
+}
+
+body.dark .modal-empty,
+body.dark .modal-loading {
+  background: rgba(10, 12, 18, 0.92);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 880px) {
+  .modal-header,
+  .modal-posts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .modal-body {
+    padding: 20px;
+  }
+
+  .modal-close {
+    top: 14px;
+    right: 14px;
+  }
+}
+
 /* ANIMAÇÃO */
 @keyframes revealCard {
   from {
@@ -667,6 +883,15 @@ body.dark .idea-footer {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

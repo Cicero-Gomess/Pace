@@ -126,21 +126,26 @@
           </div>
         </div>
 
-        <div id="profilesGrid" class="profiles-grid"></div>
-      </section>
-
-      <section class="secao-explorar">
-        <div class="secao-topo">
-          <div>
-            <span class="secao-kicker">Inspiração</span>
-            <h2>Ideias e trilhas de foco</h2>
+        <div id="profilesGrid" class="profiles-grid">
+          <div class="empty-state loading-state">
+            <i data-lucide="refresh-cw"></i>
+            <h3>Buscando perfis reais</h3>
+            <p>Aguarde um momento enquanto carregamos perfis criados na API.</p>
           </div>
         </div>
-
-        <div id="ideasGrid" class="ideas-grid"></div>
       </section>
     </section>
   </main>
+
+  <div id="profileModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-panel">
+      <button id="closeProfileModal" class="modal-close" aria-label="Fechar perfil">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-body"></div>
+    </div>
+  </div>
 
   <script src="../JavaScript/explorar.js"></script>
 </body>
