@@ -1,4 +1,3 @@
-const API_URL = "http://127.0.0.1:8000";
 const formCadastro = document.getElementById("cadastroForm");
 
 if (formCadastro) {
@@ -32,7 +31,7 @@ if (formCadastro) {
       return;
     }
 
-    fetch(`${API_URL}/auth/criar_usuario`, {
+    fetch("http://localhost:8000/auth/criar_usuario", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

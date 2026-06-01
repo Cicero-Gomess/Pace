@@ -1,5 +1,5 @@
 /* ===== CONFIG ===== */
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://localhost:8000";
 
 /* ===== ELEMENTOS ===== */
 const formLogin = document.getElementById("loginForm");
