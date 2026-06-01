@@ -269,3 +269,55 @@ async def atualizar_post(
             status_code=500,
             detail=f"Erro ao atualizar post: {str(e)}"
         )
+    
+@post_router.get("/buscar_post_conteudo/")
+async def buscar_post_conteudo(
+    q: str,
+    session: Session = Depends(pegar_sessao),
+    usuario_atual=Depends(pegar_usuario_atual)
+):
+    """
+    Busca posts pelo conteúdo (query string `q`).
+    Retorna lista de posts que contenham a string `q` (case-insensitive).
+    """
+    try:
+        if not q or not q.strip():
+            raise HTTPException(status_code=400, detail="Parâmetro de busca vazio")
+
+        posts = (
+            session.query(Post)
+            .join(Post.usuario)
+            .filter(Post.conteudo.ilike(f"%{q}%"))
+            .order_by(Post.data_postagem.desc())
+            .all()
+        )
+
+        resultados = []
+        for post in posts:
+            total_curtidas = len(post.curtidas)
+            usuario_curtiu = any(
+                curtida.usuario_id == usuario_atual.id
+                for curtida in post.curtidas
+            )
+
+            resultados.append(FeedPostSchema(
+                id=post.id,
+                conteudo=post.conteudo,
+                imagem=post.imagem,
+                data_postagem=post.data_postagem,
+                likes=total_curtidas,
+                liked=usuario_curtiu,
+                usuario={
+                    "id": post.usuario.id,
+                    "username": post.usuario.username,
+                    "email": post.usuario.email,
+                    "foto_perfil": post.usuario.foto_perfil
+                }
+            ))
+
+        return resultados
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro na busca: {str(e)}")

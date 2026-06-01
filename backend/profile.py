@@ -52,3 +52,40 @@ async def trocar_foto(
             status_code=500,
             detail="Erro ao atualizar a foto de perfil"
         )
+
+@profile_router.get("/buscar_por_username/")
+async def buscar_por_username(
+    username: str,
+    session: Session = Depends(pegar_sessao)
+):
+    """
+    Busca perfis pelo `username` (query string `username`).
+    Retorna lista de usuários cujo `username` contenha o termo (case-insensitive).
+    """
+    try:
+        if not username or not username.strip():
+            raise HTTPException(status_code=400, detail="Parâmetro username vazio")
+
+        usuarios = (
+            session.query(User)
+            .filter(User.username.ilike(f"%{username}%"))
+            .order_by(User.username.asc())
+            .all()
+        )
+
+        resultados = [
+            {
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "foto_perfil": getattr(u, "foto_perfil", None)
+            }
+            for u in usuarios
+        ]
+
+        return resultados
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Erro ao buscar usuários")
