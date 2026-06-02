@@ -67,7 +67,7 @@ if (formLogin) {
         /* ===== BUSCAR FOTO SALVA LOCAL ===== */
         const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
 
-        let fotoUsuario = "../Images/image.person.png";
+        let fotoUsuario = "../Images/avatar-placeholder.svg";
 
         if (usuarios[usuarioData.username] && usuarios[usuarioData.username].foto) {
           fotoUsuario = usuarios[usuarioData.username].foto;

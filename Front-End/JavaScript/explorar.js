@@ -6,7 +6,7 @@
   if (!user) return;
 
   const userData = usuarios[user.username];
-  const foto = userData?.foto || user.foto || "../Images/image.person.png";
+  const foto = userData?.foto || user.foto || "../Images/avatar-placeholder.svg";
 
   document.querySelectorAll(".foto-perfil").forEach(f => {
     f.src = foto;
@@ -21,53 +21,52 @@ if (darkMode === "true") {
 
 lucide.createIcons();
 
-/* ===== CONFIGURAÃ‡ÃƒO DE API ===== */
+/* ===== CONFIGURAÇÃO DE API ===== */
 const API_URL = "http://127.0.0.1:8000";
-const defaultProfileSearch = "a";
 let profilesData = [];
 
 const fallbackProfiles = [
   {
     nome: "Lara Mendes",
     username: "@laradisciplina",
-    bio: "Transformando rotina em resultado com constÃ¢ncia, treino e estudo diÃ¡rio.",
-    avatar: "../Images/image.person.png",
-    tags: ["Disciplina", "Mindset", "ConsistÃªncia"]
+    bio: "Transformando rotina em resultado com constância, treino e estudo diário.",
+    avatar: "../Images/avatar-placeholder.svg",
+    tags: ["Disciplina", "Mindset", "Consistência"]
   },
   {
     nome: "Caio Rocha",
     username: "@caioprodutivo",
     bio: "Foco, deep work e sistemas simples para render mais sem se perder.",
-    avatar: "../Images/image.person.png",
+    avatar: "../Images/avatar-placeholder.svg",
     tags: ["Produtividade", "Estudos", "Foco"]
   },
   {
     nome: "Ana Beatriz",
     username: "@anaemmovimento",
-    bio: "Academia, energia e pequenos hÃ¡bitos que melhoram o dia inteiro.",
-    avatar: "../Images/image.person.png",
+    bio: "Academia, energia e pequenos hábitos que melhoram o dia inteiro.",
+    avatar: "../Images/avatar-placeholder.svg",
     tags: ["Academia", "Rotina", "Energia"]
   },
   {
     nome: "Rafael Costa",
     username: "@rafamind",
-    bio: "Mentalidade forte, clareza e evoluÃ§Ã£o pessoal sem romantizar o caos.",
-    avatar: "../Images/image.person.png",
+    bio: "Mentalidade forte, clareza e evolução pessoal sem romantizar o caos.",
+    avatar: "../Images/avatar-placeholder.svg",
     tags: ["Mindset", "Disciplina", "Clareza"]
   },
   {
     nome: "Julia Alves",
     username: "@juliaestuda",
-    bio: "OrganizaÃ§Ã£o real para quem quer estudar melhor e viver com mais leveza.",
-    avatar: "../Images/image.person.png",
+    bio: "Organização real para quem quer estudar melhor e viver com mais leveza.",
+    avatar: "../Images/avatar-placeholder.svg",
     tags: ["Estudos", "Planejamento", "Rotina"]
   },
   {
     nome: "Victor Hugo",
     username: "@victorflow",
-    bio: "Construindo hÃ¡bitos sÃ³lidos e compartilhando os bastidores da evoluÃ§Ã£o.",
-    avatar: "../Images/image.person.png",
-    tags: ["Produtividade", "Mindset", "HÃ¡bitos"]
+    bio: "Construindo hábitos sólidos e compartilhando os bastidores da evolução.",
+    avatar: "../Images/avatar-placeholder.svg",
+    tags: ["Produtividade", "Mindset", "Hábitos"]
   }
 ];
 
@@ -79,7 +78,7 @@ function buildProfileFromAPI(user) {
     nome: withoutAt,
     username: `@${withoutAt}`,
     bio: user.email ? user.email : "Perfil criado no Pace",
-    avatar: user.foto_perfil || "../Images/image.person.png",
+    avatar: user.foto_perfil || "../Images/avatar-placeholder.svg",
     tags: []
   };
 }
@@ -93,19 +92,38 @@ function loadSavedProfiles() {
       nome: cleanUsername,
       username: `@${cleanUsername}`,
       bio: data.bio || data.email || "Perfil salvo no navegador",
-      avatar: data.foto || data.foto_perfil || "../Images/image.person.png",
+      avatar: data.foto || data.foto_perfil || "../Images/avatar-placeholder.svg",
       tags: []
     };
   });
 }
 
-async function fetchProfiles(query = defaultProfileSearch) {
-  const term = query && query.trim().length ? query.trim() : defaultProfileSearch;
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+async function fetchProfiles(query = "") {
+  const term = query && query.trim().length ? query.trim() : "";
+  const token = getToken();
 
   try {
-    const response = await fetch(
-      `${API_URL}/profile/buscar_por_username/?username=${encodeURIComponent(term)}`
-    );
+    // Construir URL com parâmetros de busca e paginação
+    let url = `${API_URL}/profile/buscar_por_username/?skip=0&limit=100`;
+    
+    if (term) {
+      url += `&username=${encodeURIComponent(term)}`;
+    }
+
+    const headers = {
+      "Content-Type": "application/json"
+    };
+
+    // Adicionar token de autenticação se disponível
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, { headers });
 
     if (!response.ok) {
       throw new Error("Falha ao buscar perfis");
@@ -123,6 +141,7 @@ async function fetchProfiles(query = defaultProfileSearch) {
       profilesData = fallbackProfiles;
     }
   } catch (error) {
+    console.error("Erro ao buscar perfis:", error);
     profilesData = loadSavedProfiles();
     if (!profilesData.length) {
       profilesData = fallbackProfiles;
@@ -186,7 +205,7 @@ async function renderProfiles() {
   `;
   lucide.createIcons();
 
-  await fetchProfiles(termoAtual || defaultProfileSearch);
+  await fetchProfiles(termoAtual);
 
   const filtrados = profilesData.filter(profileMatch);
 
@@ -333,7 +352,7 @@ async function openProfileModal(profile) {
   if (posts === null) {
     postsContainer.innerHTML = `
       <div class="modal-empty">
-        FaÃ§a login para ver as postagens deste perfil.
+        Faça login para ver as postagens deste perfil.
       </div>
     `;
     return;
@@ -363,29 +382,29 @@ async function openProfileModal(profile) {
     const years = Math.floor(days / 365);
 
     if (seconds < 60) {
-      return "hÃ¡ poucos segundos";
+      return "há poucos segundos";
     }
     if (minutes < 60) {
-      return `hÃ¡ ${minutes} minuto${minutes === 1 ? "" : "s"}`;
+      return `há ${minutes} minuto${minutes === 1 ? "" : "s"}`;
     }
     if (hours < 24) {
-      return `hÃ¡ ${hours} hora${hours === 1 ? "" : "s"}`;
+      return `há ${hours} hora${hours === 1 ? "" : "s"}`;
     }
     if (days < 7) {
-      return `hÃ¡ ${days} dia${days === 1 ? "" : "s"}`;
+      return `há ${days} dia${days === 1 ? "" : "s"}`;
     }
     if (weeks < 5) {
-      return `hÃ¡ ${weeks} semana${weeks === 1 ? "" : "s"}`;
+      return `há ${weeks} semana${weeks === 1 ? "" : "s"}`;
     }
     if (months < 12) {
-      return `hÃ¡ ${months} mÃªs${months === 1 ? "" : "es"}`;
+      return `há ${months} mês${months === 1 ? "" : "es"}`;
     }
-    return `hÃ¡ ${years} ano${years === 1 ? "" : "s"}`;
+    return `há ${years} ano${years === 1 ? "" : "s"}`;
   }
 
   postsContainer.innerHTML = posts
     .map((post) => {
-      const content = post.conteudo || "Sem descriÃ§Ã£o";
+      const content = post.conteudo || "Sem descrição";
       const formattedDate = post.data_postagem
         ? formatRelativeTime(post.data_postagem)
         : "";
@@ -397,7 +416,7 @@ async function openProfileModal(profile) {
           ${post.imagem ? `<img src="${post.imagem}" alt="Imagem do post" class="modal-post-image">` : ""}
           <div class="modal-post-meta">
             <span>${formattedDate}</span>
-            <span>â¤ï¸ ${post.likes ?? 0}</span>
+            <span>❤️ ${post.likes ?? 0}</span>
           </div>
         </article>
       `;

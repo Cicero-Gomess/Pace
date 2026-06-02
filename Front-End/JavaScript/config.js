@@ -81,7 +81,7 @@
 
   if (usuarioLogado) {
     const userData = usuarios[usuarioLogado.username] || {};
-    const foto = userData.foto || usuarioLogado.foto || "../Images/image.person.png";
+    const foto = userData.foto || usuarioLogado.foto || "../Images/avatar-placeholder.svg";
 
     if (fotoSidebar) {
       fotoSidebar.src = foto;

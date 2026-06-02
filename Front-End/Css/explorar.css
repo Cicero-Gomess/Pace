@@ -229,7 +229,7 @@ body {
   box-shadow: var(--shadow-soft);
   border-radius: 28px;
   padding: 22px;
-  margin-bottom: 24px;
+  margin-bottom: 40px; 
 }
 
 .busca-box {
@@ -258,34 +258,7 @@ body {
   color: var(--text);
 }
 
-.chips {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
 
-.chip {
-  border: none;
-  border-radius: 999px;
-  padding: 10px 14px;
-  background: rgba(48, 89, 170, 0.08);
-  color: #4e5b74;
-  cursor: pointer;
-  font-weight: 700;
-  transition: 0.22s ease;
-}
-
-.chip:hover {
-  transform: translateY(-1px);
-  background: rgba(48, 89, 170, 0.12);
-}
-
-.chip.active {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  color: white;
-  box-shadow: 0 10px 20px rgba(48, 89, 170, 0.18);
-}
 
 /* HIGHLIGHTS */
 .destaque-grid {
@@ -422,7 +395,7 @@ body {
 .profile-avatar {
   width: 58px;
   height: 58px;
-  border-radius: 18px;
+  border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 10px 22px rgba(48, 89, 170, 0.16);

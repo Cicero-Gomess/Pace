@@ -6,7 +6,7 @@
   if (!user) return;
 
   const userData = usuarios[user.username];
-  const foto = userData?.foto || user.foto || "../Images/image.person.png";
+  const foto = userData?.foto || user.foto || "../Images/avatar-placeholder.svg";
 
   document.querySelectorAll(".foto-perfil").forEach(f => {
     f.src = foto;
@@ -28,7 +28,7 @@ let user = {
   id: null,
   nome: "Usuário",
   usuario: "@anonimo",
-  foto: "../Images/image.person.png"
+  foto: "../Images/avatar-placeholder.svg"
 };
 
 const logado = localStorage.getItem("usuarioLogado");
@@ -39,7 +39,7 @@ if (logado) {
     user.id = dados.id || null;
     user.nome = dados.username || "Usuário";
     user.usuario = dados.username ? `@${dados.username}` : "@anonimo";
-    user.foto = dados.foto || "../Images/image.person.png";
+    user.foto = dados.foto || "../Images/avatar-placeholder.svg";
   } catch (e) {}
 }
 

@@ -135,7 +135,7 @@ function normalizarComentario(comentario) {
     texto: comentario.conteudo ?? comentario.texto ?? comentario.comentario ?? "",
     userId: comentario.usuario?.id ?? comentario.usuario_id ?? null,
     username: comentario.usuario?.username ?? comentario.username ?? "Usuario",
-    foto: comentario.usuario?.foto_perfil ?? comentario.foto_perfil ?? "../Images/image.person.png"
+    foto: comentario.usuario?.foto_perfil ?? comentario.foto_perfil ?? "../Images/avatar-placeholder.svg"
   };
 }
 
@@ -148,10 +148,10 @@ function atualizarFotoGlobal() {
   const userData = usuarios[user.username];
 
   const foto =
-    user.foto_perfil ||
-    user.foto ||
-    userData?.foto ||
-    "../Images/image.person.png";
+  user.foto_perfil ||
+  user.foto ||
+  userData?.foto ||
+  "../Images/avatar-placeholder.svg";
 
   document.querySelectorAll(".foto-perfil").forEach((img) => {
     if (img.getAttribute("src") !== foto) {
@@ -241,7 +241,7 @@ async function getPostsAPI() {
         likes: Number(post.likes ?? 0),
         liked: Boolean(post.liked ?? false),
         username: post.usuario?.username ?? "usuario",
-        foto: post.usuario?.foto_perfil || "../Images/image.person.png",
+        foto: post.usuario?.foto_perfil || "../Images/avatar-placeholder.svg",
         data: post.data_postagem ?? "",
         comentarios: []
       }))
@@ -301,10 +301,10 @@ inputFoto?.addEventListener("change", async () => {
   if (!userAtual) return;
 
   const fotoAnterior =
-    userAtual.foto_perfil ||
-    userAtual.foto ||
-    usuarios[userAtual.username]?.foto ||
-    "../Images/image.person.png";
+  userAtual.foto_perfil ||
+  userAtual.foto ||
+  usuarios[userAtual.username]?.foto ||
+  "../Images/avatar-placeholder.svg";
 
   try {
     const novaFoto = await compactarImagem(file);

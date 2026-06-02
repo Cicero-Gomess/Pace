@@ -178,10 +178,10 @@ function escaparHTML(valor) {
 function atualizarFotoSidebar() {
   if (!fotoSidebarEl || !usuario) return;
 
-  fotoSidebarEl.src =
-    usuario.foto_perfil ||
-    usuario.foto ||
-    "../Images/image.person.png";
+    fotoSidebarEl.src =
+      usuario.foto_perfil ||
+      usuario.foto ||
+      "../Images/avatar-placeholder.svg";
 }
 
 function normalizarComentario(comentario) {
@@ -190,7 +190,7 @@ function normalizarComentario(comentario) {
     texto: comentario.conteudo ?? comentario.texto ?? comentario.comentario ?? "",
     userId: comentario.usuario?.id ?? comentario.usuario_id ?? null,
     username: comentario.usuario?.username ?? comentario.username ?? "Usuario",
-    foto: comentario.usuario?.foto_perfil ?? comentario.foto_perfil ?? "../Images/image.person.png"
+      foto: comentario.usuario?.foto_perfil ?? comentario.foto_perfil ?? "../Images/avatar-placeholder.svg"
   };
 }
 
@@ -204,7 +204,7 @@ function normalizarPost(post) {
     imagem: post.imagem ?? "",
     likes: Number(post.likes ?? 0),
     liked: Boolean(post.liked ?? false),
-    foto: post.usuario?.foto_perfil ?? "../Images/image.person.png",
+      foto: post.usuario?.foto_perfil ?? "../Images/avatar-placeholder.svg",
     data: post.data_postagem ?? post.data ?? "",
     comentarios: Array.isArray(post.comentarios)
       ? post.comentarios.map(normalizarComentario)
@@ -398,7 +398,7 @@ function criarComentarioHTML(post, comentario) {
     <div class="comentario" data-comment-id="${comentario.id}">
       <img
         class="comentario-avatar"
-        src="${escaparHTML(comentario.foto || "../Images/image.person.png")}"
+        src="${escaparHTML(comentario.foto || "../Images/avatar-placeholder.svg") }"
         alt="Foto de ${escaparHTML(comentario.username)}"
       >
 

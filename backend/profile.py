@@ -55,21 +55,34 @@ async def trocar_foto(
 
 @profile_router.get("/buscar_por_username/")
 async def buscar_por_username(
-    username: str,
-    session: Session = Depends(pegar_sessao)
+    username: str = "",
+    skip: int = 0,
+    limit: int = 100,
+    session: Session = Depends(pegar_sessao),
+    usuario_atual: User = Depends(pegar_usuario_atual)
 ):
     """
     Busca perfis pelo `username` (query string `username`).
     Retorna lista de usuários cujo `username` contenha o termo (case-insensitive).
+    Se username estiver vazio, retorna TODOS os usuários com paginação.
+    EXCLUI o próprio usuário logado dos resultados.
     """
     try:
-        if not username or not username.strip():
-            raise HTTPException(status_code=400, detail="Parâmetro username vazio")
-
+        query = session.query(User)
+        
+        # Excluir o usuário logado dos resultados
+        query = query.filter(User.id != usuario_atual.id)
+        
+        # Filtrar por username se fornecido
+        if username and username.strip():
+            query = query.filter(User.username.ilike(f"%{username}%"))
+        
+        # Aplicar paginação
         usuarios = (
-            session.query(User)
-            .filter(User.username.ilike(f"%{username}%"))
+            query
             .order_by(User.username.asc())
+            .offset(skip)
+            .limit(limit)
             .all()
         )
 
