@@ -8,6 +8,7 @@ from profile import profile_router
 
 app = FastAPI()
 
+# Com cookies HttpOnly, allow_origins não pode ser "*" — liste origens explícitas do front.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -17,9 +18,6 @@ app.add_middleware(
         "http://127.0.0.1:50098",
         "http://localhost:51802",
         "http://127.0.0.1:51802",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -1,102 +1,37 @@
-/* ===== CONFIG ===== */
-const API_URL = "http://localhost:8000";
+import { login, redirectIfAuthenticated } from "./shared/auth.js";
+import { setFormMessage } from "./shared/ui.js";
+import { ApiError } from "./shared/api.js";
 
-/* ===== ELEMENTOS ===== */
+redirectIfAuthenticated();
+
 const formLogin = document.getElementById("loginForm");
 const mensagem = document.getElementById("loginMensagem");
 
-/* ===== LOGIN ===== */
 if (formLogin) {
-
-  formLogin.addEventListener("submit", function (e) {
-
+  formLogin.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const usuario = document.getElementById("loginEmail").value.trim();
     const senha = document.getElementById("loginSenha").value.trim();
 
-    /* ===== VALIDAÇÃO ===== */
-    if (usuario === "" || senha === "") {
-      mensagem.innerText = "Preencha todos os campos.";
-      mensagem.style.color = "red";
+    if (!usuario || !senha) {
+      setFormMessage(mensagem, "Preencha todos os campos.");
       return;
     }
 
-    /* ===== REQUISIÇÃO LOGIN ===== */
-    fetch(`${API_URL}/auth/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        username: usuario,
-        password: senha
-      })
-    })
-      .then(response => {
-        if (!response.ok) {
-          return response.json().then(err => { throw err });
-        }
-        return response.json();
-      })
+    try {
+      await login(usuario, senha);
+      setFormMessage(mensagem, "Login realizado com sucesso!", "sucesso");
 
-      .then(data => {
-
-        /* ===== SALVA TOKEN ===== */
-        localStorage.setItem("token", data.access_token);
-
-        /* ===== BUSCAR USUÁRIO ===== */
-        return fetch(`${API_URL}/auth/me`, {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + data.access_token
-          }
-        });
-
-      })
-
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Erro ao obter usuário.");
-        }
-        return response.json();
-      })
-
-      .then(usuarioData => {
-
-        /* ===== BUSCAR FOTO SALVA LOCAL ===== */
-        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
-
-        let fotoUsuario = "../Images/avatar-placeholder.svg";
-
-        if (usuarios[usuarioData.username] && usuarios[usuarioData.username].foto) {
-          fotoUsuario = usuarios[usuarioData.username].foto;
-        }
-
-        /* ===== SALVAR USUÁRIO LOGADO ===== */
-        localStorage.setItem("usuarioLogado", JSON.stringify({
-          id: usuarioData.id,
-          username: usuarioData.username,
-          email: usuarioData.email,
-          foto: fotoUsuario
-        }));
-
-        /* ===== SUCESSO ===== */
-        mensagem.innerText = "Login realizado com sucesso!";
-        mensagem.style.color = "green";
-
-        setTimeout(() => {
-          window.location.href = "feed.html";
-        }, 1000);
-
-      })
-
-      .catch(error => {
-        console.error(error);
-        mensagem.innerText = error.detail || error.message || "Erro ao fazer login.";
-        mensagem.style.color = "red";
-      });
-
+      setTimeout(() => {
+        window.location.href = "feed.html";
+      }, 800);
+    } catch (error) {
+      const texto =
+        error instanceof ApiError
+          ? error.message
+          : error?.detail || "Erro ao fazer login.";
+      setFormMessage(mensagem, texto);
+    }
   });
-
 }

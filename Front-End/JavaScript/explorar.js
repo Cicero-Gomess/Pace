@@ -1,135 +1,64 @@
-﻿/* ===== FOTO GLOBAL ===== */
-(function () {
-  const user = JSON.parse(localStorage.getItem("usuarioLogado"));
-  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+﻿import { initAppShell } from "./shared/app-shell.js";
+import { isAuthenticated } from "./shared/auth.js";
+import { initLucide } from "./shared/ui.js";
+import {
+  escaparHTML,
+  normalizarTexto,
+  formatarDataRelativa,
+} from "./shared/utils.js";
+import { AVATAR_PLACEHOLDER } from "./shared/config.js";
+import { getUsersCache } from "./shared/users-cache.js";
+import { searchProfiles } from "./shared/services/profile-service.js";
+import { apiFetch } from "./shared/api.js";
 
-  if (!user) return;
-
-  const userData = usuarios[user.username];
-  const foto = userData?.foto || user.foto || "../Images/avatar-placeholder.svg";
-
-  document.querySelectorAll(".foto-perfil").forEach(f => {
-    f.src = foto;
-  });
-})();
-
-/* ===== DARK MODE ===== */
-const darkMode = localStorage.getItem("darkMode");
-if (darkMode === "true") {
-  document.body.classList.add("dark");
-}
-
-lucide.createIcons();
-
-/* ===== CONFIGURAÇÃO DE API ===== */
-const API_URL = "http://127.0.0.1:8000";
-let profilesData = [];
+await initAppShell({ requireLogin: false });
 
 const fallbackProfiles = [
   {
     nome: "Lara Mendes",
     username: "@laradisciplina",
-    bio: "Transformando rotina em resultado com constância, treino e estudo diário.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Disciplina", "Mindset", "Consistência"]
+    bio: "Transformando rotina em resultado com constância.",
+    avatar: AVATAR_PLACEHOLDER,
+    tags: ["Disciplina", "Mindset"],
   },
-  {
-    nome: "Caio Rocha",
-    username: "@caioprodutivo",
-    bio: "Foco, deep work e sistemas simples para render mais sem se perder.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Produtividade", "Estudos", "Foco"]
-  },
-  {
-    nome: "Ana Beatriz",
-    username: "@anaemmovimento",
-    bio: "Academia, energia e pequenos hábitos que melhoram o dia inteiro.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Academia", "Rotina", "Energia"]
-  },
-  {
-    nome: "Rafael Costa",
-    username: "@rafamind",
-    bio: "Mentalidade forte, clareza e evolução pessoal sem romantizar o caos.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Mindset", "Disciplina", "Clareza"]
-  },
-  {
-    nome: "Julia Alves",
-    username: "@juliaestuda",
-    bio: "Organização real para quem quer estudar melhor e viver com mais leveza.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Estudos", "Planejamento", "Rotina"]
-  },
-  {
-    nome: "Victor Hugo",
-    username: "@victorflow",
-    bio: "Construindo hábitos sólidos e compartilhando os bastidores da evolução.",
-    avatar: "../Images/avatar-placeholder.svg",
-    tags: ["Produtividade", "Mindset", "Hábitos"]
-  }
 ];
+
+let profilesData = [];
+let modalPostsCache = [];
 
 function buildProfileFromAPI(user) {
   const rawUsername = user.username || "Perfil Pace";
   const withoutAt = rawUsername.replace(/^@/, "");
 
   return {
+    id: user.id,
     nome: withoutAt,
     username: `@${withoutAt}`,
-    bio: user.email ? user.email : "Perfil criado no Pace",
-    avatar: user.foto_perfil || "../Images/avatar-placeholder.svg",
-    tags: []
+    bio: user.email ? user.email : "Perfil no Pace",
+    avatar: user.foto_perfil || AVATAR_PLACEHOLDER,
+    tags: [],
   };
 }
 
 function loadSavedProfiles() {
-  const savedUsers = JSON.parse(localStorage.getItem("usuarios")) || {};
+  const savedUsers = getUsersCache();
 
   return Object.entries(savedUsers).map(([username, data]) => {
-    const cleanUsername = username.replace(/^@/, "");
+    const clean = username.replace(/^@/, "");
+
     return {
-      nome: cleanUsername,
-      username: `@${cleanUsername}`,
-      bio: data.bio || data.email || "Perfil salvo no navegador",
-      avatar: data.foto || data.foto_perfil || "../Images/avatar-placeholder.svg",
-      tags: []
+      nome: clean,
+      username: `@${clean}`,
+      bio: data.bio || data.email || "Perfil salvo localmente",
+      avatar: data.foto || data.foto_perfil || AVATAR_PLACEHOLDER,
+      tags: [],
     };
   });
 }
 
-function getToken() {
-  return localStorage.getItem("token");
-}
-
 async function fetchProfiles(query = "") {
-  const term = query && query.trim().length ? query.trim() : "";
-  const token = getToken();
-
   try {
-    // Construir URL com parâmetros de busca e paginação
-    let url = `${API_URL}/profile/buscar_por_username/?skip=0&limit=100`;
-    
-    if (term) {
-      url += `&username=${encodeURIComponent(term)}`;
-    }
-
-    const headers = {
-      "Content-Type": "application/json"
-    };
-
-    // Adicionar token de autenticação se disponível
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, { headers });
-
-    if (!response.ok) {
-      throw new Error("Falha ao buscar perfis");
-    }
-
-    const data = await response.json();
+    const data = await searchProfiles({ username: query });
 
     if (Array.isArray(data) && data.length) {
       profilesData = data.map(buildProfileFromAPI);
@@ -137,44 +66,25 @@ async function fetchProfiles(query = "") {
     }
 
     profilesData = loadSavedProfiles();
-    if (!profilesData.length) {
-      profilesData = fallbackProfiles;
-    }
+    if (!profilesData.length) profilesData = fallbackProfiles;
   } catch (error) {
     console.error("Erro ao buscar perfis:", error);
     profilesData = loadSavedProfiles();
-    if (!profilesData.length) {
-      profilesData = fallbackProfiles;
-    }
+    if (!profilesData.length) profilesData = fallbackProfiles;
   }
 }
 
-
-/* ===== ELEMENTOS ===== */
 const profilesGrid = document.getElementById("profilesGrid");
 const searchInput = document.getElementById("searchInput");
 const chips = document.querySelectorAll(".chip");
+const profileModal = document.getElementById("profileModal");
+const closeProfileModal = document.getElementById("closeProfileModal");
 
 let filtroAtual = "todos";
 let termoAtual = "";
 
-/* ===== HELPERS ===== */
-function normalizar(texto) {
-  return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
 function combinarBusca(...campos) {
-  return normalizar(campos.join(" "));
-}
-
-function renderEmpty(container, titulo, descricao) {
-  container.innerHTML = `
-    <div class="empty-state">
-      <i data-lucide="search-x"></i>
-      <h3>${titulo}</h3>
-      <p>${descricao}</p>
-    </div>
-  `;
+  return normalizarTexto(campos.join(" "));
 }
 
 function profileMatch(profile) {
@@ -185,128 +95,135 @@ function profileMatch(profile) {
     profile.tags.join(" ")
   );
 
-  const termoOk = !termoAtual || base.includes(normalizar(termoAtual));
+  const termoOk = !termoAtual || base.includes(normalizarTexto(termoAtual));
   const filtroOk =
     filtroAtual === "todos" ||
-    profile.tags.some(tag => normalizar(tag).includes(normalizar(filtroAtual))) ||
-    base.includes(normalizar(filtroAtual));
+    profile.tags.some((tag) =>
+      normalizarTexto(tag).includes(normalizarTexto(filtroAtual))
+    ) ||
+    base.includes(normalizarTexto(filtroAtual));
 
   return termoOk && filtroOk;
 }
 
-/* ===== RENDER PERFIS ===== */
-async function renderProfiles() {
-  profilesGrid.innerHTML = `
-    <div class="empty-state loading-state">
-      <i data-lucide="refresh-cw"></i>
-      <h3>Buscando perfis reais</h3>
-      <p>Aguarde um momento enquanto carregamos perfis criados na API.</p>
+function renderEmpty(container, titulo, descricao) {
+  container.innerHTML = `
+    <div class="empty-state">
+      <i data-lucide="search-x"></i>
+      <h3>${escaparHTML(titulo)}</h3>
+      <p>${escaparHTML(descricao)}</p>
     </div>
   `;
-  lucide.createIcons();
 
-  await fetchProfiles(termoAtual);
-
-  const filtrados = profilesData.filter(profileMatch);
-
-  if (!filtrados.length) {
-    renderEmpty(
-      profilesGrid,
-      "Nenhum perfil encontrado",
-      "Tente outro termo ou troque o filtro para descobrir novas pessoas dentro do Pace."
-    );
-    lucide.createIcons();
-    return;
-  }
-
-  profilesGrid.innerHTML = filtrados.map((profile, index) => `
-    <article class="profile-card" style="animation-delay:${0.04 + index * 0.04}s">
-      <div class="profile-topo">
-        <img src="${profile.avatar}" alt="${profile.nome}" class="profile-avatar">
-        <div>
-          <h3 class="profile-nome">${profile.nome}</h3>
-          <p class="profile-user">${profile.username}</p>
-        </div>
-      </div>
-
-      <p class="profile-bio">${profile.bio}</p>
-
-      <div class="profile-stats">
-        ${profile.tags.map(tag => `<span class="profile-pill">${tag}</span>`).join("")}
-      </div>
-
-      <button class="profile-btn" data-profile-id="${profile.id ?? ""}" data-profile-username="${profile.username}">Ver perfil</button>
-    </article>
-  `).join("");
-
-  lucide.createIcons();
-  attachProfileButtons();
-}
-
-/* ===== MODAL DE PERFIL ===== */
-const profileModal = document.getElementById("profileModal");
-const closeProfileModal = document.getElementById("closeProfileModal");
-
-function getToken() {
-  return localStorage.getItem("token");
-}
-
-function closeModal() {
-  if (!profileModal) return;
-  profileModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
-}
-
-function attachProfileButtons() {
-  document.querySelectorAll(".profile-btn").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const profileId = button.dataset.profileId;
-      const username = button.dataset.profileUsername;
-      const profile = profilesData.find(
-        (item) => item.username === username || String(item.id) === profileId
-      );
-
-      if (profile) {
-        await openProfileModal(profile);
-      }
-    });
-  });
+  initLucide();
 }
 
 async function fetchUserPosts(profile) {
-  const token = getToken();
-  if (!token) {
-    return null;
-  }
+  if (!isAuthenticated()) return null;
 
   try {
-    const response = await fetch(`${API_URL}/post/feed`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const data = await apiFetch("/post/feed", {
+      auth: true,
+      fallbackMessage: "Falha ao carregar posts.",
     });
 
-    if (!response.ok) {
-      throw new Error("Falha ao carregar posts");
-    }
+    if (!Array.isArray(data)) return [];
 
-    const data = await response.json();
-    if (!Array.isArray(data)) {
-      return [];
-    }
+    const requestedUsername = String(profile.username)
+      .replace(/^@/, "")
+      .toLowerCase();
 
-    const requestedUsername = String(profile.username).replace(/^@/, "").toLowerCase();
     return data.filter((post) => {
       const postUserId = String(post.usuario?.id ?? "");
       const postUsername = String(post.usuario?.username ?? "").toLowerCase();
+
       return (
         postUserId === String(profile.id) ||
         postUsername === requestedUsername
       );
     });
-  } catch (error) {
+  } catch {
     return null;
   }
+}
+
+function normalizarPostModal(post) {
+  return {
+    ...post,
+    id: Number(post.id),
+    likes: Number(post.likes ?? 0),
+    liked: post.liked === true,
+  };
+}
+
+function atualizarBotaoLikeModal(post) {
+  const button = document.querySelector(
+    `.modal-like-btn[data-post-id="${post.id}"]`
+  );
+
+  if (!button) return;
+
+  button.classList.toggle("liked", post.liked);
+  button.innerHTML = `
+    <i data-lucide="heart"></i>
+    <span>${post.likes}</span>
+  `;
+
+  initLucide();
+}
+
+async function curtirPostModal(postId) {
+  if (!isAuthenticated()) {
+    alert("Faça login para curtir posts.");
+    return;
+  }
+
+  const post = modalPostsCache.find((item) => item.id === Number(postId));
+  if (!post) return;
+
+  const likedAntes = post.liked;
+  const likesAntes = post.likes;
+
+  post.liked = !likedAntes;
+  post.likes = likedAntes ? Math.max(0, likesAntes - 1) : likesAntes + 1;
+  atualizarBotaoLikeModal(post);
+
+  try {
+    await apiFetch(
+      likedAntes
+        ? `/post/remover_curtida/${post.id}`
+        : `/post/curtir/${post.id}`,
+      {
+        method: likedAntes ? "DELETE" : "POST",
+        auth: true,
+        fallbackMessage: "Erro ao curtir post.",
+      }
+    );
+  } catch (error) {
+    post.liked = likedAntes;
+    post.likes = likesAntes;
+    atualizarBotaoLikeModal(post);
+    alert(error.message || "Erro ao curtir post.");
+  }
+}
+
+function attachModalLikeButtons() {
+  document.querySelectorAll(".modal-like-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      curtirPostModal(button.dataset.postId);
+    });
+  });
+}
+
+function attachProfileButtons() {
+  document.querySelectorAll(".profile-btn").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const username = button.dataset.profileUsername;
+      const profile = profilesData.find((item) => item.username === username);
+
+      if (profile) await openProfileModal(profile);
+    });
+  });
 }
 
 async function openProfileModal(profile) {
@@ -315,34 +232,27 @@ async function openProfileModal(profile) {
   const body = profileModal.querySelector(".modal-body");
   if (!body) return;
 
-  const tagsMarkup = profile.tags?.length
-    ? `<div class="profile-tags">${profile.tags
-        .map((tag) => `<span class="profile-tag">${tag}</span>`)
-        .join("")}</div>`
-    : "";
-
   body.innerHTML = `
     <div class="modal-header">
-      <img class="modal-avatar" src="${profile.avatar}" alt="${profile.nome}">
+      <img class="modal-avatar" src="${escaparHTML(profile.avatar)}" alt="">
       <div class="modal-meta">
-        <h2>${profile.nome}</h2>
-        <p>${profile.username}</p>
-        <p>${profile.bio}</p>
-        ${tagsMarkup}
+        <h2>${escaparHTML(profile.nome)}</h2>
+        <p>${escaparHTML(profile.username)}</p>
+        <p>${escaparHTML(profile.bio)}</p>
       </div>
     </div>
 
     <div class="modal-section">
       <h3>Postagens</h3>
       <div class="modal-posts">
-        <div class="modal-loading">Carregando postagens...</div>
+        <div class="modal-loading">Carregando...</div>
       </div>
     </div>
   `;
 
   profileModal.classList.remove("hidden");
   document.body.classList.add("modal-open");
-  lucide.createIcons();
+  initLucide();
 
   const posts = await fetchUserPosts(profile);
   const postsContainer = body.querySelector(".modal-posts");
@@ -351,108 +261,144 @@ async function openProfileModal(profile) {
 
   if (posts === null) {
     postsContainer.innerHTML = `
-      <div class="modal-empty">
-        Faça login para ver as postagens deste perfil.
-      </div>
+      <div class="modal-empty">Faça login para ver as postagens.</div>
     `;
     return;
   }
 
   if (!posts.length) {
     postsContainer.innerHTML = `
-      <div class="modal-empty">
-        Nenhuma postagem encontrada para este perfil.
-      </div>
+      <div class="modal-empty">Nenhuma postagem encontrada.</div>
     `;
     return;
   }
 
-  function formatRelativeTime(dateString) {
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return "";
+  modalPostsCache = posts.map(normalizarPostModal);
 
-    const now = new Date();
-    const diff = Math.max(0, now - date);
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const weeks = Math.floor(days / 7);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (seconds < 60) {
-      return "há poucos segundos";
-    }
-    if (minutes < 60) {
-      return `há ${minutes} minuto${minutes === 1 ? "" : "s"}`;
-    }
-    if (hours < 24) {
-      return `há ${hours} hora${hours === 1 ? "" : "s"}`;
-    }
-    if (days < 7) {
-      return `há ${days} dia${days === 1 ? "" : "s"}`;
-    }
-    if (weeks < 5) {
-      return `há ${weeks} semana${weeks === 1 ? "" : "s"}`;
-    }
-    if (months < 12) {
-      return `há ${months} mês${months === 1 ? "" : "es"}`;
-    }
-    return `há ${years} ano${years === 1 ? "" : "s"}`;
-  }
-
-  postsContainer.innerHTML = posts
+  postsContainer.innerHTML = modalPostsCache
     .map((post) => {
       const content = post.conteudo || "Sem descrição";
-      const formattedDate = post.data_postagem
-        ? formatRelativeTime(post.data_postagem)
+      const dataFmt = post.data_postagem
+        ? formatarDataRelativa(post.data_postagem)
         : "";
 
       return `
         <article class="modal-post-card">
-          <h4>${content.substring(0, 120)}${content.length > 120 ? "..." : ""}</h4>
-          <p>${content}</p>
-          ${post.imagem ? `<img src="${post.imagem}" alt="Imagem do post" class="modal-post-image">` : ""}
+          <h4>${escaparHTML(content.substring(0, 120))}${
+            content.length > 120 ? "..." : ""
+          }</h4>
+
+          <p>${escaparHTML(content)}</p>
+
+          ${
+            post.imagem
+              ? `<img src="${escaparHTML(post.imagem)}" alt="" class="modal-post-image">`
+              : ""
+          }
+
           <div class="modal-post-meta">
-            <span>${formattedDate}</span>
-            <span>❤️ ${post.likes ?? 0}</span>
+            <span>${escaparHTML(dataFmt)}</span>
+
+            <button
+              type="button"
+              class="modal-like-btn ${post.liked ? "liked" : ""}"
+              data-post-id="${post.id}"
+            >
+              <i data-lucide="heart"></i>
+              <span>${post.likes}</span>
+            </button>
           </div>
         </article>
       `;
     })
     .join("");
 
-  lucide.createIcons();
+  initLucide();
+  attachModalLikeButtons();
 }
 
-closeProfileModal?.addEventListener("click", closeModal);
+async function renderProfiles() {
+  profilesGrid.innerHTML = `
+    <div class="empty-state loading-state">
+      <i data-lucide="refresh-cw"></i>
+      <h3>Buscando perfis</h3>
+      <p>Aguarde um momento...</p>
+    </div>
+  `;
+
+  initLucide();
+
+  await fetchProfiles(termoAtual);
+  const filtrados = profilesData.filter(profileMatch);
+
+  if (!filtrados.length) {
+    renderEmpty(
+      profilesGrid,
+      "Nenhum perfil encontrado",
+      "Tente outro termo ou filtro."
+    );
+    return;
+  }
+
+  profilesGrid.innerHTML = filtrados
+    .map(
+      (profile, index) => `
+        <article class="profile-card" style="animation-delay:${0.04 + index * 0.04}s">
+          <div class="profile-topo">
+            <img src="${escaparHTML(profile.avatar)}" alt="" class="profile-avatar">
+            <div>
+              <h3 class="profile-nome">${escaparHTML(profile.nome)}</h3>
+              <p class="profile-user">${escaparHTML(profile.username)}</p>
+            </div>
+          </div>
+
+          <p class="profile-bio">${escaparHTML(profile.bio)}</p>
+
+          <div class="profile-stats">
+            ${profile.tags
+              .map((tag) => `<span class="profile-pill">${escaparHTML(tag)}</span>`)
+              .join("")}
+          </div>
+
+          <button
+            class="profile-btn"
+            data-profile-username="${escaparHTML(profile.username)}"
+          >
+            Ver perfil
+          </button>
+        </article>
+      `
+    )
+    .join("");
+
+  initLucide();
+  attachProfileButtons();
+}
+
+closeProfileModal?.addEventListener("click", () => {
+  profileModal?.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+});
+
 profileModal?.addEventListener("click", (event) => {
   if (event.target === profileModal) {
-    closeModal();
+    profileModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
   }
 });
 
-/* ===== RENDER GERAL ===== */
-async function renderTudo() {
+searchInput?.addEventListener("input", async (event) => {
+  termoAtual = event.target.value.trim();
   await renderProfiles();
-}
-
-/* ===== EVENTOS ===== */
-searchInput.addEventListener("input", async e => {
-  termoAtual = e.target.value.trim();
-  await renderTudo();
 });
 
-chips.forEach(chip => {
+chips.forEach((chip) => {
   chip.addEventListener("click", async () => {
-    chips.forEach(btn => btn.classList.remove("active"));
+    chips.forEach((btn) => btn.classList.remove("active"));
     chip.classList.add("active");
     filtroAtual = chip.dataset.filter;
-    await renderTudo();
+    await renderProfiles();
   });
 });
 
-/* ===== INIT ===== */
-renderTudo();
-
+renderProfiles();

@@ -1,12 +1,11 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from database import db
-from sqlalchemy.orm import sessionmaker, Session    
+from sqlalchemy.orm import sessionmaker, Session
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 import os
 from dotenv import load_dotenv
 from models import User
-
 
 load_dotenv()
 
@@ -14,8 +13,10 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+COOKIE_NAME = "access_token"
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+# auto_error=False: permite autenticação via cookie HttpOnly (web) ou Bearer (Flutter)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
 
 
 def pegar_sessao():
@@ -26,16 +27,31 @@ def pegar_sessao():
     finally:
         session.close()
 
-def pegar_usuario_atual(token: str = Depends(oauth2_scheme), session: Session = Depends(pegar_sessao)):
+
+def _extrair_token(request: Request, bearer_token: str | None) -> str | None:
+    if bearer_token:
+        return bearer_token
+    return request.cookies.get(COOKIE_NAME)
+
+
+def pegar_usuario_atual(
+    request: Request,
+    token: str | None = Depends(oauth2_scheme),
+    session: Session = Depends(pegar_sessao),
+):
     credentials_exception = HTTPException(
         status_code=401,
         detail="Não foi possível validar as credenciais",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    jwt_token = _extrair_token(request, token)
 
+    if not jwt_token:
+        raise credentials_exception
+
+    try:
+        payload = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
 
         if email is None:
@@ -50,4 +66,3 @@ def pegar_usuario_atual(token: str = Depends(oauth2_scheme), session: Session = 
         raise credentials_exception
 
     return usuario
-

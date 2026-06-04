@@ -1,67 +1,45 @@
+import { register } from "./shared/auth.js";
+import { setFormMessage } from "./shared/ui.js";
+import { ApiError } from "./shared/api.js";
+
 const formCadastro = document.getElementById("cadastroForm");
 
 if (formCadastro) {
-
-  formCadastro.addEventListener("submit", function (e) {
-
+  formCadastro.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const usuario = document.getElementById("cadastroUsuario").value;
-    const email = document.getElementById("cadastroEmail").value;
+    const usuario = document.getElementById("cadastroUsuario").value.trim();
+    const email = document.getElementById("cadastroEmail").value.trim();
     const senha = document.getElementById("cadastroSenha").value;
     const confirmar = document.getElementById("cadastroConfirmarSenha").value;
-
     const mensagem = document.getElementById("cadastroMensagem");
 
-    if (usuario === "" || email === "" || senha === "" || confirmar === "") {
-      mensagem.innerText = "Preencha todos os campos.";
-      mensagem.style.color = "red";
+    if (!usuario || !email || !senha || !confirmar) {
+      setFormMessage(mensagem, "Preencha todos os campos.");
       return;
     }
 
     if (senha.length < 6) {
-      mensagem.innerText = "A senha precisa ter pelo menos 6 caracteres.";
-      mensagem.style.color = "red";
+      setFormMessage(mensagem, "A senha precisa ter pelo menos 6 caracteres.");
       return;
     }
 
     if (senha !== confirmar) {
-      mensagem.innerText = "As senhas não coincidem!";
-      mensagem.style.color = "red";
+      setFormMessage(mensagem, "As senhas não coincidem!");
       return;
     }
 
-    fetch("http://localhost:8000/auth/criar_usuario", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: usuario,
-        email: email,
-        senha: senha
-      })
-    })
-      .then(response => {
-        if (!response.ok) {
-          return response.json().then(err => { throw err });
-        }
-        return response.json();
-      })
-      .then(data => {
-        mensagem.innerText = "Cadastro realizado com sucesso!";
-        mensagem.style.color = "green";
+    try {
+      await register({ username: usuario, email, senha });
+      setFormMessage(mensagem, "Cadastro realizado com sucesso!", "sucesso");
 
-        setTimeout(() => {
-          window.location.href = "entrar.html";
-        }, 1000);
-      })
-      .catch(error => {
-        console.error(error);
-        mensagem.innerText = error.detail || "Erro ao cadastrar.";
-        mensagem.style.color = "red";
-      });
-
+      setTimeout(() => {
+        window.location.href = "entrar.html";
+      }, 1000);
+    } catch (error) {
+      const texto =
+        error instanceof ApiError ? error.message : error?.detail || "Erro ao cadastrar.";
+      setFormMessage(mensagem, texto);
+    }
   });
-
 }

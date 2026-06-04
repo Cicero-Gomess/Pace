@@ -923,3 +923,42 @@ body.dark .modal-loading {
     border-radius: 22px;
   }
 }
+
+.modal-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(48, 89, 170, 0.08);
+  color: #516386;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.modal-like-btn i {
+  width: 17px;
+  height: 17px;
+}
+
+.modal-like-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(48, 89, 170, 0.12);
+}
+
+.modal-like-btn.liked {
+  background: rgba(230, 72, 98, 0.12);
+  color: #d8425c;
+}
+
+body.dark .modal-like-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #a9b4cb;
+}
+
+body.dark .modal-like-btn.liked {
+  background: rgba(230, 72, 98, 0.16);
+  color: #ff7b91;
+}
