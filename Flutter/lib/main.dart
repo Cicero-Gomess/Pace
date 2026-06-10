@@ -7,6 +7,7 @@ import 'entrar.dart';
 import 'cadastro.dart';
 import 'feed.dart';
 import 'postar.dart';
+import 'explorar.dart';
 import 'configuracoes.dart';
 
 Future<void> main() async {
@@ -76,6 +77,10 @@ class PaceApp extends StatelessWidget {
 
               case '/postar':
                 page = const PostarPage();
+                break;
+
+              case '/explorar':
+                page = const ExplorarPage();
                 break;
 
               case '/config':
