@@ -88,3 +88,34 @@ class ComentarioResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# =========================
+# SEGUIDORES
+# =========================
+class SeguidorResponseSchema(BaseModel):
+    id: int
+    username: str
+    email: str
+    foto_perfil: Optional[str] = None
+    seguindo: bool  # Se o usuário atual segue este usuário
+
+    class Config:
+        from_attributes = True
+
+
+class SeguidorListSchema(BaseModel):
+    total: int
+    usuarios: list[SeguidorResponseSchema]
+
+    class Config:
+        from_attributes = True
+
+
+class FollowActionSchema(BaseModel):
+    message: str
+    usuario_id: int
+    seguindo: bool
+
+    class Config:
+        from_attributes = True
