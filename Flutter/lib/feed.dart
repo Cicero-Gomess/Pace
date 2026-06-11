@@ -1356,6 +1356,7 @@ class _FeedPageState extends State<FeedPage> {
                       const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
+                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
                     ],
                   ),
                 ),

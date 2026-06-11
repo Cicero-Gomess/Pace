@@ -460,7 +460,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
+    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 180.0;
     final filtrados = profilesData.where(_profileMatch).toList();
 
     return Scaffold(
@@ -1163,6 +1163,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
                       const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'ConfiguraÃ§Ãµes', '/config', false),
                       _sidebarProfileItem(),
+                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
                     ],
                   ),
                 ),

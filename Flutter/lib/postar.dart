@@ -810,6 +810,7 @@ class _PostarPageState extends State<PostarPage> {
                       const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
+                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
                     ],
                   ),
                 ),

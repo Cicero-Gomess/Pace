@@ -618,6 +618,7 @@ class _ConfigPageState extends State<ConfigPage> {
                       const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', true),
                       _sidebarProfileItem(),
+                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
                     ],
                   ),
                 ),

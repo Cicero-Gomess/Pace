@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'theme_controller.dart';
-
+import 'sobre.dart';
 import 'index.dart';
 import 'entrar.dart';
 import 'cadastro.dart';
@@ -85,6 +85,10 @@ class PaceApp extends StatelessWidget {
 
               case '/config':
                 page = ConfigPage(themeController: themeController);
+                break;
+
+              case '/sobre':
+                page = const SobrePage();
                 break;
 
               default:
