@@ -36,151 +36,167 @@ namespace sistemaadmin
             this.pnlCard3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPosts)).BeginInit();
             this.SuspendLayout();
-
+            // 
             // pnlTitulo
+            // 
             this.pnlTitulo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
             this.pnlTitulo.Controls.Add(this.lblTitulo);
             this.pnlTitulo.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlTitulo.Location = new System.Drawing.Point(0, 0);
             this.pnlTitulo.Name = "pnlTitulo";
             this.pnlTitulo.Padding = new System.Windows.Forms.Padding(20);
-            this.pnlTitulo.Size = new System.Drawing.Size(1000, 60);
+            this.pnlTitulo.Size = new System.Drawing.Size(1000, 80);
             this.pnlTitulo.TabIndex = 0;
-
+            // 
             // lblTitulo
-            this.lblTitulo.AutoSize = false;
+            // 
             this.lblTitulo.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTitulo.ForeColor = System.Drawing.Color.White;
             this.lblTitulo.Location = new System.Drawing.Point(20, 20);
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(960, 20);
+            this.lblTitulo.Size = new System.Drawing.Size(960, 40);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Dashboard - Estatísticas";
-
+            this.lblTitulo.Click += new System.EventHandler(this.lblTitulo_Click);
+            // 
             // pnlCard1
+            // 
             this.pnlCard1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
             this.pnlCard1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlCard1.Controls.Add(this.lblCard1Valor);
             this.pnlCard1.Controls.Add(this.lblCard1Titulo);
-            this.pnlCard1.Location = new System.Drawing.Point(20, 80);
+            this.pnlCard1.Location = new System.Drawing.Point(20, 100);
             this.pnlCard1.Name = "pnlCard1";
             this.pnlCard1.Size = new System.Drawing.Size(300, 120);
             this.pnlCard1.TabIndex = 1;
-
+            // 
             // lblCard1Valor
+            // 
             this.lblCard1Valor.AutoSize = true;
             this.lblCard1Valor.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard1Valor.ForeColor = System.Drawing.Color.White;
             this.lblCard1Valor.Location = new System.Drawing.Point(100, 50);
             this.lblCard1Valor.Name = "lblCard1Valor";
-            this.lblCard1Valor.Size = new System.Drawing.Size(100, 59);
+            this.lblCard1Valor.Size = new System.Drawing.Size(50, 59);
             this.lblCard1Valor.TabIndex = 1;
             this.lblCard1Valor.Text = "0";
-
+            // 
             // lblCard1Titulo
+            // 
             this.lblCard1Titulo.AutoSize = true;
             this.lblCard1Titulo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard1Titulo.ForeColor = System.Drawing.Color.White;
             this.lblCard1Titulo.Location = new System.Drawing.Point(15, 15);
             this.lblCard1Titulo.Name = "lblCard1Titulo";
-            this.lblCard1Titulo.Size = new System.Drawing.Size(125, 21);
+            this.lblCard1Titulo.Size = new System.Drawing.Size(115, 21);
             this.lblCard1Titulo.TabIndex = 0;
             this.lblCard1Titulo.Text = "Total de Posts";
-
+            // 
             // pnlCard2
+            // 
             this.pnlCard2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
             this.pnlCard2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlCard2.Controls.Add(this.lblCard2Valor);
             this.pnlCard2.Controls.Add(this.lblCard2Titulo);
-            this.pnlCard2.Location = new System.Drawing.Point(340, 80);
+            this.pnlCard2.Location = new System.Drawing.Point(340, 100);
             this.pnlCard2.Name = "pnlCard2";
             this.pnlCard2.Size = new System.Drawing.Size(300, 120);
             this.pnlCard2.TabIndex = 2;
-
+            // 
             // lblCard2Valor
+            // 
             this.lblCard2Valor.AutoSize = true;
             this.lblCard2Valor.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard2Valor.ForeColor = System.Drawing.Color.White;
             this.lblCard2Valor.Location = new System.Drawing.Point(100, 50);
             this.lblCard2Valor.Name = "lblCard2Valor";
-            this.lblCard2Valor.Size = new System.Drawing.Size(100, 59);
+            this.lblCard2Valor.Size = new System.Drawing.Size(50, 59);
             this.lblCard2Valor.TabIndex = 1;
             this.lblCard2Valor.Text = "0";
-
+            // 
             // lblCard2Titulo
+            // 
             this.lblCard2Titulo.AutoSize = true;
             this.lblCard2Titulo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard2Titulo.ForeColor = System.Drawing.Color.White;
             this.lblCard2Titulo.Location = new System.Drawing.Point(15, 15);
             this.lblCard2Titulo.Name = "lblCard2Titulo";
-            this.lblCard2Titulo.Size = new System.Drawing.Size(122, 21);
+            this.lblCard2Titulo.Size = new System.Drawing.Size(113, 21);
             this.lblCard2Titulo.TabIndex = 0;
             this.lblCard2Titulo.Text = "Total de Likes";
-
+            // 
             // pnlCard3
+            // 
             this.pnlCard3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(155)))), ((int)(((byte)(89)))), ((int)(((byte)(182)))));
             this.pnlCard3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlCard3.Controls.Add(this.lblCard3Valor);
             this.pnlCard3.Controls.Add(this.lblCard3Titulo);
-            this.pnlCard3.Location = new System.Drawing.Point(660, 80);
+            this.pnlCard3.Location = new System.Drawing.Point(660, 100);
             this.pnlCard3.Name = "pnlCard3";
             this.pnlCard3.Size = new System.Drawing.Size(300, 120);
             this.pnlCard3.TabIndex = 3;
-
+            // 
             // lblCard3Valor
+            // 
             this.lblCard3Valor.AutoSize = true;
             this.lblCard3Valor.Font = new System.Drawing.Font("Segoe UI", 32F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard3Valor.ForeColor = System.Drawing.Color.White;
             this.lblCard3Valor.Location = new System.Drawing.Point(100, 50);
             this.lblCard3Valor.Name = "lblCard3Valor";
-            this.lblCard3Valor.Size = new System.Drawing.Size(100, 59);
+            this.lblCard3Valor.Size = new System.Drawing.Size(50, 59);
             this.lblCard3Valor.TabIndex = 1;
             this.lblCard3Valor.Text = "0";
-
+            // 
             // lblCard3Titulo
+            // 
             this.lblCard3Titulo.AutoSize = true;
             this.lblCard3Titulo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCard3Titulo.ForeColor = System.Drawing.Color.White;
             this.lblCard3Titulo.Location = new System.Drawing.Point(15, 15);
             this.lblCard3Titulo.Name = "lblCard3Titulo";
-            this.lblCard3Titulo.Size = new System.Drawing.Size(168, 21);
+            this.lblCard3Titulo.Size = new System.Drawing.Size(140, 21);
             this.lblCard3Titulo.TabIndex = 0;
             this.lblCard3Titulo.Text = "Média Likes/Post";
-
+            // 
             // dgvPosts
+            // 
             this.dgvPosts.AllowUserToAddRows = false;
             this.dgvPosts.AllowUserToDeleteRows = false;
-            this.dgvPosts.AllowUserToOrderColumns = false;
             this.dgvPosts.AllowUserToResizeRows = false;
-            this.dgvPosts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvPosts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvPosts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvPosts.BackgroundColor = System.Drawing.Color.White;
             this.dgvPosts.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.dgvPosts.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvPosts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvPosts.Location = new System.Drawing.Point(20, 220);
+            this.dgvPosts.Location = new System.Drawing.Point(20, 240);
             this.dgvPosts.Name = "dgvPosts";
             this.dgvPosts.ReadOnly = true;
             this.dgvPosts.RowHeadersVisible = false;
             this.dgvPosts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvPosts.Size = new System.Drawing.Size(940, 300);
             this.dgvPosts.TabIndex = 4;
-
+            // 
             // btnRecarregar
+            // 
             this.btnRecarregar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnRecarregar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
             this.btnRecarregar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRecarregar.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRecarregar.ForeColor = System.Drawing.Color.White;
-            this.btnRecarregar.Location = new System.Drawing.Point(20, 530);
+            this.btnRecarregar.Location = new System.Drawing.Point(20, 550);
             this.btnRecarregar.Name = "btnRecarregar";
             this.btnRecarregar.Size = new System.Drawing.Size(150, 40);
             this.btnRecarregar.TabIndex = 5;
             this.btnRecarregar.Text = "Recarregar";
             this.btnRecarregar.UseVisualStyleBackColor = false;
             this.btnRecarregar.Click += new System.EventHandler(this.BtnRecarregar_Click);
-
+            // 
             // FormDashboard
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
@@ -203,6 +219,7 @@ namespace sistemaadmin
             this.pnlCard3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPosts)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         #endregion

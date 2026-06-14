@@ -46,8 +46,7 @@ namespace sistemaadmin
                 // Abrir FormPrincipal com o token
                 FormPrincipal formPrincipal = new FormPrincipal(token);
                 this.Hide();
-                formPrincipal.ShowDialog();
-                this.Close();
+                formPrincipal.Show();
             }
             catch (Exception ex)
             {

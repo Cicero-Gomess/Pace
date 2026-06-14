@@ -5,7 +5,7 @@ namespace sistemaadmin
 {
     public partial class FormPrincipal : Form
     {
-        private readonly string _token;
+        private string _token;
         private Form _currentForm;
 
         public FormPrincipal(string token)
@@ -16,7 +16,6 @@ namespace sistemaadmin
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
-            // Abrir o Dashboard por padrão ao carregar
             AbrirFormDashboard();
         }
 
@@ -47,89 +46,43 @@ namespace sistemaadmin
 
         private void AbrirFormDashboard()
         {
-            FecharFormAtual();
-            try
-            {
-                FormDashboard formDashboard = new FormDashboard(_token);
-                formDashboard.TopLevel = false;
-                formDashboard.Dock = DockStyle.Fill;
-                pnlContainer.Controls.Clear();
-                pnlContainer.Controls.Add(formDashboard);
-                formDashboard.Show();
-                _currentForm = formDashboard;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao abrir Dashboard:\n{ex.Message}", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            AbrirForm(new FormDashboard(_token));
         }
 
         private void AbrirFormPosts()
         {
-            FecharFormAtual();
-            try
-            {
-                FormPosts formPosts = new FormPosts(_token);
-                formPosts.TopLevel = false;
-                formPosts.Dock = DockStyle.Fill;
-                pnlContainer.Controls.Clear();
-                pnlContainer.Controls.Add(formPosts);
-                formPosts.Show();
-                _currentForm = formPosts;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao abrir Posts:\n{ex.Message}", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            AbrirForm(new FormPosts(_token));
         }
 
         private void AbrirFormComentarios()
         {
-            FecharFormAtual();
-            try
-            {
-                FormComentarios formComentarios = new FormComentarios(_token);
-                formComentarios.TopLevel = false;
-                formComentarios.Dock = DockStyle.Fill;
-                pnlContainer.Controls.Clear();
-                pnlContainer.Controls.Add(formComentarios);
-                formComentarios.Show();
-                _currentForm = formComentarios;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao abrir Comentários:\n{ex.Message}", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            AbrirForm(new FormComentarios(_token));
         }
 
         private void AbrirFormPerfil()
         {
+            AbrirForm(new FormPerfil(_token));
+        }
+
+        private void AbrirForm(Form form)
+        {
             FecharFormAtual();
-            try
-            {
-                FormPerfil formPerfil = new FormPerfil(_token);
-                formPerfil.TopLevel = false;
-                formPerfil.Dock = DockStyle.Fill;
-                pnlContainer.Controls.Clear();
-                pnlContainer.Controls.Add(formPerfil);
-                formPerfil.Show();
-                _currentForm = formPerfil;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao abrir Perfil:\n{ex.Message}", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+
+            pnlContainer.Controls.Clear();
+            pnlContainer.Controls.Add(form);
+            form.Show();
+
+            _currentForm = form;
         }
 
         private void FecharFormAtual()
         {
             if (_currentForm != null && !_currentForm.IsDisposed)
             {
-                _currentForm.Close();
                 _currentForm.Dispose();
                 _currentForm = null;
             }
@@ -137,14 +90,13 @@ namespace sistemaadmin
 
         private void RealizarLogout()
         {
-            DialogResult result = MessageBox.Show("Deseja sair do sistema?", "Confirmação",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
+            if (MessageBox.Show("Deseja sair?", "Confirmação", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 FecharFormAtual();
+                // Fechar FormPrincipal e voltar para FormLogin
                 this.Close();
             }
         }
     }
 }
+

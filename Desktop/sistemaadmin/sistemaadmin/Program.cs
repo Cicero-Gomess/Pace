@@ -16,7 +16,10 @@ namespace sistemaadmin
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormLogin());
+
+            // Usar FormLogin como ponto de entrada
+            FormLogin loginForm = new FormLogin();
+            Application.Run(loginForm);
         }
     }
 }

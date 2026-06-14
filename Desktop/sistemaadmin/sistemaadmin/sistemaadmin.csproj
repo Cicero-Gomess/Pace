@@ -85,7 +85,9 @@
     <Compile Include="FormPrincipal.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormPrincipal.Designer.cs" />
+    <Compile Include="FormPrincipal.Designer.cs">
+      <DependentUpon>FormPrincipal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\PostDTO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,6 +97,9 @@
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ProfileService.cs" />
     <Compile Include="Services\ServicesExemplos.cs" />
+    <EmbeddedResource Include="FormDashboard.resx">
+      <DependentUpon>FormDashboard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormPrincipal.resx">
       <DependentUpon>FormPrincipal.cs</DependentUpon>
     </EmbeddedResource>

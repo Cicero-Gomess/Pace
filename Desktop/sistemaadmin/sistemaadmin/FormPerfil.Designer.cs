@@ -49,10 +49,10 @@ namespace sistemaadmin
             this.pnlTopo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
             this.pnlTopo.Controls.Add(this.lblTitulo);
             this.pnlTopo.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlTopo.Height = 70;
+            this.pnlTopo.Height = 100;
             this.pnlTopo.Name = "pnlTopo";
             this.pnlTopo.Padding = new System.Windows.Forms.Padding(20);
-            this.pnlTopo.Size = new System.Drawing.Size(700, 70);
+            this.pnlTopo.Size = new System.Drawing.Size(700, 100);
             this.pnlTopo.TabIndex = 0;
 
             // lblTitulo
@@ -63,7 +63,7 @@ namespace sistemaadmin
             this.lblTitulo.ForeColor = System.Drawing.Color.White;
             this.lblTitulo.Location = new System.Drawing.Point(20, 20);
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(660, 30);
+            this.lblTitulo.Size = new System.Drawing.Size(660, 50);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Perfil do Usuário";
 
@@ -79,7 +79,7 @@ namespace sistemaadmin
             this.pnlCard.Controls.Add(this.txtNovaFotoUrl);
             this.pnlCard.Controls.Add(this.btnAtualizarFoto);
             this.pnlCard.Controls.Add(this.btnRecarregarPerfil);
-            this.pnlCard.Location = new System.Drawing.Point(50, 90);
+            this.pnlCard.Location = new System.Drawing.Point(50, 130);
             this.pnlCard.Name = "pnlCard";
             this.pnlCard.Size = new System.Drawing.Size(600, 580);
             this.pnlCard.TabIndex = 1;
