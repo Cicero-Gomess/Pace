@@ -16,7 +16,16 @@ namespace sistemaadmin
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
-            AbrirFormDashboard();
+            try
+            {
+                AbrirFormDashboard();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar dashboard:\n{ex.Message}", "Erro ao Inicializar",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Mostrar painel vazio em vez de quebrar
+            }
         }
 
         private void BtnDashboard_Click(object sender, EventArgs e)
@@ -66,17 +75,26 @@ namespace sistemaadmin
 
         private void AbrirForm(Form form)
         {
-            FecharFormAtual();
+            try
+            {
+                FecharFormAtual();
 
-            form.TopLevel = false;
-            form.FormBorderStyle = FormBorderStyle.None;
-            form.Dock = DockStyle.Fill;
+                form.TopLevel = false;
+                form.FormBorderStyle = FormBorderStyle.None;
+                form.Dock = DockStyle.Fill;
 
-            pnlContainer.Controls.Clear();
-            pnlContainer.Controls.Add(form);
-            form.Show();
+                pnlContainer.Controls.Clear();
+                pnlContainer.Controls.Add(form);
+                form.Show();
 
-            _currentForm = form;
+                _currentForm = form;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir formulário:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                form?.Dispose();
+            }
         }
 
         private void FecharFormAtual()

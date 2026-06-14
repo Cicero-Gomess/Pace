@@ -20,17 +20,26 @@ namespace sistemaadmin
 
         private void FormDashboard_Load(object sender, EventArgs e)
         {
-            // Adicionar colunas ao DataGridView
-            if (dgvPosts.Columns.Count == 0)
+            try
             {
-                dgvPosts.Columns.Add("colId", "ID");
-                dgvPosts.Columns.Add("colConteudo", "Conteúdo");
-                dgvPosts.Columns.Add("colLikes", "Likes");
-                dgvPosts.Columns.Add("colUsername", "Username");
-                dgvPosts.Columns.Add("colData", "Data");
-            }
+                // Adicionar colunas ao DataGridView
+                if (dgvPosts.Columns.Count == 0)
+                {
+                    dgvPosts.Columns.Add("colId", "ID");
+                    dgvPosts.Columns.Add("colConteudo", "Conteúdo");
+                    dgvPosts.Columns.Add("colLikes", "Likes");
+                    dgvPosts.Columns.Add("colUsername", "Username");
+                    dgvPosts.Columns.Add("colData", "Data");
+                }
 
-            CarregarDados();
+                CarregarDados();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao inicializar Dashboard:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LimparDados();
+            }
         }
 
         private async void CarregarDados()
@@ -49,6 +58,8 @@ namespace sistemaadmin
                 if (posts == null || posts.Count == 0)
                 {
                     LimparDados();
+                    MessageBox.Show("Nenhum post disponível no momento.", "Informação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -90,11 +101,17 @@ namespace sistemaadmin
                     }
                 }
             }
+            catch (HttpRequestException ex)
+            {
+                LimparDados();
+                MessageBox.Show($"Erro de conexão com o servidor:\n{ex.Message}\n\nVerifique se a API está rodando em http://localhost:8000", "Erro de Conexão",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             catch (Exception ex)
             {
+                LimparDados();
                 MessageBox.Show($"Erro ao carregar dashboard:\n{ex.Message}", "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LimparDados();
             }
             finally
             {
