@@ -1,0 +1,168 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace sistemaadmin
+{
+    public partial class FormPrincipal : Form
+    {
+        private readonly string _token;
+        private Form _currentForm;
+
+        public FormPrincipal(string token)
+        {
+            InitializeComponent();
+            _token = token;
+        }
+
+        private void FormPrincipal_Load(object sender, EventArgs e)
+        {
+            // Abrir o Dashboard por padrão ao carregar
+            AbrirFormDashboard();
+        }
+
+        private void BtnDashboard_Click(object sender, EventArgs e)
+        {
+            AbrirFormDashboard();
+        }
+
+        private void BtnPosts_Click(object sender, EventArgs e)
+        {
+            AbrirFormPosts();
+        }
+
+        private void BtnComentarios_Click(object sender, EventArgs e)
+        {
+            AbrirFormComentarios();
+        }
+
+        private void BtnPerfil_Click(object sender, EventArgs e)
+        {
+            AbrirFormPerfil();
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            RealizarLogout();
+        }
+
+        private void AbrirFormDashboard()
+        {
+            FecharFormAtual();
+            try
+            {
+                FormDashboard formDashboard = new FormDashboard(_token);
+                formDashboard.TopLevel = false;
+                formDashboard.Dock = DockStyle.Fill;
+                pnlContainer.Controls.Clear();
+                pnlContainer.Controls.Add(formDashboard);
+                formDashboard.Show();
+                _currentForm = formDashboard;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Dashboard:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormPosts()
+        {
+            FecharFormAtual();
+            try
+            {
+                FormPosts formPosts = new FormPosts(_token);
+                formPosts.TopLevel = false;
+                formPosts.Dock = DockStyle.Fill;
+                pnlContainer.Controls.Clear();
+                pnlContainer.Controls.Add(formPosts);
+                formPosts.Show();
+                _currentForm = formPosts;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Posts:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormComentarios()
+        {
+            FecharFormAtual();
+            try
+            {
+                FormComentarios formComentarios = new FormComentarios(_token);
+                formComentarios.TopLevel = false;
+                formComentarios.Dock = DockStyle.Fill;
+                pnlContainer.Controls.Clear();
+                pnlContainer.Controls.Add(formComentarios);
+                formComentarios.Show();
+                _currentForm = formComentarios;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Comentários:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormPerfil()
+        {
+            FecharFormAtual();
+            try
+            {
+                FormPerfil formPerfil = new FormPerfil(_token);
+                formPerfil.TopLevel = false;
+                formPerfil.Dock = DockStyle.Fill;
+                pnlContainer.Controls.Clear();
+                pnlContainer.Controls.Add(formPerfil);
+                formPerfil.Show();
+                _currentForm = formPerfil;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Perfil:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FecharFormAtual()
+        {
+            if (_currentForm != null && !_currentForm.IsDisposed)
+            {
+                _currentForm.Close();
+                _currentForm.Dispose();
+                _currentForm = null;
+            }
+        }
+
+        private void RealizarLogout()
+        {
+            DialogResult result = MessageBox.Show("Deseja sair do sistema?", "Confirmação",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                FecharFormAtual();
+                this.Close();
+            }
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // FormPrincipal
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Name = "FormPrincipal";
+            this.Load += new System.EventHandler(this.FormPrincipal_Load_1);
+            this.ResumeLayout(false);
+
+        }
+
+        private void FormPrincipal_Load_1(object sender, EventArgs e)
+        {
+
+        }
+    }
+}

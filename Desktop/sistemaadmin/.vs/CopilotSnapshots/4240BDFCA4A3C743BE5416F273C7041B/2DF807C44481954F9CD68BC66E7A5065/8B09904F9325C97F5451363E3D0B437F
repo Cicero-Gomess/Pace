@@ -1,0 +1,309 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormComentarios : Form
+    {
+        private readonly string _token;
+        private ComentarioService _comentarioService;
+        private List<ComentarioItem> _comentarios;
+        private int _postIdAtual = 0;
+
+        public FormComentarios(string token)
+        {
+            InitializeComponent();
+            _token = token;
+            _comentarios = new List<ComentarioItem>();
+        }
+
+        private void FormComentarios_Load(object sender, EventArgs e)
+        {
+            _comentarioService = new ComentarioService(_token);
+            this.Text = "Sistema Administrativo - Gerenciamento de Comentários";
+            this.CenterToScreen();
+            ConfigurarDataGridView();
+        }
+
+        private void ConfigurarDataGridView()
+        {
+            dgvComentarios.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvComentarios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvComentarios.MultiSelect = false;
+            dgvComentarios.AllowUserToAddRows = false;
+            dgvComentarios.AllowUserToDeleteRows = false;
+        }
+
+        private async void btnCarregar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int postId;
+                if (!int.TryParse(txtPostId.Text.Trim(), out postId))
+                {
+                    MessageBox.Show("Por favor, insira um ID de post válido.", "Validação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _postIdAtual = postId;
+                await CarregarComentarios(postId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task CarregarComentarios(int postId)
+        {
+            try
+            {
+                btnCarregar.Enabled = false;
+                btnCarregar.Text = "Carregando...";
+
+                var json = await _comentarioService.ListarComentariosAsync(postId);
+                _comentarios = ParsearComentarios(json);
+
+                dgvComentarios.DataSource = null;
+                dgvComentarios.DataSource = _comentarios;
+
+                LimparCampos();
+
+                if (_comentarios.Count == 0)
+                {
+                    MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar comentários:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnCarregar.Enabled = true;
+                btnCarregar.Text = "Carregar Comentários";
+            }
+        }
+
+        private void dgvComentarios_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvComentarios.SelectedRows.Count > 0)
+            {
+                ComentarioItem comentario = (ComentarioItem)dgvComentarios.SelectedRows[0].DataBoundItem;
+                txtComentario.Text = comentario.comentario ?? "";
+            }
+        }
+
+        private async void btnAdicionar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_postIdAtual == 0)
+                {
+                    MessageBox.Show("Por favor, carregue os comentários de um post primeiro.", "Atenção",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string conteudo = txtComentario.Text.Trim();
+                if (string.IsNullOrEmpty(conteudo))
+                {
+                    MessageBox.Show("Por favor, insira o conteúdo do comentário.", "Validação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                btnAdicionar.Enabled = false;
+                btnAdicionar.Text = "Adicionando...";
+
+                await _comentarioService.AdicionarComentarioAsync(_postIdAtual, conteudo);
+
+                MessageBox.Show("Comentário adicionado com sucesso!", "Sucesso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LimparCampos();
+                await CarregarComentarios(_postIdAtual);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao adicionar comentário:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnAdicionar.Enabled = true;
+                btnAdicionar.Text = "Adicionar";
+            }
+        }
+
+        private async void btnAtualizar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvComentarios.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Por favor, selecione um comentário para atualizar.", "Atenção",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                ComentarioItem comentario = (ComentarioItem)dgvComentarios.SelectedRows[0].DataBoundItem;
+                string conteudo = txtComentario.Text.Trim();
+
+                if (string.IsNullOrEmpty(conteudo))
+                {
+                    MessageBox.Show("Por favor, insira o conteúdo do comentário.", "Validação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                btnAtualizar.Enabled = false;
+                btnAtualizar.Text = "Atualizando...";
+
+                await _comentarioService.AtualizarComentarioAsync(comentario.id, conteudo);
+
+                MessageBox.Show("Comentário atualizado com sucesso!", "Sucesso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LimparCampos();
+                await CarregarComentarios(_postIdAtual);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao atualizar comentário:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnAtualizar.Enabled = true;
+                btnAtualizar.Text = "Atualizar";
+            }
+        }
+
+        private async void btnDeletar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvComentarios.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Por favor, selecione um comentário para deletar.", "Atenção",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                ComentarioItem comentario = (ComentarioItem)dgvComentarios.SelectedRows[0].DataBoundItem;
+
+                DialogResult resultado = MessageBox.Show(
+                    $"Tem certeza que deseja deletar este comentário?\n\n\"{comentario.comentario}\"",
+                    "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (resultado != DialogResult.Yes)
+                    return;
+
+                btnDeletar.Enabled = false;
+                btnDeletar.Text = "Deletando...";
+
+                await _comentarioService.DeletarComentarioAsync(comentario.id);
+
+                MessageBox.Show("Comentário deletado com sucesso!", "Sucesso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LimparCampos();
+                await CarregarComentarios(_postIdAtual);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao deletar comentário:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnDeletar.Enabled = true;
+                btnDeletar.Text = "Deletar";
+            }
+        }
+
+        private void btnLimpar_Click(object sender, EventArgs e)
+        {
+            LimparCampos();
+        }
+
+        private void LimparCampos()
+        {
+            txtComentario.Clear();
+            dgvComentarios.ClearSelection();
+        }
+
+        private List<ComentarioItem> ParsearComentarios(string json)
+        {
+            var comentarios = new List<ComentarioItem>();
+
+            try
+            {
+                if (string.IsNullOrEmpty(json) || json == "[]")
+                    return comentarios;
+
+                json = json.Trim();
+                if (json.StartsWith("[") && json.EndsWith("]"))
+                {
+                    json = json.Substring(1, json.Length - 2);
+                }
+
+                string[] items = json.Split(new string[] { "},{" }, StringSplitOptions.None);
+
+                foreach (var item in items)
+                {
+                    string cleanItem = item.Replace("{", "").Replace("}", "").Trim();
+
+                    if (string.IsNullOrEmpty(cleanItem))
+                        continue;
+
+                    var comentario = new ComentarioItem();
+
+                    // Extrai ID
+                    var idMatch = System.Text.RegularExpressions.Regex.Match(cleanItem, @"""id""\s*:\s*(\d+)");
+                    if (idMatch.Success)
+                        comentario.id = int.Parse(idMatch.Groups[1].Value);
+
+                    // Extrai comentário
+                    var comentarioMatch = System.Text.RegularExpressions.Regex.Match(cleanItem, @"""comentario""\s*:\s*""([^""]*)""");
+                    if (comentarioMatch.Success)
+                        comentario.comentario = _comentarioService.UnescapeJson(comentarioMatch.Groups[1].Value);
+
+                    // Extrai data
+                    var dataMatch = System.Text.RegularExpressions.Regex.Match(cleanItem, @"""data_comentario""\s*:\s*""([^""]*)""");
+                    if (dataMatch.Success)
+                        comentario.data_comentario = dataMatch.Groups[1].Value;
+
+                    // Extrai username do objeto usuario
+                    var usernameMatch = System.Text.RegularExpressions.Regex.Match(cleanItem, @"""usuario""[^}]*""username""\s*:\s*""([^""]*)""");
+                    if (usernameMatch.Success)
+                        comentario.username = usernameMatch.Groups[1].Value;
+
+                    comentarios.Add(comentario);
+                }
+            }
+            catch
+            {
+                // Retorna lista vazia se houver erro
+            }
+
+            return comentarios;
+        }
+
+        private class ComentarioItem
+        {
+            public int id { get; set; }
+            public string comentario { get; set; }
+            public string data_comentario { get; set; }
+            public string username { get; set; }
+        }
+    }
+}

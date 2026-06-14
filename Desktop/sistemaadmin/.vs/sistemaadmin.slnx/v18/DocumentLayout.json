@@ -1,0 +1,1185 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\models\\postdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\models\\postdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\0_comece_aqui.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\0_comece_aqui.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\arquitetura.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\arquitetura.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\comece_aqui.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\comece_aqui.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\comentarios_guia.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\comentarios_guia.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\exemplos_uso.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\exemplos_uso.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\exemplos_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\exemplos_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_checklist.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_checklist.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_entrega.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_entrega.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_documentacao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_documentacao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_inicio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_inicio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_quickref.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_quickref.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formprincipal.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formprincipal.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formulario_posts.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formulario_posts.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formulario_concluido.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formulario_concluido.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\guia_completo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\guia_completo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\implementacao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\implementacao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\indice_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\indice_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\indice.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\indice.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\posts_final.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\posts_final.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\posts_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\posts_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\projeto_formperfil_conclusao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\projeto_formperfil_conclusao.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\readme_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\readme_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\resumo_executivo_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\resumo_executivo_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\refactoring_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\refactoring_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\status_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\status_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\testes.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\testes.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\verificacao_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\verificacao_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\verificacao_regras.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\verificacao_regras.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\comentarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\comentarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\servicesexemplos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\servicesexemplos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\arvore_arquivos_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\arvore_arquivos_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\entrega_final_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\entrega_final_formperfil.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formcomentarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formcomentarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formcomentarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formcomentarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formprincipal.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formprincipal.resx||{81828910-B8B3-4D2B-99A3-067027C180C1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-completa-do-formdashboard-windows-forms.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-migrao-formperfil.cs-de-cdigo-para-designer.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formperfil.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formperfil.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formposts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formposts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-formulrios-em-branco-windows-forms.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formcomentarios.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formcomentarios.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\refactoring_concluido.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\refactoring_concluido.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formposts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formposts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formposts.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formposts.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formlogin.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formlogin.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\services\\postservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\services\\postservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1470398846\\FormDashboard.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\downloads\\sistemaadmin\\sistemaadmin\\formdashboard.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formdashboard.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 73,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "FormPrincipal.resx",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.resx",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPrincipal.resx",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.resx",
+              "RelativeToolTip": "sistemaadmin\\FormPrincipal.resx",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-06-14T04:39:54.557Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "FormPrincipal.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPrincipal.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormPrincipal.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:38:19.899Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "FormPrincipal.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPrincipal.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPrincipal.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:37:45.739Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "FormPrincipal.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPrincipal.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPrincipal.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPrincipal.Designer.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAowA8AAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:37:37.227Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "FormDashboard.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormDashboard.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:35:59.418Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "FormDashboard.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormDashboard.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:35:32.296Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "FormDashboard.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1470398846\\FormDashboard.Designer.cs",
+              "RelativeDocumentMoniker": "..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1470398846\\FormDashboard.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1470398846\\FormDashboard.Designer.cs",
+              "RelativeToolTip": "..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1470398846\\FormDashboard.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:35:12.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "plan-correo-completa-do-formdashboard-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-completa-do-formdashboard-windows-forms.md",
+              "RelativeDocumentMoniker": "..\\..\\.copilot\\plans\\plan-correo-completa-do-formdashboard-windows-forms.md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-completa-do-formdashboard-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\.copilot\\plans\\plan-correo-completa-do-formdashboard-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T04:29:55.833Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "FormDashboard.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormDashboard.cs",
+              "RelativeToolTip": "sistemaadmin\\FormDashboard.cs",
+              "ViewState": "AgIAAIsBAAAAAAAAAAAswJEBAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:29:25.453Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PostDTO.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Models\\PostDTO.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Models\\PostDTO.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Models\\PostDTO.cs",
+              "RelativeToolTip": "sistemaadmin\\Models\\PostDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:29:08.201Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Form1.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.cs",
+              "RelativeToolTip": "sistemaadmin\\Form1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T04:11:08.843Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "plan-migrao-formperfil.cs-de-cdigo-para-designer.md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-migrao-formperfil.cs-de-cdigo-para-designer.md",
+              "RelativeDocumentMoniker": "..\\..\\.copilot\\plans\\plan-migrao-formperfil.cs-de-cdigo-para-designer.md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-migrao-formperfil.cs-de-cdigo-para-designer.md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\.copilot\\plans\\plan-migrao-formperfil.cs-de-cdigo-para-designer.md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T04:10:05.168Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "plan-correo-de-formulrios-em-branco-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-formulrios-em-branco-windows-forms.md",
+              "RelativeDocumentMoniker": "..\\..\\.copilot\\plans\\plan-correo-de-formulrios-em-branco-windows-forms.md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-formulrios-em-branco-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\.copilot\\plans\\plan-correo-de-formulrios-em-branco-windows-forms.md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T04:02:54.694Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "FormPerfil.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPerfil.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormPerfil.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T03:58:50.261Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "FORMPERFIL_INICIO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_INICIO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_INICIO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_INICIO.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_INICIO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:57:57.785Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "ARVORE_ARQUIVOS_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ARVORE_ARQUIVOS_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\ARVORE_ARQUIVOS_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ARVORE_ARQUIVOS_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\ARVORE_ARQUIVOS_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:57:40.255Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "ENTREGA_FINAL_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ENTREGA_FINAL_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\ENTREGA_FINAL_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ENTREGA_FINAL_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\ENTREGA_FINAL_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:57:05.43Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "INDICE_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\INDICE_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\INDICE_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\INDICE_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\INDICE_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:56:37.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "RESUMO_EXECUTIVO_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\RESUMO_EXECUTIVO_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\RESUMO_EXECUTIVO_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\RESUMO_EXECUTIVO_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\RESUMO_EXECUTIVO_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:56:06.219Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "PROJETO_FORMPERFIL_CONCLUSAO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\PROJETO_FORMPERFIL_CONCLUSAO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\PROJETO_FORMPERFIL_CONCLUSAO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\PROJETO_FORMPERFIL_CONCLUSAO.md",
+              "RelativeToolTip": "sistemaadmin\\PROJETO_FORMPERFIL_CONCLUSAO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:55:12.149Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "README_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\README_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\README_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\README_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\README_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:54:07.976Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "FORMPERFIL_ENTREGA.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_ENTREGA.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_ENTREGA.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_ENTREGA.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_ENTREGA.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:53:41.49Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "FORMPERFIL_CHECKLIST.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_CHECKLIST.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_CHECKLIST.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_CHECKLIST.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_CHECKLIST.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:53:08.86Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "FORMPERFIL_QUICKREF.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_QUICKREF.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_QUICKREF.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_QUICKREF.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_QUICKREF.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:52:47.094Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "FORMPERFIL_RESUMO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_RESUMO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_RESUMO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_RESUMO.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_RESUMO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:52:23.079Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "EXEMPLOS_FORMPERFIL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\EXEMPLOS_FORMPERFIL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\EXEMPLOS_FORMPERFIL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\EXEMPLOS_FORMPERFIL.md",
+              "RelativeToolTip": "sistemaadmin\\EXEMPLOS_FORMPERFIL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:52:02.068Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "FORMPERFIL_DOCUMENTACAO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_DOCUMENTACAO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMPERFIL_DOCUMENTACAO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMPERFIL_DOCUMENTACAO.md",
+              "RelativeToolTip": "sistemaadmin\\FORMPERFIL_DOCUMENTACAO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADkBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:51:40.468Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "FormPerfil.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPerfil.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPerfil.Designer.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAIwBwAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T03:51:05.639Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "FormPerfil.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPerfil.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPerfil.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPerfil.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAwwAgAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T03:50:49.26Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md",
+              "RelativeDocumentMoniker": "..\\..\\.copilot\\plans\\plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\.copilot\\plans\\plan-sistema-administrativo-windows-forms-verificao-e-refinamento.md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:43:46.922Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{269a02dc-6af8-11d3-bdc4-00c04f688e50}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{74946827-37a0-11d2-a273-00c04f8ef4ff}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "GUIA_COMPLETO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\GUIA_COMPLETO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\GUIA_COMPLETO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\GUIA_COMPLETO.md",
+              "RelativeToolTip": "sistemaadmin\\GUIA_COMPLETO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFoCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:34:09.664Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md",
+              "RelativeDocumentMoniker": "..\\..\\.copilot\\plans\\plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\.copilot\\plans\\plan-sistema-administrativo-completo-fastapi-client-(c-windows-forms).md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T03:06:41.825Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "ProfileService.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ProfileService.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\ProfileService.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ProfileService.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\ProfileService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T03:04:03.494Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "FormComentarios.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormComentarios.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:58:56.44Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "COMENTARIOS_GUIA.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\COMENTARIOS_GUIA.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\COMENTARIOS_GUIA.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\COMENTARIOS_GUIA.md",
+              "RelativeToolTip": "sistemaadmin\\COMENTARIOS_GUIA.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:56:34.191Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "FormComentarios.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormComentarios.Designer.cs",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAowB0BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:55:50.563Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "FormComentarios.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormComentarios.cs",
+              "RelativeToolTip": "sistemaadmin\\FormComentarios.cs",
+              "ViewState": "AgIAACsBAAAAAAAAAAAswDIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:55:27.985Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "ComentarioService.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ComentarioService.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\ComentarioService.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ComentarioService.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\ComentarioService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:55:12.809Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "FormPosts.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPosts.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormPosts.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:47:03.401Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\Form1.Designer.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAYwBwAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:45:57.423Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "POSTS_FINAL.txt",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\POSTS_FINAL.txt",
+              "RelativeDocumentMoniker": "sistemaadmin\\POSTS_FINAL.txt",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\POSTS_FINAL.txt",
+              "RelativeToolTip": "sistemaadmin\\POSTS_FINAL.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2026-06-14T02:45:02.055Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "FORMULARIO_CONCLUIDO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMULARIO_CONCLUIDO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMULARIO_CONCLUIDO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMULARIO_CONCLUIDO.md",
+              "RelativeToolTip": "sistemaadmin\\FORMULARIO_CONCLUIDO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:44:32.724Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "POSTS_RESUMO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\POSTS_RESUMO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\POSTS_RESUMO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\POSTS_RESUMO.md",
+              "RelativeToolTip": "sistemaadmin\\POSTS_RESUMO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:44:01.669Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "FORMULARIO_POSTS.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMULARIO_POSTS.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\FORMULARIO_POSTS.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FORMULARIO_POSTS.md",
+              "RelativeToolTip": "sistemaadmin\\FORMULARIO_POSTS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:43:43.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "FormPosts.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPosts.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPosts.Designer.cs",
+              "ViewState": "AgIAABkBAAAAAAAAAAAtwC0BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:43:10.018Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "FormPosts.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormPosts.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormPosts.cs",
+              "RelativeToolTip": "sistemaadmin\\FormPosts.cs",
+              "ViewState": "AgIAAD4BAAAAAAAAAAAYwAcAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:42:49.441Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "PostService.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\PostService.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\PostService.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\PostService.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\PostService.cs",
+              "ViewState": "AgIAAIYAAAAAAAAAAABRwJkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:42:35.291Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "FormLogin.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormLogin.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\FormLogin.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:39:17.458Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "REFACTORING_CONCLUIDO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\REFACTORING_CONCLUIDO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\REFACTORING_CONCLUIDO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\REFACTORING_CONCLUIDO.md",
+              "RelativeToolTip": "sistemaadmin\\REFACTORING_CONCLUIDO.md",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAADUBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:37:03.417Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "0_COMECE_AQUI.txt",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\0_COMECE_AQUI.txt",
+              "RelativeDocumentMoniker": "sistemaadmin\\0_COMECE_AQUI.txt",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\0_COMECE_AQUI.txt",
+              "RelativeToolTip": "sistemaadmin\\0_COMECE_AQUI.txt",
+              "ViewState": "AgIAAEEBAAAAAAAAAAAAAJoAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2026-06-14T02:36:28.17Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "COMECE_AQUI.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\COMECE_AQUI.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\COMECE_AQUI.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\COMECE_AQUI.md",
+              "RelativeToolTip": "sistemaadmin\\COMECE_AQUI.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:35:58.882Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "INDICE.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\INDICE.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\INDICE.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\INDICE.md",
+              "RelativeToolTip": "sistemaadmin\\INDICE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:35:39.087Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "VERIFICACAO_FINAL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\VERIFICACAO_FINAL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\VERIFICACAO_FINAL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\VERIFICACAO_FINAL.md",
+              "RelativeToolTip": "sistemaadmin\\VERIFICACAO_FINAL.md",
+              "ViewState": "AgIAAD4BAAAAAAAAAAAYwFQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:35:09.581Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "REFACTORING_RESUMO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\REFACTORING_RESUMO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\REFACTORING_RESUMO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\REFACTORING_RESUMO.md",
+              "RelativeToolTip": "sistemaadmin\\REFACTORING_RESUMO.md",
+              "ViewState": "AgIAALcAAAAAAAAAAAAAAEoAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:34:36.661Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "EXEMPLOS_USO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\EXEMPLOS_USO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\EXEMPLOS_USO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\EXEMPLOS_USO.md",
+              "RelativeToolTip": "sistemaadmin\\EXEMPLOS_USO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAK0BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:33:52.22Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ARQUITETURA.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ARQUITETURA.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\ARQUITETURA.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\ARQUITETURA.md",
+              "RelativeToolTip": "sistemaadmin\\ARQUITETURA.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:33:32.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "VERIFICACAO_REGRAS.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\VERIFICACAO_REGRAS.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\VERIFICACAO_REGRAS.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\VERIFICACAO_REGRAS.md",
+              "RelativeToolTip": "sistemaadmin\\VERIFICACAO_REGRAS.md",
+              "ViewState": "AgIAALEAAAAAAAAAAAAAALgAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:33:10.568Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "STATUS_FINAL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\STATUS_FINAL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\STATUS_FINAL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\STATUS_FINAL.md",
+              "RelativeToolTip": "sistemaadmin\\STATUS_FINAL.md",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAACEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:24:22.502Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "TESTES.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\TESTES.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\TESTES.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\TESTES.md",
+              "RelativeToolTip": "sistemaadmin\\TESTES.md",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAAAMAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:23:50.942Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "IMPLEMENTACAO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\IMPLEMENTACAO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\IMPLEMENTACAO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\IMPLEMENTACAO.md",
+              "RelativeToolTip": "sistemaadmin\\IMPLEMENTACAO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:23:36.405Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "ServicesExemplos.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ServicesExemplos.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\ServicesExemplos.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\ServicesExemplos.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\ServicesExemplos.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAAAAAAkAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:23:08.932Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "README.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\README.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\README.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\README.md",
+              "RelativeToolTip": "sistemaadmin\\README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-06-14T02:23:00.069Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Program.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Program.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Program.cs",
+              "RelativeToolTip": "sistemaadmin\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAswAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:22:13.398Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "FormLogin.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormLogin.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormLogin.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:22:00.403Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "FormLogin.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormLogin.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\FormLogin.cs",
+              "RelativeToolTip": "sistemaadmin\\FormLogin.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAmwDgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:21:59.614Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "BaseService.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\BaseService.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\BaseService.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\BaseService.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\BaseService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAkAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:21:45.024Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Services\\AuthService.cs",
+              "RelativeToolTip": "sistemaadmin\\Services\\AuthService.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAkwDAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:21:43.938Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "Form1.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\Form1.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Downloads\\sistemaadmin\\sistemaadmin\\Form1.cs [Design]",
+              "RelativeToolTip": "sistemaadmin\\Form1.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-14T02:16:40.04Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

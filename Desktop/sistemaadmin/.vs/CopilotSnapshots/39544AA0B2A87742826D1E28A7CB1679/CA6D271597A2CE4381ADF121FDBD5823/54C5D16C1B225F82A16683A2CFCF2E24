@@ -1,0 +1,199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Windows.Forms;
+using sistemaadmin.Models;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormDashboard : Form
+    {
+        private readonly string _token;
+        private readonly PostService _postService;
+
+        public FormDashboard(string token)
+        {
+            InitializeComponent();
+            _token = token;
+            _postService = new PostService(token);
+        }
+
+        private void FormDashboard_Load(object sender, EventArgs e)
+        {
+            CarregarDados();
+        }
+
+        private async void CarregarDados()
+        {
+            try
+            {
+                btnRecarregar.Enabled = false;
+                btnRecarregar.Text = "Carregando...";
+
+                var json = await _postService.GetFeedAsync();
+
+                // Parse JSON com System.Text.Json
+                var posts = ParsearPosts(json);
+
+                // Validar se há dados
+                if (posts == null || posts.Count == 0)
+                {
+                    LimparDados();
+                    return;
+                }
+
+                // Calcular estatísticas
+                int totalPosts = posts.Count;
+                int totalLikes = 0;
+
+                foreach (var post in posts)
+                {
+                    if (post != null)
+                    {
+                        totalLikes += post.Likes;
+                    }
+                }
+
+                double media = totalPosts > 0 ? Math.Round((double)totalLikes / totalPosts, 2) : 0;
+
+                // Atualizar cards
+                lblCard1Valor.Text = totalPosts.ToString();
+                lblCard2Valor.Text = totalLikes.ToString();
+                lblCard3Valor.Text = media.ToString("F1");
+
+                // Popular DataGridView
+                dgvPosts.Rows.Clear();
+                foreach (var post in posts)
+                {
+                    if (post?.Usuario != null)
+                    {
+                        string dataFormatada = FormatarData(post.DataPostagem);
+                        string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
+
+                        dgvPosts.Rows.Add(
+                            post.Id,
+                            conteudoTruncado,
+                            post.Likes,
+                            post.Usuario.Username ?? "Desconhecido",
+                            dataFormatada
+                        );
+                    }
+                }
+            }
+            catch (JsonException jex)
+            {
+                MessageBox.Show($"Erro ao processar JSON:\n{jex.Message}", "Erro JSON",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LimparDados();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar dashboard:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LimparDados();
+            }
+            finally
+            {
+                btnRecarregar.Enabled = true;
+                btnRecarregar.Text = "Recarregar";
+            }
+        }
+
+        private void BtnRecarregar_Click(object sender, EventArgs e)
+        {
+            CarregarDados();
+        }
+
+        private List<PostDTO> ParsearPosts(string json)
+        {
+            var posts = new List<PostDTO>();
+
+            if (string.IsNullOrEmpty(json))
+            {
+                return posts;
+            }
+
+            try
+            {
+                // Desserializar JSON usando System.Text.Json
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                // Tentar desserializar como array
+                try
+                {
+                    var jsonArray = JsonSerializer.Deserialize<PostDTO[]>(json, options);
+                    if (jsonArray != null)
+                    {
+                        posts.AddRange(jsonArray);
+                    }
+                }
+                catch
+                {
+                    // Se falhar como array, tentar como objeto single
+                    var singlePost = JsonSerializer.Deserialize<PostDTO>(json, options);
+                    if (singlePost != null)
+                    {
+                        posts.Add(singlePost);
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception($"JSON inválido: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao desserializar posts: {ex.Message}", ex);
+            }
+
+            return posts;
+        }
+
+        private void LimparDados()
+        {
+            lblCard1Valor.Text = "0";
+            lblCard2Valor.Text = "0";
+            lblCard3Valor.Text = "0";
+            dgvPosts.Rows.Clear();
+        }
+
+        private string FormatarData(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+                return "N/A";
+
+            try
+            {
+                // Tentar fazer parse da data ISO 8601
+                if (DateTime.TryParse(data, out var dt))
+                {
+                    return dt.ToString("dd/MM/yyyy HH:mm");
+                }
+            }
+            catch
+            {
+                // Se falhar, retornar a data original
+            }
+
+            return data;
+        }
+
+        private string TruncarTexto(string texto, int comprimento)
+        {
+            if (string.IsNullOrEmpty(texto))
+                return "";
+
+            if (texto.Length > comprimento)
+            {
+                return texto.Substring(0, comprimento) + "...";
+            }
+
+            return texto;
+        }
+    }
+}

@@ -1,0 +1,119 @@
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace sistemaadmin.Services
+{
+    public class PostService : BaseService
+    {
+        public PostService(string token) : base(token)
+        {
+        }
+
+        /// <summary>
+        /// Obtém o feed de posts
+        /// </summary>
+        public async Task<string> GetFeedAsync()
+        {
+            try
+            {
+                var response = await HttpClient.GetAsync("/post/feed");
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao obter feed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Cria um novo post
+        /// </summary>
+        public async Task<string> CriarPostAsync(string conteudo, string imagem = null)
+        {
+            try
+            {
+                string json;
+                if (string.IsNullOrEmpty(imagem))
+                {
+                    json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\"}}";
+                }
+                else
+                {
+                    json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\", \"imagem\": \"{EscapeJson(imagem)}\"}}";
+                }
+
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await HttpClient.PostAsync("/post/criar_post", content);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao criar post: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Atualiza um post existente
+        /// </summary>
+        public async Task<string> AtualizarPostAsync(int id, string conteudo, string imagem = null)
+        {
+            try
+            {
+                string json;
+                if (string.IsNullOrEmpty(imagem))
+                {
+                    json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\"}}";
+                }
+                else
+                {
+                    json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\", \"imagem\": \"{EscapeJson(imagem)}\"}}";
+                }
+
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var response = await HttpClient.PutAsync($"/post/atualizar_post/{id}", content);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao atualizar post: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deleta um post
+        /// </summary>
+        public async Task<bool> DeletarPostAsync(int id)
+        {
+            try
+            {
+                var response = await HttpClient.DeleteAsync($"/post/deletar/{id}");
+                response.EnsureSuccessStatusCode();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao deletar post: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Escapa caracteres especiais para JSON
+        /// </summary>
+        private string EscapeJson(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return text
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t");
+        }
+    }
+}

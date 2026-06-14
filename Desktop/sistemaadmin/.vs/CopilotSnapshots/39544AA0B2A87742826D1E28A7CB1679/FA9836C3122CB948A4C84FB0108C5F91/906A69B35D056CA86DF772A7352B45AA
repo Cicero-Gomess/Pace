@@ -1,0 +1,405 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+using sistemaadmin.Models;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormDashboard : Form
+    {
+        private readonly string _token;
+        private readonly PostService _postService;
+
+        public FormDashboard(string token)
+        {
+            InitializeComponent();
+            _token = token;
+            _postService = new PostService(token);
+        }
+
+        private void FormDashboard_Load(object sender, EventArgs e)
+        {
+            CarregarDados();
+        }
+
+        private async void CarregarDados()
+        {
+            try
+            {
+                btnRecarregar.Enabled = false;
+                btnRecarregar.Text = "Carregando...";
+
+                var json = await _postService.GetFeedAsync();
+
+                // Parse JSON
+                var posts = ParsearPosts(json);
+
+                // Validar se há dados
+                if (posts == null || posts.Count == 0)
+                {
+                    LimparDados();
+                    return;
+                }
+
+                // Calcular estatísticas
+                int totalPosts = posts.Count;
+                int totalLikes = 0;
+
+                foreach (var post in posts)
+                {
+                    if (post != null)
+                    {
+                        totalLikes += post.Likes;
+                    }
+                }
+
+                double media = totalPosts > 0 ? Math.Round((double)totalLikes / totalPosts, 2) : 0;
+
+                // Atualizar cards
+                lblCard1Valor.Text = totalPosts.ToString();
+                lblCard2Valor.Text = totalLikes.ToString();
+                lblCard3Valor.Text = media.ToString("F1");
+
+                // Popular DataGridView
+                dgvPosts.Rows.Clear();
+                foreach (var post in posts)
+                {
+                    if (post?.Usuario != null)
+                    {
+                        string dataFormatada = FormatarData(post.DataPostagem);
+                        string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
+
+                        dgvPosts.Rows.Add(
+                            post.Id,
+                            conteudoTruncado,
+                            post.Likes,
+                            post.Usuario.Username ?? "Desconhecido",
+                            dataFormatada
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar dashboard:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LimparDados();
+            }
+            finally
+            {
+                btnRecarregar.Enabled = true;
+                btnRecarregar.Text = "Recarregar";
+            }
+        }
+
+        private void BtnRecarregar_Click(object sender, EventArgs e)
+        {
+            CarregarDados();
+        }
+
+        /// <summary>
+        /// Parse JSON manualmente sem dependência de bibliotecas externas
+        /// </summary>
+        private List<PostDTO> ParsearPosts(string json)
+        {
+            var posts = new List<PostDTO>();
+
+            if (string.IsNullOrEmpty(json))
+            {
+                return posts;
+            }
+
+            try
+            {
+                json = json.Trim();
+
+                // Verificar se é um array
+                if (json.StartsWith("["))
+                {
+                    // Remove [ e ]
+                    json = json.Substring(1, json.Length - 2).Trim();
+
+                    // Split por }, { para separar objetos
+                    string[] objectStrings = json.Split(new string[] { "},{" }, StringSplitOptions.None);
+
+                    for (int i = 0; i < objectStrings.Length; i++)
+                    {
+                        string obj = objectStrings[i];
+                        if (!obj.StartsWith("{"))
+                            obj = "{" + obj;
+                        if (!obj.EndsWith("}"))
+                            obj = obj + "}";
+
+                        var post = ParsearPostObject(obj);
+                        if (post != null)
+                        {
+                            posts.Add(post);
+                        }
+                    }
+                }
+                else if (json.StartsWith("{"))
+                {
+                    // É um objeto único
+                    var post = ParsearPostObject(json);
+                    if (post != null)
+                    {
+                        posts.Add(post);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao fazer parse do JSON: " + ex.Message, ex);
+            }
+
+            return posts;
+        }
+
+        /// <summary>
+        /// Parse de um objeto POST JSON individual
+        /// </summary>
+        private PostDTO ParsearPostObject(string json)
+        {
+            try
+            {
+                var post = new PostDTO();
+
+                // Parse id
+                post.Id = ExtrairIntDoJson(json, "\"id\":");
+
+                // Parse conteudo
+                post.Conteudo = ExtrairStringDoJson(json, "\"conteudo\":");
+
+                // Parse imagem
+                post.Imagem = ExtrairStringDoJson(json, "\"imagem\":");
+
+                // Parse data_postagem
+                post.DataPostagem = ExtrairStringDoJson(json, "\"data_postagem\":");
+
+                // Parse likes
+                post.Likes = ExtrairIntDoJson(json, "\"likes\":");
+
+                // Parse liked
+                post.Liked = ExtrairBoolDoJson(json, "\"liked\":");
+
+                // Parse usuario
+                post.Usuario = ParsearUsuarioDoJson(json);
+
+                // Validar se tem dados mínimos
+                if (post.Id > 0)
+                {
+                    return post;
+                }
+            }
+            catch
+            {
+                // Retorna null se falhar
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Parse do objeto USUARIO dentro do JSON
+        /// </summary>
+        private UsuarioDTO ParsearUsuarioDoJson(string json)
+        {
+            try
+            {
+                var usuario = new UsuarioDTO();
+
+                // Encontra a posição de "usuario"
+                int usuarioIndex = json.IndexOf("\"usuario\":");
+                if (usuarioIndex < 0)
+                    return null;
+
+                // Encontra o { após "usuario":
+                int inicioObj = json.IndexOf("{", usuarioIndex);
+                if (inicioObj < 0)
+                    return null;
+
+                // Encontra o } correspondente
+                int depth = 0;
+                int fimObj = inicioObj;
+                for (int i = inicioObj; i < json.Length; i++)
+                {
+                    if (json[i] == '{')
+                        depth++;
+                    else if (json[i] == '}')
+                    {
+                        depth--;
+                        if (depth == 0)
+                        {
+                            fimObj = i;
+                            break;
+                        }
+                    }
+                }
+
+                string usuarioJson = json.Substring(inicioObj, fimObj - inicioObj + 1);
+
+                usuario.Id = ExtrairIntDoJson(usuarioJson, "\"id\":");
+                usuario.Username = ExtrairStringDoJson(usuarioJson, "\"username\":");
+                usuario.Email = ExtrairStringDoJson(usuarioJson, "\"email\":");
+                usuario.FotoPerfil = ExtrairStringDoJson(usuarioJson, "\"foto_perfil\":");
+
+                return usuario;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Extrai um valor inteiro do JSON
+        /// </summary>
+        private int ExtrairIntDoJson(string json, string chave)
+        {
+            int index = json.IndexOf(chave);
+            if (index < 0)
+                return 0;
+
+            index += chave.Length;
+
+            // Pula espaços em branco
+            while (index < json.Length && char.IsWhiteSpace(json[index]))
+                index++;
+
+            string numero = "";
+            while (index < json.Length && (char.IsDigit(json[index]) || json[index] == '-'))
+            {
+                numero += json[index];
+                index++;
+            }
+
+            if (int.TryParse(numero, out int result))
+                return result;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Extrai um valor booleano do JSON
+        /// </summary>
+        private bool ExtrairBoolDoJson(string json, string chave)
+        {
+            int index = json.IndexOf(chave);
+            if (index < 0)
+                return false;
+
+            index += chave.Length;
+
+            // Pula espaços em branco
+            while (index < json.Length && char.IsWhiteSpace(json[index]))
+                index++;
+
+            if (json.Substring(index).StartsWith("true"))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Extrai um valor string do JSON
+        /// </summary>
+        private string ExtrairStringDoJson(string json, string chave)
+        {
+            int index = json.IndexOf(chave);
+            if (index < 0)
+                return "";
+
+            index += chave.Length;
+
+            // Pula espaços em branco
+            while (index < json.Length && char.IsWhiteSpace(json[index]))
+                index++;
+
+            // Procura pela primeira aspas
+            if (index >= json.Length || json[index] != '"')
+                return "";
+
+            index++; // Pula a aspas inicial
+
+            string valor = "";
+            while (index < json.Length)
+            {
+                if (json[index] == '"' && (index == 0 || json[index - 1] != '\\'))
+                {
+                    // Encontrou o fim da string
+                    break;
+                }
+
+                if (json[index] == '\\' && index + 1 < json.Length)
+                {
+                    // Processar escape sequences
+                    char next = json[index + 1];
+                    if (next == 'n')
+                        valor += "\n";
+                    else if (next == 'r')
+                        valor += "\r";
+                    else if (next == 't')
+                        valor += "\t";
+                    else if (next == '"')
+                        valor += "\"";
+                    else if (next == '\\')
+                        valor += "\\";
+                    else
+                        valor += next;
+
+                    index += 2;
+                }
+                else
+                {
+                    valor += json[index];
+                    index++;
+                }
+            }
+
+            return valor;
+        }
+
+        private void LimparDados()
+        {
+            lblCard1Valor.Text = "0";
+            lblCard2Valor.Text = "0";
+            lblCard3Valor.Text = "0";
+            dgvPosts.Rows.Clear();
+        }
+
+        private string FormatarData(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+                return "N/A";
+
+            try
+            {
+                // Tentar fazer parse da data ISO 8601
+                if (DateTime.TryParse(data, out var dt))
+                {
+                    return dt.ToString("dd/MM/yyyy HH:mm");
+                }
+            }
+            catch
+            {
+                // Se falhar, retornar a data original
+            }
+
+            return data;
+        }
+
+        private string TruncarTexto(string texto, int comprimento)
+        {
+            if (string.IsNullOrEmpty(texto))
+                return "";
+
+            if (texto.Length > comprimento)
+            {
+                return texto.Substring(0, comprimento) + "...";
+            }
+
+            return texto;
+        }
+    }
+}

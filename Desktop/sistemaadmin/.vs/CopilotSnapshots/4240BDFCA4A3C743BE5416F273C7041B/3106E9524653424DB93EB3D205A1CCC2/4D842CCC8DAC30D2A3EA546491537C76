@@ -1,0 +1,258 @@
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormPerfil : Form
+    {
+        private readonly string _token;
+        private ProfileService _profileService;
+        private Button btnCarregar;
+        private Button btnAtualizar;
+
+        public FormPerfil(string token)
+        {
+            InitializeComponent();
+            _token = token;
+            _profileService = new ProfileService(token);
+        }
+
+        private void FormPerfil_Load(object sender, EventArgs e)
+        {
+            this.Text = "Sistema Administrativo - Perfil do Usuário";
+            CarregarPerfil();
+        }
+
+        private async void CarregarPerfil()
+        {
+            try
+            {
+                if (btnCarregar != null)
+                {
+                    btnCarregar.Enabled = false;
+                    btnCarregar.Text = "Carregando...";
+                }
+
+                var json = await _profileService.GetMeAsync();
+
+                // Parse do JSON
+                var id = ExtrairValorInt(json, "id");
+                var username = ExtrairValor(json, "username");
+                var email = ExtrairValor(json, "email");
+                var fotoPerfil = ExtrairValor(json, "foto_perfil");
+
+                // Exibir dados
+                if (this.Controls.Find("lblUsername", false).Length == 0)
+                {
+                    CriarInterface(id, username, email, fotoPerfil);
+                }
+                else
+                {
+                    // Atualizar dados existentes
+                    Label lblUsernameValue = this.Controls["lblUsernameValue"] as Label;
+                    Label lblEmailValue = this.Controls["lblEmailValue"] as Label;
+                    Label lblIdValue = this.Controls["lblIdValue"] as Label;
+
+                    if (lblUsernameValue != null) lblUsernameValue.Text = username;
+                    if (lblEmailValue != null) lblEmailValue.Text = email;
+                    if (lblIdValue != null) lblIdValue.Text = id.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar perfil:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (btnCarregar != null)
+                {
+                    btnCarregar.Enabled = true;
+                    btnCarregar.Text = "🔄 Recarregar";
+                }
+            }
+        }
+
+        private void CriarInterface(int id, string username, string email, string fotoPerfil)
+        {
+            // Painel de dados do perfil
+            Panel pnlDados = new Panel();
+            pnlDados.Location = new System.Drawing.Point(20, 20);
+            pnlDados.Size = new System.Drawing.Size(600, 150);
+            pnlDados.BackColor = System.Drawing.Color.FromArgb(236, 240, 241);
+            pnlDados.BorderStyle = BorderStyle.FixedSingle;
+            this.Controls.Add(pnlDados);
+
+            // ID
+            Label lblId = new Label();
+            lblId.Text = "ID:";
+            lblId.Location = new System.Drawing.Point(10, 10);
+            lblId.Size = new System.Drawing.Size(40, 20);
+            lblId.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            pnlDados.Controls.Add(lblId);
+
+            Label lblIdValue = new Label();
+            lblIdValue.Name = "lblIdValue";
+            lblIdValue.Text = id.ToString();
+            lblIdValue.Location = new System.Drawing.Point(60, 10);
+            lblIdValue.Size = new System.Drawing.Size(100, 20);
+            lblIdValue.Font = new System.Drawing.Font("Segoe UI", 10);
+            pnlDados.Controls.Add(lblIdValue);
+
+            // Username
+            Label lblUsername = new Label();
+            lblUsername.Name = "lblUsername";
+            lblUsername.Text = "Usuário:";
+            lblUsername.Location = new System.Drawing.Point(10, 40);
+            lblUsername.Size = new System.Drawing.Size(60, 20);
+            lblUsername.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            pnlDados.Controls.Add(lblUsername);
+
+            Label lblUsernameValue = new Label();
+            lblUsernameValue.Name = "lblUsernameValue";
+            lblUsernameValue.Text = username;
+            lblUsernameValue.Location = new System.Drawing.Point(80, 40);
+            lblUsernameValue.Size = new System.Drawing.Size(200, 20);
+            lblUsernameValue.Font = new System.Drawing.Font("Segoe UI", 10);
+            pnlDados.Controls.Add(lblUsernameValue);
+
+            // Email
+            Label lblEmail = new Label();
+            lblEmail.Text = "Email:";
+            lblEmail.Location = new System.Drawing.Point(10, 70);
+            lblEmail.Size = new System.Drawing.Size(50, 20);
+            lblEmail.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            pnlDados.Controls.Add(lblEmail);
+
+            Label lblEmailValue = new Label();
+            lblEmailValue.Name = "lblEmailValue";
+            lblEmailValue.Text = email;
+            lblEmailValue.Location = new System.Drawing.Point(70, 70);
+            lblEmailValue.Size = new System.Drawing.Size(300, 20);
+            lblEmailValue.Font = new System.Drawing.Font("Segoe UI", 10);
+            pnlDados.Controls.Add(lblEmailValue);
+
+            // Foto de Perfil
+            Label lblFoto = new Label();
+            lblFoto.Text = "Foto de Perfil (Base64):";
+            lblFoto.Location = new System.Drawing.Point(10, 100);
+            lblFoto.Size = new System.Drawing.Size(140, 20);
+            lblFoto.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            pnlDados.Controls.Add(lblFoto);
+
+            TextBox txtFoto = new TextBox();
+            txtFoto.Name = "txtFoto";
+            txtFoto.Location = new System.Drawing.Point(160, 100);
+            txtFoto.Size = new System.Drawing.Size(420, 20);
+            txtFoto.Multiline = false;
+            txtFoto.Text = fotoPerfil ?? "";
+            txtFoto.Font = new System.Drawing.Font("Segoe UI", 9);
+            pnlDados.Controls.Add(txtFoto);
+
+            // Botão Atualizar Foto
+            Button btnAtualizar = new Button();
+            btnAtualizar.Name = "btnAtualizar";
+            btnAtualizar.Text = "📸 Atualizar Foto";
+            btnAtualizar.Location = new System.Drawing.Point(20, 190);
+            btnAtualizar.Size = new System.Drawing.Size(150, 40);
+            btnAtualizar.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+            btnAtualizar.ForeColor = System.Drawing.Color.White;
+            btnAtualizar.Font = new System.Drawing.Font("Segoe UI", 10);
+            btnAtualizar.FlatStyle = FlatStyle.Flat;
+            btnAtualizar.Click += (s, e) => AtualizarFoto(txtFoto.Text);
+            this.Controls.Add(btnAtualizar);
+
+            // Botão Recarregar
+            Button btnRecarregar = new Button();
+            btnRecarregar.Name = "btnCarregar";
+            btnRecarregar.Text = "🔄 Recarregar";
+            btnRecarregar.Location = new System.Drawing.Point(190, 190);
+            btnRecarregar.Size = new System.Drawing.Size(150, 40);
+            btnRecarregar.BackColor = System.Drawing.Color.FromArgb(155, 89, 182);
+            btnRecarregar.ForeColor = System.Drawing.Color.White;
+            btnRecarregar.Font = new System.Drawing.Font("Segoe UI", 10);
+            btnRecarregar.FlatStyle = FlatStyle.Flat;
+            btnRecarregar.Click += (s, e) => CarregarPerfil();
+            this.Controls.Add(btnRecarregar);
+
+            // Informações
+            Label lblInfo = new Label();
+            lblInfo.Text = "ℹ️ A foto deve ser em formato Base64. Deixe em branco para não alterar.";
+            lblInfo.Location = new System.Drawing.Point(20, 250);
+            lblInfo.Size = new System.Drawing.Size(600, 30);
+            lblInfo.Font = new System.Drawing.Font("Segoe UI", 9);
+            lblInfo.ForeColor = System.Drawing.Color.Gray;
+            this.Controls.Add(lblInfo);
+        }
+
+        private async void AtualizarFoto(string fotoBase64)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(fotoBase64))
+                {
+                    MessageBox.Show("Por favor, insira uma foto em Base64.", "Validação",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Button btnAtualizar = this.Controls["btnAtualizar"] as Button;
+                if (btnAtualizar != null)
+                {
+                    btnAtualizar.Enabled = false;
+                    btnAtualizar.Text = "Atualizando...";
+                }
+
+                await _profileService.TrocarFotoAsync(fotoBase64);
+
+                MessageBox.Show("Foto atualizada com sucesso!", "Sucesso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                CarregarPerfil();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao atualizar foto:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Button btnAtualizar = this.Controls["btnAtualizar"] as Button;
+                if (btnAtualizar != null)
+                {
+                    btnAtualizar.Enabled = true;
+                    btnAtualizar.Text = "📸 Atualizar Foto";
+                }
+            }
+        }
+
+        private string ExtrairValor(string json, string chave)
+        {
+            var regex = new Regex($@"""{chave}""\s*:\s*""([^""]*)""");
+            var match = regex.Match(json);
+            return match.Success ? UnescapeJson(match.Groups[1].Value) : "";
+        }
+
+        private int ExtrairValorInt(string json, string chave)
+        {
+            var regex = new Regex($@"""{chave}""\s*:\s*(\d+)");
+            var match = regex.Match(json);
+            return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+        }
+
+        private string UnescapeJson(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return text
+                .Replace("\\n", "\n")
+                .Replace("\\r", "\r")
+                .Replace("\\t", "\t")
+                .Replace("\\\"", "\"")
+                .Replace("\\\\", "\\");
+        }
+    }
+}

@@ -1,0 +1,43 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace sistemaadmin
+{
+    public partial class FormPrincipal : Form
+    {
+        private readonly string _token;
+
+        public FormPrincipal(string token)
+        {
+            InitializeComponent();
+            _token = token;
+        }
+
+        private void FormPrincipal_Load(object sender, EventArgs e)
+        {
+            this.Text = "Sistema Administrativo - Painel Principal";
+            this.CenterToScreen();
+            lblStatus.Text = "Sistema administrativo conectado à API ✓";
+            AbrirFormPosts();
+        }
+
+        private void AbrirFormPosts()
+        {
+            try
+            {
+                FormPosts formPosts = new FormPosts(_token);
+                formPosts.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir gerenciador de posts:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSair_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+    }
+}

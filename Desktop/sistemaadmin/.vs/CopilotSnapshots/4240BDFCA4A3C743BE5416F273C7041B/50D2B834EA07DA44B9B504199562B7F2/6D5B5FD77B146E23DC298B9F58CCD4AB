@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace sistemaadmin.Services
+{
+    public class AuthService
+    {
+        private readonly string _baseUrl = "http://localhost:8000";
+        private readonly HttpClient _httpClient;
+
+        public AuthService()
+        {
+            _httpClient = new HttpClient();
+        }
+
+        /// <summary>
+        /// Realiza login e retorna o token JWT.
+        /// </summary>
+        public async Task<string> LoginAsync(string email, string senha)
+        {
+            try
+            {
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("username", email),
+                    new KeyValuePair<string, string>("password", senha)
+                });
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/auth/token", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Falha na autenticação. Verifique suas credenciais.");
+                }
+
+                var jsonContent = await response.Content.ReadAsStringAsync();
+
+                // Parse simples do JSON para extrair o token
+                var token = ExtractTokenFromJson(jsonContent);
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    throw new Exception("Token não encontrado na resposta da API.");
+                }
+
+                return token;
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Erro ao conectar com a API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro durante o login: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Extrai o token JWT da resposta JSON da API.
+        /// </summary>
+        private string ExtractTokenFromJson(string json)
+        {
+            try
+            {
+                // Procura por "access_token": "valor"
+                var startIndex = json.IndexOf("\"access_token\"");
+                if (startIndex == -1)
+                    return null;
+
+                startIndex = json.IndexOf(":", startIndex) + 1;
+                startIndex = json.IndexOf("\"", startIndex) + 1;
+                var endIndex = json.IndexOf("\"", startIndex);
+
+                if (endIndex > startIndex)
+                {
+                    return json.Substring(startIndex, endIndex - startIndex);
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+}

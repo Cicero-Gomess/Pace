@@ -1,0 +1,242 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace sistemaadmin
+{
+    public partial class FormPrincipal : Form
+    {
+        private readonly string _token;
+        private Form _currentForm;
+
+        public FormPrincipal(string token)
+        {
+            InitializeComponent();
+            _token = token;
+        }
+
+        private void FormPrincipal_Load(object sender, EventArgs e)
+        {
+            this.Text = "Sistema Administrativo - Painel Principal";
+            this.Size = new System.Drawing.Size(1000, 600);
+            this.CenterToScreen();
+
+            ConfigurarMenu();
+            AbrirFormDashboard();
+        }
+
+        private void ConfigurarMenu()
+        {
+            // Painel lateral
+            if (this.Controls.Find("pnlMenu", false).Length == 0)
+            {
+                Panel pnlMenu = new Panel();
+                pnlMenu.Name = "pnlMenu";
+                pnlMenu.Dock = DockStyle.Left;
+                pnlMenu.Width = 200;
+                pnlMenu.BackColor = System.Drawing.Color.FromArgb(41, 128, 185);
+
+                int btnY = 10;
+
+                // Botão Dashboard
+                Button btnDashboard = new Button();
+                btnDashboard.Text = "📊 Dashboard";
+                btnDashboard.Location = new System.Drawing.Point(10, btnY);
+                btnDashboard.Size = new System.Drawing.Size(180, 40);
+                btnDashboard.FlatStyle = FlatStyle.Flat;
+                btnDashboard.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+                btnDashboard.ForeColor = System.Drawing.Color.White;
+                btnDashboard.Font = new System.Drawing.Font("Segoe UI", 10);
+                btnDashboard.Click += (s, e) => AbrirFormDashboard();
+                pnlMenu.Controls.Add(btnDashboard);
+                btnY += 50;
+
+                // Botão Posts
+                Button btnPosts = new Button();
+                btnPosts.Text = "📝 Posts";
+                btnPosts.Location = new System.Drawing.Point(10, btnY);
+                btnPosts.Size = new System.Drawing.Size(180, 40);
+                btnPosts.FlatStyle = FlatStyle.Flat;
+                btnPosts.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+                btnPosts.ForeColor = System.Drawing.Color.White;
+                btnPosts.Font = new System.Drawing.Font("Segoe UI", 10);
+                btnPosts.Click += (s, e) => AbrirFormPosts();
+                pnlMenu.Controls.Add(btnPosts);
+                btnY += 50;
+
+                // Botão Comentários
+                Button btnComentarios = new Button();
+                btnComentarios.Text = "💬 Comentários";
+                btnComentarios.Location = new System.Drawing.Point(10, btnY);
+                btnComentarios.Size = new System.Drawing.Size(180, 40);
+                btnComentarios.FlatStyle = FlatStyle.Flat;
+                btnComentarios.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+                btnComentarios.ForeColor = System.Drawing.Color.White;
+                btnComentarios.Font = new System.Drawing.Font("Segoe UI", 10);
+                btnComentarios.Click += (s, e) => AbrirFormComentarios();
+                pnlMenu.Controls.Add(btnComentarios);
+                btnY += 50;
+
+                // Botão Perfil
+                Button btnPerfil = new Button();
+                btnPerfil.Text = "👤 Perfil";
+                btnPerfil.Location = new System.Drawing.Point(10, btnY);
+                btnPerfil.Size = new System.Drawing.Size(180, 40);
+                btnPerfil.FlatStyle = FlatStyle.Flat;
+                btnPerfil.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+                btnPerfil.ForeColor = System.Drawing.Color.White;
+                btnPerfil.Font = new System.Drawing.Font("Segoe UI", 10);
+                btnPerfil.Click += (s, e) => AbrirFormPerfil();
+                pnlMenu.Controls.Add(btnPerfil);
+                btnY += 50;
+
+                // Botão Logout
+                Button btnLogout = new Button();
+                btnLogout.Text = "🚪 Logout";
+                btnLogout.Location = new System.Drawing.Point(10, btnY);
+                btnLogout.Size = new System.Drawing.Size(180, 40);
+                btnLogout.FlatStyle = FlatStyle.Flat;
+                btnLogout.BackColor = System.Drawing.Color.FromArgb(231, 76, 60);
+                btnLogout.ForeColor = System.Drawing.Color.White;
+                btnLogout.Font = new System.Drawing.Font("Segoe UI", 10);
+                btnLogout.Click += (s, e) => RealizarLogout();
+                pnlMenu.Controls.Add(btnLogout);
+
+                this.Controls.Add(pnlMenu);
+            }
+
+            // Painel container para os formulários
+            if (this.Controls.Find("pnlContainer", false).Length == 0)
+            {
+                Panel pnlContainer = new Panel();
+                pnlContainer.Name = "pnlContainer";
+                pnlContainer.Dock = DockStyle.Fill;
+                pnlContainer.BackColor = System.Drawing.Color.White;
+                this.Controls.Add(pnlContainer);
+            }
+        }
+
+        private void AbrirFormDashboard()
+        {
+            FecharFormAtual();
+            try
+            {
+                Panel pnlContainer = this.Controls["pnlContainer"] as Panel;
+                if (pnlContainer != null)
+                {
+                    FormDashboard formDashboard = new FormDashboard(_token);
+                    formDashboard.TopLevel = false;
+                    formDashboard.Dock = DockStyle.Fill;
+                    pnlContainer.Controls.Clear();
+                    pnlContainer.Controls.Add(formDashboard);
+                    formDashboard.Show();
+                    _currentForm = formDashboard;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Dashboard:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormPosts()
+        {
+            FecharFormAtual();
+            try
+            {
+                Panel pnlContainer = this.Controls["pnlContainer"] as Panel;
+                if (pnlContainer != null)
+                {
+                    FormPosts formPosts = new FormPosts(_token);
+                    formPosts.TopLevel = false;
+                    formPosts.Dock = DockStyle.Fill;
+                    pnlContainer.Controls.Clear();
+                    pnlContainer.Controls.Add(formPosts);
+                    formPosts.Show();
+                    _currentForm = formPosts;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Posts:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormComentarios()
+        {
+            FecharFormAtual();
+            try
+            {
+                Panel pnlContainer = this.Controls["pnlContainer"] as Panel;
+                if (pnlContainer != null)
+                {
+                    FormComentarios formComentarios = new FormComentarios(_token);
+                    formComentarios.TopLevel = false;
+                    formComentarios.Dock = DockStyle.Fill;
+                    pnlContainer.Controls.Clear();
+                    pnlContainer.Controls.Add(formComentarios);
+                    formComentarios.Show();
+                    _currentForm = formComentarios;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Comentários:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormPerfil()
+        {
+            FecharFormAtual();
+            try
+            {
+                Panel pnlContainer = this.Controls["pnlContainer"] as Panel;
+                if (pnlContainer != null)
+                {
+                    FormPerfil formPerfil = new FormPerfil(_token);
+                    formPerfil.TopLevel = false;
+                    formPerfil.Dock = DockStyle.Fill;
+                    pnlContainer.Controls.Clear();
+                    pnlContainer.Controls.Add(formPerfil);
+                    formPerfil.Show();
+                    _currentForm = formPerfil;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Perfil:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FecharFormAtual()
+        {
+            if (_currentForm != null && !_currentForm.IsDisposed)
+            {
+                _currentForm.Close();
+                _currentForm.Dispose();
+                _currentForm = null;
+            }
+        }
+
+        private void RealizarLogout()
+        {
+            DialogResult result = MessageBox.Show("Deseja sair do sistema?", "Confirmação",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                FecharFormAtual();
+                this.Close();
+                Application.Exit();
+            }
+        }
+
+        private void btnSair_Click(object sender, EventArgs e)
+        {
+            RealizarLogout();
+        }
+    }
+}

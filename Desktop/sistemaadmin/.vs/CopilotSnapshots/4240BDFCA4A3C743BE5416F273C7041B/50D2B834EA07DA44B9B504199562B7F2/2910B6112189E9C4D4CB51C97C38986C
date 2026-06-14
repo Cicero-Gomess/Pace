@@ -1,0 +1,63 @@
+﻿using System;
+using System.Windows.Forms;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormLogin : Form
+    {
+        private readonly AuthService _authService;
+
+        public FormLogin()
+        {
+            InitializeComponent();
+            _authService = new AuthService();
+        }
+
+        private async void btnLogin_Click(object sender, EventArgs e)
+        {
+            // Validar campos
+            if (string.IsNullOrWhiteSpace(txtEmail.Text))
+            {
+                MessageBox.Show("Por favor, insira seu email.", "Validação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtSenha.Text))
+            {
+                MessageBox.Show("Por favor, insira sua senha.", "Validação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                btnLogin.Enabled = false;
+                btnLogin.Text = "Conectando...";
+
+                // Chamar serviço de autenticação
+                var token = await _authService.LoginAsync(txtEmail.Text, txtSenha.Text);
+
+                // Sucesso - abrir FormPrincipal
+                FormPrincipal formPrincipal = new FormPrincipal(token);
+                this.Hide();
+                formPrincipal.ShowDialog();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao fazer login:\n{ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnLogin.Enabled = true;
+                btnLogin.Text = "Login";
+            }
+        }
+
+        private void FormLogin_Load(object sender, EventArgs e)
+        {
+            this.Text = "Sistema Administrativo - Login";
+            this.CenterToScreen();
+        }
+    }
+}

@@ -1,0 +1,50 @@
+﻿using System;
+using System.Windows.Forms;
+using sistemaadmin.Services;
+
+namespace sistemaadmin
+{
+    public partial class FormLogin : Form
+    {
+        private readonly AuthService _authService;
+
+        public FormLogin()
+        {
+            InitializeComponent();
+            _authService = new AuthService();
+        }
+
+        private async void btnLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnLogin.Enabled = false;
+                btnLogin.Text = "Conectando...";
+
+                var email = txtEmail.Text;
+                var senha = txtSenha.Text;
+
+                // Chamar serviço de autenticação
+                var token = await _authService.Login(email, senha);
+
+                // Abrir FormPrincipal com o token
+                FormPrincipal formPrincipal = new FormPrincipal(token);
+                this.Hide();
+                formPrincipal.ShowDialog();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnLogin.Text = "Login";
+                btnLogin.Enabled = true;
+            }
+        }
+
+        private void FormLogin_Load(object sender, EventArgs e)
+        {
+            this.Text = "Sistema Administrativo - Login";
+            this.CenterToScreen();
+        }
+    }
+}
