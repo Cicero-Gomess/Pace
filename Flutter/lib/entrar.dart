@@ -22,6 +22,7 @@ class _EntrarPageState extends State<EntrarPage> {
   bool _carregando = false;
   String _mensagem = '';
   Color _corMensagem = Colors.red;
+  bool _hoverEntrar = false;
 
   String get apiUrl {
     if (kIsWeb) return 'http://127.0.0.1:8000';
@@ -307,7 +308,7 @@ class _EntrarPageState extends State<EntrarPage> {
               // 🔸 ENTRAR
               _botaoNavbar(
                 texto: 'Entrar',
-                ativo: true,
+                ativo: false,
                 isMobile: isMobile,
                 onTap: () {
                   Navigator.pushNamed(context, '/entrar');
@@ -331,40 +332,60 @@ class _EntrarPageState extends State<EntrarPage> {
   }
 
   Widget _botaoNavbar({
-    required String texto,
-    required bool ativo,
-    required bool isMobile,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
+  required String texto,
+  required bool ativo,
+  required bool isMobile,
+  required VoidCallback onTap,
+}) {
+  final hoverOuAtivo = _hoverEntrar || ativo;
+
+  return MouseRegion(
+    cursor: SystemMouseCursors.click,
+    onEnter: (_) {
+      setState(() {
+        _hoverEntrar = true;
+      });
+    },
+    onExit: (_) {
+      setState(() {
+        _hoverEntrar = false;
+      });
+    },
+    child: GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 14 : 18,
           vertical: isMobile ? 7 : 8,
         ),
         decoration: BoxDecoration(
-          color: ativo ? Colors.white : Colors.transparent,
+          color: hoverOuAtivo ? Colors.white : Colors.transparent,
           border: Border.all(color: Colors.white, width: 2),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           texto,
           style: TextStyle(
-            color: ativo ? azulPrincipal : Colors.white,
+            color: hoverOuAtivo ? azulPrincipal : Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: isMobile ? 14 : 16,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   Widget _botaoCadastro({
-    required bool isMobile,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
+  required bool isMobile,
+  required VoidCallback onTap,
+}) {
+  return MouseRegion(
+    cursor: SystemMouseCursors.click,
+    child: GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -384,6 +405,7 @@ class _EntrarPageState extends State<EntrarPage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
