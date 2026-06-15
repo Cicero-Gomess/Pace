@@ -27,3 +27,33 @@ export async function searchProfiles({ username = "", skip = 0, limit = 100 } = 
     fallbackMessage: "Falha ao buscar perfis.",
   });
 }
+
+export async function fetchFollowers(userId) {
+  return apiFetch(`/profile/${userId}/followers`, {
+    auth: true,
+    fallbackMessage: "Erro ao buscar seguidores.",
+  });
+}
+
+export async function fetchFollowing(userId) {
+  return apiFetch(`/profile/${userId}/following`, {
+    auth: true,
+    fallbackMessage: "Erro ao buscar usuários seguidos.",
+  });
+}
+
+export async function followUser(userId) {
+  return apiFetch(`/profile/follow/${userId}`, {
+    method: "POST",
+    auth: true,
+    fallbackMessage: "Erro ao seguir usuário.",
+  });
+}
+
+export async function unfollowUser(userId) {
+  return apiFetch(`/profile/unfollow/${userId}`, {
+    method: "POST",
+    auth: true,
+    fallbackMessage: "Erro ao deixar de seguir usuário.",
+  });
+}

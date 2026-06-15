@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
   <title>Feed</title>
 
   <link rel="stylesheet" href="../Css/feed.css">
@@ -82,7 +83,6 @@
     </section>
   </main>
 
-  <!-- ===== MODAL EXCLUIR POST ===== -->
   <div id="confirmDeleteModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">
@@ -100,7 +100,6 @@
     </div>
   </div>
 
-  <!-- ===== MODAL EXCLUIR COMENTÁRIO ===== -->
   <div id="confirmDeleteCommentModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">
@@ -119,29 +118,27 @@
   </div>
 
   <div id="modalEditarPost" class="edit-modal hidden">
-  <div class="edit-modal-card">
-    <button id="fecharEditarPost" class="edit-close" aria-label="Fechar">&times;</button>
+    <div class="edit-modal-card">
+      <button id="fecharEditarPost" class="edit-close" aria-label="Fechar">&times;</button>
 
-    <div class="edit-head">
-      <span class="edit-kicker">Editor de post</span>
-      <h3>Refinar publicação</h3>
-      <p>Atualize sua legenda com mais clareza antes de salvar.</p>
-    </div>
+      <div class="edit-head">
+        <span class="edit-kicker">Editor de post</span>
+        <h3>Refinar publicação</h3>
+        <p>Atualize sua legenda com mais clareza antes de salvar.</p>
+      </div>
 
-    <div class="edit-body">
-      <label for="editPostTexto">Texto do post</label>
-      <textarea id="editPostTexto" placeholder="Digite aqui..."></textarea>
-    </div>
+      <div class="edit-body">
+        <label for="editPostTexto">Texto do post</label>
+        <textarea id="editPostTexto" placeholder="Digite aqui..."></textarea>
+      </div>
 
-    <div class="edit-actions">
-      <button id="cancelarEditarPost" class="btn-ghost">Cancelar</button>
-      <button id="salvarEditarPost" class="btn-primary">Salvar alterações</button>
+      <div class="edit-actions">
+        <button id="cancelarEditarPost" class="btn-ghost">Cancelar</button>
+        <button id="salvarEditarPost" class="btn-primary">Salvar alterações</button>
+      </div>
     </div>
   </div>
-</div>
 
-
-  <!-- ===== NOVO: MODAL EDITAR COMENTÁRIO ===== -->
   <div id="editCommentModal" class="modal-overlay hidden">
     <div class="confirm-modal">
       <div class="modal-header">

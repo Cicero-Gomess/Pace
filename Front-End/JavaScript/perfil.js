@@ -8,7 +8,12 @@ import { showToast, initLucide } from "./shared/ui.js";
 import { escaparHTML, formatarDataCurta, compactarImagem } from "./shared/utils.js";
 import { STORAGE_KEYS } from "./shared/config.js";
 import { getUsersCache, upsertUserCache, resolveUserPhoto } from "./shared/users-cache.js";
-import { fetchCurrentProfile, updateProfilePhoto } from "./shared/services/profile-service.js";
+import {
+  fetchCurrentProfile,
+  updateProfilePhoto,
+  fetchFollowers,
+  fetchFollowing,
+} from "./shared/services/profile-service.js";
 import { fetchFeed } from "./shared/services/post-service.js";
 import { fetchComments } from "./shared/services/comment-service.js";
 
@@ -29,6 +34,38 @@ if (shellOk) {
   const modalLikes = document.getElementById("modalLikes");
   const modalComentarios = document.getElementById("modalComentarios");
   const fecharModalBtn = document.getElementById("fecharModal");
+
+  async function completarStatsUsuario(userAPI) {
+    try {
+      const [seguidores, seguindo] = await Promise.all([
+        fetchFollowers(userAPI.id),
+        fetchFollowing(userAPI.id),
+      ]);
+
+      const totalSeguidores = seguidores?.total ?? 0;
+      const totalSeguindo = seguindo?.total ?? 0;
+
+      return {
+        ...userAPI,
+        total_seguidores: totalSeguidores,
+        total_seguindo: totalSeguindo,
+        seguidores_count: totalSeguidores,
+        seguindo_count: totalSeguindo,
+        followers_count: totalSeguidores,
+        following_count: totalSeguindo,
+      };
+    } catch (error) {
+      return {
+        ...userAPI,
+        total_seguidores: userAPI.total_seguidores ?? 0,
+        total_seguindo: userAPI.total_seguindo ?? 0,
+        seguidores_count: userAPI.seguidores_count ?? 0,
+        seguindo_count: userAPI.seguindo_count ?? 0,
+        followers_count: userAPI.followers_count ?? 0,
+        following_count: userAPI.following_count ?? 0,
+      };
+    }
+  }
 
   function totalSeguidoresUsuario() {
     return (
@@ -78,6 +115,8 @@ if (shellOk) {
   }
 
   btnSalvarBio?.addEventListener("click", () => {
+    if (!usuario) return;
+
     upsertUserCache(usuario.username, {
       bio: bioInput.value,
       foto: resolveUserPhoto(usuario),
@@ -88,7 +127,7 @@ if (shellOk) {
 
   inputFoto?.addEventListener("change", async () => {
     const file = inputFoto.files?.[0];
-    if (!file) return;
+    if (!file || !usuario) return;
 
     const fotoAnterior = resolveUserPhoto(usuario);
 
@@ -116,6 +155,8 @@ if (shellOk) {
   });
 
   function carregarStatsCache() {
+    if (!usuario) return;
+
     const cache = JSON.parse(localStorage.getItem(STORAGE_KEYS.perfilStats));
     if (!cache || cache.userId !== usuario.id) return;
 
@@ -129,6 +170,8 @@ if (shellOk) {
   }
 
   function salvarStatsCache(stats) {
+    if (!usuario) return;
+
     localStorage.setItem(
       STORAGE_KEYS.perfilStats,
       JSON.stringify({ userId: usuario.id, ...stats })
@@ -174,7 +217,7 @@ if (shellOk) {
     const imagensContainer = document.getElementById("postsImagem");
     const textoContainer = document.getElementById("postsTexto");
 
-    if (!imagensContainer || !textoContainer) return [];
+    if (!imagensContainer || !textoContainer || !usuario) return [];
 
     imagensContainer.innerHTML = "";
     textoContainer.innerHTML = "";
@@ -238,13 +281,13 @@ if (shellOk) {
   async function initPerfil() {
     try {
       const userAPI = await fetchCurrentProfile();
-      usuario = userAPI;
+      usuario = await completarStatsUsuario(userAPI);
 
-      saveCurrentUser(userAPI);
+      saveCurrentUser(usuario);
 
-      upsertUserCache(userAPI.username, {
-        foto: userAPI.foto_perfil || "",
-        bio: getUsersCache()[userAPI.username]?.bio || "",
+      upsertUserCache(usuario.username, {
+        foto: usuario.foto_perfil || "",
+        bio: getUsersCache()[usuario.username]?.bio || "",
       });
 
       preencherDadosPerfil();
