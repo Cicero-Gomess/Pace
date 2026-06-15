@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace sistemaadmin.Services
@@ -22,12 +23,18 @@ namespace sistemaadmin.Services
             try
             {
                 var response = await HttpClient.GetAsync("/profile/me");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao obter perfil: {ex.Message}");
+                throw new Exception($"Erro ao obter perfil: {ex.Message}", ex);
             }
         }
 
@@ -38,36 +45,26 @@ namespace sistemaadmin.Services
         {
             try
             {
-                if (string.IsNullOrEmpty(fotoBase64))
-                    throw new Exception("Foto não pode estar vazia.");
+                if (string.IsNullOrWhiteSpace(fotoBase64))
+                    throw new ArgumentException("Foto não pode estar vazia.", nameof(fotoBase64));
 
                 string json = $"{{\"foto_perfil\": \"{EscapeJson(fotoBase64)}\"}}";
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await HttpClient.PostAsync("/profile/trocar_foto", content);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao trocar foto: {ex.Message}");
+                throw new Exception($"Erro ao trocar foto: {ex.Message}", ex);
             }
-        }
-
-        /// <summary>
-        /// Escapa caracteres especiais para JSON
-        /// </summary>
-        private string EscapeJson(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-
-            return text
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
         }
     }
 }

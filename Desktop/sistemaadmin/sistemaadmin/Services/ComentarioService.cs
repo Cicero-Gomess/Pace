@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace sistemaadmin.Services
@@ -18,13 +19,22 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (postId <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(postId));
+
                 var response = await HttpClient.GetAsync($"/comments/comentarios/{postId}");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao listar comentários: {ex.Message}");
+                throw new Exception($"Erro ao listar comentários: {ex.Message}", ex);
             }
         }
 
@@ -35,16 +45,28 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (postId <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(postId));
+
+                if (string.IsNullOrWhiteSpace(conteudo))
+                    throw new ArgumentException("Conteúdo não pode estar vazio.", nameof(conteudo));
+
                 string json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\"}}";
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await HttpClient.PostAsync($"/comments/adicionar_comentario/{postId}", content);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao adicionar comentário: {ex.Message}");
+                throw new Exception($"Erro ao adicionar comentário: {ex.Message}", ex);
             }
         }
 
@@ -55,16 +77,28 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (comentarioId <= 0)
+                    throw new ArgumentException("ID do comentário inválido.", nameof(comentarioId));
+
+                if (string.IsNullOrWhiteSpace(conteudo))
+                    throw new ArgumentException("Conteúdo não pode estar vazio.", nameof(conteudo));
+
                 string json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\"}}";
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await HttpClient.PutAsync($"/comments/atualizar_comentario/{comentarioId}", content);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao atualizar comentário: {ex.Message}");
+                throw new Exception($"Erro ao atualizar comentário: {ex.Message}", ex);
             }
         }
 
@@ -75,30 +109,23 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (comentarioId <= 0)
+                    throw new ArgumentException("ID do comentário inválido.", nameof(comentarioId));
+
                 var response = await HttpClient.DeleteAsync($"/comments/deletar_comentario/{comentarioId}");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao deletar comentário: {ex.Message}");
+                throw new Exception($"Erro ao deletar comentário: {ex.Message}", ex);
             }
-        }
-
-        /// <summary>
-        /// Escapa caracteres especiais para JSON
-        /// </summary>
-        private string EscapeJson(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-
-            return text
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
         }
 
         /// <summary>

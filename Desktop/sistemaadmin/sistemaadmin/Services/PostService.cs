@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace sistemaadmin.Services
@@ -18,12 +19,18 @@ namespace sistemaadmin.Services
             try
             {
                 var response = await HttpClient.GetAsync("/post/feed");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao obter feed: {ex.Message}");
+                throw new Exception($"Erro ao obter feed: {ex.Message}", ex);
             }
         }
 
@@ -34,6 +41,9 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(conteudo))
+                    throw new ArgumentException("Conteúdo não pode estar vazio.", nameof(conteudo));
+
                 string json;
                 if (string.IsNullOrEmpty(imagem))
                 {
@@ -44,14 +54,20 @@ namespace sistemaadmin.Services
                     json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\", \"imagem\": \"{EscapeJson(imagem)}\"}}";
                 }
 
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await HttpClient.PostAsync("/post/criar_post", content);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao criar post: {ex.Message}");
+                throw new Exception($"Erro ao criar post: {ex.Message}", ex);
             }
         }
 
@@ -62,6 +78,12 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (id <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(id));
+
+                if (string.IsNullOrWhiteSpace(conteudo))
+                    throw new ArgumentException("Conteúdo não pode estar vazio.", nameof(conteudo));
+
                 string json;
                 if (string.IsNullOrEmpty(imagem))
                 {
@@ -72,14 +94,20 @@ namespace sistemaadmin.Services
                     json = $"{{\"conteudo\": \"{EscapeJson(conteudo)}\", \"imagem\": \"{EscapeJson(imagem)}\"}}";
                 }
 
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await HttpClient.PutAsync($"/post/atualizar_post/{id}", content);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao atualizar post: {ex.Message}");
+                throw new Exception($"Erro ao atualizar post: {ex.Message}", ex);
             }
         }
 
@@ -90,13 +118,22 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (id <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(id));
+
                 var response = await HttpClient.DeleteAsync($"/post/deletar/{id}");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao deletar post: {ex.Message}");
+                throw new Exception($"Erro ao deletar post: {ex.Message}", ex);
             }
         }
 
@@ -107,13 +144,25 @@ namespace sistemaadmin.Services
         {
             try
             {
-                var response = await HttpClient.PostAsync($"/post/curtir/{postId}", null);
-                response.EnsureSuccessStatusCode();
+                if (postId <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(postId));
+
+                // CORREÇÃO CRÍTICA: PostAsync não aceita null content
+                // Enviar StringContent vazio em vez de null
+                var emptyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var response = await HttpClient.PostAsync($"/post/curtir/{postId}", emptyContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao curtir post: {ex.Message}");
+                throw new Exception($"Erro ao curtir post: {ex.Message}", ex);
             }
         }
 
@@ -124,30 +173,23 @@ namespace sistemaadmin.Services
         {
             try
             {
+                if (postId <= 0)
+                    throw new ArgumentException("ID do post inválido.", nameof(postId));
+
                 var response = await HttpClient.DeleteAsync($"/post/remover_curtida/{postId}");
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
                 return await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao remover curtida: {ex.Message}");
+                throw new Exception($"Erro ao remover curtida: {ex.Message}", ex);
             }
-        }
-
-        /// <summary>
-        /// Escapa caracteres especiais para JSON
-        /// </summary>
-        private string EscapeJson(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-
-            return text
-                .Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
         }
     }
 }
