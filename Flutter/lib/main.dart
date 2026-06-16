@@ -9,6 +9,7 @@ import 'feed.dart';
 import 'postar.dart';
 import 'explorar.dart';
 import 'configuracoes.dart';
+import 'perfil.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +90,10 @@ class PaceApp extends StatelessWidget {
 
               case '/sobre':
                 page = const SobrePage();
+                break;
+
+              case '/perfil':
+                page = const PerfilPage();
                 break;
 
               default:
