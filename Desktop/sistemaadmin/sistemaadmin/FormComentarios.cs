@@ -69,15 +69,33 @@ namespace sistemaadmin
                 var json = await _comentarioService.ListarComentariosAsync(postId);
                 _comentarios = ParsearComentarios(json);
 
-                dgvComentarios.DataSource = null;
-                dgvComentarios.DataSource = _comentarios;
-
-                LimparCampos();
-
-                if (_comentarios.Count == 0)
+                // ✅ CORREÇÃO: Atualizar UI na thread principal
+                if (InvokeRequired)
                 {
-                    MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Invoke(new Action(() =>
+                    {
+                        dgvComentarios.DataSource = null;
+                        dgvComentarios.DataSource = _comentarios;
+                        LimparCampos();
+
+                        if (_comentarios.Count == 0)
+                        {
+                            MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }));
+                }
+                else
+                {
+                    dgvComentarios.DataSource = null;
+                    dgvComentarios.DataSource = _comentarios;
+                    LimparCampos();
+
+                    if (_comentarios.Count == 0)
+                    {
+                        MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
             }
             catch (Exception ex)

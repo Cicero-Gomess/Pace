@@ -1,0 +1,22 @@
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.AssemblyReference.cache
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.FormDashboard.resources
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.FormPrincipal.resources
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.Properties.Resources.resources
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.GenerateResource.cache
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.CoreCompileInputs.cache
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.exe.config
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.exe
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.pdb
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.exe
+C:\Users\AnaSa\Pace\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.pdb
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.exe.config
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.exe
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\bin\Debug\sistemaadmin.pdb
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.AssemblyReference.cache
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.FormDashboard.resources
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.FormPrincipal.resources
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.Properties.Resources.resources
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.GenerateResource.cache
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.csproj.CoreCompileInputs.cache
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.exe
+C:\Users\AnaSa\OneDrive\Área de Trabalho\Desktop\sistemaadmin\sistemaadmin\obj\Debug\sistemaadmin.pdb

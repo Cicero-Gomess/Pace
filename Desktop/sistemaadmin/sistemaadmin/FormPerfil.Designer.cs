@@ -13,9 +13,22 @@ namespace sistemaadmin
         /// <param name="disposing">true se for necessário descartar os recursos gerenciados; caso contrário, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                // Liberar recursos do HttpClient
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+
+                _httpClient?.Dispose();
+
+                // Liberar imagem do PictureBox
+                if (picFoto?.Image != null)
+                {
+                    picFoto.Image.Dispose();
+                    picFoto.Image = null;
+                }
             }
             base.Dispose(disposing);
         }

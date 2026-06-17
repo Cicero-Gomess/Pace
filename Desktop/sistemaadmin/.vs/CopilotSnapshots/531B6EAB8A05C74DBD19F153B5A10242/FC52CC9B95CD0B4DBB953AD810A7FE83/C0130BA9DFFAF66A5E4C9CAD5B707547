@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,23 +12,27 @@ namespace sistemaadmin
     {
         private readonly string _token;
         private readonly PostService _postService;
-        private List<DashboardPostItem> _postItems;
 
         public FormDashboard(string token)
         {
             InitializeComponent();
             _token = token;
             _postService = new PostService(token);
-            _postItems = new List<DashboardPostItem>();
         }
 
         private void FormDashboard_Load(object sender, EventArgs e)
         {
             try
             {
-                // ✅ CORREÇÃO: Configurar DataGridView com binding automático
-                dgvPosts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                dgvPosts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                // ✅ CORREÇÃO: Definir colunas ANTES de qualquer operação
+                if (dgvPosts.Columns.Count == 0)
+                {
+                    dgvPosts.Columns.Add("colId", "ID");
+                    dgvPosts.Columns.Add("colConteudo", "Conteúdo");
+                    dgvPosts.Columns.Add("colLikes", "Likes");
+                    dgvPosts.Columns.Add("colUsername", "Username");
+                    dgvPosts.Columns.Add("colData", "Data");
+                }
 
                 // ✅ CORREÇÃO: Chamar async sem Task.Run (mantém na thread principal)
                 _ = CarregarDadosAsync();
@@ -76,27 +80,7 @@ namespace sistemaadmin
 
                 double media = totalPosts > 0 ? Math.Round((double)totalLikes / totalPosts, 2) : 0;
 
-                // Converter PostDTO para DashboardPostItem para exibição
-                _postItems = new List<DashboardPostItem>();
-                foreach (var post in posts)
-                {
-                    if (post?.Usuario != null)
-                    {
-                        string dataFormatada = FormatarData(post.DataPostagem);
-                        string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
-
-                        _postItems.Add(new DashboardPostItem
-                        {
-                            Id = post.Id,
-                            Conteudo = conteudoTruncado,
-                            Likes = post.Likes,
-                            Username = post.Usuario.Username ?? "Desconhecido",
-                            Data = dataFormatada
-                        });
-                    }
-                }
-
-                // ✅ CORREÇÃO: Atualizar UI na thread principal usando DataSource binding
+                // ✅ CORREÇÃO: Atualizar UI na thread principal
                 if (InvokeRequired)
                 {
                     Invoke(new Action(() =>
@@ -106,9 +90,24 @@ namespace sistemaadmin
                         lblCard2Valor.Text = totalLikes.ToString();
                         lblCard3Valor.Text = media.ToString("F1");
 
-                        // Popular DataGridView com binding automático
-                        dgvPosts.DataSource = null;
-                        dgvPosts.DataSource = _postItems;
+                        // Popular DataGridView
+                        dgvPosts.Rows.Clear();
+                        foreach (var post in posts)
+                        {
+                            if (post?.Usuario != null)
+                            {
+                                string dataFormatada = FormatarData(post.DataPostagem);
+                                string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
+
+                                dgvPosts.Rows.Add(
+                                    post.Id,
+                                    conteudoTruncado,
+                                    post.Likes,
+                                    post.Usuario.Username ?? "Desconhecido",
+                                    dataFormatada
+                                );
+                            }
+                        }
                     }));
                 }
                 else
@@ -118,9 +117,24 @@ namespace sistemaadmin
                     lblCard2Valor.Text = totalLikes.ToString();
                     lblCard3Valor.Text = media.ToString("F1");
 
-                    // Popular DataGridView com binding automático
-                    dgvPosts.DataSource = null;
-                    dgvPosts.DataSource = _postItems;
+                    // Popular DataGridView
+                    dgvPosts.Rows.Clear();
+                    foreach (var post in posts)
+                    {
+                        if (post?.Usuario != null)
+                        {
+                            string dataFormatada = FormatarData(post.DataPostagem);
+                            string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
+
+                            dgvPosts.Rows.Add(
+                                post.Id,
+                                conteudoTruncado,
+                                post.Likes,
+                                post.Usuario.Username ?? "Desconhecido",
+                                dataFormatada
+                            );
+                        }
+                    }
                 }
             }
             catch (HttpRequestException ex)
@@ -466,18 +480,6 @@ namespace sistemaadmin
         private void lblTitulo_Click(object sender, EventArgs e)
         {
 
-        }
-
-        /// <summary>
-        /// Classe interna para representar um post na dashboard
-        /// </summary>
-        private class DashboardPostItem
-        {
-            public int Id { get; set; }
-            public string Conteudo { get; set; }
-            public int Likes { get; set; }
-            public string Username { get; set; }
-            public string Data { get; set; }
         }
     }
 }

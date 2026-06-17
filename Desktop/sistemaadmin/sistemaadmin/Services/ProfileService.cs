@@ -22,15 +22,15 @@ namespace sistemaadmin.Services
         {
             try
             {
-                var response = await HttpClient.GetAsync("/profile/me");
+                var response = await HttpClient.GetAsync("/profile/me").ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
                 }
 
-                return await response.Content.ReadAsStringAsync();
+                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -51,15 +51,15 @@ namespace sistemaadmin.Services
                 string json = $"{{\"foto_perfil\": \"{EscapeJson(fotoBase64)}\"}}";
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await HttpClient.PostAsync("/profile/trocar_foto", content);
+                var response = await HttpClient.PostAsync("/profile/trocar_foto", content).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
                 }
 
-                return await response.Content.ReadAsStringAsync();
+                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {

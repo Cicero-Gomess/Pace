@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -466,18 +466,6 @@ namespace sistemaadmin
         private void lblTitulo_Click(object sender, EventArgs e)
         {
 
-        }
-
-        /// <summary>
-        /// Classe interna para representar um post na dashboard
-        /// </summary>
-        private class DashboardPostItem
-        {
-            public int Id { get; set; }
-            public string Conteudo { get; set; }
-            public int Likes { get; set; }
-            public string Username { get; set; }
-            public string Data { get; set; }
         }
     }
 }

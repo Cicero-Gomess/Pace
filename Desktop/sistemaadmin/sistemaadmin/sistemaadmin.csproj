@@ -116,6 +116,7 @@
     <None Include="ARVORE_ARQUIVOS_FORMPERFIL.md" />
     <None Include="COMECE_AQUI.md" />
     <None Include="COMENTARIOS_GUIA.md" />
+    <None Include="DIAGNOSTICO_BUGS_CORRIGIDOS.md" />
     <None Include="ENTREGA_FINAL_FORMPERFIL.md" />
     <None Include="EXEMPLOS_FORMPERFIL.md" />
     <None Include="EXEMPLOS_USO.md" />
@@ -127,6 +128,7 @@
     <None Include="FORMPERFIL_RESUMO.md" />
     <None Include="FORMULARIO_CONCLUIDO.md" />
     <None Include="FORMULARIO_POSTS.md" />
+    <None Include="GUIA_BOAS_PRATICAS.md" />
     <None Include="GUIA_COMPLETO.md" />
     <None Include="IMPLEMENTACAO.md" />
     <None Include="INDICE.md" />
@@ -146,9 +148,12 @@
     <None Include="README_FORMPERFIL.md" />
     <None Include="REFACTORING_CONCLUIDO.md" />
     <None Include="REFACTORING_RESUMO.md" />
+    <None Include="RESUMO_EXECUTIVO.md" />
     <None Include="RESUMO_EXECUTIVO_FORMPERFIL.md" />
+    <None Include="SOLUCAO_DASHBOARD_IMPLEMENTADA.md" />
     <None Include="STATUS_FINAL.md" />
     <None Include="TESTES.md" />
+    <None Include="VALIDACAO_FIXES.md" />
     <None Include="VERIFICACAO_FINAL.md" />
     <None Include="VERIFICACAO_REGRAS.md" />
   </ItemGroup>

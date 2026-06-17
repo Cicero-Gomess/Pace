@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using sistemaadmin.Services;
 
@@ -24,24 +25,38 @@ namespace sistemaadmin
             this.Text = "Sistema Administrativo - Gerenciamento de Posts";
             this.CenterToScreen();
 
-            CarregarPosts();
+            // Carregar posts de forma assíncrona (não-bloqueante)
+            _ = CarregarPostsAsync();
         }
 
-        private async void CarregarPosts()
+        private async Task CarregarPostsAsync()
         {
             try
             {
                 btnRecarregar.Enabled = false;
                 btnRecarregar.Text = "Carregando...";
 
-                var json = await _postService.GetFeedAsync();
+                var json = await _postService.GetFeedAsync().ConfigureAwait(false);
                 _posts = ParsearPosts(json);
 
-                dgvPosts.DataSource = null;
-                dgvPosts.DataSource = _posts;
-
-                AjustarColunas();
-                LimparCampos();
+                // ✅ CORREÇÃO: Atualizar UI na thread principal
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        dgvPosts.DataSource = null;
+                        dgvPosts.DataSource = _posts;
+                        AjustarColunas();
+                        LimparCampos();
+                    }));
+                }
+                else
+                {
+                    dgvPosts.DataSource = null;
+                    dgvPosts.DataSource = _posts;
+                    AjustarColunas();
+                    LimparCampos();
+                }
             }
             catch (Exception ex)
             {
@@ -50,8 +65,20 @@ namespace sistemaadmin
             }
             finally
             {
-                btnRecarregar.Enabled = true;
-                btnRecarregar.Text = "Recarregar";
+                // ✅ CORREÇÃO: Atualizar UI via Invoke
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        btnRecarregar.Enabled = true;
+                        btnRecarregar.Text = "Recarregar";
+                    }));
+                }
+                else
+                {
+                    btnRecarregar.Enabled = true;
+                    btnRecarregar.Text = "Recarregar";
+                }
             }
         }
 
@@ -72,13 +99,13 @@ namespace sistemaadmin
                 btnCriar.Enabled = false;
                 btnCriar.Text = "Criando...";
 
-                await _postService.CriarPostAsync(conteudo, string.IsNullOrEmpty(imagem) ? null : imagem);
+                await _postService.CriarPostAsync(conteudo, string.IsNullOrEmpty(imagem) ? null : imagem).ConfigureAwait(false);
 
                 MessageBox.Show("Post criado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                CarregarPosts();
+                await CarregarPostsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -118,13 +145,13 @@ namespace sistemaadmin
                 btnAtualizar.Text = "Atualizando...";
 
                 await _postService.AtualizarPostAsync(post.id, conteudo, 
-                    string.IsNullOrEmpty(imagem) ? null : imagem);
+                    string.IsNullOrEmpty(imagem) ? null : imagem).ConfigureAwait(false);
 
                 MessageBox.Show("Post atualizado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                CarregarPosts();
+                await CarregarPostsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -161,13 +188,13 @@ namespace sistemaadmin
                 btnDeletar.Enabled = false;
                 btnDeletar.Text = "Deletando...";
 
-                await _postService.DeletarPostAsync(post.id);
+                await _postService.DeletarPostAsync(post.id).ConfigureAwait(false);
 
                 MessageBox.Show("Post deletado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                CarregarPosts();
+                await CarregarPostsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -202,7 +229,7 @@ namespace sistemaadmin
                 MessageBox.Show("Post curtido com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                CarregarPosts();
+                await CarregarPostsAsync();
             }
             catch (Exception ex)
             {
@@ -232,12 +259,12 @@ namespace sistemaadmin
                 btnDescurtir.Enabled = false;
                 btnDescurtir.Text = "Removendo...";
 
-                await _postService.RemoverCurtidaAsync(post.id);
+                await _postService.RemoverCurtidaAsync(post.id).ConfigureAwait(false);
 
                 MessageBox.Show("Curtida removida com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                CarregarPosts();
+                await CarregarPostsAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -251,10 +278,10 @@ namespace sistemaadmin
             }
         }
 
-        private void btnRecarregar_Click(object sender, EventArgs e)
+        private async void btnRecarregar_Click(object sender, EventArgs e)
         {
             LimparCampos();
-            CarregarPosts();
+            await CarregarPostsAsync().ConfigureAwait(false);
         }
 
         private void dgvPosts_SelectionChanged(object sender, EventArgs e)

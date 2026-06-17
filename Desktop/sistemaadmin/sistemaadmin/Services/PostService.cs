@@ -18,18 +18,26 @@ namespace sistemaadmin.Services
         {
             try
             {
-                var response = await HttpClient.GetAsync("/post/feed");
+                System.Diagnostics.Debug.WriteLine("[PostService] Requisitando GET /post/feed");
+
+                var response = await HttpClient.GetAsync("/post/feed").ConfigureAwait(false);
+
+                System.Diagnostics.Debug.WriteLine($"[PostService] Response Status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"[PostService] Erro: {response.StatusCode} - {errorContent}");
                     throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
                 }
 
-                return await response.Content.ReadAsStringAsync();
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                System.Diagnostics.Debug.WriteLine($"[PostService] Feed obtido com sucesso ({content.Length} bytes)");
+                return content;
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[PostService] Exception: {ex.Message}");
                 throw new Exception($"Erro ao obter feed: {ex.Message}", ex);
             }
         }
