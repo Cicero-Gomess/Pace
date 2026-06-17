@@ -36,33 +36,33 @@ class _SobrePageState extends State<SobrePage> {
       nome: 'Cicero Gomes da Silva Junior',
       cargo: 'Desenvolvedor',
       descricao:
-          'Atua na construcao das telas, organizacao da experiencia do usuario e integracao das funcionalidades do Pace.',
+          'contribuiu diretamente para a base técnica do projeto, desenvolvendo o backend, banco de dados e estruturando as rotas que garantem o funcionamento e a integração da aplicação.',
       foto: 'assets/images/dev_cicero.jpg',
-      habilidades: ['Flutter', 'UI', 'Integracao'],
+      habilidades: ['Python', 'MySQL', 'Integracao'],
     ),
     _Developer(
       nome: 'Eduardo Cosme da Silva',
       cargo: 'Desenvolvedor',
       descricao:
-          'Contribui com a logica da aplicacao, estrutura das funcionalidades e melhoria continua da navegacao.',
+          'responsável pelo desenvolvimento do frontend, criando a interface da aplicação, além da estruturação do banco de dados, garantindo a organização e o suporte necessário para o funcionamento do sistema.',
       foto: 'assets/images/dev_eduardo.jpg',
-      habilidades: ['Dart', 'Rotas', 'Componentes'],
+      habilidades: ['Layout', 'JavaScript', 'Css'],
     ),
     _Developer(
       nome: 'Henrique de Godoy',
       cargo: 'Desenvolvedor',
       descricao:
-          'Participa do desenvolvimento visual, organizacao do projeto e refinamento das telas principais.',
+          'esponsável pela parte desktop do projeto, desenvolvendo a versão da aplicação voltada para uso em computadores e garantindo sua integração com o restante do sistema.',
       foto: 'assets/images/dev_henrique.jpg',
-      habilidades: ['Design', 'Flutter', 'Layout'],
+      habilidades: ['C#', 'Integração', 'Desktop'],
     ),
     _Developer(
       nome: 'Yury Gabriel de Souza',
       cargo: 'Desenvolvedor',
       descricao:
-          'Colabora na implementacao de recursos, testes de uso e ajustes para deixar a aplicacao mais completa.',
+          'responsável pelo desenvolvimento em Flutter, contribuindo para a criação da aplicação multiplataforma e para a integração das funcionalidades com o restante do sistema.',
       foto: 'assets/images/dev_yury.jpg',
-      habilidades: ['Funcionalidades', 'Testes', 'UX'],
+      habilidades: ['Flutter', 'Dart', 'Multiplataforma'],
     ),
   ];
 

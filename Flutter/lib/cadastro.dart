@@ -15,21 +15,11 @@ class _CadastroPageState extends State<CadastroPage> {
   static const Color azulPrincipal = Color(0xFF3059AA);
   static const Color azulClaro = Color(0xFF5EB1BF);
 
-  final TextEditingController _usuarioController =
-      TextEditingController();
-
-  final TextEditingController _nomeController =
-      TextEditingController();
-
-  final TextEditingController _telefoneController =
-      TextEditingController();
-
-  final TextEditingController _emailController =
-      TextEditingController();
-
-  final TextEditingController _senhaController =
-      TextEditingController();
-
+  final TextEditingController _usuarioController = TextEditingController();
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _telefoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmarSenhaController =
       TextEditingController();
 
@@ -49,13 +39,23 @@ class _CadastroPageState extends State<CadastroPage> {
     return 'http://10.0.2.2:8000';
   }
 
+  @override
+  void dispose() {
+    _usuarioController.dispose();
+    _nomeController.dispose();
+    _telefoneController.dispose();
+    _emailController.dispose();
+    _senhaController.dispose();
+    _confirmarSenhaController.dispose();
+    super.dispose();
+  }
+
   Future<void> _fazerCadastro() async {
     final usuario = _usuarioController.text.trim();
     final email = _emailController.text.trim();
     final senha = _senhaController.text.trim();
     final confirmar = _confirmarSenhaController.text.trim();
 
-    // CAMPOS VAZIOS
     if (usuario.isEmpty ||
         email.isEmpty ||
         senha.isEmpty ||
@@ -67,17 +67,22 @@ class _CadastroPageState extends State<CadastroPage> {
       return;
     }
 
-    // SENHA MINIMA
-    if (senha.length < 6) {
+    if (!_aceitaTermos) {
       setState(() {
-        _mensagem =
-            'A senha precisa ter pelo menos 6 caracteres.';
+        _mensagem = 'Você precisa aceitar os termos de uso.';
         _corMensagem = Colors.red;
       });
       return;
     }
 
-    // CONFIRMAR SENHA
+    if (senha.length < 6) {
+      setState(() {
+        _mensagem = 'A senha precisa ter pelo menos 6 caracteres.';
+        _corMensagem = Colors.red;
+      });
+      return;
+    }
+
     if (senha != confirmar) {
       setState(() {
         _mensagem = 'As senhas não coincidem!';
@@ -102,6 +107,12 @@ class _CadastroPageState extends State<CadastroPage> {
               'username': usuario,
               'email': email,
               'senha': senha,
+              'nome': _nomeController.text.trim(),
+              'telefone': _telefoneController.text.trim(),
+              'genero': _generoSelecionado,
+              'tipo_conta': _tipoConta,
+              'receber_newsletter': _receberNewsletter,
+              'promo_notificacoes': _promoNotificacoes,
             }),
           )
           .timeout(const Duration(seconds: 10));
@@ -114,11 +125,8 @@ class _CadastroPageState extends State<CadastroPage> {
         throw Exception('Erro inesperado no servidor.');
       }
 
-      if (response.statusCode != 200 &&
-          response.statusCode != 201) {
-        throw Exception(
-          data['detail'] ?? 'Erro ao cadastrar.',
-        );
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(data['detail'] ?? 'Erro ao cadastrar.');
       }
 
       setState(() {
@@ -131,11 +139,9 @@ class _CadastroPageState extends State<CadastroPage> {
       if (!mounted) return;
 
       Navigator.pushReplacementNamed(context, '/entrar');
-
     } catch (e) {
       setState(() {
-        _mensagem =
-            e.toString().replaceFirst('Exception: ', '');
+        _mensagem = e.toString().replaceFirst('Exception: ', '');
         _corMensagem = Colors.red;
       });
     } finally {
@@ -152,22 +158,21 @@ class _CadastroPageState extends State<CadastroPage> {
       hintText: hint,
       filled: true,
       fillColor: Colors.white,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 14,
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(color: Color(0xFFCCCCCC)),
+        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(color: Color(0xFFCCCCCC)),
+        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide:
-            const BorderSide(color: azulPrincipal),
+        borderSide: const BorderSide(color: azulPrincipal),
       ),
     );
   }
@@ -183,7 +188,6 @@ class _CadastroPageState extends State<CadastroPage> {
           return Column(
             children: [
               _buildNavbar(isMobile),
-
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -203,7 +207,6 @@ class _CadastroPageState extends State<CadastroPage> {
                       width: isMobile ? double.infinity : 380,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          // keep natural size but cap height so inner scroll appears only on overflow
                           maxHeight: constraints.maxHeight -
                               (isMobile ? 140 : 180),
                         ),
@@ -214,15 +217,12 @@ class _CadastroPageState extends State<CadastroPage> {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black
-                                    .withValues(alpha: 0.12),
+                                color: Colors.black.withOpacity(0.12),
                                 blurRadius: 60,
-                                offset:
-                                    const Offset(0, 30),
+                                offset: const Offset(0, 30),
                               ),
                             ],
                           ),
@@ -232,303 +232,242 @@ class _CadastroPageState extends State<CadastroPage> {
                               padding: const EdgeInsets.all(40),
                               child: Column(
                                 children: [
-                            const Text(
-                              'Cadastro',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight:
-                                    FontWeight.w700,
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            TextField(
-                              controller:
-                                  _usuarioController,
-                              decoration:
-                                  _inputDecoration(
-                                'Usuário',
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            TextField(
-                              controller:
-                                  _emailController,
-                              decoration:
-                                  _inputDecoration(
-                                'Email',
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            TextField(
-                              controller:
-                                  _nomeController,
-                              decoration:
-                                  _inputDecoration(
-                                'Nome completo',
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            TextField(
-                              controller:
-                                  _telefoneController,
-                              keyboardType:
-                                  TextInputType.phone,
-                              decoration:
-                                  _inputDecoration(
-                                'Telefone',
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Gênero',
-                                  style: TextStyle(
-                                    fontWeight:
-                                        FontWeight.w600,
-                                  ),
-                                ),
-                                LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final itemWidth =
-                                        constraints.maxWidth / 2 - 10;
-
-                                    return Wrap(
-                                      spacing: 10,
-                                      runSpacing: 10,
-                                      children: [
-                                        SizedBox(
-                                          width: itemWidth < 160
-                                              ? constraints.maxWidth
-                                              : itemWidth,
-                                          child: RadioListTile<String>(
-                                            title:
-                                                const Text('Masculino'),
-                                            value: 'masculino',
-                                            groupValue:
-                                                _generoSelecionado,
-                                            onChanged: (value) {
-                                              if (value == null) return;
-                                              setState(() {
-                                                _generoSelecionado =
-                                                    value;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: itemWidth < 160
-                                              ? constraints.maxWidth
-                                              : itemWidth,
-                                          child: RadioListTile<String>(
-                                            title:
-                                                const Text('Feminino'),
-                                            value: 'feminino',
-                                            groupValue:
-                                                _generoSelecionado,
-                                            onChanged: (value) {
-                                              if (value == null) return;
-                                              setState(() {
-                                                _generoSelecionado =
-                                                    value;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final itemWidth =
-                                        constraints.maxWidth / 2 - 10;
-
-                                    return Wrap(
-                                      spacing: 10,
-                                      runSpacing: 10,
-                                      children: [
-                                        SizedBox(
-                                          width: itemWidth < 160
-                                              ? constraints.maxWidth
-                                              : itemWidth,
-                                          child: RadioListTile<String>(
-                                            title: const Text('Pessoal'),
-                                            value: 'pessoal',
-                                            groupValue: _tipoConta,
-                                            onChanged: (value) {
-                                              if (value == null) return;
-                                              setState(() {
-                                                _tipoConta = value;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: itemWidth < 160
-                                              ? constraints.maxWidth
-                                              : itemWidth,
-                                          child: RadioListTile<String>(
-                                            title: const Text(
-                                                'Profissional'),
-                                            value: 'profissional',
-                                            groupValue: _tipoConta,
-                                            onChanged: (value) {
-                                              if (value == null) return;
-                                              setState(() {
-                                                _tipoConta = value;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            CheckboxListTile(
-                              contentPadding:
-                                  EdgeInsets.zero,
-                              value: _aceitaTermos,
-                              onChanged: (value) {
-                                if (value == null) return;
-                                setState(() {
-                                  _aceitaTermos = value;
-                                });
-                              },
-                              title: const Text(
-                                  'Aceito os termos de uso'),
-                            ),
-
-                            CheckboxListTile(
-                              contentPadding:
-                                  EdgeInsets.zero,
-                              value: _receberNewsletter,
-                              onChanged: (value) {
-                                if (value == null) return;
-                                setState(() {
-                                  _receberNewsletter = value;
-                                });
-                              },
-                              title: const Text(
-                                  'Quero receber novidades por email'),
-                            ),
-
-                            SwitchListTile(
-                              contentPadding:
-                                  EdgeInsets.zero,
-                              value: _promoNotificacoes,
-                              onChanged: (value) {
-                                setState(() {
-                                  _promoNotificacoes = value;
-                                });
-                              },
-                              title: const Text(
-                                  'Ativar notificações de promoções'),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            TextField(
-                              controller:
-                                  _senhaController,
-                              obscureText: true,
-                              decoration:
-                                  _inputDecoration(
-                                'Senha',
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            TextField(
-                              controller:
-                                  _confirmarSenhaController,
-                              obscureText: true,
-                              decoration:
-                                  _inputDecoration(
-                                'Confirmar senha',
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed:
-                                    _carregando
-                                        ? null
-                                        : _fazerCadastro,
-                                style:
-                                    ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      azulPrincipal,
-                                  foregroundColor:
-                                      Colors.white,
-                                  padding:
-                                      const EdgeInsets
-                                          .symmetric(
-                                    vertical: 14,
-                                  ),
-                                  shape:
-                                      RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius
-                                            .circular(
-                                      10,
+                                  const Text(
+                                    'Cadastro',
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                ),
-                                child: _carregando
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child:
-                                            CircularProgressIndicator(
-                                          strokeWidth:
-                                              2,
-                                          color: Colors
-                                              .white,
+                                  const SizedBox(height: 25),
+                                  TextField(
+                                    controller: _usuarioController,
+                                    decoration: _inputDecoration('Usuário'),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextField(
+                                    controller: _emailController,
+                                    decoration: _inputDecoration('Email'),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextField(
+                                    controller: _nomeController,
+                                    decoration:
+                                        _inputDecoration('Nome completo'),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextField(
+                                    controller: _telefoneController,
+                                    keyboardType: TextInputType.phone,
+                                    decoration: _inputDecoration('Telefone'),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Gênero',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                      )
-                                    : const Text(
-                                        'Cadastrar',
                                       ),
+                                      LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          final itemWidth =
+                                              constraints.maxWidth / 2 - 10;
+
+                                          return Wrap(
+                                            spacing: 10,
+                                            runSpacing: 10,
+                                            children: [
+                                              SizedBox(
+                                                width: itemWidth < 160
+                                                    ? constraints.maxWidth
+                                                    : itemWidth,
+                                                child: RadioListTile<String>(
+                                                  title:
+                                                      const Text('Masculino'),
+                                                  value: 'masculino',
+                                                  groupValue:
+                                                      _generoSelecionado,
+                                                  onChanged: (value) {
+                                                    if (value == null) return;
+                                                    setState(() {
+                                                      _generoSelecionado =
+                                                          value;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: itemWidth < 160
+                                                    ? constraints.maxWidth
+                                                    : itemWidth,
+                                                child: RadioListTile<String>(
+                                                  title: const Text('Feminino'),
+                                                  value: 'feminino',
+                                                  groupValue:
+                                                      _generoSelecionado,
+                                                  onChanged: (value) {
+                                                    if (value == null) return;
+                                                    setState(() {
+                                                      _generoSelecionado =
+                                                          value;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 10),
+                                      LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          final itemWidth =
+                                              constraints.maxWidth / 2 - 10;
+
+                                          return Wrap(
+                                            spacing: 10,
+                                            runSpacing: 10,
+                                            children: [
+                                              SizedBox(
+                                                width: itemWidth < 160
+                                                    ? constraints.maxWidth
+                                                    : itemWidth,
+                                                child: RadioListTile<String>(
+                                                  title: const Text('Pessoal'),
+                                                  value: 'pessoal',
+                                                  groupValue: _tipoConta,
+                                                  onChanged: (value) {
+                                                    if (value == null) return;
+                                                    setState(() {
+                                                      _tipoConta = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: itemWidth < 160
+                                                    ? constraints.maxWidth
+                                                    : itemWidth,
+                                                child: RadioListTile<String>(
+                                                  title: const Text(
+                                                    'Profissional',
+                                                  ),
+                                                  value: 'profissional',
+                                                  groupValue: _tipoConta,
+                                                  onChanged: (value) {
+                                                    if (value == null) return;
+                                                    setState(() {
+                                                      _tipoConta = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  CheckboxListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    value: _aceitaTermos,
+                                    onChanged: (value) {
+                                      if (value == null) return;
+                                      setState(() {
+                                        _aceitaTermos = value;
+                                      });
+                                    },
+                                    title: const Text(
+                                      'Aceito os termos de uso',
+                                    ),
+                                  ),
+                                  CheckboxListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    value: _receberNewsletter,
+                                    onChanged: (value) {
+                                      if (value == null) return;
+                                      setState(() {
+                                        _receberNewsletter = value;
+                                      });
+                                    },
+                                    title: const Text(
+                                      'Quero receber novidades por email',
+                                    ),
+                                  ),
+                                  SwitchListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    value: _promoNotificacoes,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _promoNotificacoes = value;
+                                      });
+                                    },
+                                    title: const Text(
+                                      'Ativar notificações de promoções',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextField(
+                                    controller: _senhaController,
+                                    obscureText: true,
+                                    decoration: _inputDecoration('Senha'),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  TextField(
+                                    controller: _confirmarSenhaController,
+                                    obscureText: true,
+                                    decoration:
+                                        _inputDecoration('Confirmar senha'),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: _carregando
+                                          ? null
+                                          : _fazerCadastro,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: azulPrincipal,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      child: _carregando
+                                          ? const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text('Cadastrar'),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 30),
+                                  if (_mensagem.isNotEmpty) ...[
+                                    const SizedBox(height: 15),
+                                    Text(
+                                      _mensagem,
+                                      style: TextStyle(
+                                        color: _corMensagem,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
-
-                            const SizedBox(height: 30),
-
-                            if (_mensagem.isNotEmpty) ...[
-                              const SizedBox(height: 15),
-
-                              Text(
-                                _mensagem,
-                                style: TextStyle(
-                                  color:
-                                      _corMensagem,
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -552,16 +491,14 @@ class _CadastroPageState extends State<CadastroPage> {
         color: azulPrincipal,
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
             onTap: () {
@@ -576,7 +513,6 @@ class _CadastroPageState extends State<CadastroPage> {
               height: isMobile ? 40 : 50,
             ),
           ),
-
           Row(
             children: [
               _botaoNavbar(
@@ -584,17 +520,10 @@ class _CadastroPageState extends State<CadastroPage> {
                 ativo: false,
                 isMobile: isMobile,
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/entrar',
-                  );
+                  Navigator.pushNamed(context, '/entrar');
                 },
               ),
-
-              SizedBox(
-                width: isMobile ? 12 : 20,
-              ),
-
+              SizedBox(width: isMobile ? 12 : 20),
               _botaoCadastro(
                 isMobile: isMobile,
                 onTap: () {},
@@ -607,78 +536,78 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
   Widget _botaoNavbar({
-  required String texto,
-  required bool ativo,
-  required bool isMobile,
-  required VoidCallback onTap,
-}) {
-  final hoverOuAtivo = _hoverEntrar || ativo;
+    required String texto,
+    required bool ativo,
+    required bool isMobile,
+    required VoidCallback onTap,
+  }) {
+    final hoverOuAtivo = _hoverEntrar || ativo;
 
-  return MouseRegion(
-    cursor: SystemMouseCursors.click,
-    onEnter: (_) {
-      setState(() {
-        _hoverEntrar = true;
-      });
-    },
-    onExit: (_) {
-      setState(() {
-        _hoverEntrar = false;
-      });
-    },
-    child: GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 14 : 18,
-          vertical: isMobile ? 7 : 8,
-        ),
-        decoration: BoxDecoration(
-          color: hoverOuAtivo ? Colors.white : Colors.transparent,
-          border: Border.all(color: Colors.white, width: 2),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          texto,
-          style: TextStyle(
-            color: hoverOuAtivo ? azulPrincipal : Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: isMobile ? 14 : 16,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() {
+          _hoverEntrar = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hoverEntrar = false;
+        });
+      },
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 14 : 18,
+            vertical: isMobile ? 7 : 8,
+          ),
+          decoration: BoxDecoration(
+            color: hoverOuAtivo ? Colors.white : Colors.transparent,
+            border: Border.all(color: Colors.white, width: 2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            texto,
+            style: TextStyle(
+              color: hoverOuAtivo ? azulPrincipal : Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: isMobile ? 14 : 16,
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _botaoCadastro({
-  required bool isMobile,
-  required VoidCallback onTap,
-}) {
-  return MouseRegion(
-    cursor: SystemMouseCursors.click,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 14 : 18,
-          vertical: isMobile ? 7 : 8,
-        ),
-        decoration: BoxDecoration(
-          color: azulClaro,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          'Cadastre-se',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: isMobile ? 14 : 16,
+    required bool isMobile,
+    required VoidCallback onTap,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 14 : 18,
+            vertical: isMobile ? 7 : 8,
+          ),
+          decoration: BoxDecoration(
+            color: azulClaro,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'Cadastre-se',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: isMobile ? 14 : 16,
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

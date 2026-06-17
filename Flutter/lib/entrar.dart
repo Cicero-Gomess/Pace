@@ -189,7 +189,7 @@ class _EntrarPageState extends State<EntrarPage> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.12),
+                              color: Colors.black.withOpacity(0.12),
                               blurRadius: 60,
                               offset: const Offset(0, 30),
                             ),

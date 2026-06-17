@@ -318,17 +318,17 @@ class _ExplorarPageState extends State<ExplorarPage> {
     final meses = dias ~/ 30;
     final anos = dias ~/ 365;
 
-    if (segundos < 60) return 'hÃ¡ poucos segundos';
+    if (segundos < 60) return 'há poucos segundos';
     if (minutos < 60) {
-      return 'hÃ¡ $minutos minuto${minutos == 1 ? '' : 's'}';
+      return 'há $minutos minuto${minutos == 1 ? '' : 's'}';
     }
-    if (horas < 24) return 'hÃ¡ $horas hora${horas == 1 ? '' : 's'}';
-    if (dias < 7) return 'hÃ¡ $dias dia${dias == 1 ? '' : 's'}';
+    if (horas < 24) return 'há $horas hora${horas == 1 ? '' : 's'}';
+    if (dias < 7) return 'há $dias dia${dias == 1 ? '' : 's'}';
     if (semanas < 5) {
-      return 'hÃ¡ $semanas semana${semanas == 1 ? '' : 's'}';
+      return 'há $semanas semana${semanas == 1 ? '' : 's'}';
     }
-    if (meses < 12) return 'hÃ¡ $meses mÃªs${meses == 1 ? '' : 'es'}';
-    return 'hÃ¡ $anos ano${anos == 1 ? '' : 's'}';
+    if (meses < 12) return 'há $meses mês${meses == 1 ? '' : 'es'}';
+    return 'há $anos ano${anos == 1 ? '' : 's'}';
   }
 
   int _toInt(dynamic value) {
@@ -383,7 +383,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
     final token = await _getToken();
 
     if (token == null) {
-      _showToast('FaÃ§a login para curtir posts.', Colors.orange);
+      _showToast('Faça login para curtir posts.', Colors.orange);
       return;
     }
 
@@ -1157,11 +1157,11 @@ class _ExplorarPageState extends State<ExplorarPage> {
                       _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
                       _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', true),
                       _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
-                      _sidebarItem(Icons.notifications_none, 'NotificaÃ§Ãµes', '/notificacoes', false),
+                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
                       const SizedBox(height: 18),
                       Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
                       const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'ConfiguraÃ§Ãµes', '/config', false),
+                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
                       _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
                     ],
@@ -1531,12 +1531,12 @@ class _ProfileModalState extends State<_ProfileModal> {
                                   crossAxisCount: columns,
                                   crossAxisSpacing: 18,
                                   mainAxisSpacing: 18,
-                                  childAspectRatio: columns == 2 ? 0.92 : 1.05,
+                                  childAspectRatio: columns == 2 ? 1.45 : 1.35,
                                 ),
                                 itemBuilder: (context, index) {
                                   final post = modalPostsCache[index];
                                   final conteudo = post['conteudo']?.toString() ??
-                                      'Sem descriÃ§Ã£o';
+                                      'Sem descrição';
                                   final resumo = conteudo.length > 120
                                       ? '${conteudo.substring(0, 120)}...'
                                       : conteudo;
@@ -1583,15 +1583,15 @@ class _ProfileModalState extends State<_ProfileModal> {
                                           ),
                                         ),
                                         const SizedBox(height: 10),
-                                        Expanded(
-                                          child: Text(
+                                        Text(
                                             conteudo,
-                                            style: TextStyle(
-                                              color: widget.mutedColor,
-                                              height: 1.7,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: widget.mutedColor,
+                                                height: 1.4,
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                         if ((post['imagem'] ?? '')
                                             .toString()
                                             .isNotEmpty) ...[

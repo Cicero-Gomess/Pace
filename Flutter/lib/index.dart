@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
         color: azulPrincipal,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -275,7 +275,7 @@ class _BotaoCadastroHoverState extends State<BotaoCadastroHover> {
             boxShadow: _hover
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
+                      color: Colors.black.withOpacity(0.18),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
