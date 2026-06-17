@@ -35,6 +35,8 @@ class _PerfilPageState extends State<PerfilPage> {
   int _totalSeguidores = 0;
   int _totalSeguindo = 0;
 
+  final Map<String, ImageProvider> _imageProviderCache = {};
+
   String get apiUrl {
     if (kIsWeb) return 'http://127.0.0.1:8000';
     return 'http://10.0.2.2:8000';
@@ -58,15 +60,15 @@ class _PerfilPageState extends State<PerfilPage> {
       darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
 
   Color get surfaceColor =>
-      darkMode ? const Color(0xCC0D0D10) : Colors.white.withValues(alpha: 0.78);
+      darkMode ? const Color(0xD10D0D10) : Colors.white.withOpacity(0.78);
 
   Color get inputFillColor =>
-      darkMode ? Colors.white.withValues(alpha: 0.03) : Colors.white.withValues(alpha: 0.84);
+      darkMode ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.84);
 
   @override
   void initState() {
     super.initState();
-    _carregarPerfil();
+    _inicializarPerfil();
   }
 
   @override
@@ -199,8 +201,30 @@ class _PerfilPageState extends State<PerfilPage> {
     await prefs.setString('usuarioLogado', jsonEncode(user));
   }
 
+  Future<void> _inicializarPerfil() async {
+    final prefs = await SharedPreferences.getInstance();
+    final localUserRaw = prefs.getString('usuarioLogado');
+    
+    if (localUserRaw != null) {
+      try {
+        final user = Map<String, dynamic>.from(jsonDecode(localUserRaw));
+        final bio = prefs.getString('bio_${user['username']}') ?? '';
+        setState(() {
+          _usuario = user;
+          _bioController.text = bio;
+          _carregando = false;
+        });
+        _carregarStatsCache(user['id']);
+      } catch (_) {}
+    }
+    
+    _carregarPerfil();
+  }
+
   Future<void> _carregarPerfil() async {
-    setState(() => _carregando = true);
+    if (_usuario == null) {
+      setState(() => _carregando = true);
+    }
 
     final token = await _token();
     if (token == null) {
@@ -211,8 +235,6 @@ class _PerfilPageState extends State<PerfilPage> {
     try {
       final user = Map<String, dynamic>.from(await _get('/profile/me'));
       final userId = user['id'];
-
-      await _carregarStatsCache(userId);
 
       final resultados = await Future.wait([
         _get('/profile/$userId/followers'),
@@ -252,14 +274,17 @@ class _PerfilPageState extends State<PerfilPage> {
 
       await _salvarUsuarioLocal(usuarioCompleto);
 
-      setState(() {
-        _usuario = usuarioCompleto;
-        _meusPosts = meusPosts;
-        _totalPosts = meusPosts.length;
-        _totalSeguidores = _toInt(seguidores['total']);
-        _totalSeguindo = _toInt(seguindo['total']);
-        _bioController.text = bio;
-      });
+      if (mounted) {
+        setState(() {
+          _usuario = usuarioCompleto;
+          _meusPosts = meusPosts;
+          _totalPosts = meusPosts.length;
+          _totalSeguidores = _toInt(seguidores['total']);
+          _totalSeguindo = _toInt(seguindo['total']);
+          _bioController.text = bio;
+          _carregando = false;
+        });
+      }
 
       await _salvarStatsCache();
     } catch (e) {
@@ -267,10 +292,11 @@ class _PerfilPageState extends State<PerfilPage> {
         if (mounted) Navigator.of(context).pushReplacementNamed('/entrar');
         return;
       }
-
       _mostrarMensagem(e.toString().replaceFirst('Exception: ', ''), erro: true);
     } finally {
-      if (mounted) setState(() => _carregando = false);
+      if (mounted && _usuario == null) {
+        setState(() => _carregando = false);
+      }
     }
   }
 
@@ -322,31 +348,35 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   ImageProvider _imageProvider(String value) {
-    if (value.startsWith('data:image')) {
-      final base64Data = value.split(',').last;
-      return MemoryImage(base64Decode(base64Data));
-    }
+    return _imageProviderCache.putIfAbsent(value, () {
+      if (value.startsWith('data:image')) {
+        final base64Data = value.split(',').last;
+        return MemoryImage(base64Decode(base64Data));
+      }
 
-    if (value.startsWith('http')) {
-      return NetworkImage(value);
-    }
+      if (value.startsWith('http')) {
+        return NetworkImage(value);
+      }
 
-    return const AssetImage('assets/user.png');
+      return const AssetImage('assets/user.png');
+    });
   }
 
   ImageProvider? _avatarProvider(String? url) {
     if (url == null || url.trim().isEmpty) return null;
 
-    if (url.startsWith('data:image')) {
-      final base64Data = url.split(',').last;
-      return MemoryImage(base64Decode(base64Data));
-    }
+    return _imageProviderCache.putIfAbsent(url, () {
+      if (url.startsWith('data:image')) {
+        final base64Data = url.split(',').last;
+        return MemoryImage(base64Decode(base64Data));
+      }
 
-    if (url.startsWith('http')) {
-      return NetworkImage(url);
-    }
+      if (url.startsWith('http')) {
+        return NetworkImage(url);
+      }
 
-    return null;
+      return const AssetImage('assets/user.png');
+    });
   }
 
   Future<void> _trocarFoto() async {
@@ -439,11 +469,11 @@ class _PerfilPageState extends State<PerfilPage> {
                     decoration: BoxDecoration(
                       color: darkMode
                           ? const Color(0xD10D0D10)
-                          : Colors.white.withValues(alpha: 0.92),
+                          : Colors.white.withOpacity(0.92),
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF14274D).withValues(alpha: 0.16),
+                          color: const Color(0xFF14274D).withOpacity(0.16),
                           blurRadius: 60,
                           offset: const Offset(0, 24),
                         ),
@@ -458,7 +488,7 @@ class _PerfilPageState extends State<PerfilPage> {
                             onPressed: () => Navigator.pop(context),
                             style: IconButton.styleFrom(
                               backgroundColor: darkMode
-                                  ? Colors.white.withValues(alpha: 0.08)
+                                  ? Colors.white.withOpacity(0.08)
                                   : const Color(0x140F172A),
                             ),
                             icon: Icon(Icons.close, color: textColor),
@@ -473,6 +503,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                 child: ConstrainedBox(
                                   constraints: const BoxConstraints(maxHeight: 380),
                                   child: Image(
+                                    key: ValueKey(imagem),
                                     image: _imageProvider(imagem),
                                     fit: BoxFit.cover,
                                   ),
@@ -525,7 +556,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 children: [
                   _buildSidebar(),
                   Expanded(
-                    child: _carregando
+                    child: _carregando && _usuario == null
                         ? const Center(
                             child: CircularProgressIndicator(color: azulPrincipal),
                           )
@@ -562,17 +593,17 @@ class _PerfilPageState extends State<PerfilPage> {
         decoration: BoxDecoration(
           color: darkMode
               ? const Color(0xC8080A0E)
-              : Colors.white.withValues(alpha: 0.78),
+              : Colors.white.withOpacity(0.78),
           border: Border(
             right: BorderSide(
               color: darkMode
-                  ? Colors.white.withValues(alpha: 0.04)
-                  : Colors.white.withValues(alpha: 0.55),
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.white.withOpacity(0.55),
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: darkMode ? 0.35 : 0.06),
+              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
               blurRadius: 30,
               offset: const Offset(8, 0),
             ),
@@ -608,7 +639,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
                       _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
                       const SizedBox(height: 18),
-                      Divider(color: azulPrincipal.withValues(alpha: 0.10)),
+                      Divider(color: azulPrincipal.withOpacity(0.10)),
                       const SizedBox(height: 18),
                       _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
                       _sidebarProfileItem(),
@@ -639,6 +670,7 @@ class _PerfilPageState extends State<PerfilPage> {
         borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.of(context).pushReplacementNamed(route),
         child: AnimatedContainer(
+          key: ValueKey(route),
           duration: const Duration(milliseconds: 240),
           curve: Curves.easeOutCubic,
           height: 50,
@@ -647,14 +679,14 @@ class _PerfilPageState extends State<PerfilPage> {
           decoration: BoxDecoration(
             color: highlighted
                 ? darkMode
-                    ? Colors.white.withValues(alpha: 0.06)
+                    ? Colors.white.withOpacity(0.06)
                     : const Color(0xFFEAF1F7)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: highlighted
                 ? Border.all(
                     color: darkMode
-                        ? Colors.white.withValues(alpha: 0.08)
+                        ? Colors.white.withOpacity(0.08)
                         : const Color(0xFFC8D8F0),
                   )
                 : null,
@@ -719,16 +751,16 @@ class _PerfilPageState extends State<PerfilPage> {
             gradient: LinearGradient(
               colors: darkMode
                   ? [
-                      azulPrincipal.withValues(alpha: 0.22),
-                      azulClaro.withValues(alpha: 0.10),
+                      azulPrincipal.withOpacity(0.22),
+                      azulClaro.withOpacity(0.10),
                     ]
                   : [
-                      azulPrincipal.withValues(alpha: 0.12),
-                      azulClaro.withValues(alpha: 0.08),
+                      azulPrincipal.withOpacity(0.12),
+                      azulClaro.withOpacity(0.08),
                     ],
             ),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: azulPrincipal.withValues(alpha: 0.08)),
+            border: Border.all(color: azulPrincipal.withOpacity(0.08)),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -736,13 +768,16 @@ class _PerfilPageState extends State<PerfilPage> {
 
               return Row(
                 children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: const Color(0xFFE4E9F2),
-                    backgroundImage: _avatarProvider(foto),
-                    child: foto.isEmpty
-                        ? Icon(Icons.person, size: 16, color: sidebarTextColor)
-                        : null,
+                  KeyedSubtree(
+                    key: ValueKey(foto),
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: const Color(0xFFE4E9F2),
+                      backgroundImage: _avatarProvider(foto),
+                      child: foto.isEmpty
+                          ? Icon(Icons.person, size: 16, color: sidebarTextColor)
+                          : null,
+                    ),
                   ),
                   if (showText) ...[
                     const SizedBox(width: 16),
@@ -804,7 +839,7 @@ class _PerfilPageState extends State<PerfilPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: azulPrincipal.withValues(alpha: 0.10),
+            color: azulPrincipal.withOpacity(0.10),
             borderRadius: BorderRadius.circular(999),
           ),
           child: const Text(
@@ -850,12 +885,12 @@ class _PerfilPageState extends State<PerfilPage> {
         borderRadius: BorderRadius.circular(isCompact ? 22 : 28),
         border: Border.all(
           color: darkMode
-              ? Colors.white.withValues(alpha: 0.04)
-              : Colors.white.withValues(alpha: 0.60),
+              ? Colors.white.withOpacity(0.04)
+              : Colors.white.withOpacity(0.60),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withValues(alpha: darkMode ? 0.35 : 0.16),
+            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.35 : 0.16),
             blurRadius: 60,
             offset: const Offset(0, 24),
           ),
@@ -899,7 +934,7 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
             boxShadow: [
               BoxShadow(
-                color: azulPrincipal.withValues(alpha: 0.18),
+                color: azulPrincipal.withOpacity(0.18),
                 blurRadius: 35,
                 offset: const Offset(0, 18),
               ),
@@ -915,6 +950,7 @@ class _PerfilPageState extends State<PerfilPage> {
               child: foto.isEmpty
                   ? Icon(Icons.person, size: 64, color: mutedColor)
                   : Image(
+                      key: ValueKey(foto),
                       image: _imageProvider(foto),
                       fit: BoxFit.cover,
                       width: double.infinity,
@@ -931,7 +967,7 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: azulPrincipal.withValues(alpha: 0.08),
+                color: azulPrincipal.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
@@ -990,7 +1026,7 @@ class _PerfilPageState extends State<PerfilPage> {
         const SizedBox(height: 22),
         _buildStatsRow(isCompact),
         const SizedBox(height: 26),
-        Container(height: 1, color: azulPrincipal.withValues(alpha: 0.12)),
+        Container(height: 1, color: azulPrincipal.withOpacity(0.12)),
         const SizedBox(height: 24),
         isCompact
             ? Column(
@@ -1031,25 +1067,25 @@ class _PerfilPageState extends State<PerfilPage> {
           style: TextStyle(color: textColor),
           decoration: InputDecoration(
             hintText: 'Escreva algo sobre você, seus objetivos e sua jornada...',
-            hintStyle: TextStyle(color: mutedColor.withValues(alpha: 0.8)),
+            hintStyle: TextStyle(color: mutedColor.withOpacity(0.8)),
             filled: true,
             fillColor: inputFillColor,
             contentPadding: const EdgeInsets.all(18),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: azulPrincipal.withValues(alpha: 0.12)),
+              borderSide: BorderSide(color: azulPrincipal.withOpacity(0.12)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide(
                 color: darkMode
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : azulPrincipal.withValues(alpha: 0.12),
+                    ? Colors.white.withOpacity(0.06)
+                    : azulPrincipal.withOpacity(0.12),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: azulPrincipal.withValues(alpha: 0.30)),
+              borderSide: BorderSide(color: azulPrincipal.withOpacity(0.30)),
             ),
           ),
         ),
@@ -1068,7 +1104,7 @@ class _PerfilPageState extends State<PerfilPage> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: azulPrincipal.withValues(alpha: 0.22),
+            color: azulPrincipal.withOpacity(0.22),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -1131,19 +1167,19 @@ class _PerfilPageState extends State<PerfilPage> {
                   const Color(0xF20D0D10),
                 ]
               : [
-                  Colors.white.withValues(alpha: 0.95),
-                  const Color(0xFFF5F8FF).withValues(alpha: 0.9),
+                  Colors.white.withOpacity(0.95),
+                  const Color(0xFFF5F8FF).withOpacity(0.9),
                 ],
         ),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: darkMode
-              ? Colors.white.withValues(alpha: 0.04)
-              : azulPrincipal.withValues(alpha: 0.08),
+              ? Colors.white.withOpacity(0.04)
+              : azulPrincipal.withOpacity(0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withValues(alpha: darkMode ? 0.35 : 0.10),
+            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.35 : 0.10),
             blurRadius: 40,
             offset: const Offset(0, 12),
           ),
@@ -1279,16 +1315,16 @@ class _PerfilPageState extends State<PerfilPage> {
                       decoration: BoxDecoration(
                         color: darkMode
                             ? const Color(0xD10D0D10)
-                            : Colors.white.withValues(alpha: 0.86),
+                            : Colors.white.withOpacity(0.86),
                         borderRadius: BorderRadius.circular(22),
                         border: Border.all(
                           color: darkMode
-                              ? Colors.white.withValues(alpha: 0.04)
-                              : Colors.white.withValues(alpha: 0.70),
+                              ? Colors.white.withOpacity(0.04)
+                              : Colors.white.withOpacity(0.70),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF14274D).withValues(alpha: 0.10),
+                            color: const Color(0xFF14274D).withOpacity(0.10),
                             blurRadius: 40,
                             offset: const Offset(0, 12),
                           ),
@@ -1330,8 +1366,8 @@ class _PerfilPageState extends State<PerfilPage> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: darkMode
-            ? Colors.white.withValues(alpha: 0.04)
-            : Colors.white.withValues(alpha: 0.70),
+            ? Colors.white.withOpacity(0.04)
+            : Colors.white.withOpacity(0.70),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Text(
@@ -1380,7 +1416,7 @@ class _PostImageTileState extends State<_PostImageTile> {
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: _hovered ? 0.12 : 0.10),
+                color: Colors.black.withOpacity(_hovered ? 0.12 : 0.10),
                 blurRadius: _hovered ? 35 : 40,
                 offset: Offset(0, _hovered ? 18 : 12),
               ),
@@ -1396,6 +1432,7 @@ class _PostImageTileState extends State<_PostImageTile> {
                   duration: const Duration(milliseconds: 450),
                   curve: Curves.easeOut,
                   child: Image(
+                    key: ValueKey(widget.imagem),
                     image: widget.imageProvider,
                     fit: BoxFit.cover,
                   ),
@@ -1404,13 +1441,13 @@ class _PostImageTileState extends State<_PostImageTile> {
                   duration: const Duration(milliseconds: 280),
                   opacity: _hovered ? 1 : 0,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          const Color(0x140F182D),
-                          const Color(0xB30F182D),
+                          Color(0x140F182D),
+                          Color(0xB30F182D),
                         ],
                       ),
                     ),
@@ -1456,7 +1493,7 @@ class _BackgroundDecor extends StatelessWidget {
           right: -60,
           child: _SoftOrb(
             size: 280,
-            color: darkMode ? const Color(0x293059AA) : const Color(0x293059AA),
+            color: const Color(0x293059AA),
             blur: 80,
           ),
         ),
@@ -1465,7 +1502,7 @@ class _BackgroundDecor extends StatelessWidget {
           left: -80,
           child: _SoftOrb(
             size: 260,
-            color: darkMode ? const Color(0x2E5EB1BF) : const Color(0x2E5EB1BF),
+            color: const Color(0x2E5EB1BF),
             blur: 80,
           ),
         ),
