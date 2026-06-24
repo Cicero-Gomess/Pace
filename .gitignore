@@ -12,3 +12,4 @@ backend/.cache/
 backend/.vscode/
 backend/*.swp
 backend/*.swo
+GEMINI.md
