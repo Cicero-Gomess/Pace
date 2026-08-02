@@ -2,144 +2,447 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
-  <title>Explorar</title>
 
-  <link rel="stylesheet" href="../Css/explorar.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Explorar | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/explorar.css"
+  >
+
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
 
-  <aside class="sidebar">
-    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
-    <a href="feed.html">
-      <i data-lucide="home" class="icon"></i>
-      <span class="text">Feed</span>
-    </a>
+  <!-- SIDEBAR -->
 
-    <a href="#">
-      <i data-lucide="target" class="icon"></i>
-      <span class="text">Metas</span>
-    </a>
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
 
-    <a href="explorar.html" class="active">
-      <i data-lucide="compass" class="icon"></i>
-      <span class="text">Explorar</span>
-    </a>
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
-    <a href="postar.html">
-      <i data-lucide="plus-square" class="icon"></i>
-      <span class="text">Postar</span>
-    </a>
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
+    </div>
 
-    <a href="#">
-      <i data-lucide="bell" class="icon"></i>
-      <span class="text">Notificações</span>
-    </a>
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
-    <div class="divisor"></div>
+      <span class="nav-section-label">
+        Comunidade
+      </span>
 
-    <a href="configurações.html">
-      <i data-lucide="settings" class="icon"></i>
-      <span class="text">Configurações</span>
-    </a>
+      <a href="feed.html">
 
-    <a href="perfil.html" class="perfil">
-      <img class="foto-perfil" alt="Foto do perfil">
-      <span class="text">Perfil</span>
-    </a>
-  </aside>
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
 
-  <main class="conteudo">
-    <section class="hero-explorar">
-      <div class="hero-copy">
-        <span class="badge-explorar">Descubra novas conexões</span>
-        <h1>Explore pessoas, ideias e energia</h1>
-        <p>
-          Encontre perfis inspiradores, tópicos em alta e conteúdos que podem te
-          ajudar a construir uma rotina mais forte dentro do Pace.
-        </p>
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a
+        href="explorar.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+          <span class="profile-copy">
+            <strong>Meu perfil</strong>
+            <small>Ver perfil</small>
+          </span>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
       </div>
 
-      <a href="postar.html" class="hero-cta">
+    </div>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+
+  <main class="conteudo">
+
+    <section class="hero-explorar">
+
+      <div class="hero-copy">
+
+        <span class="badge-explorar">
+          Descubra novas conexões
+        </span>
+
+        <h1>
+          Explore pessoas, ideias e energia
+        </h1>
+
+        <p>
+          Encontre perfis inspiradores, tópicos em alta e conteúdos
+          que podem ajudar você a construir uma rotina mais forte
+          dentro do Pace.
+        </p>
+
+      </div>
+
+      <a
+        href="postar.html"
+        class="hero-cta"
+      >
+
         <i data-lucide="sparkles"></i>
-        <span>Compartilhar algo</span>
+
+        <span>
+          Compartilhar algo
+        </span>
+
       </a>
+
     </section>
 
     <section class="painel-explorar">
+
+      <!-- BUSCA -->
+
       <div class="busca-shell">
+
         <div class="busca-box">
+
           <i data-lucide="search"></i>
+
           <input
             type="text"
             id="searchInput"
             placeholder="Pesquisar pessoas, hábitos, ideias ou palavras-chave"
+            autocomplete="off"
           >
-        </div>
 
         </div>
+
+      </div>
+
+      <!-- DESTAQUES -->
 
       <section class="destaque-grid">
+
         <article class="highlight-card highlight-main">
-          <span class="highlight-kicker">Em alta agora</span>
-          <h2>Pequenas rotinas, grandes viradas</h2>
+
+          <span class="highlight-kicker">
+            Em alta agora
+          </span>
+
+          <h2>
+            Pequenas rotinas, grandes viradas
+          </h2>
+
           <p>
-            Descubra pessoas que estão mostrando consistência real e compartilhe
-            sua própria evolução com a comunidade.
+            Descubra pessoas que estão mostrando consistência real
+            e compartilhe sua própria evolução com a comunidade.
           </p>
+
           <div class="highlight-meta">
-            <span><i data-lucide="flame"></i> Tendências quentes</span>
-            <span><i data-lucide="users"></i> Comunidade ativa</span>
+
+            <span>
+              <i data-lucide="flame"></i>
+              Tendências quentes
+            </span>
+
+            <span>
+              <i data-lucide="users"></i>
+              Comunidade ativa
+            </span>
+
           </div>
+
         </article>
 
         <article class="highlight-card">
-          <span class="mini-kicker">Sugestão do dia</span>
-          <h3>Encontre parceiros de evolução</h3>
-          <p>Perfis com hábitos parecidos com os seus podem acelerar sua constância.</p>
+
+          <span class="mini-kicker">
+            Sugestão do dia
+          </span>
+
+          <h3>
+            Encontre parceiros de evolução
+          </h3>
+
+          <p>
+            Perfis com hábitos parecidos com os seus podem
+            acelerar sua constância.
+          </p>
+
         </article>
 
         <article class="highlight-card">
-          <span class="mini-kicker">Nova energia</span>
-          <h3>Conteúdos para sair da inércia</h3>
-          <p>Veja posts curtos e diretos para te colocar em movimento hoje.</p>
+
+          <span class="mini-kicker">
+            Nova energia
+          </span>
+
+          <h3>
+            Conteúdos para sair da inércia
+          </h3>
+
+          <p>
+            Veja posts curtos e diretos para colocar você
+            em movimento hoje.
+          </p>
+
         </article>
+
       </section>
+
+      <!-- PERFIS -->
 
       <section class="secao-explorar">
+
         <div class="secao-topo">
+
           <div>
-            <span class="secao-kicker">Perfis</span>
-            <h2>Pessoas para acompanhar</h2>
+
+            <span class="secao-kicker">
+              Perfis
+            </span>
+
+            <h2>
+              Pessoas para acompanhar
+            </h2>
+
           </div>
+
         </div>
 
-        <div id="profilesGrid" class="profiles-grid">
+        <div
+          id="profilesGrid"
+          class="profiles-grid"
+        >
+
           <div class="empty-state loading-state">
+
             <i data-lucide="refresh-cw"></i>
-            <h3>Buscando perfis reais</h3>
-            <p>Aguarde um momento enquanto carregamos perfis criados na API.</p>
+
+            <h3>
+              Buscando perfis reais
+            </h3>
+
+            <p>
+              Aguarde um momento enquanto carregamos os perfis
+              criados na plataforma.
+            </p>
+
           </div>
+
         </div>
+
       </section>
+
     </section>
+
   </main>
 
-  <div id="profileModal" class="modal hidden" aria-hidden="true">
+  <!-- MODAL DO PERFIL -->
+
+  <div
+    id="profileModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
+
     <div class="modal-panel">
-      <button id="closeProfileModal" class="modal-close" aria-label="Fechar perfil">
+
+      <button
+        id="closeProfileModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar perfil"
+      >
+
         <i data-lucide="x"></i>
+
       </button>
 
       <div class="modal-body"></div>
+
     </div>
+
   </div>
 
-  <script type="module" src="../JavaScript/explorar.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/explorar.js"
+  ></script>
+
 </body>
 </html>

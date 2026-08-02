@@ -2,156 +2,568 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
-  <title>Configurações</title>
 
-  <link rel="stylesheet" href="../Css/config.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Configurações | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/config.css"
+  >
+
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
 
-  <aside class="sidebar">
-    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
-    <a href="feed.html">
-      <i data-lucide="home" class="icon"></i>
-      <span class="text">Feed</span>
-    </a>
+  <!-- SIDEBAR -->
 
-    <a href="#">
-      <i data-lucide="target" class="icon"></i>
-      <span class="text">Metas</span>
-    </a>
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
 
-    <a href="#">
-      <i data-lucide="compass" class="icon"></i>
-      <span class="text">Explorar</span>
-    </a>
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
 
-    <a href="postar.html">
-      <i data-lucide="plus-square" class="icon"></i>
-      <span class="text">Postar</span>
-    </a>
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
-    <a href="#">
-      <i data-lucide="bell" class="icon"></i>
-      <span class="text">Notificações</span>
-    </a>
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
 
-    <div class="divisor"></div>
+    </div>
 
-    <a href="configurações.html" class="active">
-      <i data-lucide="settings" class="icon"></i>
-      <span class="text">Configurações</span>
-    </a>
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
-    <a href="perfil.html" class="perfil">
-      <img id="fotoSidebar" class="foto-perfil" alt="Foto do perfil">
-      <span class="text">Perfil</span>
-    </a>
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+      <a href="feed.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a
+        href="configurações.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+          <span class="profile-copy">
+            <strong>Meu perfil</strong>
+            <small>Ver perfil</small>
+          </span>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
+      </div>
+
+    </div>
+
   </aside>
 
+  <!-- CONTEÚDO -->
+
   <main class="conteudo">
-    <section class="hero-config">
-      <div class="hero-copy">
-        <span class="badge-config">Personalização</span>
-        <h1>Configurações</h1>
-        <p>
-          Ajuste sua experiência no Pace e deixe o ambiente mais confortável para sua rotina.
-        </p>
-      </div>
-    </section>
 
-    <section class="config-shell">
-      <div class="config-grid">
-        <article class="config-card senha-card">
-          <div class="card-top">
-            <div>
-              <span class="card-kicker">Conta</span>
-              <h2>Alterar senha</h2>
-            </div>
+    <div class="page-shell">
 
-            <div class="card-icon">
-              <i data-lucide="key-round"></i>
-            </div>
+      <section class="hero-config">
+
+        <div class="hero-copy">
+
+          <span class="badge-config">
+            Personalização
+          </span>
+
+          <h1>
+            Configurações
+          </h1>
+
+          <p>
+            Ajuste sua conta, sua aparência e sua sessão
+            para deixar o Pace mais confortável para sua rotina.
+          </p>
+
+        </div>
+
+        <div class="hero-note">
+
+          <i data-lucide="shield-check"></i>
+
+          <span>
+            Suas preferências ficam organizadas em um único lugar.
+          </span>
+
+        </div>
+
+      </section>
+
+      <section class="config-shell">
+
+        <div class="config-layout">
+
+          <!-- COLUNA PRINCIPAL -->
+
+          <div class="config-column">
+
+            <article class="config-card senha-card">
+
+              <div class="card-top">
+
+                <div>
+
+                  <span class="card-kicker">
+                    Conta e segurança
+                  </span>
+
+                  <h2>
+                    Alterar senha
+                  </h2>
+
+                  <p class="card-description">
+                    Crie uma nova senha para manter sua conta protegida.
+                  </p>
+
+                </div>
+
+                <div class="card-icon">
+                  <i data-lucide="key-round"></i>
+                </div>
+
+              </div>
+
+              <form
+                id="senhaForm"
+                class="form-senha"
+              >
+
+                <div class="campo">
+
+                  <label for="senhaAtual">
+                    Senha atual
+                  </label>
+
+                  <div class="input-shell">
+
+                    <i data-lucide="lock-keyhole"></i>
+
+                    <input
+                      type="password"
+                      id="senhaAtual"
+                      placeholder="Digite sua senha atual"
+                      autocomplete="current-password"
+                      required
+                    >
+
+                  </div>
+
+                </div>
+
+                <div class="campo">
+
+                  <label for="novaSenha">
+                    Nova senha
+                  </label>
+
+                  <div class="input-shell">
+
+                    <i data-lucide="shield-plus"></i>
+
+                    <input
+                      type="password"
+                      id="novaSenha"
+                      placeholder="Digite sua nova senha"
+                      autocomplete="new-password"
+                      required
+                    >
+
+                  </div>
+
+                </div>
+
+                <div class="campo">
+
+                  <label for="confirmarSenha">
+                    Confirmar nova senha
+                  </label>
+
+                  <div class="input-shell">
+
+                    <i data-lucide="shield-check"></i>
+
+                    <input
+                      type="password"
+                      id="confirmarSenha"
+                      placeholder="Confirme sua nova senha"
+                      autocomplete="new-password"
+                      required
+                    >
+
+                  </div>
+
+                </div>
+
+                <div class="password-guidance">
+
+                  <span class="guidance-item">
+                    <i data-lucide="check-circle-2"></i>
+                    Use uma senha difícil de adivinhar
+                  </span>
+
+                  <span class="guidance-item">
+                    <i data-lucide="check-circle-2"></i>
+                    Evite reutilizar senhas antigas
+                  </span>
+
+                </div>
+
+                <p
+                  id="senhaMensagem"
+                  class="mensagem-form hidden"
+                ></p>
+
+                <button
+                  type="submit"
+                  class="primary-action"
+                  id="salvarSenhaBtn"
+                >
+
+                  <i data-lucide="save"></i>
+
+                  <span>
+                    Salvar alteração
+                  </span>
+
+                </button>
+
+              </form>
+
+            </article>
+
           </div>
 
-          <form id="senhaForm" class="form-senha">
-            <div class="campo">
-              <label for="senhaAtual">Senha atual</label>
-              <input type="password" id="senhaAtual" placeholder="Digite sua senha atual" required>
-            </div>
+          <!-- COLUNA LATERAL -->
 
-            <div class="campo">
-              <label for="novaSenha">Nova senha</label>
-              <input type="password" id="novaSenha" placeholder="Digite sua nova senha" required>
-            </div>
+          <div class="config-column">
 
-            <div class="campo">
-              <label for="confirmarSenha">Confirmar nova senha</label>
-              <input type="password" id="confirmarSenha" placeholder="Confirme sua nova senha" required>
-            </div>
+            <article class="config-card">
 
-            <p id="senhaMensagem" class="mensagem-form hidden"></p>
+              <div class="card-top">
 
-            <button type="submit" class="primary-action" id="salvarSenhaBtn">
-              <i data-lucide="save"></i>
-              <span>Salvar alteração</span>
-            </button>
-          </form>
-        </article>
+                <div>
 
-        <article class="config-card">
-          <div class="card-top">
-            <div>
-              <span class="card-kicker">Aparência</span>
-              <h2>Visual do app</h2>
-            </div>
+                  <span class="card-kicker">
+                    Aparência
+                  </span>
 
-            <div class="card-icon">
-              <i data-lucide="moon-star"></i>
-            </div>
+                  <h2>
+                    Visual do app
+                  </h2>
+
+                  <p class="card-description">
+                    Escolha o visual mais confortável para usar o Pace.
+                  </p>
+
+                </div>
+
+                <div class="card-icon">
+                  <i data-lucide="palette"></i>
+                </div>
+
+              </div>
+
+              <div class="setting-list">
+
+                <div class="setting-item">
+
+                  <div class="setting-copy">
+
+                    <span class="setting-icon">
+                      <i data-lucide="moon-star"></i>
+                    </span>
+
+                    <div>
+
+                      <strong>
+                        Modo escuro
+                      </strong>
+
+                      <p>
+                        Reduza a luminosidade da interface em ambientes
+                        com pouca luz.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <label
+                    class="switch"
+                    aria-label="Ativar modo escuro"
+                  >
+
+                    <input
+                      type="checkbox"
+                      id="darkModeToggle"
+                    >
+
+                    <span class="slider"></span>
+
+                  </label>
+
+                </div>
+
+              </div>
+
+            </article>
+
+            <article class="config-card session-card">
+
+              <div class="card-top">
+
+                <div>
+
+                  <span class="card-kicker">
+                    Sessão
+                  </span>
+
+                  <h2>
+                    Acesso à conta
+                  </h2>
+
+                  <p class="card-description">
+                    Encerre sua sessão atual com segurança.
+                  </p>
+
+                </div>
+
+                <div class="card-icon">
+                  <i data-lucide="shield-check"></i>
+                </div>
+
+              </div>
+
+              <div class="session-panel">
+
+                <div class="session-copy">
+
+                  <strong>
+                    Sair do Pace
+                  </strong>
+
+                  <p>
+                    Você precisará entrar novamente para acessar sua conta.
+                  </p>
+
+                </div>
+
+                <button
+                  id="logoutBtn"
+                  class="danger-action"
+                  type="button"
+                >
+
+                  <i data-lucide="log-out"></i>
+
+                  <span>
+                    Sair
+                  </span>
+
+                </button>
+
+              </div>
+
+            </article>
+
           </div>
 
-          <div class="setting-item">
-            <div>
-              <strong>Modo escuro</strong>
-              <p>Ative um visual mais confortável para ambientes com pouca luz.</p>
-            </div>
+        </div>
 
-            <label class="switch">
-              <input type="checkbox" id="darkModeToggle">
-              <span class="slider"></span>
-            </label>
-          </div>
-        </article>
+      </section>
 
-        <article class="config-card">
-          <div class="card-top">
-            <div>
-              <span class="card-kicker">Sessão</span>
-              <h2>Acesso</h2>
-            </div>
+    </div>
 
-            <div class="card-icon">
-              <i data-lucide="shield-check"></i>
-            </div>
-          </div>
-
-          <div class="actions-box">
-            <button id="logoutBtn" class="danger-action" type="button">
-              <i data-lucide="log-out"></i>
-              <span>Sair da conta</span>
-            </button>
-          </div>
-        </article>
-      </div>
-    </section>
   </main>
 
-  <script type="module" src="../JavaScript/config.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/config.js"
+  ></script>
+
 </body>
 </html>

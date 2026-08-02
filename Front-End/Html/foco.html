@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Sala de Foco | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/foco.css"
+  >
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <!-- SIDEBAR -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
+
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
+
+    </div>
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
+
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+      <a href="feed.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a
+        href="foco.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+          <span class="profile-copy">
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
+          </span>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+
+  <main class="conteudo">
+
+    <div class="page-shell">
+
+      <!-- HERO -->
+
+      <section class="hero-foco">
+
+        <div class="hero-copy">
+
+          <span class="hero-badge">
+
+            <span
+              class="badge-dot"
+              aria-hidden="true"
+            ></span>
+
+            Entre no seu ritmo
+
+          </span>
+
+          <h1>
+            Silencie o ruído.
+            <span>Faça acontecer.</span>
+          </h1>
+
+          <p>
+            Escolha uma intenção, defina seu tempo e transforme
+            alguns minutos de presença em progresso real.
+          </p>
+
+        </div>
+
+        <div class="hero-streak">
+
+          <span class="hero-streak-icon">
+            <i data-lucide="flame"></i>
+          </span>
+
+          <div>
+
+            <small>
+              Sequência de foco
+            </small>
+
+            <strong id="sequenciaFoco">
+              0 dias
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- PAINEL PRINCIPAL -->
+
+      <section class="focus-layout">
+
+        <article class="focus-stage">
+
+          <div
+            class="stage-glow"
+            aria-hidden="true"
+          ></div>
+
+          <header class="stage-header">
+
+            <div>
+
+              <span class="stage-kicker">
+                Sessão atual
+              </span>
+
+              <h2 id="tituloSessao">
+                Pronto para começar?
+              </h2>
+
+            </div>
+
+            <div class="stage-tools">
+
+              <button
+                id="toggleSom"
+                class="tool-button"
+                type="button"
+                aria-label="Ativar ou desativar som"
+                title="Som"
+              >
+                <i data-lucide="volume-2"></i>
+              </button>
+
+              <button
+                id="entrarTelaCheia"
+                class="tool-button"
+                type="button"
+                aria-label="Abrir em tela cheia"
+                title="Tela cheia"
+              >
+                <i data-lucide="maximize-2"></i>
+              </button>
+
+            </div>
+
+          </header>
+
+          <!-- TIMER -->
+
+          <div class="timer-shell">
+
+            <div
+              id="timerRing"
+              class="timer-ring"
+              style="--progress: 0deg"
+            >
+
+              <div class="timer-inner">
+
+                <span
+                  id="estadoSessao"
+                  class="timer-label"
+                >
+                  Preparação
+                </span>
+
+                <strong id="timerDisplay">
+                  25:00
+                </strong>
+
+                <span
+                  id="intencaoAtiva"
+                  class="timer-intention"
+                >
+                  Defina uma intenção para sua sessão
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- CONTROLES -->
+
+          <div class="timer-controls">
+
+            <button
+              id="resetarSessao"
+              class="control-button secondary"
+              type="button"
+              aria-label="Reiniciar sessão"
+            >
+              <i data-lucide="rotate-ccw"></i>
+            </button>
+
+            <button
+              id="iniciarSessao"
+              class="control-button primary"
+              type="button"
+            >
+
+              <i data-lucide="play"></i>
+
+              <span>
+                Iniciar foco
+              </span>
+
+            </button>
+
+            <button
+              id="finalizarSessao"
+              class="control-button secondary"
+              type="button"
+              aria-label="Finalizar sessão"
+              disabled
+            >
+              <i data-lucide="square"></i>
+            </button>
+
+          </div>
+
+          <p class="timer-hint">
+            Sua sessão continua contando mesmo se você atualizar a página.
+          </p>
+
+        </article>
+
+        <!-- CONFIGURAÇÃO -->
+
+        <aside class="focus-panel">
+
+          <header class="panel-header">
+
+            <div>
+
+              <span class="panel-kicker">
+                Preparação
+              </span>
+
+              <h2>
+                Configure sua sessão
+              </h2>
+
+            </div>
+
+            <span class="panel-icon">
+              <i data-lucide="sliders-horizontal"></i>
+            </span>
+
+          </header>
+
+          <div class="form-group">
+
+            <label for="intencaoSessao">
+              No que você vai focar?
+            </label>
+
+            <div class="input-shell">
+
+              <i data-lucide="sparkles"></i>
+
+              <input
+                id="intencaoSessao"
+                type="text"
+                maxlength="90"
+                placeholder="Ex.: Revisar a matéria da prova"
+                autocomplete="off"
+              >
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="metaVinculada">
+              Vincular a uma meta
+            </label>
+
+            <div class="input-shell">
+
+              <i data-lucide="target"></i>
+
+              <select id="metaVinculada">
+
+                <option value="">
+                  Nenhuma meta vinculada
+                </option>
+
+              </select>
+
+            </div>
+
+            <small class="field-helper">
+              As metas criadas na página de metas aparecem aqui automaticamente.
+            </small>
+
+          </div>
+
+          <div class="form-group">
+
+            <div class="label-row">
+
+              <label>
+                Duração
+              </label>
+
+              <strong id="duracaoSelecionada">
+                25 min
+              </strong>
+
+            </div>
+
+            <div
+              class="duration-grid"
+              role="group"
+              aria-label="Duração da sessão"
+            >
+
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="15"
+              >
+                15
+                <span>min</span>
+              </button>
+
+              <button
+                class="duration-option active"
+                type="button"
+                data-minutes="25"
+              >
+                25
+                <span>min</span>
+              </button>
+
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="45"
+              >
+                45
+                <span>min</span>
+              </button>
+
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="60"
+              >
+                60
+                <span>min</span>
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="duracaoPersonalizada">
+              Tempo personalizado
+            </label>
+
+            <div class="custom-duration">
+
+              <input
+                id="duracaoPersonalizada"
+                type="number"
+                min="1"
+                max="240"
+                placeholder="Minutos"
+              >
+
+              <button
+                id="aplicarDuracao"
+                type="button"
+              >
+                Aplicar
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="focus-message">
+
+            <span>
+              <i data-lucide="shield-check"></i>
+            </span>
+
+            <p>
+              Durante a sessão, o painel entra em modo imersivo
+              para reduzir distrações.
+            </p>
+
+          </div>
+
+        </aside>
+
+      </section>
+
+      <!-- RESUMO -->
+
+      <section class="focus-insights">
+
+        <article class="insight-card">
+
+          <span class="insight-icon">
+            <i data-lucide="timer"></i>
+          </span>
+
+          <div>
+
+            <small>
+              Tempo focado hoje
+            </small>
+
+            <strong id="tempoHoje">
+              0 min
+            </strong>
+
+          </div>
+
+        </article>
+
+        <article class="insight-card">
+
+          <span class="insight-icon success">
+            <i data-lucide="circle-check-big"></i>
+          </span>
+
+          <div>
+
+            <small>
+              Sessões concluídas
+            </small>
+
+            <strong id="sessoesConcluidas">
+              0
+            </strong>
+
+          </div>
+
+        </article>
+
+        <article class="insight-card">
+
+          <span class="insight-icon accent">
+            <i data-lucide="calendar-check-2"></i>
+          </span>
+
+          <div>
+
+            <small>
+              Melhor dia
+            </small>
+
+            <strong id="melhorDia">
+              —
+            </strong>
+
+          </div>
+
+        </article>
+
+      </section>
+
+      <!-- HISTÓRICO -->
+
+      <section class="history-card">
+
+        <header class="history-header">
+
+          <div>
+
+            <span class="history-kicker">
+              Histórico
+            </span>
+
+            <h2>
+              Suas sessões recentes
+            </h2>
+
+          </div>
+
+          <button
+            id="limparHistorico"
+            class="clear-history"
+            type="button"
+          >
+
+            <i data-lucide="trash-2"></i>
+
+            Limpar histórico
+
+          </button>
+
+        </header>
+
+        <div
+          id="historicoSessoes"
+          class="history-list"
+        ></div>
+
+        <div
+          id="historicoVazio"
+          class="history-empty"
+        >
+
+          <span>
+            <i data-lucide="hourglass"></i>
+          </span>
+
+          <h3>
+            Seu foco ainda vai deixar marcas aqui.
+          </h3>
+
+          <p>
+            Conclua sua primeira sessão para começar a construir
+            seu histórico de evolução.
+          </p>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MODO IMERSIVO -->
+
+  <div
+    id="immersiveMode"
+    class="immersive-mode hidden"
+    aria-hidden="true"
+  >
+
+    <div
+      class="immersive-noise"
+      aria-hidden="true"
+    ></div>
+
+    <header class="immersive-header">
+
+      <div class="immersive-brand">
+
+        <img
+          src="../Images/Ícone_Pace.png"
+          alt="Logo Pace"
+        >
+
+        <span>
+          Pace Focus
+        </span>
+
+      </div>
+
+      <button
+        id="sairImersivo"
+        type="button"
+      >
+
+        <i data-lucide="minimize-2"></i>
+
+        <span>
+          Sair do modo imersivo
+        </span>
+
+      </button>
+
+    </header>
+
+    <div class="immersive-content">
+
+      <span class="immersive-state">
+        Sessão em andamento
+      </span>
+
+      <strong id="immersiveTimer">
+        25:00
+      </strong>
+
+      <h2 id="immersiveIntention">
+        Sua intenção
+      </h2>
+
+      <p>
+        Continue. O próximo minuto também conta.
+      </p>
+
+      <div class="immersive-actions">
+
+        <button
+          id="immersivePause"
+          class="immersive-primary"
+          type="button"
+        >
+
+          <i data-lucide="pause"></i>
+
+          Pausar
+
+        </button>
+
+        <button
+          id="immersiveFinish"
+          class="immersive-secondary"
+          type="button"
+        >
+
+          <i data-lucide="square"></i>
+
+          Finalizar
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL DE CONCLUSÃO -->
+
+  <div
+    id="conclusaoModal"
+    class="modal-overlay hidden"
+  >
+
+    <section
+      class="conclusion-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="conclusaoTitulo"
+    >
+
+      <div
+        class="conclusion-burst"
+        aria-hidden="true"
+      ></div>
+
+      <span class="conclusion-icon">
+        <i data-lucide="trophy"></i>
+      </span>
+
+      <span class="conclusion-kicker">
+        Sessão concluída
+      </span>
+
+      <h2 id="conclusaoTitulo">
+        Você fez acontecer.
+      </h2>
+
+      <p id="conclusaoResumo">
+        Seu tempo de foco foi registrado.
+      </p>
+
+      <div class="conclusion-stats">
+
+        <div>
+
+          <strong id="conclusaoTempo">
+            0 min
+          </strong>
+
+          <span>
+            tempo focado
+          </span>
+
+        </div>
+
+        <div>
+
+          <strong id="conclusaoSequencia">
+            0 dias
+          </strong>
+
+          <span>
+            sequência
+          </span>
+
+        </div>
+
+      </div>
+
+      <button
+        id="fecharConclusao"
+        type="button"
+      >
+        Continuar evoluindo
+      </button>
+
+    </section>
+
+  </div>
+
+  <!-- MODAL DE CONFIRMAÇÃO -->
+
+  <div
+    id="confirmModal"
+    class="modal-overlay hidden"
+  >
+
+    <section
+      class="confirm-modal"
+      role="dialog"
+      aria-modal="true"
+    >
+
+      <span class="confirm-icon">
+        <i data-lucide="triangle-alert"></i>
+      </span>
+
+      <h2 id="confirmTitulo">
+        Finalizar sessão?
+      </h2>
+
+      <p id="confirmTexto">
+        O tempo focado até agora será salvo.
+      </p>
+
+      <div class="confirm-actions">
+
+        <button
+          id="cancelarConfirmacao"
+          class="confirm-secondary"
+          type="button"
+        >
+          Continuar focando
+        </button>
+
+        <button
+          id="aceitarConfirmacao"
+          class="confirm-primary"
+          type="button"
+        >
+          Finalizar sessão
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- TOAST -->
+
+  <div
+    id="toast"
+    class="toast hidden"
+  ></div>
+
+  <script
+    type="module"
+    src="../JavaScript/foco.js"
+  ></script>
+
+</body>
+</html>

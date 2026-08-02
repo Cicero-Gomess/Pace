@@ -3,61 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
-  <title>Pace</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="../Css/base.css">
+  <meta name="description" content="Crie sua conta no Pace e comece sua jornada de evolução.">
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <title>Cadastre-se | Pace</title>
   <link rel="stylesheet" href="../Css/cadastro.css">
 </head>
-
 <body>
+  <header class="header">
+    <nav class="navbar" aria-label="Navegação principal">
+      <div class="logo">
+        <a href="index.html" aria-label="Voltar para a página inicial do Pace">
+          <img src="../Images/Ícone_Pace.png" alt="Logo do Pace">
+        </a>
+      </div>
 
-<nav class="navbar">
-  <div class="logo">
-    <a href="index.html">
-      <img src="../Images/Ícone_Pace.png" alt="Logo do site">
-    </a>
-  </div>
+      <div class="nav-actions">
+        <span class="nav-text">Já possui uma conta?</span>
+        <a class="btn-entrar" href="entrar.html">Entrar</a>
+      </div>
+    </nav>
+  </header>
 
-  <ul class="nav-links">
-    <li><a href="sobre.html">Sobre</a></li>
-    <li><a class="btn-entrar" href="entrar.html">Entrar</a></li>
-    <li><a class="btn-cadastro" href="cadastro.html">Cadastre-se</a></li>
-  </ul>
-</nav>
+  <main class="cadastro-page">
+    <section class="cadastro-visual" aria-label="Apresentação do Pace">
+      <div class="visual-grid" aria-hidden="true"></div>
+      <div class="visual-glow visual-glow-one" aria-hidden="true"></div>
+      <div class="visual-glow visual-glow-two" aria-hidden="true"></div>
 
-<section class="cadastro">
+      <div class="visual-content">
+        <span class="visual-label">
+          <span aria-hidden="true"></span>
+          Comece sua jornada
+        </span>
 
-  <div class="cadastro-container">
+        <h1>
+          Comece sua
+          <strong>evolução hoje.</strong>
+        </h1>
 
-    <h1>Cadastre-se</h1>
-    <p class="cadastro-sub">Crie sua conta</p>
+        <p>
+          Crie sua conta, organize suas metas e acompanhe cada passo
+          da sua evolução dentro do Pace.
+        </p>
 
-    <form id="cadastroForm">
+        <div class="visual-features">
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 2v3"></path>
+                <path d="M22 12h-3"></path>
+                <path d="M12 22v-3"></path>
+                <path d="M2 12h3"></path>
+              </svg>
+            </span>
+            <div>
+              <small>Metas inteligentes</small>
+              <strong>Transforme objetivos em progresso</strong>
+            </div>
+          </article>
 
-      <input type="text" id="cadastroUsuario" placeholder="Usuário">
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 19V9"></path>
+                <path d="M10 19V5"></path>
+                <path d="M16 19v-7"></path>
+                <path d="M22 19V3"></path>
+                <path d="M2 19h22"></path>
+              </svg>
+            </span>
+            <div>
+              <small>Evolução diária</small>
+              <strong>Acompanhe sua constância</strong>
+            </div>
+          </article>
 
-      <input type="email" id="cadastroEmail" placeholder="Email">
+          <article class="feature-card">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </span>
+            <div>
+              <small>Comunidade ativa</small>
+              <strong>Cresça junto com outras pessoas</strong>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
-      <input type="password" id="cadastroSenha" placeholder="Senha">
+    <section class="cadastro-panel">
+      <div class="cadastro-container">
+        <div class="cadastro-header">
+          <span class="cadastro-kicker">Comece sua jornada</span>
+          <h2>Crie sua conta</h2>
+          <p>Preencha seus dados para fazer parte do Pace.</p>
+        </div>
 
-      <input type="password" id="cadastroConfirmarSenha" placeholder="Confirmar senha">
+        <form id="cadastroForm" novalidate>
+          <div class="form-group">
+            <label for="cadastroUsuario">Nome de usuário</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M20 21a8 8 0 0 0-16 0"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <input type="text" id="cadastroUsuario" name="usuario" placeholder="Escolha um nome de usuário" autocomplete="username" required>
+            </div>
+          </div>
 
-      <button type="submit" class="cadastro-submit">
-        Criar conta
-      </button>
+          <div class="form-group">
+            <label for="cadastroEmail">Email</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                  <path d="m3 7 9 6 9-6"></path>
+                </svg>
+              </span>
+              <input type="email" id="cadastroEmail" name="email" placeholder="nome@exemplo.com" autocomplete="email" required>
+            </div>
+          </div>
 
-    </form>
+          <div class="form-group">
+            <label for="cadastroSenha">Senha</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                </svg>
+              </span>
+              <input type="password" id="cadastroSenha" name="senha" placeholder="Crie uma senha segura" autocomplete="new-password" required>
+              <button type="button" class="password-toggle" data-target="cadastroSenha" aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m3 3 18 18"></path>
+                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                  <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a17.6 17.6 0 0 1-2.1 3.2"></path>
+                  <path d="M6.2 6.2C3.5 8.1 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path>
+                </svg>
+              </button>
+            </div>
 
-    <p id="cadastroMensagem"></p>
+            <div class="password-strength" aria-live="polite">
+              <div class="strength-header">
+                <span>Força da senha</span>
+                <strong id="strengthText">Muito fraca</strong>
+              </div>
+              <div class="strength-track" aria-hidden="true">
+                <span id="strengthBar"></span>
+              </div>
+            </div>
 
-  </div>
+            <div class="password-requirements" aria-label="Requisitos da senha">
+              <span data-rule="length">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg>
+                Pelo menos 8 caracteres
+              </span>
+              <span data-rule="uppercase">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg>
+                Uma letra maiúscula
+              </span>
+              <span data-rule="number">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg>
+                Um número
+              </span>
+              <span data-rule="symbol">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg>
+                Um símbolo
+              </span>
+            </div>
+          </div>
 
-</section>
+          <div class="form-group">
+            <label for="cadastroConfirmarSenha">Confirmar senha</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                  <path d="m9 16 2 2 4-4"></path>
+                </svg>
+              </span>
+              <input type="password" id="cadastroConfirmarSenha" name="confirmarSenha" placeholder="Digite a senha novamente" autocomplete="new-password" required>
+              <button type="button" class="password-toggle" data-target="cadastroConfirmarSenha" aria-label="Mostrar confirmação de senha" aria-pressed="false">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m3 3 18 18"></path>
+                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                  <path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a17.6 17.6 0 0 1-2.1 3.2"></path>
+                  <path d="M6.2 6.2C3.5 8.1 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path>
+                </svg>
+              </button>
+            </div>
+            <p id="passwordMatch" class="password-match" aria-live="polite"></p>
+          </div>
 
-<!-- JS -->
-<script type="module" src="../JavaScript/cadastro.js"></script>
+          <button type="submit" class="cadastro-submit" id="cadastroSubmit">
+            <span class="submit-content">
+              <span>Criar conta</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+            </span>
+            <span class="submit-loading" aria-hidden="true">
+              <span class="spinner"></span>
+              Criando conta...
+            </span>
+            <span class="submit-success" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg>
+              Conta criada!
+            </span>
+          </button>
+        </form>
 
+        <p id="cadastroMensagem" class="cadastro-message" role="status" aria-live="polite"></p>
+
+        <p class="mobile-login">
+          Já possui uma conta?
+          <a href="entrar.html">Entrar</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../JavaScript/cadastro.js"></script>
 </body>
 </html>

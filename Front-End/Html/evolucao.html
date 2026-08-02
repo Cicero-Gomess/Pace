@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Evolução | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/evolucao.css"
+  >
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <!-- SIDEBAR -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
+
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
+
+    </div>
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
+
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+      <a href="feed.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a
+        href="evolucao.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+          <span class="profile-copy">
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
+          </span>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+
+  <main class="conteudo">
+
+    <div class="page-shell">
+
+      <!-- HERO -->
+
+      <section class="hero-evolucao">
+
+        <div class="hero-copy">
+
+          <span class="hero-badge">
+
+            <span
+              class="badge-dot"
+              aria-hidden="true"
+            ></span>
+
+            Sua jornada em movimento
+
+          </span>
+
+          <h1>
+            Você não está apenas avançando.
+            <span>Está se transformando.</span>
+          </h1>
+
+          <p>
+            O Pace reúne suas metas, sessões de foco e constância
+            para revelar como sua evolução está acontecendo de verdade.
+          </p>
+
+        </div>
+
+        <div
+          class="period-filter"
+          role="group"
+          aria-label="Período de análise"
+        >
+
+          <button
+            class="period-button active"
+            type="button"
+            data-period="7"
+          >
+            7 dias
+          </button>
+
+          <button
+            class="period-button"
+            type="button"
+            data-period="30"
+          >
+            30 dias
+          </button>
+
+          <button
+            class="period-button"
+            type="button"
+            data-period="90"
+          >
+            90 dias
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- ÍNDICE PACE -->
+
+      <section class="evolution-spotlight">
+
+        <div class="spotlight-score">
+
+          <span class="score-eyebrow">
+            Índice Pace
+          </span>
+
+          <div
+            id="scoreRing"
+            class="score-ring"
+            style="--score-progress: 0deg"
+          >
+
+            <div class="score-content">
+
+              <strong id="evolutionScore">
+                0
+              </strong>
+
+              <span>
+                de 100
+              </span>
+
+            </div>
+
+          </div>
+
+          <span
+            id="scoreLabel"
+            class="score-label"
+          >
+            Sua jornada começa agora
+          </span>
+
+        </div>
+
+        <div class="spotlight-story">
+
+          <span class="summary-kicker">
+            Leitura do seu momento
+          </span>
+
+          <h2 id="evolutionTitle">
+            Sua evolução começa com o primeiro passo.
+          </h2>
+
+          <p id="evolutionDescription">
+            Crie uma meta ou conclua uma sessão de foco para começar
+            a construir seu painel de evolução.
+          </p>
+
+          <div class="comparison-box">
+
+            <span class="comparison-icon">
+
+              <i
+                id="comparisonIcon"
+                data-lucide="minus"
+              ></i>
+
+            </span>
+
+            <div>
+
+              <small>
+                Comparação com o período anterior
+              </small>
+
+              <strong id="comparisonText">
+                Sem dados suficientes
+              </strong>
+
+            </div>
+
+          </div>
+
+          <div class="summary-status">
+
+            <span class="status-pill">
+
+              <i data-lucide="flame"></i>
+
+              <span id="statusSequencia">
+                0 dias de sequência
+              </span>
+
+            </span>
+
+            <span class="status-pill">
+
+              <i data-lucide="target"></i>
+
+              <span id="statusMetas">
+                0 metas concluídas
+              </span>
+
+            </span>
+
+            <span class="status-pill">
+
+              <i data-lucide="timer"></i>
+
+              <span id="statusFoco">
+                0 min de foco
+              </span>
+
+            </span>
+
+          </div>
+
+        </div>
+
+        <aside class="next-step">
+
+          <div class="next-step-top">
+
+            <span class="next-step-icon">
+
+              <i
+                id="nextStepIcon"
+                data-lucide="sparkles"
+              ></i>
+
+            </span>
+
+            <span>
+              Próximo passo recomendado
+            </span>
+
+          </div>
+
+          <h3 id="nextStepTitle">
+            Comece sua jornada
+          </h3>
+
+          <p id="nextStepDescription">
+            Crie uma meta clara ou inicie sua primeira sessão de foco.
+          </p>
+
+          <a
+            id="nextStepLink"
+            href="metas.html"
+          >
+
+            <span id="nextStepButtonText">
+              Criar uma meta
+            </span>
+
+            <i data-lucide="arrow-up-right"></i>
+
+          </a>
+
+        </aside>
+
+      </section>
+
+      <!-- MÉTRICAS -->
+
+      <section class="metrics-grid">
+
+        <article class="metric-card">
+
+          <span class="metric-icon">
+            <i data-lucide="timer"></i>
+          </span>
+
+          <div class="metric-copy">
+
+            <small>
+              Tempo focado
+            </small>
+
+            <strong id="totalFocusTime">
+              0 min
+            </strong>
+
+            <span id="focusDelta">
+              Nenhum registro
+            </span>
+
+          </div>
+
+        </article>
+
+        <article class="metric-card">
+
+          <span class="metric-icon success">
+            <i data-lucide="circle-check-big"></i>
+          </span>
+
+          <div class="metric-copy">
+
+            <small>
+              Metas concluídas
+            </small>
+
+            <strong id="completedGoals">
+              0
+            </strong>
+
+            <span id="goalsDelta">
+              Nenhuma conclusão
+            </span>
+
+          </div>
+
+        </article>
+
+        <article class="metric-card">
+
+          <span class="metric-icon warning">
+            <i data-lucide="flame"></i>
+          </span>
+
+          <div class="metric-copy">
+
+            <small>
+              Sequência atual
+            </small>
+
+            <strong id="currentStreak">
+              0 dias
+            </strong>
+
+            <span id="streakDelta">
+              Comece hoje
+            </span>
+
+          </div>
+
+        </article>
+
+        <article class="metric-card">
+
+          <span class="metric-icon accent">
+            <i data-lucide="brain"></i>
+          </span>
+
+          <div class="metric-copy">
+
+            <small>
+              Sessões realizadas
+            </small>
+
+            <strong id="completedSessions">
+              0
+            </strong>
+
+            <span id="sessionsDelta">
+              Nenhuma sessão
+            </span>
+
+          </div>
+
+        </article>
+
+      </section>
+
+      <!-- DASHBOARD -->
+
+      <section class="dashboard-grid">
+
+        <div class="dashboard-column">
+
+          <!-- GRÁFICO -->
+
+          <article class="dashboard-card chart-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Seu ritmo
+                </span>
+
+                <h2>
+                  Foco ao longo da semana
+                </h2>
+
+              </div>
+
+              <span
+                id="weekChartHelper"
+                class="card-helper"
+              >
+                Últimos 7 dias
+              </span>
+
+            </header>
+
+            <div
+              id="weekChart"
+              class="week-chart"
+            ></div>
+
+          </article>
+
+          <!-- LINHA DO TEMPO -->
+
+          <article class="dashboard-card history-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Sua história
+                </span>
+
+                <h2>
+                  Momentos que construíram sua evolução
+                </h2>
+
+              </div>
+
+              <span class="card-helper">
+                Linha do tempo real
+              </span>
+
+            </header>
+
+            <div
+              id="evolutionTimeline"
+              class="evolution-timeline"
+            ></div>
+
+            <div
+              id="timelineEmpty"
+              class="empty-panel hidden"
+            >
+
+              <span>
+                <i data-lucide="history"></i>
+              </span>
+
+              <h3>
+                Sua história ainda será escrita aqui.
+              </h3>
+
+              <p>
+                Metas criadas, metas concluídas e sessões de foco
+                aparecerão nesta linha do tempo.
+              </p>
+
+            </div>
+
+          </article>
+
+          <!-- TRILHA DE CONSTÂNCIA -->
+
+          <article class="dashboard-card consistency-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Constância
+                </span>
+
+                <h2>
+                  Sua trilha de evolução
+                </h2>
+
+              </div>
+
+              <span
+                id="consistencyPeriod"
+                class="card-helper"
+              >
+                Últimas 12 semanas
+              </span>
+
+            </header>
+
+            <div class="consistency-highlight">
+
+              <span class="consistency-highlight-icon">
+                <i data-lucide="activity"></i>
+              </span>
+
+              <div>
+
+                <small>
+                  Melhor semana
+                </small>
+
+                <strong id="bestWeekValue">
+                  —
+                </strong>
+
+                <p id="bestWeekDescription">
+                  Continue registrando sessões para revelar seu melhor período.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div
+              id="consistencyTrack"
+              class="consistency-track"
+            ></div>
+
+          </article>
+
+        </div>
+
+        <div class="dashboard-column">
+
+          <!-- MELHOR MOMENTO -->
+
+          <article class="dashboard-card moment-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Destaque da jornada
+                </span>
+
+                <h2>
+                  Seu melhor momento
+                </h2>
+
+              </div>
+
+            </header>
+
+            <div class="best-moment">
+
+              <span class="best-moment-icon">
+
+                <i
+                  id="bestMomentIcon"
+                  data-lucide="sparkles"
+                ></i>
+
+              </span>
+
+              <strong id="bestMomentValue">
+                —
+              </strong>
+
+              <h3 id="bestMomentTitle">
+                Ainda sem um destaque
+              </h3>
+
+              <p id="bestMomentDescription">
+                Continue registrando sua evolução para revelar
+                o melhor momento da sua jornada.
+              </p>
+
+            </div>
+
+          </article>
+
+          <!-- CATEGORIAS -->
+
+          <article class="dashboard-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Equilíbrio
+                </span>
+
+                <h2>
+                  Progresso por categoria
+                </h2>
+
+              </div>
+
+            </header>
+
+            <div
+              id="categoryProgress"
+              class="category-list"
+            ></div>
+
+            <div
+              id="categoryEmpty"
+              class="empty-panel hidden"
+            >
+
+              <span>
+                <i data-lucide="tags"></i>
+              </span>
+
+              <h3>
+                Nenhuma categoria ainda.
+              </h3>
+
+              <p>
+                Crie metas para visualizar seu progresso
+                em diferentes áreas da vida.
+              </p>
+
+            </div>
+
+          </article>
+
+          <!-- INSIGHT -->
+
+          <article class="dashboard-card insight-box">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Leitura inteligente
+                </span>
+
+                <h2>
+                  Insight Pace
+                </h2>
+
+              </div>
+
+            </header>
+
+            <div class="insight-main">
+
+              <span class="insight-symbol">
+
+                <i
+                  id="insightIcon"
+                  data-lucide="lightbulb"
+                ></i>
+
+              </span>
+
+              <div>
+
+                <h3 id="insightTitle">
+                  Comece a gerar seu histórico.
+                </h3>
+
+                <p id="insightDescription">
+                  Suas metas e sessões de foco serão analisadas aqui
+                  para revelar padrões reais da sua evolução.
+                </p>
+
+              </div>
+
+            </div>
+
+          </article>
+
+          <!-- CONQUISTAS -->
+
+          <article class="dashboard-card">
+
+            <header class="card-header">
+
+              <div>
+
+                <span class="section-kicker">
+                  Marcos
+                </span>
+
+                <h2>
+                  Conquistas
+                </h2>
+
+              </div>
+
+              <span
+                id="achievementCounter"
+                class="card-helper"
+              >
+                0 de 6
+              </span>
+
+            </header>
+
+            <div
+              id="achievementGrid"
+              class="achievement-grid"
+            ></div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <script
+    type="module"
+    src="../JavaScript/evolucao.js"
+  ></script>
+
+</body>
+</html>

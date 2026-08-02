@@ -2,55 +2,232 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Pace: organize sua vida, evolua com propósito e cresça junto com uma comunidade."
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Pace</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="../Css/base.css">
   <link rel="stylesheet" href="../Css/index.css">
 </head>
 
 <body>
 
-<nav class="navbar">
+  <header class="header">
+   <nav class="navbar">
   <div class="logo">
     <a href="index.html">
-      <img src="../Images/Ícone_Pace.png" alt="Logo do site">
+      <img src="../Images/Ícone_Pace.png" alt="Logo do Pace">
     </a>
   </div>
 
-  <ul class="nav-links">
-    <li><a href="sobre.html">Sobre</a></li>
-    <li><a class="btn-entrar" href="entrar.html">Entrar</a></li>
-    <li><a class="btn-cadastro" href="cadastro.html">Cadastre-se</a></li>
-  </ul>
+  <div class="nav-actions">
+    <a class="btn-entrar" href="entrar.html">Entrar</a>
+    <a class="btn-cadastro" href="cadastro.html">Cadastre-se</a>
+  </div>
 </nav>
+  </header>
 
-<section class="hero">
-  <div class="hero-text">
-    <h1>Organize sua vida.<br><span>Construa sua melhor versão.</span></h1>
+  <main>
 
-    <p>
-      Uma rede social feita para quem busca disciplina, foco
-      e uma comunidade que cresce junta todos os dias.
-    </p>
+    <section class="hero">
 
-    <div class="hero-buttons">
-      <a href="cadastro.html" class="btn-principal">Começar Agora</a>
-      <a href="entrar.html" class="btn-secundario">Entrar</a>
-    </div>
-  </div>
+      <!-- Elementos decorativos -->
+      <div class="background-grid" aria-hidden="true"></div>
+      <div class="glow glow-one" aria-hidden="true"></div>
+      <div class="glow glow-two" aria-hidden="true"></div>
 
-  <div class="hero-image">
-    <img src="../Images/Image.desktop.png" alt="Preview do aplicativo">
-  </div>
-</section>
+      <div class="hero-container">
 
-<!-- JS -->
-<script type="module" src="../JavaScript/landing.js"></script>
+        <div class="hero-content">
+
+          <div class="hero-label">
+            <span class="hero-label-dot"></span>
+            Evolua no seu ritmo
+          </div>
+
+          <h1>
+            Organize sua vida.
+            <span>Construa sua melhor versão.</span>
+          </h1>
+
+          <p class="hero-description">
+            Uma rede social feita para quem busca disciplina,
+            foco e uma comunidade que cresce junta todos os dias.
+          </p>
+
+          <div class="hero-buttons">
+
+            <a
+              href="cadastro.html"
+              class="btn-principal"
+            >
+              Começar agora
+
+              <span aria-hidden="true">
+                →
+              </span>
+            </a>
+
+            <a
+              href="entrar.html"
+              class="btn-secundario"
+            >
+              Já tenho uma conta
+            </a>
+
+          </div>
+
+          <div class="hero-benefits">
+
+            <div class="benefit">
+              <span></span>
+              Metas com propósito
+            </div>
+
+            <div class="benefit">
+              <span></span>
+              Comunidade ativa
+            </div>
+
+            <div class="benefit">
+              <span></span>
+              Evolução constante
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="hero-visual" aria-label="Conceitos principais do Pace">
+
+          <div class="visual-orbit visual-orbit-large"></div>
+          <div class="visual-orbit visual-orbit-small"></div>
+
+          <div class="central-card">
+
+            <div class="central-card-header">
+
+              <div>
+                <span class="card-label">
+                  Sua jornada
+                </span>
+
+                <h2>
+                  Evolua todos os dias
+                </h2>
+              </div>
+
+              <span class="online-indicator"></span>
+
+            </div>
+
+            <div class="progress-area">
+
+              <div class="progress-information">
+                <span>Progresso semanal</span>
+                <strong>72%</strong>
+              </div>
+
+              <div class="progress-bar">
+                <span></span>
+              </div>
+
+            </div>
+
+            <div class="statistics">
+
+              <div class="statistic">
+                <strong>08</strong>
+                <span>Metas ativas</span>
+              </div>
+
+              <div class="statistic">
+                <strong>24</strong>
+                <span>Dias em foco</span>
+              </div>
+
+              <div class="statistic">
+                <strong>05</strong>
+                <span>Comunidades</span>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="floating-card floating-goal">
+
+            <div class="floating-icon">
+              ✓
+            </div>
+
+            <div>
+              <small>Progresso</small>
+              <strong>Mais um passo concluído</strong>
+            </div>
+
+          </div>
+
+          <div class="floating-card floating-community">
+
+            <div class="avatar-group">
+              <span>JS</span>
+              <span>PY</span>
+              <span>+</span>
+            </div>
+
+            <div>
+              <small>Comunidade</small>
+              <strong>Cresça junto</strong>
+            </div>
+
+          </div>
+
+          <div class="floating-card floating-streak">
+
+            <strong class="streak-number">
+              12
+            </strong>
+
+            <div>
+              <small>Sequência</small>
+              <strong>Dias de evolução</strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="scroll-indicator" aria-hidden="true">
+        <span></span>
+        Descubra o Pace
+      </div>
+
+    </section>
+
+  </main>
+
+  <script
+    type="module"
+    src="../JavaScript/landing.js"
+  ></script>
 
 </body>
 </html>

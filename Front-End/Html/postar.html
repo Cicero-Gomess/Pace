@@ -2,143 +2,475 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png" />
-  <title>Postar</title>
 
-  <link rel="stylesheet" href="../Css/postar.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Postar | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/postar.css"
+  >
+
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
 
-  <aside class="sidebar">
-    <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
-    <a href="feed.html">
-      <i data-lucide="home" class="icon"></i>
-      <span class="text">Feed</span>
-    </a>
+  <!-- SIDEBAR -->
 
-    <a href="#">
-      <i data-lucide="target" class="icon"></i>
-      <span class="text">Metas</span>
-    </a>
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
 
-    <a href="explorar.html">
-      <i data-lucide="compass" class="icon"></i>
-      <span class="text">Explorar</span>
-    </a>
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
-    <a href="postar.html" class="active">
-      <i data-lucide="plus-square" class="icon"></i>
-      <span class="text">Postar</span>
-    </a>
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
+    </div>
 
-    <a href="#">
-      <i data-lucide="bell" class="icon"></i>
-      <span class="text">Notificações</span>
-    </a>
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
-    <div class="divisor"></div>
+      <span class="nav-section-label">
+        Comunidade
+      </span>
 
-    <a href="configurações.html">
-      <i data-lucide="settings" class="icon"></i>
-      <span class="text">Configurações</span>
-    </a>
+      <a href="feed.html">
 
-    <a href="perfil.html" class="perfil">
-      <img id="fotoSidebar" class="foto-perfil" alt="Foto do perfil">
-      <span class="text">Perfil</span>
-    </a>
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a
+        href="postar.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+          <span class="profile-copy">
+            <strong>Meu perfil</strong>
+            <small>Ver perfil</small>
+          </span>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
+      </div>
+
+    </div>
+
   </aside>
 
+  <!-- CONTEÚDO -->
+
   <main class="conteudo">
+
     <section class="hero-postar">
+
       <div class="hero-copy">
-        <span class="badge-postar">Compartilhe sua jornada</span>
-        <h1>Crie algo que mova sua rotina</h1>
+
+        <span class="badge-postar">
+          Compartilhe sua jornada
+        </span>
+
+        <h1>
+          Crie algo que mova sua rotina
+        </h1>
+
         <p>
-          Mostre progresso, registre aprendizados ou publique algo que possa inspirar
-          outras pessoas dentro do Pace. Quanto mais real, melhor.
+          Mostre progresso, registre aprendizados ou publique algo
+          que possa inspirar outras pessoas dentro do Pace.
+          Quanto mais real, melhor.
         </p>
+
       </div>
 
       <div class="hero-tip">
+
         <i data-lucide="sparkles"></i>
-        <span>Postagens autênticas geram mais conexão.</span>
+
+        <span>
+          Postagens autênticas geram mais conexão.
+        </span>
+
       </div>
+
     </section>
 
     <section class="composer-shell">
+
       <div class="card-postar">
+
         <div class="card-topo">
+
           <div class="card-titulo">
-            <span class="card-kicker">Novo post</span>
-            <h2>Criar publicação</h2>
+
+            <span class="card-kicker">
+              Novo post
+            </span>
+
+            <h2>
+              Criar publicação
+            </h2>
+
           </div>
 
           <div class="perfil-mini">
-            <img id="fotoPerfil" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil">
+
+            <img
+              id="fotoPerfil"
+              class="foto-perfil autor-avatar"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+            >
+
             <div>
-              <strong id="nomeAutor">Usuário</strong>
-              <span>Compartilhando agora</span>
+
+              <strong id="nomeAutor">
+                Usuário
+              </strong>
+
+              <span>
+                Compartilhando agora
+              </span>
+
             </div>
+
           </div>
+
         </div>
+
+        <!-- SUGESTÕES -->
 
         <div class="inspira-row">
-          <button type="button" class="inspira-chip" data-texto="Hoje avancei um pouco mais naquilo que quero construir.">
+
+          <button
+            type="button"
+            class="inspira-chip"
+            data-texto="Hoje avancei um pouco mais naquilo que quero construir."
+          >
             Progresso
           </button>
-          <button type="button" class="inspira-chip" data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã.">
+
+          <button
+            type="button"
+            class="inspira-chip"
+            data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã."
+          >
             Aprendizado
           </button>
-          <button type="button" class="inspira-chip" data-texto="O que estou tentando melhorar na minha rotina essa semana.">
+
+          <button
+            type="button"
+            class="inspira-chip"
+            data-texto="O que estou tentando melhorar na minha rotina essa semana."
+          >
             Rotina
           </button>
-          <button type="button" class="inspira-chip" data-texto="Algo simples que me ajudou a manter consistência hoje.">
+
+          <button
+            type="button"
+            class="inspira-chip"
+            data-texto="Algo simples que me ajudou a manter consistência hoje."
+          >
             Consistência
           </button>
+
         </div>
+
+        <!-- TEXTO -->
 
         <div class="campo-area">
-          <label for="textoPost" class="campo-label">Conte para a comunidade o que está acontecendo</label>
-          <textarea id="textoPost" maxlength="200" placeholder="O que você está pensando?"></textarea>
-          <div class="contador" id="contador">0/200</div>
+
+          <label
+            for="textoPost"
+            class="campo-label"
+          >
+            Conte para a comunidade o que está acontecendo
+          </label>
+
+          <textarea
+            id="textoPost"
+            maxlength="200"
+            placeholder="O que você está pensando?"
+          ></textarea>
+
+          <div
+            class="contador"
+            id="contador"
+          >
+            0/200
+          </div>
+
         </div>
+
+        <!-- IMAGEM -->
 
         <div class="actions-row">
-          <label for="imagemPost" class="btn-imagem">
+
+          <label
+            for="imagemPost"
+            class="btn-imagem"
+          >
+
             <i data-lucide="image-plus"></i>
-            <span>Adicionar imagem</span>
+
+            <span>
+              Adicionar imagem
+            </span>
+
           </label>
-          <input type="file" id="imagemPost" accept="image/*" hidden>
+
+          <input
+            type="file"
+            id="imagemPost"
+            accept="image/*"
+            hidden
+          >
 
           <div class="support-copy">
+
             <i data-lucide="info"></i>
-            <span>Você pode postar só texto ou texto com imagem.</span>
+
+            <span>
+              Você pode postar só texto ou texto com imagem.
+            </span>
+
           </div>
+
         </div>
 
-        <div id="previewImagem" class="preview-imagem hidden">
-          <img id="imgPreview" src="" alt="Prévia da imagem">
+        <!-- PRÉVIA -->
+
+        <div
+          id="previewImagem"
+          class="preview-imagem hidden"
+        >
+
+          <img
+            id="imgPreview"
+            src=""
+            alt="Prévia da imagem"
+          >
+
           <div class="preview-info">
-            <strong>Imagem pronta</strong>
+
+            <strong>
+              Imagem pronta
+            </strong>
+
             <span id="nomeImagem"></span>
+
           </div>
-          <button id="removerImagem" type="button" aria-label="Remover imagem">✖</button>
+
+          <button
+            id="removerImagem"
+            type="button"
+            aria-label="Remover imagem"
+          >
+            <i data-lucide="x"></i>
+          </button>
+
         </div>
 
-        <button id="btnPostar" class="btn-postar">
+        <!-- PUBLICAR -->
+
+        <button
+          id="btnPostar"
+          class="btn-postar"
+          type="button"
+        >
+
           <i data-lucide="send"></i>
-          <span>Publicar agora</span>
+
+          <span>
+            Publicar agora
+          </span>
+
         </button>
+
       </div>
+
     </section>
+
   </main>
 
-  <script type="module" src="../JavaScript/postar.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/postar.js"
+  ></script>
+
 </body>
 </html>

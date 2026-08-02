@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Metas | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/metas.css"
+  >
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <!-- SIDEBAR -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
+
+      <div class="brand-copy">
+        <strong>Pace</strong>
+        <span>Evolução contínua</span>
+      </div>
+    </div>
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
+
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+      <a href="feed.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+      <a
+        href="metas.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+<div class="sidebar-profile">
+
+  <a
+    href="perfil.html"
+    class="perfil"
+  >
+
+    <span class="profile-ring">
+
+      <img
+        id="fotoSidebar"
+        class="foto-perfil"
+        src="../Images/avatar-placeholder.svg"
+        alt="Foto do perfil"
+        onerror="this.src='../Images/Ícone_Pace.png'"
+      >
+
+    </span>
+
+    <span class="profile-copy">
+      <strong>Meu perfil</strong>
+      <small>Ver perfil</small>
+    </span>
+
+    <i
+      data-lucide="chevron-right"
+      class="profile-arrow"
+    ></i>
+
+  </a>
+
+</div>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+
+  <main class="conteudo">
+
+    <div class="page-shell">
+
+      <section class="hero-metas">
+
+        <div class="hero-copy">
+
+          <span class="hero-badge">
+
+            <span
+              class="badge-dot"
+              aria-hidden="true"
+            ></span>
+
+            Seu espaço de evolução
+
+          </span>
+
+          <h1>
+            Metas que viram progresso.
+          </h1>
+
+          <p>
+            Organize o que importa, avance no seu ritmo
+            e acompanhe sua evolução de forma clara.
+          </p>
+
+        </div>
+
+        <button
+          id="abrirNovaMeta"
+          class="btn-nova-meta"
+          type="button"
+        >
+
+          <i data-lucide="plus"></i>
+
+          <span>
+            Nova meta
+          </span>
+
+        </button>
+
+      </section>
+
+      <!-- RESUMO -->
+
+      <section class="dashboard-metas">
+
+        <article class="resumo-card resumo-principal">
+
+          <div class="resumo-topo">
+
+            <div>
+
+              <span class="resumo-kicker">
+                Visão geral
+              </span>
+
+              <h2>
+                Seu progresso
+              </h2>
+
+            </div>
+
+            <span class="resumo-icon">
+              <i data-lucide="activity"></i>
+            </span>
+
+          </div>
+
+          <div class="progresso-geral">
+
+            <div class="progresso-numero">
+
+              <strong id="progressoGeral">
+                0%
+              </strong>
+
+              <span>
+                concluído
+              </span>
+
+            </div>
+
+            <div
+              class="progresso-barra"
+              aria-hidden="true"
+            >
+
+              <span id="progressoGeralBarra"></span>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="resumo-card">
+
+          <span class="resumo-icon pequeno">
+            <i data-lucide="list-checks"></i>
+          </span>
+
+          <div>
+
+            <strong id="totalMetas">
+              0
+            </strong>
+
+            <span>
+              metas criadas
+            </span>
+
+          </div>
+
+        </article>
+
+        <article class="resumo-card">
+
+          <span class="resumo-icon pequeno sucesso">
+            <i data-lucide="circle-check-big"></i>
+          </span>
+
+          <div>
+
+            <strong id="metasConcluidas">
+              0
+            </strong>
+
+            <span>
+              concluídas
+            </span>
+
+          </div>
+
+        </article>
+
+        <article class="resumo-card">
+
+          <span class="resumo-icon pequeno foco">
+            <i data-lucide="flame"></i>
+          </span>
+
+          <div>
+
+            <strong id="metasEmAndamento">
+              0
+            </strong>
+
+            <span>
+              em andamento
+            </span>
+
+          </div>
+
+        </article>
+
+      </section>
+
+      <!-- ÁREA DE METAS -->
+
+      <section class="metas-workspace">
+
+        <header class="workspace-header">
+
+          <div>
+
+            <span class="workspace-kicker">
+              Planejamento
+            </span>
+
+            <h2>
+              Minhas metas
+            </h2>
+
+          </div>
+
+          <div class="workspace-actions">
+
+            <label
+              class="search-box"
+              for="buscarMeta"
+            >
+
+              <i data-lucide="search"></i>
+
+              <input
+                id="buscarMeta"
+                type="search"
+                placeholder="Buscar meta..."
+                autocomplete="off"
+              >
+
+            </label>
+
+            <div
+              class="filtros"
+              role="group"
+              aria-label="Filtros de metas"
+            >
+
+              <button
+                class="filtro active"
+                type="button"
+                data-filter="todas"
+              >
+                Todas
+              </button>
+
+              <button
+                class="filtro"
+                type="button"
+                data-filter="andamento"
+              >
+                Em andamento
+              </button>
+
+              <button
+                class="filtro"
+                type="button"
+                data-filter="concluidas"
+              >
+                Concluídas
+              </button>
+
+            </div>
+
+          </div>
+
+        </header>
+
+        <div
+          id="metasLista"
+          class="metas-grid"
+        ></div>
+
+        <div
+          id="estadoVazio"
+          class="estado-vazio"
+        >
+
+          <span class="estado-icon">
+            <i data-lucide="goal"></i>
+          </span>
+
+          <h3>
+            Sua primeira meta começa aqui.
+          </h3>
+
+          <p>
+            Crie uma meta para começar a organizar seus objetivos.
+            Nada será preenchido automaticamente.
+          </p>
+
+          <button
+            id="abrirNovaMetaVazio"
+            class="btn-vazio"
+            type="button"
+          >
+
+            <i data-lucide="plus"></i>
+
+            Criar primeira meta
+
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL CRIAR E EDITAR -->
+
+  <div
+    id="metaModal"
+    class="modal-overlay hidden"
+  >
+
+    <section
+      class="meta-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="metaModalTitulo"
+    >
+
+      <button
+        id="fecharMetaModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar"
+      >
+
+        <i data-lucide="x"></i>
+
+      </button>
+
+      <header class="modal-head">
+
+        <span class="modal-kicker">
+          Planeje seu próximo passo
+        </span>
+
+        <h2 id="metaModalTitulo">
+          Nova meta
+        </h2>
+
+        <p>
+          Defina um objetivo real e acompanhe seu avanço.
+        </p>
+
+      </header>
+
+      <form id="metaForm">
+
+        <input
+          id="metaId"
+          type="hidden"
+        >
+
+        <div class="form-group">
+
+          <label for="metaTitulo">
+            Título
+          </label>
+
+          <div class="input-wrapper">
+
+            <i data-lucide="target"></i>
+
+            <input
+              id="metaTitulo"
+              type="text"
+              maxlength="80"
+              placeholder="Ex.: Finalizar meu projeto"
+              required
+            >
+
+          </div>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="metaDescricao">
+            Descrição
+          </label>
+
+          <textarea
+            id="metaDescricao"
+            maxlength="240"
+            placeholder="Descreva o que você deseja alcançar"
+          ></textarea>
+
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="metaCategoria">
+              Categoria
+            </label>
+
+            <div class="input-wrapper">
+
+              <i data-lucide="tags"></i>
+
+              <select id="metaCategoria">
+
+                <option value="Pessoal">
+                  Pessoal
+                </option>
+
+                <option value="Estudos">
+                  Estudos
+                </option>
+
+                <option value="Trabalho">
+                  Trabalho
+                </option>
+
+                <option value="Saúde">
+                  Saúde
+                </option>
+
+                <option value="Projeto">
+                  Projeto
+                </option>
+
+                <option value="Outro">
+                  Outro
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="metaPrazo">
+              Prazo
+            </label>
+
+            <div class="input-wrapper">
+
+              <i data-lucide="calendar-days"></i>
+
+              <input
+                id="metaPrazo"
+                type="date"
+              >
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="form-group">
+
+          <div class="label-row">
+
+            <label for="metaProgresso">
+              Progresso inicial
+            </label>
+
+            <strong id="metaProgressoValor">
+              0%
+            </strong>
+
+          </div>
+
+          <input
+            id="metaProgresso"
+            class="range-input"
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+          >
+
+        </div>
+
+        <div class="modal-actions">
+
+          <button
+            id="cancelarMeta"
+            class="btn-secondary"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+          <button
+            class="btn-primary"
+            type="submit"
+          >
+
+            <i data-lucide="check"></i>
+
+            Salvar meta
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  </div>
+
+  <!-- MODAL EXCLUSÃO -->
+
+  <div
+    id="confirmarExclusaoModal"
+    class="modal-overlay hidden"
+  >
+
+    <section
+      class="confirm-modal"
+      role="dialog"
+      aria-modal="true"
+    >
+
+      <span class="confirm-icon">
+        <i data-lucide="trash-2"></i>
+      </span>
+
+      <h2>
+        Excluir meta?
+      </h2>
+
+      <p>
+        Essa ação remove a meta apenas deste navegador.
+      </p>
+
+      <div class="modal-actions">
+
+        <button
+          id="cancelarExclusao"
+          class="btn-secondary"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="confirmarExclusao"
+          class="btn-danger"
+          type="button"
+        >
+          Excluir
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <script
+    type="module"
+    src="../JavaScript/metas.js"
+  ></script>
+
+</body>
+</html>
