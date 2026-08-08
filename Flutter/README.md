@@ -1,17 +1,24 @@
-# pace_tcc
+# Pace Mobile - Flutter App
 
-A new Flutter project.
+Aplicativo móvel do projeto Pace, desenvolvido em Flutter. O foco do app é proporcionar uma experiência fluida de rede social para usuários que buscam evolução pessoal e disciplina.
 
-## Getting Started
+## 🛠️ Tecnologias
+- **Flutter & Dart**: UI multiplataforma.
+- **HTTP**: Comunicação com a API REST.
+- **Shared Preferences**: Persistência local de dados do usuário e tokens.
 
-This project is a starting point for a Flutter application.
+## 📱 Funcionalidades
+- **Autenticação**: Telas de login e cadastro integradas ao backend.
+- **Feed**: Visualização de posts da comunidade com interações de curtida.
+- **Perfil**: Gerenciamento de informações do usuário.
+- **Postagem**: Interface para criação de novos conteúdos.
 
-A few resources to get you started if this is your first Flutter project:
+## 🏗️ Arquitetura
+O projeto utiliza o padrão `StatefulWidget` para gerenciamento de estado local. As rotas são gerenciadas dinamicamente no `main.dart` com animações customizadas de transição.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## 🚀 Como Rodar
+1. Certifique-se de ter o Flutter instalado.
+2. Execute `flutter pub get` na raiz da pasta `Flutter`.
+3. Conecte um emulador ou dispositivo físico.
+4. Execute `flutter run`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
