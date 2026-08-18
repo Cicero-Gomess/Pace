@@ -99,7 +99,7 @@ async def deletar_comentario(
         if not comentario:
             raise HTTPException(status_code=404, detail="Comentário não encontrado")
 
-        if comentario.usuario_id != usuario.id:
+        if comentario.usuario_id != usuario.id and not usuario.admin:
             raise HTTPException(status_code=403, detail="Sem permissão")
 
         session.delete(comentario)

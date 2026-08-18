@@ -1,4 +1,15 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Text,
+    DateTime,
+    Date,
+    ForeignKey,
+    CheckConstraint,
+    Enum
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -10,12 +21,13 @@ from database import Base
 class User(Base):
     __tablename__ = "Usuarios"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String(50), unique=True, nullable=False)
     senha_hash = Column(String(255), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     status_conta = Column(Boolean, default=True)
     foto_perfil = Column(String(500))
+    admin = Column(Boolean, default=False, nullable=False)
 
     # Relacionamentos
     posts = relationship("Post", back_populates="usuario", cascade="all, delete")
@@ -36,6 +48,12 @@ class User(Base):
         cascade="all, delete"
     )
 
+    metas = relationship(
+        "Meta",
+        back_populates="usuario",
+        cascade="all, delete"
+    )
+
 
 # =========================
 # POSTS
@@ -44,14 +62,26 @@ class Post(Base):
     __tablename__ = "Posts"
 
     id = Column(Integer, primary_key=True, index=True)
-    usuario_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), nullable=False)
+    usuario_id = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        nullable=False
+    )
     conteudo = Column(Text, nullable=False)
     imagem = Column(Text)
     data_postagem = Column(DateTime, server_default=func.now())
 
     usuario = relationship("User", back_populates="posts")
-    comentarios = relationship("Comentario", back_populates="post", cascade="all, delete")
-    curtidas = relationship("Curtida", back_populates="post", cascade="all, delete")
+    comentarios = relationship(
+        "Comentario",
+        back_populates="post",
+        cascade="all, delete"
+    )
+    curtidas = relationship(
+        "Curtida",
+        back_populates="post",
+        cascade="all, delete"
+    )
 
 
 # =========================
@@ -61,8 +91,16 @@ class Comentario(Base):
     __tablename__ = "comentarios"
 
     id = Column(Integer, primary_key=True, index=True)
-    usuario_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), nullable=False)
-    post_id = Column(Integer, ForeignKey("Posts.id"), nullable=False)
+    usuario_id = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    post_id = Column(
+        Integer,
+        ForeignKey("Posts.id"),
+        nullable=False
+    )
     comentario = Column(Text, nullable=False)
     data_comentario = Column(DateTime, server_default=func.now())
 
@@ -76,8 +114,16 @@ class Comentario(Base):
 class Curtida(Base):
     __tablename__ = "curtidas"
 
-    usuario_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), primary_key=True)
-    post_id = Column(Integer, ForeignKey("Posts.id"), primary_key=True)
+    usuario_id = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    post_id = Column(
+        Integer,
+        ForeignKey("Posts.id"),
+        primary_key=True
+    )
     data_curtida = Column(DateTime, server_default=func.now())
 
     usuario = relationship("User", back_populates="curtidas")
@@ -90,13 +136,117 @@ class Curtida(Base):
 class Seguidor(Base):
     __tablename__ = "seguidores"
 
-    seguidor_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), primary_key=True)
-    seguindo_id = Column(Integer, ForeignKey("Usuarios.id", ondelete="CASCADE"), primary_key=True)
+    seguidor_id = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    seguindo_id = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        primary_key=True
+    )
     data_follow = Column(DateTime, server_default=func.now())
 
     __table_args__ = (
-        CheckConstraint("seguidor_id <> seguindo_id", name="check_self_follow"),
+        CheckConstraint(
+            "seguidor_id <> seguindo_id",
+            name="check_self_follow"
+        ),
     )
 
-    seguidor = relationship("User", foreign_keys=[seguidor_id], back_populates="seguindo")
-    seguindo = relationship("User", foreign_keys=[seguindo_id], back_populates="seguidores")
+    seguidor = relationship(
+        "User",
+        foreign_keys=[seguidor_id],
+        back_populates="seguindo"
+    )
+
+    seguindo = relationship(
+        "User",
+        foreign_keys=[seguindo_id],
+        back_populates="seguidores"
+    )
+
+
+# =========================
+# METAS
+# =========================
+class Meta(Base):
+    __tablename__ = "Metas"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    id_usuario = Column(
+        Integer,
+        ForeignKey("Usuarios.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    titulo = Column(String(100), nullable=False)
+
+    prazo = Column(Date)
+
+    categoria = Column(
+        Enum(
+            "Pessoal",
+            "Estudos",
+            "Trabalho",
+            "Saúde",
+            "Projeto",
+            "Outro"
+        ),
+        nullable=False
+    )
+
+    descricao = Column(String(200))
+
+    status = Column(
+        Enum("concluida", "em andamento"),
+        nullable=False,
+        default="em andamento"
+    )
+
+    # Relacionamentos
+    usuario = relationship(
+        "User",
+        back_populates="metas"
+    )
+
+    sessoes = relationship(
+        "Sessao",
+        back_populates="meta",
+        cascade="all, delete"
+    )
+
+
+# =========================
+# SESSÕES
+# =========================
+class Sessao(Base):
+    __tablename__ = "Sessoes"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+    id_meta = Column(
+        Integer,
+        ForeignKey("Metas.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    inicio = Column(DateTime, nullable=False)
+
+    # Duração armazenada em segundos
+    duracao = Column(Integer, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint(
+            "duracao > 0",
+            name="check_duracao_positiva"
+        ),
+    )
+
+    # Relacionamento
+    meta = relationship(
+        "Meta",
+        back_populates="sessoes"
+    )

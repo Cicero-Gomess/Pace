@@ -94,7 +94,7 @@ async def deletar_post(
         if not post:
             raise HTTPException(status_code=404, detail="Post não encontrado.")
 
-        if post.usuario_id != usuario_atual.id:
+        if post.usuario_id != usuario_atual.id and not usuario_atual.admin:
             raise HTTPException(status_code=403, detail="Sem permissão.")
 
         session.delete(post)

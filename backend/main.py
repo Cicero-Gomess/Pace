@@ -5,7 +5,8 @@ from auth import auth_router
 from comments import comments_router
 from post import post_router
 from profile import profile_router
-
+from metas import metas_router
+from sessoes import sessao_router
 app = FastAPI()
 
 # Com cookies HttpOnly, allow_origins não pode ser "*" — liste origens explícitas do front.
@@ -20,8 +21,11 @@ app.add_middleware(
         "http://127.0.0.1:51802",
         "http://127.0.0.1:60016",
         "http://localhost:56041",
-        "http://localhost:51231"
+        "http://localhost:51231",
+        "http://127.0.0.1:33747",
+        
     ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,3 +35,5 @@ app.include_router(auth_router)
 app.include_router(post_router)
 app.include_router(comments_router)
 app.include_router(profile_router)
+app.include_router(metas_router)
+app.include_router(sessao_router)

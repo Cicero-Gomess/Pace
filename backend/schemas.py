@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-
+from datetime import date
 
 class UsuarioSchema(BaseModel):
     username: str
@@ -119,3 +119,23 @@ class FollowActionSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class MetaCreate(BaseModel):
+    titulo: str
+    prazo: Optional[date] = None
+    categoria: str
+    descricao: Optional[str] = None
+
+
+class MetaUpdate(BaseModel):
+    titulo: Optional[str] = None
+    prazo: Optional[date] = None
+    categoria: Optional[str] = None
+    descricao: Optional[str] = None
+    status: Optional[str] = None
+
+class SessaoCreate(BaseModel):
+    id_meta: int
+    inicio: datetime
+    duracao: int
