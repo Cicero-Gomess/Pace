@@ -1,21 +1,21 @@
-import { initDarkMode } from "./shared/ui.js";
+import { initAppShell } from "./shared/app-shell.js";
 
-initDarkMode();
-
-const STORAGE_KEY = "pace_metas_local";
+const API_BASE_URL =
+  window.PACE_API_URL ||
+  window.API_BASE_URL ||
+  "http://127.0.0.1:8000";
 
 const elementos = {
   lista: document.getElementById("metasLista"),
   estadoVazio: document.getElementById("estadoVazio"),
+  loading: document.getElementById("metasLoading"),
 
   totalMetas: document.getElementById("totalMetas"),
   metasConcluidas: document.getElementById("metasConcluidas"),
   metasEmAndamento: document.getElementById("metasEmAndamento"),
 
-  progressoGeral: document.getElementById("progressoGeral"),
-  progressoGeralBarra: document.getElementById(
-    "progressoGeralBarra"
-  ),
+  statusResumo: document.getElementById("statusResumo"),
+  statusResumoTexto: document.getElementById("statusResumoTexto"),
 
   busca: document.getElementById("buscarMeta"),
 
@@ -27,289 +27,720 @@ const elementos = {
   descricao: document.getElementById("metaDescricao"),
   categoria: document.getElementById("metaCategoria"),
   prazo: document.getElementById("metaPrazo"),
-  progresso: document.getElementById("metaProgresso"),
-
-  progressoValor: document.getElementById(
-    "metaProgressoValor"
-  ),
 
   modalTitulo: document.getElementById("metaModalTitulo"),
 
-  confirmarExclusaoModal: document.getElementById(
-    "confirmarExclusaoModal"
-  ),
+  confirmarExclusaoModal:
+    document.getElementById("confirmarExclusaoModal"),
 
-  cancelarExclusao: document.getElementById(
-    "cancelarExclusao"
-  ),
+  cancelarExclusao:
+    document.getElementById("cancelarExclusao"),
 
-  confirmarExclusao: document.getElementById(
-    "confirmarExclusao"
-  ),
+  confirmarExclusao:
+    document.getElementById("confirmarExclusao"),
 
-  abrirNovaMeta: document.getElementById(
-    "abrirNovaMeta"
-  ),
+  abrirNovaMeta:
+    document.getElementById("abrirNovaMeta"),
 
-  abrirNovaMetaVazio: document.getElementById(
-    "abrirNovaMetaVazio"
-  ),
+  abrirNovaMetaVazio:
+    document.getElementById("abrirNovaMetaVazio"),
 
-  fecharMetaModal: document.getElementById(
-    "fecharMetaModal"
-  ),
+  fecharMetaModal:
+    document.getElementById("fecharMetaModal"),
 
-  cancelarMeta: document.getElementById(
-    "cancelarMeta"
-  ),
+  cancelarMeta:
+    document.getElementById("cancelarMeta"),
+
+  toast:
+    document.getElementById("metasToast"),
 };
 
-let metas = carregarMetas();
+let metas = [];
+
 let filtroAtual = "todas";
+
 let metaParaExcluir = null;
+
+let salvando = false;
+
+let toastTimer = null;
+
+/* =========================================================
+   TOKEN
+========================================================= */
+
+function obterToken() {
+  const chaves = [
+    "token",
+    "access_token",
+    "pace_token",
+    "pace_access_token",
+  ];
+
+  for (
+    const storage of [
+      localStorage,
+      sessionStorage,
+    ]
+  ) {
+    for (const chave of chaves) {
+      const valor =
+        storage.getItem(chave);
+
+      if (
+        valor &&
+        valor.trim()
+      ) {
+        return valor.trim();
+      }
+    }
+  }
+
+  return null;
+}
+
+/* =========================================================
+   API
+========================================================= */
+
+function montarHeaders(
+  json = false
+) {
+  const token =
+    obterToken();
+
+  const headers = {};
+
+  if (token) {
+    headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+  if (json) {
+    headers["Content-Type"] =
+      "application/json";
+  }
+
+  return headers;
+}
+
+async function api(
+  rota,
+  opcoes = {}
+) {
+  let resposta;
+
+  try {
+    resposta =
+      await fetch(
+        `${API_BASE_URL}${rota}`,
+        {
+          credentials: "include",
+
+          ...opcoes,
+
+          headers: {
+            ...montarHeaders(
+              opcoes.body !== undefined &&
+              !(opcoes.body instanceof FormData)
+            ),
+
+            ...(opcoes.headers || {}),
+          },
+        }
+      );
+  } catch (erro) {
+    throw new Error(
+      "Não foi possível conectar à API do Pace."
+    );
+  }
+
+  let dados = null;
+
+  try {
+    dados =
+      resposta.status === 204
+        ? null
+        : await resposta.json();
+  } catch {
+    dados = null;
+  }
+
+  if (
+    resposta.status === 401
+  ) {
+    const erro =
+      new Error(
+        "Sua sessão expirou."
+      );
+
+    erro.status = 401;
+
+    throw erro;
+  }
+
+  if (!resposta.ok) {
+    const detalhe =
+      dados?.detail ||
+      dados?.message ||
+      "Não foi possível concluir a operação.";
+
+    const erro =
+      new Error(
+        typeof detalhe === "string"
+          ? detalhe
+          : "Erro na operação."
+      );
+
+    erro.status =
+      resposta.status;
+
+    throw erro;
+  }
+
+  return dados;
+}
+
+function listarMetasApi() {
+  return api(
+    "/metas/listar_metas"
+  );
+}
+
+function criarMetaApi(
+  payload
+) {
+  return api(
+    "/metas/criar_meta",
+    {
+      method: "POST",
+
+      body:
+        JSON.stringify(
+          payload
+        ),
+    }
+  );
+}
+
+function atualizarMetaApi(
+  id,
+  payload
+) {
+  return api(
+    `/metas/atualizar_meta/${id}`,
+    {
+      method: "PUT",
+
+      body:
+        JSON.stringify(
+          payload
+        ),
+    }
+  );
+}
+
+function deletarMetaApi(id) {
+  return api(
+    `/metas/deletar_meta/${id}`,
+    {
+      method:
+        "DELETE",
+    }
+  );
+}
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
 
 function iniciarIcones() {
   if (
     window.lucide &&
-    typeof window.lucide.createIcons === "function"
+    typeof window.lucide.createIcons ===
+      "function"
   ) {
     window.lucide.createIcons();
   }
 }
 
-function gerarId() {
-  if (
-    window.crypto &&
-    typeof window.crypto.randomUUID === "function"
-  ) {
-    return window.crypto.randomUUID();
-  }
-
-  return `meta-${Date.now()}-${Math.random()
-    .toString(16)
-    .slice(2)}`;
+function escaparHTML(
+  valor = ""
+) {
+  return String(valor)
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
-function normalizarMeta(meta) {
-  const valorOriginal = Number(meta?.progresso ?? 0);
-
-  const progresso = Math.min(
-    100,
-    Math.max(
-      0,
-      Number.isFinite(valorOriginal)
-        ? valorOriginal
-        : 0
+function normalizarStatus(
+  valor
+) {
+  const status =
+    String(
+      valor || ""
     )
+      .trim()
+      .toLowerCase();
+
+  return (
+    status ===
+    "concluida"
+      ? "concluida"
+      : "em andamento"
   );
+}
 
+function normalizarMeta(
+  meta
+) {
   return {
-    id: String(meta?.id || gerarId()),
-    titulo: String(meta?.titulo || ""),
-    descricao: String(meta?.descricao || ""),
-    categoria: String(meta?.categoria || "Pessoal"),
-    prazo: String(meta?.prazo || ""),
-    progresso,
+    id:
+      Number(meta?.id),
 
-    concluida:
-      Boolean(meta?.concluida) ||
-      progresso === 100,
+    titulo:
+      String(
+        meta?.titulo ||
+        ""
+      ),
 
-    criadaEm: String(
-      meta?.criadaEm ||
-      new Date().toISOString()
-    ),
+    descricao:
+      String(
+        meta?.descricao ||
+        ""
+      ),
+
+    categoria:
+      String(
+        meta?.categoria ||
+        "Outro"
+      ),
+
+    prazo:
+      meta?.prazo
+        ? String(
+            meta.prazo
+          ).slice(
+            0,
+            10
+          )
+        : "",
+
+    status:
+      normalizarStatus(
+        meta?.status
+      ),
   };
 }
 
-function carregarMetas() {
-  try {
-    const conteudo = localStorage.getItem(STORAGE_KEY);
-
-    if (!conteudo) {
-      return [];
-    }
-
-    const dados = JSON.parse(conteudo);
-
-    if (!Array.isArray(dados)) {
-      return [];
-    }
-
-    return dados.map(normalizarMeta);
-  } catch (erro) {
-    console.error("Erro ao carregar metas:", erro);
-    return [];
-  }
-}
-
-function salvarMetas() {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(metas)
-    );
-  } catch (erro) {
-    console.error("Erro ao salvar metas:", erro);
-  }
-}
-
-function escaparHTML(valor = "") {
-  return String(valor)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function formatarPrazo(data) {
+function formatarPrazo(
+  data
+) {
   if (!data) {
     return "Sem prazo";
   }
 
-  const partes = data.split("-");
+  const partes =
+    String(data)
+      .slice(
+        0,
+        10
+      )
+      .split("-");
 
-  if (partes.length !== 3) {
+  if (
+    partes.length !== 3
+  ) {
     return "Sem prazo";
   }
 
-  const [ano, mes, dia] = partes;
+  const [
+    ano,
+    mes,
+    dia,
+  ] = partes;
 
   return `${dia}/${mes}/${ano}`;
 }
 
-function abrirModal(meta = null) {
-  if (!elementos.modal || !elementos.form) {
+function mostrarToast(
+  mensagem,
+  tipo = "success"
+) {
+  if (!elementos.toast) {
+    console.log(
+      mensagem
+    );
+
+    return;
+  }
+
+  clearTimeout(
+    toastTimer
+  );
+
+  elementos.toast.textContent =
+    mensagem;
+
+  elementos.toast.className =
+    `metas-toast ${tipo}`;
+
+  elementos.toast.classList.remove(
+    "hidden"
+  );
+
+  requestAnimationFrame(
+    () => {
+      elementos.toast.classList.add(
+        "show"
+      );
+    }
+  );
+
+  toastTimer =
+    setTimeout(
+      () => {
+        elementos.toast.classList.remove(
+          "show"
+        );
+
+        setTimeout(
+          () => {
+            elementos.toast.classList.add(
+              "hidden"
+            );
+          },
+          200
+        );
+      },
+      2600
+    );
+}
+
+function tratarErro(
+  erro
+) {
+  console.error(
+    erro
+  );
+
+  if (
+    erro?.status === 401
+  ) {
+    mostrarToast(
+      "Sua sessão expirou. Entre novamente.",
+      "error"
+    );
+
+    setTimeout(
+      () => {
+        window.location.href =
+          "entrar.html";
+      },
+      800
+    );
+
+    return;
+  }
+
+  mostrarToast(
+    erro?.message ||
+      "Algo deu errado.",
+    "error"
+  );
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function abrirModal(
+  meta = null
+) {
+  if (
+    !elementos.modal ||
+    !elementos.form
+  ) {
     return;
   }
 
   elementos.form.reset();
 
-  elementos.metaId.value = "";
-  elementos.progresso.value = "0";
-  elementos.progressoValor.textContent = "0%";
-  elementos.modalTitulo.textContent = "Nova meta";
+  elementos.metaId.value =
+    "";
+
+  elementos.modalTitulo.textContent =
+    "Nova meta";
 
   if (meta) {
-    elementos.metaId.value = meta.id;
-    elementos.titulo.value = meta.titulo;
-    elementos.descricao.value = meta.descricao;
-    elementos.categoria.value = meta.categoria;
-    elementos.prazo.value = meta.prazo;
+    elementos.metaId.value =
+      String(meta.id);
 
-    elementos.progresso.value = String(
-      meta.progresso
-    );
+    elementos.titulo.value =
+      meta.titulo;
 
-    elementos.progressoValor.textContent =
-      `${meta.progresso}%`;
+    elementos.descricao.value =
+      meta.descricao;
+
+    elementos.categoria.value =
+      meta.categoria;
+
+    elementos.prazo.value =
+      meta.prazo;
 
     elementos.modalTitulo.textContent =
       "Editar meta";
   }
 
-  elementos.modal.classList.remove("hidden");
+  elementos.modal.classList.remove(
+    "hidden"
+  );
 
-  window.setTimeout(() => {
-    elementos.titulo?.focus();
-  }, 50);
+  document.body.style.overflow =
+    "hidden";
+
+  setTimeout(
+    () =>
+      elementos.titulo?.focus(),
+    50
+  );
 
   iniciarIcones();
 }
 
 function fecharModal() {
-  elementos.modal?.classList.add("hidden");
+  elementos.modal?.classList.add(
+    "hidden"
+  );
+
+  document.body.style.overflow =
+    "";
 }
 
+function abrirModalExclusao(
+  meta
+) {
+  metaParaExcluir =
+    meta;
+
+  elementos
+    .confirmarExclusaoModal
+    ?.classList.remove(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "hidden";
+}
+
+function fecharModalExclusao() {
+  metaParaExcluir =
+    null;
+
+  elementos
+    .confirmarExclusaoModal
+    ?.classList.add(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "";
+}
+
+/* =========================================================
+   RESUMO
+========================================================= */
+
 function atualizarResumo() {
-  const total = metas.length;
+  const total =
+    metas.length;
 
-  const concluidas = metas.filter(
-    (meta) => meta.concluida
-  ).length;
+  const concluidas =
+    metas.filter(
+      (meta) =>
+        meta.status ===
+        "concluida"
+    ).length;
 
-  const andamento = total - concluidas;
+  const andamento =
+    metas.filter(
+      (meta) =>
+        meta.status ===
+        "em andamento"
+    ).length;
 
-  const progressoMedio =
-    total === 0
-      ? 0
-      : Math.round(
-          metas.reduce(
-            (soma, meta) =>
-              soma + Number(meta.progresso || 0),
-            0
-          ) / total
-        );
-
-  if (elementos.totalMetas) {
+  if (
+    elementos.totalMetas
+  ) {
     elementos.totalMetas.textContent =
       String(total);
   }
 
-  if (elementos.metasConcluidas) {
+  if (
+    elementos.metasConcluidas
+  ) {
     elementos.metasConcluidas.textContent =
-      String(concluidas);
+      String(
+        concluidas
+      );
   }
 
-  if (elementos.metasEmAndamento) {
+  if (
+    elementos.metasEmAndamento
+  ) {
     elementos.metasEmAndamento.textContent =
-      String(andamento);
+      String(
+        andamento
+      );
   }
 
-  if (elementos.progressoGeral) {
-    elementos.progressoGeral.textContent =
-      `${progressoMedio}%`;
+  if (
+    !elementos.statusResumo ||
+    !elementos.statusResumoTexto
+  ) {
+    return;
   }
 
-  if (elementos.progressoGeralBarra) {
-    elementos.progressoGeralBarra.style.width =
-      `${progressoMedio}%`;
+  if (
+    total === 0
+  ) {
+    elementos.statusResumo.textContent =
+      "Nenhuma meta ativa";
+
+    elementos.statusResumoTexto.textContent =
+      "Crie uma meta e comece seu próximo passo.";
+
+    return;
   }
+
+  if (
+    andamento > 0
+  ) {
+    elementos.statusResumo.textContent =
+      `${andamento} ${
+        andamento === 1
+          ? "meta em andamento"
+          : "metas em andamento"
+      }`;
+
+    elementos.statusResumoTexto.textContent =
+      "Continue avançando. Quando finalizar, marque a meta como concluída.";
+
+    return;
+  }
+
+  elementos.statusResumo.textContent =
+    "Tudo concluído por aqui";
+
+  elementos.statusResumoTexto.textContent =
+    "Suas metas atuais foram concluídas. Que tal criar o próximo objetivo?";
 }
+
+/* =========================================================
+   FILTROS
+========================================================= */
 
 function filtrarMetas() {
-  const termo = String(
-    elementos.busca?.value || ""
-  )
-    .trim()
-    .toLowerCase();
+  const termo =
+    String(
+      elementos.busca
+        ?.value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
 
-  return metas.filter((meta) => {
-    const correspondeBusca =
-      !termo ||
-      meta.titulo.toLowerCase().includes(termo) ||
-      meta.descricao.toLowerCase().includes(termo) ||
-      meta.categoria.toLowerCase().includes(termo);
+  return metas.filter(
+    (meta) => {
+      const bateBusca =
+        !termo ||
+        meta.titulo
+          .toLowerCase()
+          .includes(
+            termo
+          ) ||
+        meta.descricao
+          .toLowerCase()
+          .includes(
+            termo
+          ) ||
+        meta.categoria
+          .toLowerCase()
+          .includes(
+            termo
+          );
 
-    const correspondeFiltro =
-      filtroAtual === "todas" ||
-      (
-        filtroAtual === "concluidas" &&
-        meta.concluida
-      ) ||
-      (
-        filtroAtual === "andamento" &&
-        !meta.concluida
+      const bateFiltro =
+        filtroAtual ===
+          "todas" ||
+
+        (
+          filtroAtual ===
+            "concluidas" &&
+          meta.status ===
+            "concluida"
+        ) ||
+
+        (
+          filtroAtual ===
+            "andamento" &&
+          meta.status ===
+            "em andamento"
+        );
+
+      return (
+        bateBusca &&
+        bateFiltro
       );
-
-    return correspondeBusca && correspondeFiltro;
-  });
+    }
+  );
 }
 
-function criarMetaHTML(meta) {
+/* =========================================================
+   CARD
+========================================================= */
+
+function criarMetaHTML(
+  meta
+) {
+  const concluida =
+    meta.status ===
+    "concluida";
+
   return `
     <article
       class="meta-card ${
-        meta.concluida ? "concluida" : ""
+        concluida
+          ? "concluida"
+          : ""
       }"
-      data-id="${escaparHTML(meta.id)}"
+      data-id="${meta.id}"
     >
+
       <div class="meta-card-topo">
 
         <span class="meta-categoria">
           <i data-lucide="tag"></i>
-          ${escaparHTML(meta.categoria)}
+          ${escaparHTML(
+            meta.categoria
+          )}
         </span>
 
         <div class="meta-card-acoes">
@@ -318,7 +749,7 @@ function criarMetaHTML(meta) {
             class="meta-icon-btn"
             type="button"
             data-action="editar"
-            aria-label="Editar meta"
+            title="Editar meta"
           >
             <i data-lucide="pencil"></i>
           </button>
@@ -327,19 +758,25 @@ function criarMetaHTML(meta) {
             class="meta-icon-btn danger"
             type="button"
             data-action="excluir"
-            aria-label="Excluir meta"
+            title="Excluir meta"
           >
             <i data-lucide="trash-2"></i>
           </button>
 
         </div>
+
       </div>
 
-      <h3>${escaparHTML(meta.titulo)}</h3>
+      <h3>
+        ${escaparHTML(
+          meta.titulo
+        )}
+      </h3>
 
       <p>
         ${escaparHTML(
-          meta.descricao || "Sem descrição."
+          meta.descricao ||
+          "Sem descrição."
         )}
       </p>
 
@@ -347,400 +784,632 @@ function criarMetaHTML(meta) {
 
         <span class="meta-prazo">
           <i data-lucide="calendar-days"></i>
-          ${formatarPrazo(meta.prazo)}
-        </span>
 
-        <span class="meta-percentual">
-          ${meta.progresso}%
+          ${formatarPrazo(
+            meta.prazo
+          )}
         </span>
 
       </div>
 
-      <div class="meta-progress" aria-hidden="true">
+      <div class="meta-card-status-row">
+
         <span
-          style="width: ${meta.progresso}%"
-        ></span>
-      </div>
-
-      <div class="meta-card-footer">
-
-        <button
-          class="btn-progresso"
-          type="button"
-          data-action="progresso"
-        >
-          Atualizar progresso
-        </button>
-
-        <button
-          class="btn-concluir"
-          type="button"
-          data-action="concluir"
+          class="meta-status ${
+            concluida
+              ? "concluida"
+              : "andamento"
+          }"
         >
           ${
-            meta.concluida
-              ? "Reabrir meta"
-              : "Concluir meta"
+            concluida
+              ? "Concluída"
+              : "Em andamento"
           }
+        </span>
+
+        <button
+          class="${
+            concluida
+              ? "btn-reabrir"
+              : "btn-concluir"
+          }"
+          type="button"
+          data-action="alternar-status"
+        >
+
+          <i
+            data-lucide="${
+              concluida
+                ? "rotate-ccw"
+                : "circle-check-big"
+            }"
+          ></i>
+
+          ${
+            concluida
+              ? "Reabrir meta"
+              : "Marcar como concluída"
+          }
+
         </button>
 
       </div>
+
     </article>
   `;
 }
 
-function renderizar() {
-  if (!elementos.lista || !elementos.estadoVazio) {
-    console.error(
-      "Os elementos da tela de metas não foram encontrados."
-    );
+/* =========================================================
+   RENDER
+========================================================= */
 
-    return;
-  }
-
+function renderizarMetas() {
   atualizarResumo();
 
-  const metasFiltradas = filtrarMetas();
-  const semMetasCriadas = metas.length === 0;
+  if (
+    !elementos.lista ||
+    !elementos.estadoVazio
+  ) {
+    return;
+  }
 
-  elementos.estadoVazio.classList.toggle(
-    "show",
-    semMetasCriadas
+  const lista =
+    filtrarMetas();
+
+  if (
+    lista.length === 0
+  ) {
+    elementos.lista.innerHTML =
+      "";
+
+    elementos.estadoVazio.classList.remove(
+      "hidden"
+    );
+
+    const titulo =
+      elementos.estadoVazio
+        .querySelector(
+          "h3"
+        );
+
+    const texto =
+      elementos.estadoVazio
+        .querySelector(
+          "p"
+        );
+
+    if (
+      metas.length === 0
+    ) {
+      if (titulo) {
+        titulo.textContent =
+          "Sua primeira meta começa aqui.";
+      }
+
+      if (texto) {
+        texto.textContent =
+          "Crie uma meta para começar a organizar seus objetivos.";
+      }
+    } else {
+      if (titulo) {
+        titulo.textContent =
+          "Nenhuma meta encontrada.";
+      }
+
+      if (texto) {
+        texto.textContent =
+          "Tente outro termo ou filtro.";
+      }
+    }
+
+    iniciarIcones();
+
+    return;
+  }
+
+  elementos.estadoVazio.classList.add(
+    "hidden"
   );
 
-  if (semMetasCriadas) {
-    elementos.lista.innerHTML = "";
-    iniciarIcones();
-    return;
-  }
-
-  if (metasFiltradas.length === 0) {
-    elementos.lista.innerHTML = `
-      <div class="estado-vazio show">
-
-        <span class="estado-icon">
-          <i data-lucide="search-x"></i>
-        </span>
-
-        <h3>Nenhuma meta encontrada.</h3>
-
-        <p>
-          Tente outro termo ou altere
-          o filtro selecionado.
-        </p>
-
-      </div>
-    `;
-
-    iniciarIcones();
-    return;
-  }
-
   elementos.lista.innerHTML =
-    metasFiltradas
-      .map(criarMetaHTML)
+    lista
+      .map(
+        criarMetaHTML
+      )
       .join("");
 
   iniciarIcones();
 }
 
-function salvarFormulario(evento) {
+/* =========================================================
+   CARREGAR
+========================================================= */
+
+async function carregarMetas() {
+  elementos.loading?.classList.remove(
+    "hidden"
+  );
+
+  try {
+    const dados =
+      await listarMetasApi();
+
+    metas =
+      Array.isArray(
+        dados
+      )
+        ? dados.map(
+            normalizarMeta
+          )
+        : [];
+
+    renderizarMetas();
+  } catch (erro) {
+    metas = [];
+
+    renderizarMetas();
+
+    tratarErro(
+      erro
+    );
+  } finally {
+    elementos.loading?.classList.add(
+      "hidden"
+    );
+  }
+}
+
+/* =========================================================
+   SALVAR
+========================================================= */
+
+async function salvarMeta(
+  evento
+) {
   evento.preventDefault();
 
-  const titulo = String(
-    elementos.titulo?.value || ""
-  ).trim();
-
-  if (!titulo) {
-    elementos.titulo?.focus();
+  if (salvando) {
     return;
   }
 
-  const progresso = Math.min(
-    100,
-    Math.max(
-      0,
-      Number(elementos.progresso?.value || 0)
-    )
-  );
+  const titulo =
+    elementos.titulo
+      .value
+      .trim();
 
-  const idExistente = String(
-    elementos.metaId?.value || ""
-  );
+  if (!titulo) {
+    mostrarToast(
+      "Digite o título da meta.",
+      "error"
+    );
 
-  const dados = {
+    elementos.titulo.focus();
+
+    return;
+  }
+
+  const id =
+    Number(
+      elementos.metaId
+        .value ||
+      0
+    );
+
+  const payload = {
     titulo,
 
-    descricao: String(
-      elementos.descricao?.value || ""
-    ).trim(),
+    descricao:
+      elementos.descricao
+        .value
+        .trim(),
 
-    categoria: String(
-      elementos.categoria?.value || "Pessoal"
-    ),
+    categoria:
+      elementos.categoria
+        .value,
 
-    prazo: String(
-      elementos.prazo?.value || ""
-    ),
-
-    progresso,
-    concluida: progresso === 100,
+    prazo:
+      elementos.prazo
+        .value ||
+      null,
   };
 
-  if (idExistente) {
-    metas = metas.map((meta) =>
-      meta.id === idExistente
-        ? normalizarMeta({
-            ...meta,
-            ...dados,
-          })
-        : meta
-    );
-  } else {
-    metas.unshift(
-      normalizarMeta({
-        id: gerarId(),
-        criadaEm: new Date().toISOString(),
-        ...dados,
-      })
-    );
+  salvando = true;
+
+  const botao =
+    elementos.form
+      .querySelector(
+        '[type="submit"]'
+      );
+
+  if (botao) {
+    botao.disabled =
+      true;
   }
 
-  salvarMetas();
-  fecharModal();
-  renderizar();
-}
-
-function encontrarMeta(id) {
-  return metas.find(
-    (meta) => meta.id === String(id)
-  );
-}
-
-function atualizarProgresso(meta) {
-  abrirModal(meta);
-
-  if (elementos.modalTitulo) {
-    elementos.modalTitulo.textContent =
-      "Atualizar progresso";
-  }
-
-  window.setTimeout(() => {
-    elementos.progresso?.focus();
-  }, 80);
-}
-
-elementos.lista?.addEventListener(
-  "click",
-  (evento) => {
-    const botao = evento.target.closest(
-      "button[data-action]"
-    );
-
-    if (!botao) {
-      return;
-    }
-
-    const card = botao.closest(".meta-card");
-
-    if (!card) {
-      return;
-    }
-
-    const meta = encontrarMeta(card.dataset.id);
-
-    if (!meta) {
-      return;
-    }
-
-    const acao = botao.dataset.action;
-
-    if (acao === "editar") {
-      abrirModal(meta);
-      return;
-    }
-
-    if (acao === "excluir") {
-      metaParaExcluir = meta.id;
-
-      elementos.confirmarExclusaoModal
-        ?.classList.remove("hidden");
-
-      iniciarIcones();
-      return;
-    }
-
-    if (acao === "progresso") {
-      atualizarProgresso(meta);
-      return;
-    }
-
-    if (acao === "concluir") {
-      meta.concluida = !meta.concluida;
-
-      meta.progresso = meta.concluida
-        ? 100
-        : Math.min(
-            Number(meta.progresso || 0),
-            99
+  try {
+    const resposta =
+      id
+        ? await atualizarMetaApi(
+            id,
+            payload
+          )
+        : await criarMetaApi(
+            payload
           );
 
-      salvarMetas();
-      renderizar();
-    }
-  }
-);
+    const meta =
+      normalizarMeta(
+        resposta
+      );
 
-document
-  .querySelectorAll(".filtro")
-  .forEach((botao) => {
-    botao.addEventListener("click", () => {
-      document
-        .querySelectorAll(".filtro")
-        .forEach((item) => {
-          item.classList.remove("active");
-        });
+    if (id) {
+      metas =
+        metas.map(
+          (item) =>
+            item.id === id
+              ? meta
+              : item
+        );
 
-      botao.classList.add("active");
+      mostrarToast(
+        "Meta atualizada!"
+      );
+    } else {
+      metas.unshift(
+        meta
+      );
 
-      filtroAtual =
-        botao.dataset.filter || "todas";
-
-      renderizar();
-    });
-  });
-
-elementos.abrirNovaMeta?.addEventListener(
-  "click",
-  () => abrirModal()
-);
-
-elementos.abrirNovaMetaVazio?.addEventListener(
-  "click",
-  () => abrirModal()
-);
-
-elementos.fecharMetaModal?.addEventListener(
-  "click",
-  fecharModal
-);
-
-elementos.cancelarMeta?.addEventListener(
-  "click",
-  fecharModal
-);
-
-elementos.cancelarExclusao?.addEventListener(
-  "click",
-  () => {
-    metaParaExcluir = null;
-
-    elementos.confirmarExclusaoModal
-      ?.classList.add("hidden");
-  }
-);
-
-elementos.confirmarExclusao?.addEventListener(
-  "click",
-  () => {
-    if (!metaParaExcluir) {
-      elementos.confirmarExclusaoModal
-        ?.classList.add("hidden");
-
-      return;
+      mostrarToast(
+        "Meta criada!"
+      );
     }
 
-    metas = metas.filter(
-      (meta) => meta.id !== metaParaExcluir
+    fecharModal();
+
+    renderizarMetas();
+  } catch (erro) {
+    tratarErro(
+      erro
+    );
+  } finally {
+    salvando = false;
+
+    if (botao) {
+      botao.disabled =
+        false;
+    }
+  }
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+async function alternarStatus(
+  meta,
+  botao
+) {
+  const novoStatus =
+    meta.status ===
+    "concluida"
+      ? "em andamento"
+      : "concluida";
+
+  botao.disabled =
+    true;
+
+  try {
+    const resposta =
+      await atualizarMetaApi(
+        meta.id,
+        {
+          status:
+            novoStatus,
+        }
+      );
+
+    const atualizada =
+      normalizarMeta(
+        resposta
+      );
+
+    metas =
+      metas.map(
+        (item) =>
+          item.id ===
+            meta.id
+            ? atualizada
+            : item
+      );
+
+    renderizarMetas();
+
+    mostrarToast(
+      novoStatus ===
+        "concluida"
+        ? "Meta concluída! 🔥"
+        : "Meta reaberta."
+    );
+  } catch (erro) {
+    botao.disabled =
+      false;
+
+    tratarErro(
+      erro
+    );
+  }
+}
+
+/* =========================================================
+   EXCLUIR
+========================================================= */
+
+async function excluirMeta() {
+  if (
+    !metaParaExcluir
+  ) {
+    return;
+  }
+
+  const meta =
+    metaParaExcluir;
+
+  elementos.confirmarExclusao.disabled =
+    true;
+
+  try {
+    await deletarMetaApi(
+      meta.id
     );
 
-    metaParaExcluir = null;
+    metas =
+      metas.filter(
+        (item) =>
+          item.id !==
+          meta.id
+      );
 
-    salvarMetas();
+    fecharModalExclusao();
 
-    elementos.confirmarExclusaoModal
-      ?.classList.add("hidden");
+    renderizarMetas();
 
-    renderizar();
+    mostrarToast(
+      "Meta excluída."
+    );
+  } catch (erro) {
+    tratarErro(
+      erro
+    );
+  } finally {
+    elementos.confirmarExclusao.disabled =
+      false;
   }
-);
+}
 
-elementos.form?.addEventListener(
-  "submit",
-  salvarFormulario
-);
+/* =========================================================
+   EVENTOS
+========================================================= */
 
-elementos.busca?.addEventListener(
-  "input",
-  renderizar
-);
+elementos.abrirNovaMeta
+  ?.addEventListener(
+    "click",
+    () =>
+      abrirModal()
+  );
 
-elementos.progresso?.addEventListener(
-  "input",
-  () => {
-    if (elementos.progressoValor) {
-      elementos.progressoValor.textContent =
-        `${elementos.progresso.value}%`;
+elementos.abrirNovaMetaVazio
+  ?.addEventListener(
+    "click",
+    () =>
+      abrirModal()
+  );
+
+elementos.fecharMetaModal
+  ?.addEventListener(
+    "click",
+    fecharModal
+  );
+
+elementos.cancelarMeta
+  ?.addEventListener(
+    "click",
+    fecharModal
+  );
+
+elementos.form
+  ?.addEventListener(
+    "submit",
+    salvarMeta
+  );
+
+elementos.busca
+  ?.addEventListener(
+    "input",
+    renderizarMetas
+  );
+
+document
+  .querySelectorAll(
+    "[data-filter]"
+  )
+  .forEach(
+    (botao) => {
+      botao.addEventListener(
+        "click",
+        () => {
+          filtroAtual =
+            botao.dataset
+              .filter ||
+            "todas";
+
+          document
+            .querySelectorAll(
+              "[data-filter]"
+            )
+            .forEach(
+              (item) => {
+                item.classList.toggle(
+                  "active",
+                  item ===
+                    botao
+                );
+              }
+            );
+
+          renderizarMetas();
+        }
+      );
     }
-  }
-);
+  );
 
-elementos.modal?.addEventListener(
-  "click",
-  (evento) => {
-    if (evento.target === elementos.modal) {
-      fecharModal();
+elementos.lista
+  ?.addEventListener(
+    "click",
+    async (
+      evento
+    ) => {
+      const botao =
+        evento.target.closest(
+          "button"
+        );
+
+      if (!botao) {
+        return;
+      }
+
+      const card =
+        botao.closest(
+          ".meta-card"
+        );
+
+      const id =
+        Number(
+          card?.dataset
+            .id ||
+          0
+        );
+
+      const meta =
+        metas.find(
+          (item) =>
+            item.id === id
+        );
+
+      if (!meta) {
+        return;
+      }
+
+      const acao =
+        botao.dataset
+          .action;
+
+      if (
+        acao ===
+        "editar"
+      ) {
+        abrirModal(
+          meta
+        );
+
+        return;
+      }
+
+      if (
+        acao ===
+        "excluir"
+      ) {
+        abrirModalExclusao(
+          meta
+        );
+
+        return;
+      }
+
+      if (
+        acao ===
+        "alternar-status"
+      ) {
+        await alternarStatus(
+          meta,
+          botao
+        );
+      }
     }
-  }
-);
+  );
 
-elementos.confirmarExclusaoModal?.addEventListener(
-  "click",
-  (evento) => {
-    if (
-      evento.target ===
-      elementos.confirmarExclusaoModal
-    ) {
-      metaParaExcluir = null;
+elementos.cancelarExclusao
+  ?.addEventListener(
+    "click",
+    fecharModalExclusao
+  );
 
-      elementos.confirmarExclusaoModal
-        .classList.add("hidden");
+elementos.confirmarExclusao
+  ?.addEventListener(
+    "click",
+    excluirMeta
+  );
+
+elementos.modal
+  ?.addEventListener(
+    "click",
+    (
+      evento
+    ) => {
+      if (
+        evento.target ===
+        elementos.modal
+      ) {
+        fecharModal();
+      }
     }
-  }
-);
+  );
+
+elementos.confirmarExclusaoModal
+  ?.addEventListener(
+    "click",
+    (
+      evento
+    ) => {
+      if (
+        evento.target ===
+        elementos
+          .confirmarExclusaoModal
+      ) {
+        fecharModalExclusao();
+      }
+    }
+  );
 
 document.addEventListener(
   "keydown",
-  (evento) => {
-    if (evento.key !== "Escape") {
+  (
+    evento
+  ) => {
+    if (
+      evento.key !==
+      "Escape"
+    ) {
       return;
     }
 
     fecharModal();
 
-    metaParaExcluir = null;
-
-    elementos.confirmarExclusaoModal
-      ?.classList.add("hidden");
+    fecharModalExclusao();
   }
 );
 
-window.addEventListener("storage", (evento) => {
-  if (
-    evento.key === "darkMode" ||
-    evento.key === null
-  ) {
-    initDarkMode();
-  }
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
 
-  if (
-    evento.key === STORAGE_KEY ||
-    evento.key === null
-  ) {
-    metas = carregarMetas();
-    renderizar();
-  }
-});
+const shellOk =
+  await initAppShell();
 
-iniciarIcones();
-renderizar();
+if (
+  shellOk !== false
+) {
+  iniciarIcones();
+
+  await carregarMetas();
+}

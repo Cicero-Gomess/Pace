@@ -24,7 +24,7 @@ def criar_sessao(
 ):
     # Verifica se a meta existe
     meta = (
-        db.query(Meta)
+        session.query(Meta)
         .filter(
             Meta.id == dados.id_meta,
             Meta.id_usuario == usuario.id

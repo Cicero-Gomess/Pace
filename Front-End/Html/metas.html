@@ -291,15 +291,13 @@
           <div class="resumo-topo">
 
             <div>
-
               <span class="resumo-kicker">
                 Visão geral
               </span>
 
               <h2>
-                Seu progresso
+                Seu momento
               </h2>
-
             </div>
 
             <span class="resumo-icon">
@@ -308,27 +306,20 @@
 
           </div>
 
-          <div class="progresso-geral">
+          <div class="status-overview">
 
-            <div class="progresso-numero">
+            <span class="status-overview-icon">
+              <i data-lucide="route"></i>
+            </span>
 
-              <strong id="progressoGeral">
-                0%
+            <div>
+              <strong id="statusResumo">
+                Nenhuma meta ativa
               </strong>
 
-              <span>
-                concluído
+              <span id="statusResumoTexto">
+                Crie uma meta e comece seu próximo passo.
               </span>
-
-            </div>
-
-            <div
-              class="progresso-barra"
-              aria-hidden="true"
-            >
-
-              <span id="progressoGeralBarra"></span>
-
             </div>
 
           </div>
@@ -470,6 +461,16 @@
         </header>
 
         <div
+          id="metasLoading"
+          class="metas-loading hidden"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <span>Carregando suas metas...</span>
+        </div>
+
+        <div
           id="metasLista"
           class="metas-grid"
         ></div>
@@ -548,7 +549,7 @@
         </h2>
 
         <p>
-          Defina um objetivo real e acompanhe seu avanço.
+          Defina um objetivo claro. Quando terminar, marque a meta como concluída.
         </p>
 
       </header>
@@ -661,30 +662,7 @@
 
         </div>
 
-        <div class="form-group">
-
-          <div class="label-row">
-
-            <label for="metaProgresso">
-              Progresso inicial
-            </label>
-
-            <strong id="metaProgressoValor">
-              0%
-            </strong>
-
-          </div>
-
-          <input
-            id="metaProgresso"
-            class="range-input"
-            type="range"
-            min="0"
-            max="100"
-            value="0"
-          >
-
-        </div>
+        
 
         <div class="modal-actions">
 
@@ -737,7 +715,7 @@
       </h2>
 
       <p>
-        Essa ação remove a meta apenas deste navegador.
+        Essa ação remove a meta permanentemente da sua conta.
       </p>
 
       <div class="modal-actions">
@@ -763,6 +741,13 @@
     </section>
 
   </div>
+
+  <div
+    id="metasToast"
+    class="metas-toast hidden"
+    role="status"
+    aria-live="polite"
+  ></div>
 
   <script
     type="module"

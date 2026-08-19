@@ -1589,3 +1589,273 @@ body.dark .input-wrapper select option:checked {
   color: #ffffff;
   background: #315cac;
 }
+
+
+/* =========================================================
+   METAS — STATUS + API
+   Sem porcentagem manual: somente Em andamento / Concluída
+========================================================= */
+
+.status-overview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 92px;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(49, 92, 172, .09);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(49, 92, 172, .08),
+      rgba(105, 197, 208, .08)
+    );
+}
+
+.status-overview-icon {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--primary);
+  background: rgba(49, 92, 172, .09);
+}
+
+.status-overview-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.status-overview > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: .28rem;
+}
+
+.status-overview strong {
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.status-overview span:not(.status-overview-icon) {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.meta-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 32px;
+  padding: .42rem .72rem;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.meta-status::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  content: "";
+}
+
+.meta-status.andamento {
+  color: #a76a20;
+  background: rgba(217, 144, 53, .12);
+  box-shadow: inset 0 0 0 1px rgba(217, 144, 53, .10);
+}
+
+.meta-status.andamento::before {
+  background: var(--warning);
+  box-shadow: 0 0 0 4px rgba(217, 144, 53, .10);
+}
+
+.meta-status.concluida {
+  color: #21855f;
+  background: rgba(42, 168, 121, .12);
+  box-shadow: inset 0 0 0 1px rgba(42, 168, 121, .10);
+}
+
+.meta-status.concluida::before {
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(42, 168, 121, .10);
+}
+
+.meta-card.concluida {
+  border-color: rgba(42, 168, 121, .15);
+}
+
+.meta-card.concluida h3 {
+  color: var(--text-soft);
+}
+
+.meta-card-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+  margin-top: 1rem;
+}
+
+.meta-card-footer {
+  margin-top: 1rem;
+}
+
+.btn-concluir,
+.btn-reabrir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 42px;
+  padding: .68rem .95rem;
+  border: 0;
+  border-radius: 13px;
+  font-size: .8rem;
+  font-weight: 850;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    background-color var(--transition);
+}
+
+.btn-concluir {
+  color: #fff;
+  background: linear-gradient(135deg, #25926b, #2aa879);
+  box-shadow: 0 10px 24px rgba(42, 168, 121, .18);
+}
+
+.btn-reabrir {
+  color: var(--primary);
+  background: rgba(49, 92, 172, .08);
+  box-shadow: inset 0 0 0 1px rgba(49, 92, 172, .10);
+}
+
+.btn-concluir:hover,
+.btn-reabrir:hover {
+  transform: translateY(-1px);
+}
+
+.btn-concluir:disabled,
+.btn-reabrir:disabled,
+.meta-icon-btn:disabled,
+.btn-primary:disabled,
+.btn-danger:disabled {
+  cursor: wait;
+  opacity: .62;
+}
+
+.metas-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  min-height: 180px;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.loading-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(49, 92, 172, .16);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: paceSpin .75s linear infinite;
+}
+
+@keyframes paceSpin {
+  to { transform: rotate(360deg); }
+}
+
+.metas-toast {
+  position: fixed;
+  right: 1.4rem;
+  bottom: 1.4rem;
+  z-index: 200;
+  max-width: min(390px, calc(100vw - 2rem));
+  padding: .9rem 1rem;
+  border-radius: 15px;
+  color: #fff;
+  background: #223653;
+  box-shadow: 0 18px 50px rgba(12, 26, 52, .22);
+  font-size: .86rem;
+  font-weight: 750;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.metas-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.metas-toast.success {
+  background: #21855f;
+}
+
+.metas-toast.error {
+  background: #c94242;
+}
+
+.metas-toast.info {
+  background: #315cac;
+}
+
+/* Elementos antigos de porcentagem ficam definitivamente fora do layout. */
+.progresso-geral,
+.progresso-barra,
+.meta-progress,
+.meta-percentual,
+.btn-progresso,
+.range-input,
+.label-row:has(+ #metaProgresso) {
+  display: none !important;
+}
+
+body.dark .status-overview {
+  border-color: rgba(255, 255, 255, .06);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(49, 92, 172, .13),
+      rgba(105, 197, 208, .07)
+    );
+}
+
+body.dark .meta-status.andamento {
+  color: #f0b765;
+  background: rgba(217, 144, 53, .12);
+}
+
+body.dark .meta-status.concluida {
+  color: #67d3a7;
+  background: rgba(42, 168, 121, .12);
+}
+
+@media (max-width: 620px) {
+  .meta-card-status-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-concluir,
+  .btn-reabrir {
+    width: 100%;
+  }
+
+  .metas-toast {
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+}

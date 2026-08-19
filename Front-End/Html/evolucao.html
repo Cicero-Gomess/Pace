@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -22,6 +24,7 @@
   >
 
   <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body>
@@ -30,7 +33,10 @@
   <div class="bg-orb orb-1" aria-hidden="true"></div>
   <div class="bg-orb orb-2" aria-hidden="true"></div>
 
-  <!-- SIDEBAR -->
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
 
   <aside
     class="sidebar"
@@ -49,11 +55,19 @@
       >
 
       <div class="brand-copy">
-        <strong>Pace</strong>
-        <span>Evolução contínua</span>
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
       </div>
 
     </div>
+
 
     <nav
       class="sidebar-nav"
@@ -64,13 +78,16 @@
         Comunidade
       </span>
 
+
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="house"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -79,13 +96,16 @@
 
       </a>
 
+
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="compass"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -94,13 +114,16 @@
 
       </a>
 
+
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="square-pen"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -109,17 +132,21 @@
 
       </a>
 
+
       <span class="nav-section-label nav-section-space">
         Desenvolvimento
       </span>
 
+
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="target"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -128,13 +155,16 @@
 
       </a>
 
+
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="brain"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -143,6 +173,7 @@
 
       </a>
 
+
       <a
         href="evolucao.html"
         class="active"
@@ -150,10 +181,12 @@
       >
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="chart-no-axes-combined"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -164,6 +197,7 @@
 
     </nav>
 
+
     <div class="sidebar-footer">
 
       <a
@@ -172,10 +206,12 @@
       >
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="bell"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -184,13 +220,16 @@
 
       </a>
 
+
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
+
           <i
             data-lucide="settings"
             class="icon"
           ></i>
+
         </span>
 
         <span class="text">
@@ -198,6 +237,7 @@
         </span>
 
       </a>
+
 
       <div class="sidebar-profile">
 
@@ -243,11 +283,15 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
+
+  <!-- =====================================================
+       CONTEÚDO
+  ====================================================== -->
 
   <main class="conteudo">
 
     <div class="page-shell">
+
 
       <!-- HERO -->
 
@@ -268,7 +312,9 @@
 
           <h1>
             Você não está apenas avançando.
-            <span>Está se transformando.</span>
+            <span>
+              Está se transformando.
+            </span>
           </h1>
 
           <p>
@@ -277,6 +323,7 @@
           </p>
 
         </div>
+
 
         <div
           class="period-filter"
@@ -312,15 +359,118 @@
 
       </section>
 
-      <!-- ÍNDICE PACE -->
+
+      <!-- ===================================================
+           ÍNDICE PACE
+      ==================================================== -->
 
       <section class="evolution-spotlight">
 
+
         <div class="spotlight-score">
 
-          <span class="score-eyebrow">
-            Índice Pace
-          </span>
+
+          <!-- NOVO CABEÇALHO -->
+
+          <div class="score-title-row">
+
+            <span class="score-eyebrow">
+              Índice Pace
+            </span>
+
+
+            <div class="pace-index-help">
+
+              <button
+                class="pace-index-help-button"
+                type="button"
+                aria-label="Entenda como funciona o Índice Pace"
+              >
+
+                <i data-lucide="info"></i>
+
+              </button>
+
+
+              <div
+                class="pace-index-tooltip"
+                role="tooltip"
+              >
+
+                <span class="pace-index-tooltip-icon">
+
+                  <i data-lucide="activity"></i>
+
+                </span>
+
+
+                <div>
+
+                  <strong>
+                    O que é o Índice Pace?
+                  </strong>
+
+                  <p>
+                    É um indicador de 0 a 100 que representa
+                    seu ritmo de evolução dentro do Pace.
+                  </p>
+
+
+                  <div class="pace-index-factors">
+
+                    <span>
+
+                      <i data-lucide="circle-check-big"></i>
+
+                      Metas concluídas
+
+                    </span>
+
+
+                    <span>
+
+                      <i data-lucide="brain"></i>
+
+                      Tempo de foco
+
+                    </span>
+
+
+                    <span>
+
+                      <i data-lucide="flame"></i>
+
+                      Sequência
+
+                    </span>
+
+
+                    <span>
+
+                      <i data-lucide="calendar-check-2"></i>
+
+                      Constância
+
+                    </span>
+
+                  </div>
+
+
+                  <small>
+                    Não é a porcentagem de uma meta.
+                    É uma leitura geral da sua evolução.
+                  </small>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- SCORE -->
 
           <div
             id="scoreRing"
@@ -342,6 +492,7 @@
 
           </div>
 
+
           <span
             id="scoreLabel"
             class="score-label"
@@ -349,7 +500,15 @@
             Sua jornada começa agora
           </span>
 
+
+          <p class="score-helper">
+            Seu indicador de consistência e evolução.
+          </p>
+
         </div>
+
+
+        <!-- HISTÓRIA -->
 
         <div class="spotlight-story">
 
@@ -365,6 +524,7 @@
             Crie uma meta ou conclua uma sessão de foco para começar
             a construir seu painel de evolução.
           </p>
+
 
           <div class="comparison-box">
 
@@ -391,6 +551,7 @@
 
           </div>
 
+
           <div class="summary-status">
 
             <span class="status-pill">
@@ -403,6 +564,7 @@
 
             </span>
 
+
             <span class="status-pill">
 
               <i data-lucide="target"></i>
@@ -412,6 +574,7 @@
               </span>
 
             </span>
+
 
             <span class="status-pill">
 
@@ -426,6 +589,9 @@
           </div>
 
         </div>
+
+
+        <!-- PRÓXIMO PASSO -->
 
         <aside class="next-step">
 
@@ -446,13 +612,16 @@
 
           </div>
 
+
           <h3 id="nextStepTitle">
             Comece sua jornada
           </h3>
 
+
           <p id="nextStepDescription">
             Crie uma meta clara ou inicie sua primeira sessão de foco.
           </p>
+
 
           <a
             id="nextStepLink"
@@ -471,14 +640,20 @@
 
       </section>
 
-      <!-- MÉTRICAS -->
+
+      <!-- ===================================================
+           MÉTRICAS
+      ==================================================== -->
 
       <section class="metrics-grid">
+
 
         <article class="metric-card">
 
           <span class="metric-icon">
+
             <i data-lucide="timer"></i>
+
           </span>
 
           <div class="metric-copy">
@@ -499,10 +674,13 @@
 
         </article>
 
+
         <article class="metric-card">
 
           <span class="metric-icon success">
+
             <i data-lucide="circle-check-big"></i>
+
           </span>
 
           <div class="metric-copy">
@@ -523,10 +701,13 @@
 
         </article>
 
+
         <article class="metric-card">
 
           <span class="metric-icon warning">
+
             <i data-lucide="flame"></i>
+
           </span>
 
           <div class="metric-copy">
@@ -547,10 +728,13 @@
 
         </article>
 
+
         <article class="metric-card">
 
           <span class="metric-icon accent">
+
             <i data-lucide="brain"></i>
+
           </span>
 
           <div class="metric-copy">
@@ -573,11 +757,18 @@
 
       </section>
 
-      <!-- DASHBOARD -->
+
+      <!-- ===================================================
+           DASHBOARD
+      ==================================================== -->
 
       <section class="dashboard-grid">
 
+
+        <!-- COLUNA ESQUERDA -->
+
         <div class="dashboard-column">
+
 
           <!-- GRÁFICO -->
 
@@ -606,12 +797,14 @@
 
             </header>
 
+
             <div
               id="weekChart"
               class="week-chart"
             ></div>
 
           </article>
+
 
           <!-- LINHA DO TEMPO -->
 
@@ -637,10 +830,12 @@
 
             </header>
 
+
             <div
               id="evolutionTimeline"
               class="evolution-timeline"
             ></div>
+
 
             <div
               id="timelineEmpty"
@@ -648,7 +843,9 @@
             >
 
               <span>
+
                 <i data-lucide="history"></i>
+
               </span>
 
               <h3>
@@ -664,7 +861,8 @@
 
           </article>
 
-          <!-- TRILHA DE CONSTÂNCIA -->
+
+          <!-- TRILHA -->
 
           <article class="dashboard-card consistency-card">
 
@@ -691,10 +889,13 @@
 
             </header>
 
+
             <div class="consistency-highlight">
 
               <span class="consistency-highlight-icon">
+
                 <i data-lucide="activity"></i>
+
               </span>
 
               <div>
@@ -715,6 +916,7 @@
 
             </div>
 
+
             <div
               id="consistencyTrack"
               class="consistency-track"
@@ -724,7 +926,13 @@
 
         </div>
 
+
+        <!-- =================================================
+             COLUNA DIREITA
+        ================================================== -->
+
         <div class="dashboard-column">
+
 
           <!-- MELHOR MOMENTO -->
 
@@ -745,6 +953,7 @@
               </div>
 
             </header>
+
 
             <div class="best-moment">
 
@@ -774,6 +983,7 @@
 
           </article>
 
+
           <!-- CATEGORIAS -->
 
           <article class="dashboard-card">
@@ -794,10 +1004,12 @@
 
             </header>
 
+
             <div
               id="categoryProgress"
               class="category-list"
             ></div>
+
 
             <div
               id="categoryEmpty"
@@ -805,7 +1017,9 @@
             >
 
               <span>
+
                 <i data-lucide="tags"></i>
+
               </span>
 
               <h3>
@@ -820,6 +1034,7 @@
             </div>
 
           </article>
+
 
           <!-- INSIGHT -->
 
@@ -840,6 +1055,7 @@
               </div>
 
             </header>
+
 
             <div class="insight-main">
 
@@ -869,6 +1085,7 @@
 
           </article>
 
+
           <!-- CONQUISTAS -->
 
           <article class="dashboard-card">
@@ -896,6 +1113,7 @@
 
             </header>
 
+
             <div
               id="achievementGrid"
               class="achievement-grid"
@@ -911,10 +1129,12 @@
 
   </main>
 
+
   <script
     type="module"
     src="../JavaScript/evolucao.js"
   ></script>
 
 </body>
+
 </html>

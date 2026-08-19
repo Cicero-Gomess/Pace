@@ -1,481 +1,861 @@
-const STORAGE_KEYS = {
-  metas: "pace_metas_local",
-  focusHistory: "pace_focus_history",
-};
+import { initAppShell } from "./shared/app-shell.js";
+
+
+/* =========================================================
+   CONFIGURAÇÃO
+========================================================= */
+
+const API_BASE_URL =
+  window.PACE_API_URL ||
+  window.API_BASE_URL ||
+  "http://127.0.0.1:8000";
+
 
 const elementos = {
-  scoreRing: document.getElementById("scoreRing"),
-  evolutionScore: document.getElementById("evolutionScore"),
-  scoreLabel: document.getElementById("scoreLabel"),
-  evolutionTitle: document.getElementById("evolutionTitle"),
-  evolutionDescription: document.getElementById(
-    "evolutionDescription"
-  ),
 
-  comparisonIcon: document.getElementById("comparisonIcon"),
-  comparisonText: document.getElementById("comparisonText"),
+  scoreRing:
+    document.getElementById(
+      "scoreRing"
+    ),
 
-  statusSequencia: document.getElementById("statusSequencia"),
-  statusMetas: document.getElementById("statusMetas"),
-  statusFoco: document.getElementById("statusFoco"),
+  evolutionScore:
+    document.getElementById(
+      "evolutionScore"
+    ),
 
-  nextStepTitle: document.getElementById("nextStepTitle"),
-  nextStepDescription: document.getElementById(
-    "nextStepDescription"
-  ),
-  nextStepLink: document.getElementById("nextStepLink"),
-  nextStepButtonText: document.getElementById(
-    "nextStepButtonText"
-  ),
-  nextStepIcon: document.getElementById("nextStepIcon"),
+  scoreLabel:
+    document.getElementById(
+      "scoreLabel"
+    ),
 
-  totalFocusTime: document.getElementById("totalFocusTime"),
-  completedGoals: document.getElementById("completedGoals"),
-  currentStreak: document.getElementById("currentStreak"),
-  completedSessions: document.getElementById(
-    "completedSessions"
-  ),
+  evolutionTitle:
+    document.getElementById(
+      "evolutionTitle"
+    ),
 
-  focusDelta: document.getElementById("focusDelta"),
-  goalsDelta: document.getElementById("goalsDelta"),
-  streakDelta: document.getElementById("streakDelta"),
-  sessionsDelta: document.getElementById("sessionsDelta"),
+  evolutionDescription:
+    document.getElementById(
+      "evolutionDescription"
+    ),
 
-  weekChart: document.getElementById("weekChart"),
-  weekChartHelper: document.getElementById("weekChartHelper"),
+  comparisonIcon:
+    document.getElementById(
+      "comparisonIcon"
+    ),
 
-  evolutionTimeline: document.getElementById(
-    "evolutionTimeline"
-  ),
-  timelineEmpty: document.getElementById("timelineEmpty"),
+  comparisonText:
+    document.getElementById(
+      "comparisonText"
+    ),
 
-  consistencyTrack: document.getElementById(
-    "consistencyTrack"
-  ),
-  bestWeekValue: document.getElementById("bestWeekValue"),
-  bestWeekDescription: document.getElementById(
-    "bestWeekDescription"
-  ),
-  consistencyPeriod: document.getElementById(
-    "consistencyPeriod"
-  ),
+  statusSequencia:
+    document.getElementById(
+      "statusSequencia"
+    ),
 
-  categoryProgress: document.getElementById(
-    "categoryProgress"
-  ),
-  categoryEmpty: document.getElementById("categoryEmpty"),
+  statusMetas:
+    document.getElementById(
+      "statusMetas"
+    ),
 
-  bestMomentIcon: document.getElementById("bestMomentIcon"),
-  bestMomentValue: document.getElementById("bestMomentValue"),
-  bestMomentTitle: document.getElementById("bestMomentTitle"),
-  bestMomentDescription: document.getElementById(
-    "bestMomentDescription"
-  ),
+  statusFoco:
+    document.getElementById(
+      "statusFoco"
+    ),
 
-  insightIcon: document.getElementById("insightIcon"),
-  insightTitle: document.getElementById("insightTitle"),
-  insightDescription: document.getElementById(
-    "insightDescription"
-  ),
+  nextStepTitle:
+    document.getElementById(
+      "nextStepTitle"
+    ),
 
-  achievementGrid: document.getElementById(
-    "achievementGrid"
-  ),
-  achievementCounter: document.getElementById(
-    "achievementCounter"
-  ),
+  nextStepDescription:
+    document.getElementById(
+      "nextStepDescription"
+    ),
+
+  nextStepLink:
+    document.getElementById(
+      "nextStepLink"
+    ),
+
+  nextStepButtonText:
+    document.getElementById(
+      "nextStepButtonText"
+    ),
+
+  nextStepIcon:
+    document.getElementById(
+      "nextStepIcon"
+    ),
+
+  totalFocusTime:
+    document.getElementById(
+      "totalFocusTime"
+    ),
+
+  completedGoals:
+    document.getElementById(
+      "completedGoals"
+    ),
+
+  currentStreak:
+    document.getElementById(
+      "currentStreak"
+    ),
+
+  completedSessions:
+    document.getElementById(
+      "completedSessions"
+    ),
+
+  focusDelta:
+    document.getElementById(
+      "focusDelta"
+    ),
+
+  goalsDelta:
+    document.getElementById(
+      "goalsDelta"
+    ),
+
+  streakDelta:
+    document.getElementById(
+      "streakDelta"
+    ),
+
+  sessionsDelta:
+    document.getElementById(
+      "sessionsDelta"
+    ),
+
+  weekChart:
+    document.getElementById(
+      "weekChart"
+    ),
+
+  weekChartHelper:
+    document.getElementById(
+      "weekChartHelper"
+    ),
+
+  evolutionTimeline:
+    document.getElementById(
+      "evolutionTimeline"
+    ),
+
+  timelineEmpty:
+    document.getElementById(
+      "timelineEmpty"
+    ),
+
+  consistencyTrack:
+    document.getElementById(
+      "consistencyTrack"
+    ),
+
+  bestWeekValue:
+    document.getElementById(
+      "bestWeekValue"
+    ),
+
+  bestWeekDescription:
+    document.getElementById(
+      "bestWeekDescription"
+    ),
+
+  consistencyPeriod:
+    document.getElementById(
+      "consistencyPeriod"
+    ),
+
+  categoryProgress:
+    document.getElementById(
+      "categoryProgress"
+    ),
+
+  categoryEmpty:
+    document.getElementById(
+      "categoryEmpty"
+    ),
+
+  bestMomentIcon:
+    document.getElementById(
+      "bestMomentIcon"
+    ),
+
+  bestMomentValue:
+    document.getElementById(
+      "bestMomentValue"
+    ),
+
+  bestMomentTitle:
+    document.getElementById(
+      "bestMomentTitle"
+    ),
+
+  bestMomentDescription:
+    document.getElementById(
+      "bestMomentDescription"
+    ),
+
+  insightIcon:
+    document.getElementById(
+      "insightIcon"
+    ),
+
+  insightTitle:
+    document.getElementById(
+      "insightTitle"
+    ),
+
+  insightDescription:
+    document.getElementById(
+      "insightDescription"
+    ),
+
+  achievementGrid:
+    document.getElementById(
+      "achievementGrid"
+    ),
+
+  achievementCounter:
+    document.getElementById(
+      "achievementCounter"
+    ),
+
 };
 
-let periodoAtual = 7;
+
+let periodoAtual =
+  7;
+
+
 let metas = [];
+
 let sessoes = [];
 
-/* =========================
-   UTILIDADES
-========================= */
 
-function carregarJSON(chave, fallback = []) {
-  try {
-    const valor = localStorage.getItem(chave);
+/* =========================================================
+   TOKEN
+========================================================= */
 
-    return valor
-      ? JSON.parse(valor)
-      : fallback;
-  } catch (erro) {
-    console.error(
-      `Erro ao carregar ${chave}:`,
-      erro
-    );
+function obterToken() {
 
-    return fallback;
+  const chaves = [
+
+    "token",
+
+    "access_token",
+
+    "pace_token",
+
+    "pace_access_token",
+
+  ];
+
+
+  for (
+    const storage of [
+      localStorage,
+      sessionStorage,
+    ]
+  ) {
+
+    for (
+      const chave of chaves
+    ) {
+
+      const valor =
+        storage.getItem(
+          chave
+        );
+
+
+      if (
+        valor &&
+        valor.trim()
+      ) {
+
+        return valor.trim();
+
+      }
+
+    }
+
   }
+
+
+  return null;
+
 }
 
+
+/* =========================================================
+   API
+========================================================= */
+
+async function api(
+  rota
+) {
+
+  const token =
+    obterToken();
+
+
+  let resposta;
+
+
+  try {
+
+    resposta =
+      await fetch(
+        `${API_BASE_URL}${rota}`,
+        {
+
+          credentials:
+            "include",
+
+          headers:
+            token
+              ? {
+
+                  Authorization:
+                    `Bearer ${token}`,
+
+                }
+              : {},
+
+        }
+      );
+
+  } catch {
+
+    throw new Error(
+      "Não foi possível conectar à API."
+    );
+
+  }
+
+
+  let dados = null;
+
+
+  try {
+
+    dados =
+      await resposta.json();
+
+  } catch {
+
+    dados = null;
+
+  }
+
+
+  if (
+    resposta.status ===
+    401
+  ) {
+
+    window.location.href =
+      "entrar.html";
+
+
+    throw new Error(
+      "Sessão expirada."
+    );
+
+  }
+
+
+  if (
+    !resposta.ok
+  ) {
+
+    throw new Error(
+      dados?.detail ||
+      "Erro ao carregar dados."
+    );
+
+  }
+
+
+  return dados;
+
+}
+
+
+function listarMetasApi() {
+
+  return api(
+    "/metas/listar_metas"
+  );
+
+}
+
+
+function listarSessoesApi(
+  idMeta
+) {
+
+  return api(
+    `/sessoes/meta/${idMeta}`
+  );
+
+}
+
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function iniciarIcones() {
+
+  if (
+    window.lucide &&
+    typeof window.lucide
+      .createIcons ===
+      "function"
+  ) {
+
+    window.lucide.createIcons();
+
+  }
+
+}
+
+
 function aplicarTemaSalvo() {
-  const tema = localStorage.getItem("darkMode");
+
+  const tema =
+    localStorage.getItem(
+      "darkMode"
+    );
+
 
   document.body.classList.toggle(
     "dark",
-    tema === "true" ||
-    tema === "dark"
+    tema ===
+      "true" ||
+      tema ===
+      "dark"
   );
+
 }
 
-function iniciarIcones() {
-  if (
-    window.lucide &&
-    typeof window.lucide.createIcons === "function"
-  ) {
-    window.lucide.createIcons();
-  }
-}
 
-function escaparHTML(valor = "") {
+function escaparHTML(
+  valor = ""
+) {
+
   return String(valor)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
 }
 
-function dataLocalISO(data = new Date()) {
-  const ano = data.getFullYear();
 
-  const mes = String(
-    data.getMonth() + 1
-  ).padStart(2, "0");
+function dataISO(
+  data = new Date()
+) {
 
-  const dia = String(
-    data.getDate()
-  ).padStart(2, "0");
+  const ano =
+    data.getFullYear();
+
+
+  const mes =
+    String(
+      data.getMonth() +
+      1
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const dia =
+    String(
+      data.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
 
   return `${ano}-${mes}-${dia}`;
+
 }
 
-function criarDataLocal(dataISO) {
-  if (!dataISO) {
-    return null;
-  }
 
-  const partes = String(dataISO)
-    .slice(0, 10)
-    .split("-")
-    .map(Number);
+function criarDataLocal(
+  valor
+) {
 
   if (
-    partes.length !== 3 ||
-    partes.some(
-      (parte) =>
-        !Number.isFinite(parte)
-    )
+    !valor
   ) {
+
     return null;
+
   }
 
-  const [
-    ano,
-    mes,
-    dia,
-  ] = partes;
 
-  const data = new Date(
-    ano,
-    mes - 1,
-    dia,
-    12,
-    0,
-    0
-  );
+  const data =
+    new Date(
+      `${String(
+        valor
+      ).slice(
+        0,
+        10
+      )}T12:00:00`
+    );
 
-  return Number.isNaN(data.getTime())
+
+  return Number.isNaN(
+    data.getTime()
+  )
     ? null
     : data;
+
 }
 
-function converterParaData(valor) {
-  if (!valor) {
-    return null;
-  }
 
-  if (valor instanceof Date) {
-    return Number.isNaN(valor.getTime())
-      ? null
-      : valor;
-  }
+function formatarDuracao(
+  segundos
+) {
 
-  const texto = String(valor);
+  const minutos =
+    Math.max(
+      0,
+      Math.round(
+        Number(
+          segundos ||
+          0
+        ) /
+        60
+      )
+    );
+
 
   if (
-    /^\d{4}-\d{2}-\d{2}$/.test(texto)
+    minutos <
+    60
   ) {
-    return criarDataLocal(texto);
-  }
 
-  const data = new Date(texto);
-
-  return Number.isNaN(data.getTime())
-    ? null
-    : data;
-}
-
-function formatarDuracao(segundos) {
-  const minutos = Math.max(
-    0,
-    Math.round(
-      Number(segundos || 0) / 60
-    )
-  );
-
-  if (minutos < 60) {
     return `${minutos} min`;
+
   }
 
-  const horas = Math.floor(
-    minutos / 60
-  );
+
+  const horas =
+    Math.floor(
+      minutos /
+      60
+    );
+
 
   const restante =
-    minutos % 60;
+    minutos %
+    60;
 
-  return restante > 0
+
+  return restante
     ? `${horas}h ${restante}min`
     : `${horas}h`;
+
 }
 
-function formatarValorGrafico(segundos) {
-  const minutos = Math.round(
-    Number(segundos || 0) / 60
-  );
 
-  if (minutos === 0) {
-    return "0";
-  }
+function formatarDataCurta(
+  data
+) {
 
-  if (minutos < 60) {
-    return `${minutos}m`;
-  }
-
-  const horas = Math.floor(
-    minutos / 60
-  );
-
-  const restante =
-    minutos % 60;
-
-  return restante > 0
-    ? `${horas}h${restante}`
-    : `${horas}h`;
-}
-
-function formatarDataCurta(data) {
   if (
-    !(data instanceof Date) ||
-    Number.isNaN(data.getTime())
+    !data ||
+    Number.isNaN(
+      data.getTime()
+    )
   ) {
-    return "Data indisponível";
+
+    return "—";
+
   }
+
 
   return new Intl.DateTimeFormat(
     "pt-BR",
     {
-      day: "2-digit",
-      month: "short",
+
+      day:
+        "2-digit",
+
+      month:
+        "short",
+
     }
-  ).format(data);
+  ).format(
+    data
+  );
+
 }
 
-function executarSecao(
-  nome,
-  callback
-) {
-  try {
-    callback();
-  } catch (erro) {
-    console.error(
-      `Erro na seção "${nome}":`,
-      erro
-    );
-  }
-}
 
-/* =========================
+/* =========================================================
    NORMALIZAÇÃO
-========================= */
+========================================================= */
 
-function normalizarMetas(lista) {
-  if (!Array.isArray(lista)) {
-    return [];
-  }
+function normalizarMeta(
+  meta
+) {
 
-  return lista.map((meta) => {
-    const progressoOriginal = Number(
-      meta?.progresso ??
-      meta?.progress ??
-      0
-    );
+  const status =
+    String(
+      meta?.status ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
 
-    const progresso = Math.min(
-      100,
-      Math.max(
-        0,
-        Number.isFinite(progressoOriginal)
-          ? progressoOriginal
-          : 0
-      )
-    );
 
-    return {
-      id: String(
-        meta?.id || ""
+  return {
+
+    id:
+      Number(
+        meta.id
       ),
 
-      titulo: String(
-        meta?.titulo ??
-        meta?.title ??
+    titulo:
+      String(
+        meta.titulo ||
         "Meta sem título"
       ),
 
-      categoria: String(
-        meta?.categoria ??
-        meta?.category ??
+    categoria:
+      String(
+        meta.categoria ||
         "Outro"
       ),
 
-      progresso,
+    status:
+      status ===
+      "concluida"
+        ? "concluida"
+        : "em andamento",
 
-      concluida:
-        Boolean(
-          meta?.concluida ??
-          meta?.completed
-        ) ||
-        progresso >= 100,
+    concluida:
+      status ===
+      "concluida",
 
-      criadaEm:
-        meta?.criadaEm ??
-        meta?.createdAt ??
-        meta?.created_at ??
-        meta?.dataCriacao ??
-        meta?.date ??
-        null,
+  };
 
-      concluidaEm:
-        meta?.concluidaEm ??
-        meta?.completedAt ??
-        meta?.completed_at ??
-        null,
-    };
-  });
 }
 
-function normalizarSessoes(lista) {
-  if (!Array.isArray(lista)) {
-    return [];
-  }
 
-  return lista
-    .map((sessao) => {
-      const finishedAt =
-        sessao?.finishedAt ??
-        sessao?.finished_at ??
-        null;
+/*
+  API = MINUTOS
 
-      const date =
-        sessao?.date ??
-        (
-          finishedAt
-            ? String(
-                finishedAt
-              ).slice(0, 10)
-            : null
-        );
+  FRONT = SEGUNDOS
+*/
 
-      return {
-        id: String(
-          sessao?.id || ""
-        ),
+function normalizarSessao(
+  sessao,
+  meta
+) {
 
-        durationSeconds: Math.max(
-          0,
-          Number(
-            sessao?.durationSeconds ??
-            sessao?.duration_seconds ??
-            0
-          )
-        ),
-
-        finishedAt,
-
-        date,
-
-        goalId: String(
-          sessao?.goalId ??
-          sessao?.goal_id ??
-          ""
-        ),
-
-        goalTitle: String(
-          sessao?.goalTitle ??
-          sessao?.goal_title ??
-          ""
-        ),
-
-        intention: String(
-          sessao?.intention ??
-          sessao?.intencao ??
-          "Sessão de foco"
-        ),
-      };
-    })
-    .filter(
-      (sessao) =>
-        sessao.finishedAt ||
-        sessao.date
+  const minutos =
+    Math.max(
+      0,
+      Number(
+        sessao?.duracao ||
+        0
+      )
     );
+
+
+  const segundos =
+    minutos *
+    60;
+
+
+  const inicio =
+    sessao?.inicio ||
+    null;
+
+
+  return {
+
+    id:
+      Number(
+        sessao.id
+      ),
+
+    goalId:
+      String(
+        sessao.id_meta ||
+        meta.id
+      ),
+
+    goalTitle:
+      meta.titulo,
+
+    durationSeconds:
+      segundos,
+
+    startedAt:
+      inicio,
+
+    date:
+      inicio
+        ? String(
+            inicio
+          ).slice(
+            0,
+            10
+          )
+        : null,
+
+    intention:
+      `Foco em ${meta.titulo}`,
+
+  };
+
 }
 
-function carregarDados() {
-  metas = normalizarMetas(
-    carregarJSON(
-      STORAGE_KEYS.metas,
-      []
-    )
-  );
 
-  sessoes = normalizarSessoes(
-    carregarJSON(
-      STORAGE_KEYS.focusHistory,
-      []
-    )
-  );
-}
+/* =========================================================
+   CARREGAR DADOS
+========================================================= */
 
-/* =========================
-   CÁLCULOS
-========================= */
+async function carregarDados() {
 
-function obterDataSessao(sessao) {
-  if (sessao.date) {
-    const dataLocal =
-      criarDataLocal(
-        sessao.date
+  try {
+
+    const dadosMetas =
+      await listarMetasApi();
+
+
+    metas =
+      Array.isArray(
+        dadosMetas
+      )
+        ? dadosMetas.map(
+            normalizarMeta
+          )
+        : [];
+
+
+    const blocos =
+      await Promise.all(
+        metas.map(
+          async (
+            meta
+          ) => {
+
+            try {
+
+              const dados =
+                await listarSessoesApi(
+                  meta.id
+                );
+
+
+              return Array.isArray(
+                dados
+              )
+                ? dados.map(
+                    (
+                      sessao
+                    ) =>
+                      normalizarSessao(
+                        sessao,
+                        meta
+                      )
+                  )
+                : [];
+
+            } catch {
+
+              return [];
+
+            }
+
+          }
+        )
       );
 
-    if (dataLocal) {
-      return dataLocal;
-    }
+
+    sessoes =
+      blocos
+        .flat()
+        .sort(
+          (
+            a,
+            b
+          ) =>
+
+            new Date(
+              b.startedAt ||
+              0
+            ) -
+
+            new Date(
+              a.startedAt ||
+              0
+            )
+
+        );
+
+
+    renderizarPagina();
+
+  } catch (
+    erro
+  ) {
+
+    console.error(
+      erro
+    );
+
   }
 
-  return converterParaData(
-    sessao.finishedAt
-  );
 }
 
-function obterIntervalo(
+
+/* =========================================================
+   PERÍODO
+========================================================= */
+
+function intervalo(
   dias,
   deslocamento = 0
 ) {
-  const fim = new Date();
+
+  const fim =
+    new Date();
+
 
   fim.setHours(
     23,
@@ -484,12 +864,18 @@ function obterIntervalo(
     999
   );
 
+
   fim.setDate(
     fim.getDate() -
-    deslocamento
+      deslocamento
   );
 
-  const inicio = new Date(fim);
+
+  const inicio =
+    new Date(
+      fim
+    );
+
 
   inicio.setHours(
     0,
@@ -498,67 +884,128 @@ function obterIntervalo(
     0
   );
 
+
   inicio.setDate(
     inicio.getDate() -
-    (dias - 1)
+      (
+        dias -
+        1
+      )
   );
 
+
   return {
+
     inicio,
+
     fim,
+
   };
+
 }
 
-function filtrarSessoesNoIntervalo(
+
+function sessoesPeriodo(
   dias,
   deslocamento = 0
 ) {
+
   const {
     inicio,
     fim,
-  } = obterIntervalo(
-    dias,
-    deslocamento
-  );
+  } =
+    intervalo(
+      dias,
+      deslocamento
+    );
 
-  return sessoes.filter((sessao) => {
-    const data =
-      obterDataSessao(
-        sessao
+
+  return sessoes.filter(
+    (
+      sessao
+    ) => {
+
+      const data =
+        sessao.date
+          ? criarDataLocal(
+              sessao.date
+            )
+          : new Date(
+              sessao.startedAt
+            );
+
+
+      return (
+        data &&
+        data >=
+          inicio &&
+        data <=
+          fim
       );
 
-    return (
-      data &&
-      data >= inicio &&
-      data <= fim
-    );
-  });
-}
-
-function calcularSequencia() {
-  const datas = [
-    ...new Set(
-      sessoes
-        .filter(
-          (sessao) =>
-            sessao.durationSeconds >= 60
-        )
-        .map(
-          (sessao) =>
-            sessao.date
-        )
-        .filter(Boolean)
-    ),
-  ].sort(
-    (a, b) =>
-      b.localeCompare(a)
+    }
   );
 
-  if (datas.length === 0) {
+}
+
+
+/* =========================================================
+   SEQUÊNCIA
+========================================================= */
+
+function calcularSequencia() {
+
+  const datas = [
+
+    ...new Set(
+
+      sessoes
+
+        .filter(
+          (
+            sessao
+          ) =>
+            sessao.durationSeconds >=
+            60
+        )
+
+        .map(
+          (
+            sessao
+          ) =>
+            sessao.date
+        )
+
+        .filter(
+          Boolean
+        )
+
+    ),
+
+  ].sort(
+    (
+      a,
+      b
+    ) =>
+      b.localeCompare(
+        a
+      )
+  );
+
+
+  if (
+    datas.length ===
+    0
+  ) {
+
     return 0;
+
   }
 
-  const hoje = new Date();
+
+  const hoje =
+    new Date();
+
 
   hoje.setHours(
     12,
@@ -567,362 +1014,484 @@ function calcularSequencia() {
     0
   );
 
+
   const ontem =
-    new Date(hoje);
+    new Date(
+      hoje
+    );
+
 
   ontem.setDate(
-    ontem.getDate() - 1
+    ontem.getDate() -
+      1
   );
+
 
   const primeira =
     criarDataLocal(
       datas[0]
     );
 
-  if (!primeira) {
-    return 0;
-  }
-
-  const primeiraISO =
-    dataLocalISO(primeira);
 
   if (
-    primeiraISO !==
-      dataLocalISO(hoje) &&
-    primeiraISO !==
-      dataLocalISO(ontem)
+    !primeira
   ) {
+
     return 0;
+
   }
 
-  let sequencia = 1;
-  let anterior = primeira;
+
+  if (
+    dataISO(
+      primeira
+    ) !==
+      dataISO(
+        hoje
+      ) &&
+    dataISO(
+      primeira
+    ) !==
+      dataISO(
+        ontem
+      )
+  ) {
+
+    return 0;
+
+  }
+
+
+  let sequencia =
+    1;
+
+
+  let anterior =
+    primeira;
+
 
   for (
-    let indice = 1;
-    indice < datas.length;
-    indice += 1
+    let i = 1;
+    i < datas.length;
+    i++
   ) {
+
     const atual =
       criarDataLocal(
-        datas[indice]
+        datas[i]
       );
 
-    if (!atual) {
+
+    if (
+      !atual
+    ) {
+
       continue;
+
     }
+
 
     const diferenca =
       Math.round(
         (
-          anterior.getTime() -
-          atual.getTime()
+          anterior -
+          atual
         ) /
         86400000
       );
 
-    if (diferenca === 1) {
-      sequencia += 1;
-      anterior = atual;
-    } else if (
-      diferenca > 1
+
+    if (
+      diferenca ===
+      1
     ) {
+
+      sequencia++;
+
+      anterior =
+        atual;
+
+    } else if (
+      diferenca >
+      1
+    ) {
+
       break;
+
     }
+
   }
+
 
   return sequencia;
+
 }
 
-function calcularScore(dados) {
-  const {
-    progressoMedio,
-    metasConcluidas,
-    totalMetas,
-    totalSessoes,
-    minutosFoco,
-    sequencia,
-    diasAtivos,
-  } = dados;
 
-  if (
-    totalMetas === 0 &&
-    totalSessoes === 0
-  ) {
-    return 0;
-  }
-
-  const componenteMetas =
-    totalMetas > 0
-      ? progressoMedio * 0.32
-      : 0;
-
-  const componenteConclusoes =
-    Math.min(
-      22,
-      metasConcluidas * 4.4
-    );
-
-  const componenteFoco =
-    Math.min(
-      22,
-      minutosFoco / 14
-    );
-
-  const componenteSequencia =
-    Math.min(
-      14,
-      sequencia * 2.2
-    );
-
-  const componenteConstancia =
-    Math.min(
-      10,
-      diasAtivos * 1.5
-    );
-
-  return Math.min(
-    100,
-    Math.round(
-      componenteMetas +
-      componenteConclusoes +
-      componenteFoco +
-      componenteSequencia +
-      componenteConstancia
-    )
-  );
-}
+/* =========================================================
+   RESUMO
+========================================================= */
 
 function gerarResumo(
-  dias = periodoAtual,
+  dias,
   deslocamento = 0
 ) {
-  const sessoesPeriodo =
-    filtrarSessoesNoIntervalo(
+
+  const lista =
+    sessoesPeriodo(
       dias,
       deslocamento
     );
 
+
   const totalSegundos =
-    sessoesPeriodo.reduce(
-      (soma, sessao) =>
-        soma +
+    lista.reduce(
+      (
+        total,
+        sessao
+      ) =>
+        total +
         sessao.durationSeconds,
       0
     );
 
-  const totalMinutos =
-    Math.round(
-      totalSegundos / 60
-    );
 
-  const metasConcluidas =
+  const concluidas =
     metas.filter(
-      (meta) =>
+      (
+        meta
+      ) =>
         meta.concluida
     ).length;
 
-  const totalMetas =
-    metas.length;
 
-  const progressoMedio =
-    totalMetas > 0
-      ? Math.round(
-          metas.reduce(
-            (soma, meta) =>
-              soma +
-              meta.progresso,
-            0
-          ) /
-          totalMetas
-        )
-      : 0;
+  const andamento =
+    metas.length -
+    concluidas;
+
 
   const diasAtivos =
     new Set(
-      sessoesPeriodo
+      lista
         .map(
-          (sessao) =>
+          (
+            sessao
+          ) =>
             sessao.date
         )
-        .filter(Boolean)
+        .filter(
+          Boolean
+        )
     ).size;
 
+
   const sequencia =
-    deslocamento === 0
+    deslocamento ===
+    0
       ? calcularSequencia()
       : 0;
 
-  const score =
-    calcularScore({
-      progressoMedio,
-      metasConcluidas,
-      totalMetas,
-      totalSessoes:
-        sessoesPeriodo.length,
-      minutosFoco:
-        totalMinutos,
-      sequencia,
-      diasAtivos,
-    });
 
   return {
-    sessoesPeriodo,
+
+    sessoes:
+      lista,
+
     totalSegundos,
-    totalMinutos,
-    metasConcluidas,
-    totalMetas,
-    progressoMedio,
+
+    totalMinutos:
+      Math.round(
+        totalSegundos /
+        60
+      ),
+
+    metasConcluidas:
+      concluidas,
+
+    metasEmAndamento:
+      andamento,
+
+    totalMetas:
+      metas.length,
+
     diasAtivos,
+
     sequencia,
-    score,
+
   };
+
 }
 
-/* =========================
+
+/* =========================================================
    ÍNDICE PACE
-========================= */
+========================================================= */
 
-function definirTextoDoScore(score) {
-  if (score === 0) {
-    return {
-      label:
-        "Sua jornada começa agora",
+function calcularScore(
+  resumo
+) {
 
-      titulo:
-        "Sua evolução começa com o primeiro passo.",
+  if (
+    resumo.totalMetas ===
+      0 &&
+    resumo.sessoes.length ===
+      0
+  ) {
 
-      descricao:
-        "Crie uma meta ou conclua uma sessão de foco para começar a construir seu painel de evolução.",
-    };
+    return 0;
+
   }
 
-  if (score < 25) {
-    return {
-      label:
-        "Movimento inicial",
 
-      titulo:
-        "Você começou a construir movimento.",
+  /*
+    Não existe mais porcentagem manual de meta.
 
-      descricao:
-        "Os primeiros registros já existem. Continue avançando para transformar ações isoladas em uma rotina consistente.",
-    };
-  }
+    A única razão percentual aqui é:
 
-  if (score < 50) {
-    return {
-      label:
-        "Ritmo em construção",
+    metas concluídas
+        ÷
+    total de metas
 
-      titulo:
-        "Seu progresso já está ganhando forma.",
+    Isso representa resultado global,
+    não progresso digitado pelo usuário.
+  */
 
-      descricao:
-        "Você está criando um ritmo real. Agora, o maior avanço virá de repetir as ações que já funcionam.",
-    };
-  }
+  const taxaMetas =
+    resumo.totalMetas >
+    0
+      ? (
+          resumo.metasConcluidas /
+          resumo.totalMetas
+        ) *
+        100
+      : 0;
 
-  if (score < 75) {
-    return {
-      label:
-        "Constância sólida",
 
-      titulo:
-        "A constância está virando parte de você.",
+  const metasScore =
+    taxaMetas *
+    0.3;
 
-      descricao:
-        "Suas metas e sessões mostram uma evolução sólida. Mantenha o equilíbrio e proteja sua sequência.",
-    };
-  }
 
-  return {
-    label:
-      "Alta evolução",
-
-    titulo:
-      "Você está vivendo uma fase de alta evolução.",
-
-    descricao:
-      "Seu ritmo, constância e progresso estão trabalhando juntos. Continue crescendo sem perder a qualidade da sua rotina.",
-  };
-}
-
-function atualizarScore(resumo) {
-  const texto =
-    definirTextoDoScore(
-      resumo.score
+  const focoScore =
+    Math.min(
+      25,
+      resumo.totalMinutos /
+        12
     );
 
-  elementos.evolutionScore.textContent =
-    String(resumo.score);
 
-  elementos.scoreLabel.textContent =
-    texto.label;
+  const sequenciaScore =
+    Math.min(
+      20,
+      resumo.sequencia *
+        3
+    );
 
-  elementos.scoreRing.style.setProperty(
-    "--score-progress",
-    `${resumo.score * 3.6}deg`
+
+  const constanciaScore =
+    Math.min(
+      15,
+      resumo.diasAtivos *
+        2
+    );
+
+
+  const conclusoesScore =
+    Math.min(
+      10,
+      resumo.metasConcluidas *
+        2
+    );
+
+
+  return Math.min(
+    100,
+    Math.round(
+
+      metasScore +
+
+      focoScore +
+
+      sequenciaScore +
+
+      constanciaScore +
+
+      conclusoesScore
+
+    )
   );
 
+}
+
+
+/* =========================================================
+   ATUALIZAR ÍNDICE
+========================================================= */
+
+function atualizarIndice(
+  resumo
+) {
+
+  const score =
+    calcularScore(
+      resumo
+    );
+
+
+  let label =
+    "Sua jornada começa agora";
+
+
+  let titulo =
+    "Sua evolução começa com o primeiro passo.";
+
+
+  let descricao =
+    "Crie uma meta ou faça uma sessão de foco para começar.";
+
+
+  if (
+    score >=
+    25
+  ) {
+
+    label =
+      "Ritmo em construção";
+
+
+    titulo =
+      "Seu progresso está ganhando forma.";
+
+
+    descricao =
+      "Continue repetindo as ações que estão funcionando.";
+
+  }
+
+
+  if (
+    score >=
+    50
+  ) {
+
+    label =
+      "Constância sólida";
+
+
+    titulo =
+      "Sua consistência já está aparecendo.";
+
+
+    descricao =
+      "Metas e foco estão trabalhando juntos.";
+
+  }
+
+
+  if (
+    score >=
+    75
+  ) {
+
+    label =
+      "Alta evolução";
+
+
+    titulo =
+      "Você está vivendo um ótimo momento.";
+
+
+    descricao =
+      "Continue protegendo sua rotina e concluindo seus objetivos.";
+
+  }
+
+
+  elementos.evolutionScore.textContent =
+    String(
+      score
+    );
+
+
+  elementos.scoreLabel.textContent =
+    label;
+
+
   elementos.evolutionTitle.textContent =
-    texto.titulo;
+    titulo;
+
 
   elementos.evolutionDescription.textContent =
-    texto.descricao;
+    descricao;
+
+
+  elementos.scoreRing
+    ?.style.setProperty(
+      "--score-progress",
+      `${score * 3.6}deg`
+    );
+
 
   elementos.statusSequencia.textContent =
     `${resumo.sequencia} ${
-      resumo.sequencia === 1
+      resumo.sequencia ===
+      1
         ? "dia"
         : "dias"
     } de sequência`;
 
+
   elementos.statusMetas.textContent =
     `${resumo.metasConcluidas} ${
-      resumo.metasConcluidas === 1
+      resumo.metasConcluidas ===
+      1
         ? "meta concluída"
         : "metas concluídas"
     }`;
+
 
   elementos.statusFoco.textContent =
     `${formatarDuracao(
       resumo.totalSegundos
     )} de foco`;
+
 }
+
+
+/* =========================================================
+   COMPARAÇÃO
+========================================================= */
 
 function atualizarComparacao(
   atual,
   anterior
 ) {
+
   if (
-    atual.totalSegundos === 0 &&
-    anterior.totalSegundos === 0
+    anterior.totalSegundos ===
+    0
   ) {
+
     elementos.comparisonText.textContent =
-      "Sem dados suficientes";
+      atual.totalSegundos >
+      0
+        ? "Primeiro período com atividade registrada"
+        : "Sem dados suficientes";
+
 
     elementos.comparisonIcon.setAttribute(
       "data-lucide",
-      "minus"
+      atual.totalSegundos >
+      0
+        ? "sparkles"
+        : "minus"
     );
 
-    return;
-  }
-
-  if (
-    anterior.totalSegundos === 0
-  ) {
-    elementos.comparisonText.textContent =
-      "Primeiro período com atividade registrada";
-
-    elementos.comparisonIcon.setAttribute(
-      "data-lucide",
-      "sparkles"
-    );
 
     return;
+
   }
+
 
   const variacao =
     Math.round(
@@ -936,246 +1505,311 @@ function atualizarComparacao(
       100
     );
 
-  if (variacao > 0) {
+
+  if (
+    variacao >
+    0
+  ) {
+
     elementos.comparisonText.textContent =
       `${variacao}% mais tempo focado`;
+
 
     elementos.comparisonIcon.setAttribute(
       "data-lucide",
       "trending-up"
     );
+
   } else if (
-    variacao < 0
+    variacao <
+    0
   ) {
+
     elementos.comparisonText.textContent =
       `${Math.abs(
         variacao
       )}% menos tempo focado`;
 
+
     elementos.comparisonIcon.setAttribute(
       "data-lucide",
       "trending-down"
     );
+
   } else {
+
     elementos.comparisonText.textContent =
-      "Mesmo tempo focado do período anterior";
+      "Mesmo ritmo do período anterior";
+
 
     elementos.comparisonIcon.setAttribute(
       "data-lucide",
       "equal"
     );
+
   }
+
 }
 
-/* =========================
+
+/* =========================================================
    MÉTRICAS
-========================= */
+========================================================= */
 
 function atualizarMetricas(
   resumo,
   anterior
 ) {
+
   elementos.totalFocusTime.textContent =
     formatarDuracao(
       resumo.totalSegundos
     );
+
 
   elementos.completedGoals.textContent =
     String(
       resumo.metasConcluidas
     );
 
+
   elementos.currentStreak.textContent =
     `${resumo.sequencia} ${
-      resumo.sequencia === 1
+      resumo.sequencia ===
+      1
         ? "dia"
         : "dias"
     }`;
 
+
   elementos.completedSessions.textContent =
     String(
-      resumo.sessoesPeriodo.length
+      resumo.sessoes.length
     );
 
-  const deltaFoco =
+
+  const delta =
     resumo.totalSegundos -
     anterior.totalSegundos;
 
+
   elementos.focusDelta.textContent =
-    deltaFoco === 0
-      ? "Mesmo ritmo do período anterior"
-      : deltaFoco > 0
-        ? `+${formatarDuracao(
-            deltaFoco
-          )} no período`
-        : `-${formatarDuracao(
-            Math.abs(deltaFoco)
-          )} no período`;
+    delta >
+    0
+      ? `+${formatarDuracao(
+          delta
+        )}`
+      : delta <
+        0
+        ? `-${formatarDuracao(
+            Math.abs(
+              delta
+            )
+          )}`
+        : "Mesmo ritmo anterior";
+
 
   elementos.goalsDelta.textContent =
-    resumo.metasConcluidas > 0
+    resumo.metasConcluidas
       ? `${resumo.metasConcluidas} alcançada${
-          resumo.metasConcluidas === 1
+          resumo.metasConcluidas ===
+          1
             ? ""
             : "s"
         }`
       : "Nenhuma conclusão";
 
+
   elementos.streakDelta.textContent =
-    resumo.sequencia > 0
+    resumo.sequencia
       ? "Sua constância está ativa"
-      : "Uma sessão hoje inicia sua sequência";
+      : "Comece uma sequência hoje";
+
 
   const deltaSessoes =
-    resumo.sessoesPeriodo.length -
-    anterior.sessoesPeriodo.length;
+    resumo.sessoes.length -
+    anterior.sessoes.length;
+
 
   elementos.sessionsDelta.textContent =
-    deltaSessoes === 0
-      ? "Mesmo volume anterior"
-      : deltaSessoes > 0
-        ? `+${deltaSessoes} sessão${
-            deltaSessoes === 1
-              ? ""
-              : "ões"
-          }`
-        : `${Math.abs(
+    deltaSessoes >
+    0
+      ? `+${deltaSessoes} ${
+          deltaSessoes ===
+          1
+            ? "sessão"
+            : "sessões"
+        }`
+      : deltaSessoes <
+        0
+        ? `${Math.abs(
             deltaSessoes
-          )} a menos`;
+          )} a menos`
+        : "Mesmo volume anterior";
+
 }
 
-/* =========================
+
+/* =========================================================
    PRÓXIMO PASSO
-========================= */
+========================================================= */
 
-function configurarProximoPasso(resumo) {
-  let configuracao;
+function atualizarProximoPasso(
+  resumo
+) {
 
-  if (resumo.totalMetas === 0) {
-    configuracao = {
+  let dados;
+
+
+  if (
+    resumo.totalMetas ===
+    0
+  ) {
+
+    dados = {
+
       titulo:
         "Defina onde quer chegar",
 
       descricao:
-        "Crie sua primeira meta para dar direção ao seu desenvolvimento.",
+        "Crie sua primeira meta para dar direção à sua evolução.",
 
       link:
         "metas.html",
 
-      botao:
+      texto:
         "Criar uma meta",
 
       icon:
         "target",
+
     };
+
   } else if (
-    resumo.sessoesPeriodo.length === 0
+    resumo.sessoes.length ===
+    0
   ) {
-    configuracao = {
+
+    dados = {
+
       titulo:
         "Transforme intenção em ação",
 
       descricao:
-        "Inicie uma sessão de foco e registre tempo real dedicado às suas metas.",
+        "Inicie uma sessão de foco vinculada a uma meta.",
 
       link:
         "foco.html",
 
-      botao:
+      texto:
         "Iniciar sessão",
 
       icon:
         "brain",
+
     };
+
   } else if (
-    resumo.sequencia === 0
+    resumo.metasEmAndamento >
+    0
   ) {
-    configuracao = {
+
+    dados = {
+
       titulo:
-        "Retome sua sequência",
+        "Continue avançando",
 
       descricao:
-        "Uma nova sessão hoje pode recolocar sua constância em movimento.",
-
-      link:
-        "foco.html",
-
-      botao:
-        "Voltar ao foco",
-
-      icon:
-        "flame",
-    };
-  } else if (
-    resumo.progressoMedio < 50
-  ) {
-    configuracao = {
-      titulo:
-        "Avance em uma meta",
-
-      descricao:
-        "Escolha a meta mais importante e registre o progresso alcançado.",
+        `Você possui ${resumo.metasEmAndamento} ${
+          resumo.metasEmAndamento ===
+          1
+            ? "meta em andamento"
+            : "metas em andamento"
+        }.`,
 
       link:
         "metas.html",
 
-      botao:
-        "Atualizar metas",
+      texto:
+        "Ver metas",
 
       icon:
-        "trending-up",
+        "target",
+
     };
+
   } else {
-    configuracao = {
+
+    dados = {
+
       titulo:
-        "Proteja seu bom momento",
+        "Escolha o próximo desafio",
 
       descricao:
-        "Continue com uma sessão focada para manter o ritmo que você construiu.",
+        "Suas metas atuais estão concluídas.",
 
       link:
-        "foco.html",
+        "metas.html",
 
-      botao:
-        "Continuar evoluindo",
+      texto:
+        "Nova meta",
 
       icon:
-        "zap",
+        "sparkles",
+
     };
+
   }
 
+
   elementos.nextStepTitle.textContent =
-    configuracao.titulo;
+    dados.titulo;
+
 
   elementos.nextStepDescription.textContent =
-    configuracao.descricao;
+    dados.descricao;
+
 
   elementos.nextStepLink.href =
-    configuracao.link;
+    dados.link;
+
 
   elementos.nextStepButtonText.textContent =
-    configuracao.botao;
+    dados.texto;
+
 
   elementos.nextStepIcon.setAttribute(
     "data-lucide",
-    configuracao.icon
+    dados.icon
   );
+
 }
 
-/* =========================
-   GRÁFICO SEMANAL
-========================= */
 
-function obterUltimosDias(quantidade) {
+/* =========================================================
+   GRÁFICO 7 DIAS
+========================================================= */
+
+function renderizarGrafico() {
+
   const dias = [];
 
+
   for (
-    let indice =
-      quantidade - 1;
-    indice >= 0;
-    indice -= 1
+    let i = 6;
+    i >= 0;
+    i--
   ) {
-    const data = new Date();
+
+    const data =
+      new Date();
+
+
+    data.setDate(
+      data.getDate() -
+      i
+    );
+
 
     data.setHours(
       12,
@@ -1184,313 +1818,297 @@ function obterUltimosDias(quantidade) {
       0
     );
 
-    data.setDate(
-      data.getDate() -
-      indice
+
+    const chave =
+      dataISO(
+        data
+      );
+
+
+    const segundos =
+      sessoes
+
+        .filter(
+          (
+            sessao
+          ) =>
+            sessao.date ===
+            chave
+        )
+
+        .reduce(
+          (
+            total,
+            sessao
+          ) =>
+            total +
+            sessao.durationSeconds,
+          0
+        );
+
+
+    dias.push(
+      {
+
+        data,
+
+        segundos,
+
+      }
     );
 
-    dias.push(data);
   }
 
-  return dias;
-}
 
-function renderizarGraficoSemanal() {
-  const dias =
-    obterUltimosDias(7);
-
-  const valores =
-    dias.map((data) => {
-      const chave =
-        dataLocalISO(data);
-
-      const segundos =
-        sessoes
-          .filter(
-            (sessao) =>
-              sessao.date ===
-              chave
-          )
-          .reduce(
-            (soma, sessao) =>
-              soma +
-              sessao.durationSeconds,
-            0
-          );
-
-      return {
-        data,
-        segundos,
-      };
-    });
-
-  const maiorValor =
+  const maior =
     Math.max(
-      ...valores.map(
-        (item) =>
+      ...dias.map(
+        (
+          item
+        ) =>
           item.segundos
       ),
       1
     );
 
-  const formatadorDia =
+
+  const formatador =
     new Intl.DateTimeFormat(
       "pt-BR",
       {
+
         weekday:
           "short",
+
       }
     );
 
+
   elementos.weekChart.innerHTML =
-    valores
-      .map((item) => {
-        const altura =
-          item.segundos > 0
-            ? Math.max(
-                8,
-                (
-                  item.segundos /
-                  maiorValor
-                ) *
-                100
-              )
-            : 2;
+    dias
+      .map(
+        (
+          item
+        ) => {
 
-        const nomeDia =
-          formatadorDia
-            .format(
-              item.data
-            )
-            .replace(
-              ".",
-              ""
-            )
-            .slice(
-              0,
-              3
-            );
+          const altura =
+            item.segundos
+              ? Math.max(
+                  8,
+                  (
+                    item.segundos /
+                    maior
+                  ) *
+                    100
+                )
+              : 2;
 
-        const classeZero =
-          item.segundos === 0
-            ? "zero"
-            : "";
 
-        return `
-          <div class="day-column">
+          return `
 
-            <span class="day-value">
-              ${formatarValorGrafico(
-                item.segundos
-              )}
-            </span>
+            <div class="day-column">
 
-            <div class="bar-shell">
+              <span class="day-value">
 
-              <span
-                class="day-bar ${classeZero}"
-                style="height: ${altura}%"
-                title="${formatarDuracao(
+                ${
                   item.segundos
-                )}"
-              ></span>
+                    ? `${Math.round(
+                        item.segundos /
+                        60
+                      )}m`
+                    : "0"
+                }
+
+              </span>
+
+
+              <div class="bar-shell">
+
+                <span
+                  class="day-bar ${
+                    !item.segundos
+                      ? "zero"
+                      : ""
+                  }"
+                  style="height:${altura}%"
+                ></span>
+
+              </div>
+
+
+              <span class="day-label">
+
+                ${formatador
+                  .format(
+                    item.data
+                  )
+                  .replace(
+                    ".",
+                    ""
+                  )
+                  .slice(
+                    0,
+                    3
+                  )}
+
+              </span>
 
             </div>
 
-            <span class="day-label">
-              ${nomeDia}
-            </span>
+          `;
 
-          </div>
-        `;
-      })
+        }
+      )
       .join("");
+
 
   elementos.weekChartHelper.textContent =
     "Últimos 7 dias";
+
 }
 
-/* =========================
-   LINHA DO TEMPO
-========================= */
 
-function criarEventosDaLinhaDoTempo() {
-  const eventos = [];
+/* =========================================================
+   TIMELINE
+========================================================= */
 
-  metas.forEach((meta) => {
-    const dataCriacao =
-      converterParaData(
-        meta.criadaEm
-      );
+function renderizarTimeline() {
 
-    const dataConclusao =
-      converterParaData(
-        meta.concluidaEm
-      );
-
-    if (dataCriacao) {
-      eventos.push({
-        date:
-          dataCriacao,
-
-        title:
-          `Meta criada: ${
-            meta.titulo ||
-            "Meta sem título"
-          }`,
-
-        description:
-          `Categoria ${
-            meta.categoria
-          } · ${
-            meta.progresso
-          }% de progresso`,
-
-        icon:
-          "target",
-      });
-    }
-
-    if (
-      meta.concluida &&
-      (
-        dataConclusao ||
-        dataCriacao
-      )
-    ) {
-      eventos.push({
-        date:
-          dataConclusao ||
-          dataCriacao,
-
-        title:
-          `Meta concluída: ${
-            meta.titulo ||
-            "Meta sem título"
-          }`,
-
-        description:
-          "Um objetivo foi transformado em resultado.",
-
-        icon:
-          "trophy",
-      });
-    }
-  });
-
-  sessoes.forEach((sessao) => {
-    const data =
-      obterDataSessao(
-        sessao
-      );
-
-    if (!data) {
-      return;
-    }
-
-    eventos.push({
-      date,
-
-      title:
-        sessao.intention ||
-        "Sessão de foco",
-
-      description:
-        `${formatarDuracao(
-          sessao.durationSeconds
-        )} de foco${
-          sessao.goalTitle
-            ? ` · ${sessao.goalTitle}`
-            : ""
-        }`,
-
-      icon:
-        "brain",
-    });
-  });
-
-  return eventos
-    .filter(
-      (evento) =>
-        evento.date instanceof Date &&
-        !Number.isNaN(
-          evento.date.getTime()
-        )
-    )
-    .sort(
-      (a, b) =>
-        b.date.getTime() -
-        a.date.getTime()
-    )
-    .slice(0, 8);
-}
-
-function renderizarLinhaDoTempo() {
   const eventos =
-    criarEventosDaLinhaDoTempo();
+    sessoes
+      .map(
+        (
+          sessao
+        ) => {
+
+          return {
+
+            date:
+              new Date(
+                sessao.startedAt
+              ),
+
+            title:
+              sessao.intention,
+
+            description:
+              `${formatarDuracao(
+                sessao.durationSeconds
+              )} de foco`,
+
+            icon:
+              "brain",
+
+          };
+
+        }
+      )
+      .filter(
+        (
+          evento
+        ) =>
+          !Number.isNaN(
+            evento.date.getTime()
+          )
+      )
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          b.date -
+          a.date
+      )
+      .slice(
+        0,
+        8
+      );
+
 
   const vazio =
-    eventos.length === 0;
+    eventos.length ===
+    0;
 
-  elementos.timelineEmpty.classList.toggle(
-    "hidden",
-    !vazio
-  );
+
+  elementos.timelineEmpty
+    ?.classList.toggle(
+      "hidden",
+      !vazio
+    );
+
 
   elementos.evolutionTimeline.innerHTML =
     vazio
       ? ""
       : eventos
           .map(
-            (evento) => `
+            (
+              evento
+            ) => `
+
               <article class="timeline-item">
 
                 <span class="timeline-marker">
 
-                  <i
-                    data-lucide="${evento.icon}"
-                  ></i>
+                  <i data-lucide="${evento.icon}"></i>
 
                 </span>
+
 
                 <div class="timeline-content">
 
                   <span class="timeline-date">
+
                     ${formatarDataCurta(
                       evento.date
                     )}
+
                   </span>
 
+
                   <h3>
+
                     ${escaparHTML(
                       evento.title
                     )}
+
                   </h3>
 
+
                   <p>
+
                     ${escaparHTML(
                       evento.description
                     )}
+
                   </p>
 
                 </div>
 
               </article>
+
             `
           )
           .join("");
+
 }
 
-/* =========================
+
+/* =========================================================
    TRILHA DE CONSTÂNCIA
-========================= */
+========================================================= */
 
 function obterUltimasSemanas(
-  quantidade = 12
+  quantidade =
+    12
 ) {
+
   const semanas = [];
 
-  const hoje = new Date();
+
+  const hoje =
+    new Date();
+
 
   hoje.setHours(
     12,
@@ -1499,37 +2117,52 @@ function obterUltimasSemanas(
     0
   );
 
+
   const diaSemana =
     hoje.getDay();
 
+
   const ajusteSegunda =
-    diaSemana === 0
+    diaSemana ===
+    0
       ? -6
-      : 1 - diaSemana;
+      : 1 -
+        diaSemana;
+
 
   const inicioSemanaAtual =
-    new Date(hoje);
+    new Date(
+      hoje
+    );
+
 
   inicioSemanaAtual.setDate(
     hoje.getDate() +
-    ajusteSegunda
+      ajusteSegunda
   );
+
 
   for (
     let indice =
-      quantidade - 1;
-    indice >= 0;
-    indice -= 1
+      quantidade -
+      1;
+    indice >=
+    0;
+    indice--
   ) {
+
     const inicio =
       new Date(
         inicioSemanaAtual
       );
 
+
     inicio.setDate(
       inicio.getDate() -
-      indice * 7
+      indice *
+        7
     );
+
 
     inicio.setHours(
       0,
@@ -1538,12 +2171,18 @@ function obterUltimasSemanas(
       0
     );
 
+
     const fim =
-      new Date(inicio);
+      new Date(
+        inicio
+      );
+
 
     fim.setDate(
-      fim.getDate() + 6
+      fim.getDate() +
+      6
     );
+
 
     fim.setHours(
       23,
@@ -1552,93 +2191,164 @@ function obterUltimasSemanas(
       999
     );
 
-    semanas.push({
-      inicio,
-      fim,
-    });
+
+    semanas.push(
+      {
+
+        inicio,
+
+        fim,
+
+      }
+    );
+
   }
 
+
   return semanas;
+
 }
+
 
 function calcularDadosDaSemana(
   inicio,
   fim
 ) {
+
   const sessoesDaSemana =
-    sessoes.filter((sessao) => {
-      const data =
-        obterDataSessao(
-          sessao
+    sessoes.filter(
+      (
+        sessao
+      ) => {
+
+        const data =
+          sessao.date
+            ? criarDataLocal(
+                sessao.date
+              )
+            : new Date(
+                sessao.startedAt
+              );
+
+
+        return (
+          data &&
+          data >=
+            inicio &&
+          data <=
+            fim
         );
 
-      return (
-        data &&
-        data >= inicio &&
-        data <= fim
-      );
-    });
+      }
+    );
+
 
   const totalSegundos =
     sessoesDaSemana.reduce(
-      (soma, sessao) =>
+      (
+        soma,
+        sessao
+      ) =>
         soma +
         sessao.durationSeconds,
       0
     );
 
+
   const diasAtivos =
     new Set(
       sessoesDaSemana
         .map(
-          (sessao) =>
+          (
+            sessao
+          ) =>
             sessao.date
         )
-        .filter(Boolean)
+        .filter(
+          Boolean
+        )
     ).size;
 
+
   return {
+
     totalSegundos,
+
     diasAtivos,
+
     totalSessoes:
       sessoesDaSemana.length,
+
   };
+
 }
 
+
 function renderizarTrilhaDeConstancia() {
+
+  if (
+    !elementos.consistencyTrack
+  ) {
+
+    return;
+
+  }
+
+
   const semanas =
-    obterUltimasSemanas(12);
+    obterUltimasSemanas(
+      12
+    );
+
 
   const dados =
     semanas.map(
-      (semana, indice) => {
+      (
+        semana,
+        indice
+      ) => {
+
         const resumo =
           calcularDadosDaSemana(
             semana.inicio,
             semana.fim
           );
 
+
         return {
+
           ...semana,
+
           ...resumo,
+
           numero:
-            indice + 1,
+            indice +
+            1,
+
         };
+
       }
     );
+
 
   const maiorTempo =
     Math.max(
       ...dados.map(
-        (semana) =>
+        (
+          semana
+        ) =>
           semana.totalSegundos
       ),
       1
     );
 
+
   const melhorSemana =
     dados.reduce(
-      (melhor, semana) =>
+      (
+        melhor,
+        semana
+      ) =>
         semana.totalSegundos >
         melhor.totalSegundos
           ? semana
@@ -1646,558 +2356,606 @@ function renderizarTrilhaDeConstancia() {
       dados[0]
     );
 
+
   elementos.consistencyTrack.innerHTML =
     dados
-      .map((semana) => {
-        const porcentagem =
-          semana.totalSegundos > 0
-            ? Math.max(
-                10,
-                Math.round(
-                  (
-                    semana.totalSegundos /
-                    maiorTempo
-                  ) *
-                  100
+      .map(
+        (
+          semana
+        ) => {
+
+          const porcentagem =
+            semana.totalSegundos >
+            0
+              ? Math.max(
+                  10,
+                  Math.round(
+                    (
+                      semana.totalSegundos /
+                      maiorTempo
+                    ) *
+                    100
+                  )
                 )
-              )
-            : 0;
+              : 0;
 
-        const ativa =
-          semana.totalSegundos > 0;
 
-        const atual =
-          semana.numero ===
-          dados.length;
+          const ativa =
+            semana.totalSegundos >
+            0;
 
-        return `
-          <article
-            class="consistency-week ${
-              ativa
-                ? "active"
-                : ""
-            } ${
-              atual
-                ? "current"
-                : ""
-            }"
-          >
 
-            <div class="week-indicator">
+          const atual =
+            semana.numero ===
+            dados.length;
 
-              <span class="week-dot"></span>
 
-              <span class="week-line"></span>
+          return `
 
-            </div>
+            <article
+              class="consistency-week ${
+                ativa
+                  ? "active"
+                  : ""
+              } ${
+                atual
+                  ? "current"
+                  : ""
+              }"
+            >
 
-            <div class="week-content">
+              <div class="week-indicator">
 
-              <div class="week-heading">
+                <span class="week-dot"></span>
 
-                <div>
+                <span class="week-line"></span>
 
-                  <small>
-                    Semana ${semana.numero}
-                  </small>
+              </div>
 
-                  <strong>
-                    ${formatarDataCurta(
-                      semana.inicio
+
+              <div class="week-content">
+
+                <div class="week-heading">
+
+                  <div>
+
+                    <small>
+                      Semana ${semana.numero}
+                    </small>
+
+                    <strong>
+
+                      ${formatarDataCurta(
+                        semana.inicio
+                      )}
+
+                      —
+
+                      ${formatarDataCurta(
+                        semana.fim
+                      )}
+
+                    </strong>
+
+                  </div>
+
+
+                  <span>
+
+                    ${formatarDuracao(
+                      semana.totalSegundos
                     )}
-                    —
-                    ${formatarDataCurta(
-                      semana.fim
-                    )}
-                  </strong>
+
+                  </span>
 
                 </div>
 
-                <span>
-                  ${formatarDuracao(
-                    semana.totalSegundos
-                  )}
-                </span>
+
+                <div class="week-progress">
+
+                  <span
+                    style="width:${porcentagem}%"
+                  ></span>
+
+                </div>
+
+
+                <div class="week-details">
+
+                  <span>
+
+                    <i data-lucide="brain"></i>
+
+                    ${semana.totalSessoes}
+
+                    ${
+                      semana.totalSessoes ===
+                      1
+                        ? "sessão"
+                        : "sessões"
+                    }
+
+                  </span>
+
+
+                  <span>
+
+                    <i data-lucide="calendar-check-2"></i>
+
+                    ${semana.diasAtivos}
+
+                    ${
+                      semana.diasAtivos ===
+                      1
+                        ? "dia ativo"
+                        : "dias ativos"
+                    }
+
+                  </span>
+
+                </div>
 
               </div>
 
-              <div class="week-progress">
+            </article>
 
-                <span
-                  style="width: ${porcentagem}%"
-                ></span>
+          `;
 
-              </div>
-
-              <div class="week-details">
-
-                <span>
-
-                  <i data-lucide="brain"></i>
-
-                  ${semana.totalSessoes}
-                  ${
-                    semana.totalSessoes === 1
-                      ? "sessão"
-                      : "sessões"
-                  }
-
-                </span>
-
-                <span>
-
-                  <i data-lucide="calendar-check-2"></i>
-
-                  ${semana.diasAtivos}
-                  ${
-                    semana.diasAtivos === 1
-                      ? "dia ativo"
-                      : "dias ativos"
-                  }
-
-                </span>
-
-              </div>
-
-            </div>
-
-          </article>
-        `;
-      })
+        }
+      )
       .join("");
+
 
   if (
     melhorSemana &&
-    melhorSemana.totalSegundos > 0
+    melhorSemana.totalSegundos >
+    0
   ) {
+
     elementos.bestWeekValue.textContent =
       formatarDuracao(
         melhorSemana.totalSegundos
       );
 
+
     elementos.bestWeekDescription.textContent =
       `${melhorSemana.totalSessoes} ${
-        melhorSemana.totalSessoes === 1
+        melhorSemana.totalSessoes ===
+        1
           ? "sessão"
           : "sessões"
       } em ${melhorSemana.diasAtivos} ${
-        melhorSemana.diasAtivos === 1
+        melhorSemana.diasAtivos ===
+        1
           ? "dia ativo"
           : "dias ativos"
       }.`;
+
   } else {
+
     elementos.bestWeekValue.textContent =
       "—";
 
+
     elementos.bestWeekDescription.textContent =
       "Continue registrando sessões para revelar seu melhor período.";
+
   }
+
 
   elementos.consistencyPeriod.textContent =
     "Últimas 12 semanas";
+
 }
 
-/* =========================
+
+/* =========================================================
    CATEGORIAS
-========================= */
-
-function obterIconeCategoria(
-  categoria
-) {
-  const mapa = {
-    Pessoal:
-      "user-round",
-
-    Estudos:
-      "graduation-cap",
-
-    Trabalho:
-      "briefcase-business",
-
-    Saúde:
-      "heart-pulse",
-
-    Projeto:
-      "folder-kanban",
-
-    Outro:
-      "shapes",
-  };
-
-  return (
-    mapa[categoria] ||
-    "tag"
-  );
-}
+========================================================= */
 
 function renderizarCategorias() {
-  if (metas.length === 0) {
+
+  if (
+    metas.length ===
+    0
+  ) {
+
     elementos.categoryProgress.innerHTML =
       "";
 
-    elementos.categoryEmpty.classList.remove(
+
+    elementos.categoryEmpty
+      ?.classList.remove(
+        "hidden"
+      );
+
+
+    return;
+
+  }
+
+
+  elementos.categoryEmpty
+    ?.classList.add(
       "hidden"
     );
 
-    return;
-  }
 
-  elementos.categoryEmpty.classList.add(
-    "hidden"
+  const categorias = {};
+
+
+  metas.forEach(
+    (
+      meta
+    ) => {
+
+      const nome =
+        meta.categoria ||
+        "Outro";
+
+
+      if (
+        !categorias[
+          nome
+        ]
+      ) {
+
+        categorias[
+          nome
+        ] = {
+
+          total:
+            0,
+
+          concluidas:
+            0,
+
+        };
+
+      }
+
+
+      categorias[
+        nome
+      ].total++;
+
+
+      if (
+        meta.concluida
+      ) {
+
+        categorias[
+          nome
+        ].concluidas++;
+
+      }
+
+    }
   );
 
-  const categorias =
-    metas.reduce(
-      (mapa, meta) => {
-        const categoria =
-          meta.categoria ||
-          "Outro";
 
-        if (!mapa[categoria]) {
-          mapa[categoria] = {
-            total: 0,
-            progresso: 0,
-          };
-        }
-
-        mapa[categoria].total +=
-          1;
-
-        mapa[categoria].progresso +=
-          meta.progresso;
-
-        return mapa;
-      },
-      {}
-    );
-
-  const lista =
+  elementos.categoryProgress.innerHTML =
     Object.entries(
       categorias
     )
       .map(
         ([
-          categoria,
+          nome,
           dados,
-        ]) => ({
-          categoria,
+        ]) => {
 
-          media:
-            Math.round(
-              dados.progresso /
-              dados.total
-            ),
-        })
-      )
-      .sort(
-        (a, b) =>
-          b.media -
-          a.media
-      );
+          /*
+            Esta barra NÃO é progresso manual.
 
-  elementos.categoryProgress.innerHTML =
-    lista
-      .map(
-        (item) => `
-          <article class="category-item">
+            Ela representa:
 
-            <div class="category-top">
+            metas concluídas
+                  /
+            metas da categoria
+          */
 
-              <div class="category-name">
+          const porcentagem =
+            dados.total >
+            0
+              ? Math.round(
+                  (
+                    dados.concluidas /
+                    dados.total
+                  ) *
+                  100
+                )
+              : 0;
 
-                <span class="category-icon">
 
-                  <i
-                    data-lucide="${obterIconeCategoria(
-                      item.categoria
-                    )}"
-                  ></i>
+          return `
+
+            <article class="category-item">
+
+              <div class="category-top">
+
+                <div class="category-name">
+
+                  <span class="category-icon">
+
+                    <i data-lucide="tag"></i>
+
+                  </span>
+
+
+                  <strong>
+
+                    ${escaparHTML(
+                      nome
+                    )}
+
+                  </strong>
+
+                </div>
+
+
+                <span class="category-percent">
+
+                  ${dados.concluidas}/${dados.total}
 
                 </span>
 
-                <strong>
-                  ${escaparHTML(
-                    item.categoria
-                  )}
-                </strong>
+              </div>
+
+
+              <div class="category-progress">
+
+                <span
+                  style="width:${porcentagem}%"
+                ></span>
 
               </div>
 
-              <span class="category-percent">
-                ${item.media}%
-              </span>
+            </article>
 
-            </div>
+          `;
 
-            <div class="category-progress">
-
-              <span
-                style="width: ${item.media}%"
-              ></span>
-
-            </div>
-
-          </article>
-        `
+        }
       )
       .join("");
+
 }
 
-/* =========================
+
+/* =========================================================
    MELHOR MOMENTO
-========================= */
+========================================================= */
 
 function renderizarMelhorMomento() {
+
   if (
-    sessoes.length === 0 &&
-    metas.length === 0
+    sessoes.length ===
+    0
   ) {
+
     elementos.bestMomentValue.textContent =
       "—";
+
 
     elementos.bestMomentTitle.textContent =
       "Ainda sem um destaque";
 
+
     elementos.bestMomentDescription.textContent =
-      "Continue registrando sua evolução para revelar o melhor momento da sua jornada.";
+      "Faça sessões de foco para construir seu histórico.";
+
 
     elementos.bestMomentIcon.setAttribute(
       "data-lucide",
       "sparkles"
     );
 
+
     return;
+
   }
 
-  const maiorSessao =
+
+  const melhor =
     sessoes.reduce(
-      (melhor, sessao) =>
+      (
+        atual,
+        sessao
+      ) =>
         sessao.durationSeconds >
-        (
-          melhor?.durationSeconds ||
-          0
-        )
+        atual.durationSeconds
           ? sessao
-          : melhor,
-      null
+          : atual
     );
 
-  const melhorMeta =
-    metas.reduce(
-      (melhor, meta) =>
-        meta.progresso >
-        (
-          melhor?.progresso ||
-          0
-        )
-          ? meta
-          : melhor,
-      null
-    );
-
-  if (
-    maiorSessao &&
-    maiorSessao.durationSeconds > 0
-  ) {
-    elementos.bestMomentValue.textContent =
-      formatarDuracao(
-        maiorSessao.durationSeconds
-      );
-
-    elementos.bestMomentTitle.textContent =
-      "Sua sessão mais profunda";
-
-    elementos.bestMomentDescription.textContent =
-      maiorSessao.intention ||
-      "Você demonstrou capacidade real de concentração.";
-
-    elementos.bestMomentIcon.setAttribute(
-      "data-lucide",
-      "brain"
-    );
-
-    return;
-  }
 
   elementos.bestMomentValue.textContent =
-    `${melhorMeta?.progresso || 0}%`;
+    formatarDuracao(
+      melhor.durationSeconds
+    );
+
 
   elementos.bestMomentTitle.textContent =
-    "Sua meta mais avançada";
+    "Sua sessão mais profunda";
+
 
   elementos.bestMomentDescription.textContent =
-    melhorMeta?.titulo ||
-    "Continue avançando para criar um novo destaque.";
+    melhor.goalTitle
+      ? `Foco dedicado à meta “${melhor.goalTitle}”.`
+      : "Seu melhor momento de concentração.";
+
 
   elementos.bestMomentIcon.setAttribute(
     "data-lucide",
-    "target"
+    "brain"
   );
+
 }
 
-/* =========================
+
+/* =========================================================
    INSIGHT
-========================= */
+========================================================= */
 
-function definirInsight(resumo) {
-  if (
-    resumo.totalMetas === 0 &&
-    resumo.sessoesPeriodo.length === 0
-  ) {
-    return {
-      icon:
-        "lightbulb",
+function renderizarInsight(
+  resumo
+) {
 
-      titulo:
-        "Comece a gerar seu histórico.",
+  let icon =
+    "lightbulb";
 
-      descricao:
-        "Suas metas e sessões de foco serão analisadas aqui para revelar padrões reais da sua evolução.",
-    };
-  }
 
-  if (
-    resumo.totalMetas > 0 &&
-    resumo.sessoesPeriodo.length === 0
-  ) {
-    return {
-      icon:
-        "brain",
+  let titulo =
+    "Comece a gerar seu histórico.";
 
-      titulo:
-        "Você já tem direção. Agora falta tempo protegido.",
 
-      descricao:
-        "Suas metas estão definidas, mas ainda não há sessões de foco neste período.",
-    };
-  }
+  let descricao =
+    "Suas metas e sessões serão analisadas aqui.";
+
 
   if (
-    resumo.sessoesPeriodo.length > 0 &&
-    resumo.totalMetas === 0
+    resumo.totalMetas >
+      0 &&
+    resumo.sessoes.length ===
+      0
   ) {
-    return {
-      icon:
-        "target",
 
-      titulo:
-        "Você está agindo, mas pode ganhar mais direção.",
+    icon =
+      "brain";
 
-      descricao:
-        "Seu histórico mostra tempo dedicado. Criar metas ajudará a conectar esse esforço a objetivos claros.",
-    };
+
+    titulo =
+      "Você já tem direção.";
+
+
+    descricao =
+      "Agora transforme suas metas em tempo de foco.";
+
+  } else if (
+    resumo.sequencia >=
+    7
+  ) {
+
+    icon =
+      "flame";
+
+
+    titulo =
+      "Sua constância já passou de uma semana.";
+
+
+    descricao =
+      "Você está construindo um padrão forte.";
+
+  } else if (
+    resumo.metasEmAndamento ===
+      0 &&
+    resumo.metasConcluidas >
+      0
+  ) {
+
+    icon =
+      "trophy";
+
+
+    titulo =
+      "Você concluiu todas as metas atuais.";
+
+
+    descricao =
+      "Esse é um ótimo momento para definir o próximo desafio.";
+
+  } else if (
+    resumo.diasAtivos >=
+    4
+  ) {
+
+    icon =
+      "calendar-check-2";
+
+
+    titulo =
+      "Seu esforço está bem distribuído.";
+
+
+    descricao =
+      "Você esteve ativo em vários dias do período.";
+
+  } else if (
+    resumo.sessoes.length >
+    0
+  ) {
+
+    icon =
+      "footprints";
+
+
+    titulo =
+      "Seu ritmo está começando a aparecer.";
+
+
+    descricao =
+      "Continue focando e concluindo metas.";
+
   }
 
-  if (
-    resumo.sequencia >= 7
-  ) {
-    return {
-      icon:
-        "flame",
-
-      titulo:
-        "Sua constância já passou de uma semana.",
-
-      descricao:
-        "Você está formando um padrão consistente. Mantenha o ritmo sem aumentar a carga de forma exagerada.",
-    };
-  }
-
-  if (
-    resumo.progressoMedio >= 70
-  ) {
-    return {
-      icon:
-        "trending-up",
-
-      titulo:
-        "Suas metas estão em uma fase avançada.",
-
-      descricao:
-        "Priorize concluir o que já começou antes de adicionar muitos novos objetivos.",
-    };
-  }
-
-  if (
-    resumo.diasAtivos >= 4
-  ) {
-    return {
-      icon:
-        "calendar-check-2",
-
-      titulo:
-        "Seu esforço está bem distribuído.",
-
-      descricao:
-        "Você registrou atividade em vários dias do período, um sinal saudável de constância.",
-    };
-  }
-
-  return {
-    icon:
-      "footprints",
-
-    titulo:
-      "Seu ritmo está começando a aparecer.",
-
-    descricao:
-      "Continue registrando pequenas sessões e atualizando suas metas para enxergar padrões mais claros.",
-  };
-}
-
-function renderizarInsight(resumo) {
-  const insight =
-    definirInsight(
-      resumo
-    );
 
   elementos.insightIcon.setAttribute(
     "data-lucide",
-    insight.icon
+    icon
   );
 
+
   elementos.insightTitle.textContent =
-    insight.titulo;
+    titulo;
+
 
   elementos.insightDescription.textContent =
-    insight.descricao;
+    descricao;
+
 }
 
-/* =========================
-   CONQUISTAS
-========================= */
 
-function obterConquistas(resumo) {
-  const totalFocoGeral =
+/* =========================================================
+   CONQUISTAS
+========================================================= */
+
+function renderizarConquistas(
+  resumo
+) {
+
+  const totalFoco =
     sessoes.reduce(
-      (soma, sessao) =>
-        soma +
+      (
+        total,
+        sessao
+      ) =>
+        total +
         sessao.durationSeconds,
       0
     );
 
-  const metasConcluidas =
-    metas.filter(
-      (meta) =>
-        meta.concluida
-    ).length;
 
-  return [
+  const conquistas = [
+
     {
+
       nome:
         "Primeiro passo",
 
       descricao:
-        "Conclua sua primeira sessão de foco.",
+        "Faça sua primeira sessão.",
 
       icon:
         "footprints",
 
-      desbloqueada:
-        sessoes.length >= 1,
+      ok:
+        sessoes.length >=
+        1,
+
     },
 
     {
+
       nome:
         "Objetivo alcançado",
 
@@ -2207,40 +2965,48 @@ function obterConquistas(resumo) {
       icon:
         "trophy",
 
-      desbloqueada:
-        metasConcluidas >= 1,
+      ok:
+        resumo.metasConcluidas >=
+        1,
+
     },
 
     {
+
       nome:
         "Uma hora de presença",
 
       descricao:
-        "Acumule 60 minutos de foco.",
+        "Acumule uma hora de foco.",
 
       icon:
         "clock-3",
 
-      desbloqueada:
-        totalFocoGeral >=
+      ok:
+        totalFoco >=
         3600,
+
     },
 
     {
+
       nome:
-        "Constância de 3 dias",
+        "Constância",
 
       descricao:
-        "Mantenha uma sequência de três dias.",
+        "Mantenha três dias seguidos.",
 
       icon:
         "flame",
 
-      desbloqueada:
-        resumo.sequencia >= 3,
+      ok:
+        resumo.sequencia >=
+        3,
+
     },
 
     {
+
       nome:
         "Cinco metas",
 
@@ -2250,133 +3016,130 @@ function obterConquistas(resumo) {
       icon:
         "list-checks",
 
-      desbloqueada:
-        metasConcluidas >= 5,
+      ok:
+        resumo.metasConcluidas >=
+        5,
+
     },
 
     {
+
       nome:
         "Foco profundo",
 
       descricao:
-        "Complete uma sessão de pelo menos 60 minutos.",
+        "Faça uma sessão de 60 minutos.",
 
       icon:
         "brain",
 
-      desbloqueada:
+      ok:
         sessoes.some(
-          (sessao) =>
+          (
+            sessao
+          ) =>
             sessao.durationSeconds >=
             3600
         ),
-    },
-  ];
-}
 
-function renderizarConquistas(resumo) {
-  const conquistas =
-    obterConquistas(
-      resumo
-    );
+    },
+
+  ];
+
 
   const desbloqueadas =
     conquistas.filter(
-      (item) =>
-        item.desbloqueada
+      (
+        item
+      ) =>
+        item.ok
     ).length;
+
 
   elementos.achievementCounter.textContent =
     `${desbloqueadas} de ${conquistas.length}`;
 
+
   elementos.achievementGrid.innerHTML =
     conquistas
       .map(
-        (conquista) => `
+        (
+          item
+        ) => `
+
           <article
             class="achievement-card ${
-              conquista.desbloqueada
+              item.ok
                 ? "unlocked"
                 : "locked"
             }"
           >
 
             ${
-              conquista.desbloqueada
+              item.ok
                 ? `
+
                   <span class="achievement-state">
                     Desbloqueada
                   </span>
+
                 `
                 : `
+
                   <i
                     data-lucide="lock-keyhole"
                     class="achievement-lock"
                   ></i>
+
                 `
             }
 
+
             <span class="achievement-icon">
 
-              <i
-                data-lucide="${conquista.icon}"
-              ></i>
+              <i data-lucide="${item.icon}"></i>
 
             </span>
 
+
             <h3>
+
               ${escaparHTML(
-                conquista.nome
+                item.nome
               )}
+
             </h3>
 
+
             <p>
+
               ${escaparHTML(
-                conquista.descricao
+                item.descricao
               )}
+
             </p>
 
           </article>
+
         `
       )
       .join("");
+
 }
 
-/* =========================
-   RENDERIZAÇÃO
-========================= */
 
-function atualizarPeriodo(
-  novoPeriodo
-) {
-  periodoAtual =
-    novoPeriodo;
-
-  document
-    .querySelectorAll(
-      ".period-button"
-    )
-    .forEach((botao) => {
-      botao.classList.toggle(
-        "active",
-        Number(
-          botao.dataset.period
-        ) ===
-        novoPeriodo
-      );
-    });
-
-  renderizarPagina();
-}
+/* =========================================================
+   RENDER GERAL
+========================================================= */
 
 function renderizarPagina() {
-  carregarDados();
 
-  const resumo =
+  const atual =
     gerarResumo(
       periodoAtual,
       0
     );
+
 
   const anterior =
     gerarResumo(
@@ -2384,140 +3147,171 @@ function renderizarPagina() {
       periodoAtual
     );
 
-  executarSecao(
-    "Índice Pace",
-    () =>
-      atualizarScore(
-        resumo
-      )
+
+  atualizarIndice(
+    atual
   );
 
-  executarSecao(
-    "Comparação",
-    () =>
-      atualizarComparacao(
-        resumo,
-        anterior
-      )
+
+  atualizarComparacao(
+    atual,
+    anterior
   );
 
-  executarSecao(
-    "Métricas",
-    () =>
-      atualizarMetricas(
-        resumo,
-        anterior
-      )
+
+  atualizarMetricas(
+    atual,
+    anterior
   );
 
-  executarSecao(
-    "Próximo passo",
-    () =>
-      configurarProximoPasso(
-        resumo
-      )
+
+  atualizarProximoPasso(
+    atual
   );
 
-  executarSecao(
-    "Gráfico semanal",
-    renderizarGraficoSemanal
+
+  renderizarGrafico();
+
+
+  renderizarTimeline();
+
+
+  renderizarTrilhaDeConstancia();
+
+
+  renderizarCategorias();
+
+
+  renderizarMelhorMomento();
+
+
+  renderizarInsight(
+    atual
   );
 
-  executarSecao(
-    "Linha do tempo",
-    renderizarLinhaDoTempo
+
+  renderizarConquistas(
+    atual
   );
 
-  executarSecao(
-    "Trilha de constância",
-    renderizarTrilhaDeConstancia
-  );
-
-  executarSecao(
-    "Categorias",
-    renderizarCategorias
-  );
-
-  executarSecao(
-    "Melhor momento",
-    renderizarMelhorMomento
-  );
-
-  executarSecao(
-    "Insight",
-    () =>
-      renderizarInsight(
-        resumo
-      )
-  );
-
-  executarSecao(
-    "Conquistas",
-    () =>
-      renderizarConquistas(
-        resumo
-      )
-  );
 
   iniciarIcones();
+
 }
 
-/* =========================
-   EVENTOS
-========================= */
+
+/* =========================================================
+   FILTRO PERÍODO
+========================================================= */
 
 document
   .querySelectorAll(
     ".period-button"
   )
-  .forEach((botao) => {
-    botao.addEventListener(
-      "click",
-      () => {
-        atualizarPeriodo(
-          Number(
-            botao.dataset.period
-          )
-        );
-      }
-    );
-  });
+  .forEach(
+    (
+      botao
+    ) => {
+
+      botao.addEventListener(
+        "click",
+        () => {
+
+          periodoAtual =
+            Number(
+              botao.dataset
+                .period
+            );
+
+
+          document
+            .querySelectorAll(
+              ".period-button"
+            )
+            .forEach(
+              (
+                item
+              ) => {
+
+                item.classList.toggle(
+                  "active",
+                  item ===
+                    botao
+                );
+
+              }
+            );
+
+
+          renderizarPagina();
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   TEMA
+========================================================= */
 
 window.addEventListener(
   "storage",
-  (evento) => {
-    if (
-      evento.key ===
-        STORAGE_KEYS.metas ||
-      evento.key ===
-        STORAGE_KEYS.focusHistory ||
-      evento.key === null
-    ) {
-      renderizarPagina();
-    }
+  (
+    evento
+  ) => {
 
     if (
       evento.key ===
-        "darkMode" ||
-      evento.key === null
+      "darkMode"
     ) {
+
       aplicarTemaSalvo();
+
     }
+
   }
 );
+
+
+/* =========================================================
+   ATUALIZA QUANDO VOLTA PARA PÁGINA
+========================================================= */
 
 document.addEventListener(
   "visibilitychange",
-  () => {
-    if (!document.hidden) {
-      renderizarPagina();
+  async () => {
+
+    if (
+      !document.hidden
+    ) {
+
+      await carregarDados();
+
     }
+
   }
 );
 
-/* =========================
-   INICIALIZAÇÃO
-========================= */
 
-aplicarTemaSalvo();
-renderizarPagina();
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+const shellOk =
+  await initAppShell();
+
+
+if (
+  shellOk !==
+  false
+) {
+
+  aplicarTemaSalvo();
+
+  iniciarIcones();
+
+  await carregarDados();
+
+}
