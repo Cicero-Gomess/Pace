@@ -1,9 +1,96 @@
-﻿import 'dart:convert';
+﻿import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api_config.dart';
+import 'pace_shell.dart';
+
+const Color primary = Color(0xFF315CAC);
+const Color primary2 = Color(0xFF416FC4);
+const Color accent = Color(0xFF69C5D0);
+
+
+dynamic _decodeJsonOnIsolate(String source) {
+  return jsonDecode(source);
+}
+
+Uint8List? _decodeDataImageOnIsolate(String source) {
+  try {
+    final commaIndex = source.indexOf(',');
+    if (commaIndex < 0 || commaIndex >= source.length - 1) {
+      return null;
+    }
+
+    return base64Decode(source.substring(commaIndex + 1));
+  } catch (_) {
+    return null;
+  }
+}
+
+
+final Map<String, ImageProvider> _explorarImageCache = <String, ImageProvider>{};
+
+
+Future<void> _avatarDecodeQueue = Future<void>.value();
+final Map<String, Uint8List> _avatarBytesCache = <String, Uint8List>{};
+
+Future<Uint8List?> _decodeAvatarSerially(String source) {
+  final cached = _avatarBytesCache[source];
+  if (cached != null) {
+    return Future<Uint8List?>.value(cached);
+  }
+
+  final completer = Completer<Uint8List?>();
+
+  _avatarDecodeQueue = _avatarDecodeQueue.then((_) async {
+    try {
+      Uint8List? bytes;
+
+      if (kIsWeb) {
+        bytes = _decodeDataImageOnIsolate(source);
+      } else {
+        bytes = await compute(_decodeDataImageOnIsolate, source);
+      }
+
+      if (bytes != null) {
+        // Cache only a few search avatars to prevent unlimited memory growth.
+        if (_avatarBytesCache.length >= 6) {
+          _avatarBytesCache.remove(_avatarBytesCache.keys.first);
+        }
+        _avatarBytesCache[source] = bytes;
+      }
+
+      if (!completer.isCompleted) {
+        completer.complete(bytes);
+      }
+    } catch (_) {
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    }
+  });
+
+  return completer.future;
+}
+
+ImageProvider _cachedImageProvider(dynamic value) {
+  final key = value?.toString().trim() ?? '';
+
+  if (key.isEmpty) {
+    return const AssetImage('assets/user.png');
+  }
+
+  return _explorarImageCache.putIfAbsent(
+    key,
+    () => ApiConfig.imageProvider(key),
+  );
+}
 
 class ExplorarPage extends StatefulWidget {
   const ExplorarPage({super.key});
@@ -12,1161 +99,744 @@ class ExplorarPage extends StatefulWidget {
   State<ExplorarPage> createState() => _ExplorarPageState();
 }
 
-class _ExplorarProfile {
-  final int? id;
-  final String nome;
-  final String username;
-  final String bio;
-  final String avatar;
-  final List<String> tags;
-
-  const _ExplorarProfile({
-    this.id,
-    required this.nome,
-    required this.username,
-    required this.bio,
-    required this.avatar,
-    this.tags = const [],
-  });
-}
-
 class _ExplorarPageState extends State<ExplorarPage> {
-  static const String apiUrl = 'http://127.0.0.1:8000';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController _searchController = TextEditingController();
 
-  static const _fallbackProfiles = [
-    _ExplorarProfile(
-      nome: 'Lara Mendes',
-      username: '@laradisciplina',
-      bio: 'Transformando rotina em resultado com constÃ¢ncia.',
-      avatar: '',
-      tags: ['Disciplina', 'Mindset'],
-    ),
-  ];
+  Timer? _startupTimer;
 
-  final TextEditingController searchController = TextEditingController();
+  bool _loading = true;
+  bool _searching = false;
+  bool _sidebarHovered = false;
+  String? _sidebarItemHovered;
 
-  List<_ExplorarProfile> profilesData = [];
-
-  Map<String, dynamic> usuarioLogado = {};
-
-  bool isLoadingProfiles = true;
-  bool sidebarHovered = false;
-  String? sidebarItemHovered;
-  String filtroAtual = 'todos';
-  String termoAtual = '';
+  Map<String, dynamic> _usuarioLogado = {};
+  List<Map<String, dynamic>> _profiles = [];
 
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
+  Color get bgColor =>
+      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F8FD);
+
   Color get textColor =>
-      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+      darkMode ? const Color(0xFFF2F6FF) : const Color(0xFF172033);
+
+  Color get textSoftColor =>
+      darkMode ? const Color(0xFFDCE5F4) : const Color(0xFF2D3950);
 
   Color get mutedColor =>
-      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
+      darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
 
   Color get sidebarTextColor =>
-      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
+      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415B);
+
+  Color get cardColor => darkMode
+      ? const Color(0xFF0C1627).withOpacity(0.94)
+      : Colors.white.withOpacity(0.92);
 
   @override
   void initState() {
     super.initState();
-    _loadOptionalUser();
-    _renderProfiles();
+
+    // Mantém o cache sob controle, especialmente no Android.
+    PaintingBinding.instance.imageCache.maximumSize = 28;
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 14 << 20;
+
+
+    // A transição de rota do Pace dura 650 ms. Se começarmos a processar
+    // JSON/Base64 no meio dela, o frame pode congelar com Feed e Explorar
+    // desenhados ao mesmo tempo. Esperamos a animação terminar primeiro.
+    _startupTimer = Timer(
+      const Duration(milliseconds: 720),
+      () {
+        if (mounted) {
+          _inicializar();
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    _startupTimer?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('token') ?? prefs.getString('access_token');
   }
 
-  Future<void> _loadOptionalUser() async {
-    final token = await _getToken();
-    if (token == null || !mounted) return;
-
-    try {
-      final response = await http.get(
-        Uri.parse('$apiUrl/profile/me'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (!mounted) return;
-        setState(() {
-          usuarioLogado = Map<String, dynamic>.from(jsonDecode(response.body));
-        });
-      }
-    } catch (_) {}
+  Map<String, String> _authHeaders(String token, {bool json = false}) {
+    return {
+      'Authorization': 'Bearer $token',
+      if (json) 'Content-Type': 'application/json',
+    };
   }
 
   Future<dynamic> _parseResponse(
     http.Response response,
-    String fallbackMessage,
+    String fallback,
   ) async {
     dynamic data;
 
     try {
-      data = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      if (response.body.isEmpty) {
+        data = null;
+      } else if (response.body.length >= 12000 && !kIsWeb) {
+        // Fotos Base64 deixam algumas respostas grandes. Decodificar JSON
+        // no isolate principal trava animação e rolagem.
+        data = await compute(_decodeJsonOnIsolate, response.body);
+      } else {
+        data = jsonDecode(response.body);
+      }
     } catch (_) {
       data = null;
     }
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      final message = data is Map && data['detail'] != null
-          ? data['detail'].toString()
-          : fallbackMessage;
+    if (response.statusCode == 401) {
+      throw Exception('AUTH_401');
+    }
 
-      throw Exception(message);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final detail = data is Map ? data['detail'] : null;
+      throw Exception(detail?.toString() ?? fallback);
     }
 
     return data;
   }
 
-  _ExplorarProfile _buildProfileFromAPI(Map<String, dynamic> user) {
-    final rawUsername = user['username']?.toString() ?? 'Perfil Pace';
-    final withoutAt = rawUsername.replaceFirst(RegExp(r'^@'), '');
-
-    return _ExplorarProfile(
-      id: user['id'] is int
-          ? user['id'] as int
-          : int.tryParse(user['id']?.toString() ?? ''),
-      nome: withoutAt,
-      username: '@$withoutAt',
-      bio: user['email']?.toString().isNotEmpty == true
-          ? user['email'].toString()
-          : 'Perfil no Pace',
-      avatar: user['foto_perfil']?.toString() ?? '',
-    );
-  }
-
-  Future<List<_ExplorarProfile>> _loadSavedProfiles() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString('usuarios');
-      if (raw == null || raw.isEmpty) return [];
-
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map) return [];
-
-      return decoded.entries.map((entry) {
-        final username = entry.key.toString().replaceFirst(RegExp(r'^@'), '');
-        final data = entry.value is Map
-            ? Map<String, dynamic>.from(entry.value as Map)
-            : <String, dynamic>{};
-
-        return _ExplorarProfile(
-          nome: username,
-          username: '@$username',
-          bio: data['bio']?.toString().isNotEmpty == true
-              ? data['bio'].toString()
-              : data['email']?.toString().isNotEmpty == true
-                  ? data['email'].toString()
-                  : 'Perfil salvo localmente',
-          avatar: data['foto']?.toString().isNotEmpty == true
-              ? data['foto'].toString()
-              : data['foto_perfil']?.toString() ?? '',
-        );
-      }).toList();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  Future<void> _fetchProfiles(String query) async {
-    try {
-      final token = await _getToken();
-      final encodedQuery = Uri.encodeQueryComponent(query.trim());
-      var path = '$apiUrl/profile/buscar_por_username/?skip=0&limit=100';
-
-      if (query.trim().isNotEmpty) {
-        path += '&username=$encodedQuery';
-      }
-
-      final headers = <String, String>{};
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-
-      final response = await http.get(Uri.parse(path), headers: headers);
-      final data = await _parseResponse(response, 'Falha ao buscar perfis.');
-
-      if (data is List && data.isNotEmpty) {
-        profilesData = data
-            .whereType<Map>()
-            .map((item) => _buildProfileFromAPI(Map<String, dynamic>.from(item)))
-            .toList();
-        return;
-      }
-
-      profilesData = await _loadSavedProfiles();
-      if (profilesData.isEmpty) {
-        profilesData = List<_ExplorarProfile>.from(_fallbackProfiles);
-      }
-    } catch (_) {
-      profilesData = await _loadSavedProfiles();
-      if (profilesData.isEmpty) {
-        profilesData = List<_ExplorarProfile>.from(_fallbackProfiles);
-      }
-    }
-  }
-
-  String _normalizarTexto(String? value) {
-  var text = (value ?? '').trim().toLowerCase();
-
-  const mapa = {
-    'à': 'a',
-    'á': 'a',
-    'â': 'a',
-    'ã': 'a',
-    'ä': 'a',
-    'å': 'a',
-    'è': 'e',
-    'é': 'e',
-    'ê': 'e',
-    'ë': 'e',
-    'ì': 'i',
-    'í': 'i',
-    'î': 'i',
-    'ï': 'i',
-    'ò': 'o',
-    'ó': 'o',
-    'ô': 'o',
-    'õ': 'o',
-    'ö': 'o',
-    'ù': 'u',
-    'ú': 'u',
-    'û': 'u',
-    'ü': 'u',
-    'ç': 'c',
-    'ñ': 'n',
-  };
-
-  mapa.forEach((accent, normal) {
-    text = text.replaceAll(accent, normal);
-  });
-
-  return text;
-}
-
-  String _combinarBusca(List<String> campos) {
-    return _normalizarTexto(campos.join(' '));
-  }
-
-  bool _profileMatch(_ExplorarProfile profile) {
-    final base = _combinarBusca([
-      profile.nome,
-      profile.username,
-      profile.bio,
-      profile.tags.join(' '),
-    ]);
-
-    final termoOk =
-        termoAtual.isEmpty || base.contains(_normalizarTexto(termoAtual));
-
-    final filtroNormalizado = _normalizarTexto(filtroAtual);
-    final filtroOk = filtroAtual == 'todos' ||
-        profile.tags.any(
-          (tag) => _normalizarTexto(tag).contains(filtroNormalizado),
-        ) ||
-        base.contains(filtroNormalizado);
-
-    return termoOk && filtroOk;
-  }
-
-  Future<void> _renderProfiles() async {
-    setState(() => isLoadingProfiles = true);
-
-    await _fetchProfiles(termoAtual);
+  Future<void> _inicializar() async {
+    final token = await _getToken();
 
     if (!mounted) return;
 
-    setState(() => isLoadingProfiles = false);
-  }
-
-    ImageProvider _avatarProvider(String? url) {
-  if (url != null && url.trim().isNotEmpty) {
-    return NetworkImage(url);
-  }
-
-  return const NetworkImage(
-    'https://ui-avatars.com/api/?name=Pace',
-  );
-}
-
-  String? _fotoUsuarioLogado() {
-    final foto = usuarioLogado['foto_perfil'] ?? usuarioLogado['foto'];
-    if (foto == null || foto.toString().trim().isEmpty) return null;
-    return foto.toString();
-  }
-
-  String _formatarDataRelativa(dynamic dataISO) {
-    if (dataISO == null) return '';
-
-    final data = DateTime.tryParse(dataISO.toString());
-    if (data == null) return '';
-
-    final diferenca = DateTime.now().difference(data);
-    final segundos = diferenca.inSeconds;
-    final minutos = diferenca.inMinutes;
-    final horas = diferenca.inHours;
-    final dias = diferenca.inDays;
-    final semanas = dias ~/ 7;
-    final meses = dias ~/ 30;
-    final anos = dias ~/ 365;
-
-    if (segundos < 60) return 'há poucos segundos';
-    if (minutos < 60) {
-      return 'há $minutos minuto${minutos == 1 ? '' : 's'}';
-    }
-    if (horas < 24) return 'há $horas hora${horas == 1 ? '' : 's'}';
-    if (dias < 7) return 'há $dias dia${dias == 1 ? '' : 's'}';
-    if (semanas < 5) {
-      return 'há $semanas semana${semanas == 1 ? '' : 's'}';
-    }
-    if (meses < 12) return 'há $meses mês${meses == 1 ? '' : 'es'}';
-    return 'há $anos ano${anos == 1 ? '' : 's'}';
-  }
-
-  int _toInt(dynamic value) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString() ?? '') ?? 0;
-  }
-
-  Future<List<Map<String, dynamic>>?> _fetchUserPosts(_ExplorarProfile profile) async {
-    final token = await _getToken();
-    if (token == null) return null;
-
-    try {
-      final response = await http.get(
-        Uri.parse('$apiUrl/post/feed'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      final data = await _parseResponse(response, 'Falha ao carregar posts.');
-      if (data is! List) return [];
-
-      final requestedUsername =
-          profile.username.replaceFirst(RegExp(r'^@'), '').toLowerCase();
-
-      return data.whereType<Map>().map((item) {
-        final post = Map<String, dynamic>.from(item);
-        final usuario = post['usuario'];
-
-        final postUserId = usuario is Map
-            ? usuario['id']?.toString() ?? ''
-            : post['usuario_id']?.toString() ?? '';
-
-        final postUsername = usuario is Map
-            ? usuario['username']?.toString().toLowerCase() ?? ''
-            : '';
-
-        final matches = postUserId == profile.id?.toString() ||
-            postUsername == requestedUsername;
-
-        return matches ? post : null;
-      }).whereType<Map<String, dynamic>>().toList();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> _curtirPostModal(
-    int postId,
-    List<Map<String, dynamic>> posts,
-    void Function(VoidCallback fn) modalSetState,
-  ) async {
-    final token = await _getToken();
-
-    if (token == null) {
-      _showToast('Faça login para curtir posts.', Colors.orange);
+    if (token == null || token.isEmpty) {
+      Navigator.of(context).pushReplacementNamed('/entrar');
       return;
     }
 
-    final index = posts.indexWhere((item) => _toInt(item['id']) == postId);
-    if (index == -1) return;
-
-    final post = posts[index];
-    final likedAntes = post['liked'] == true;
-    final likesAntes = _toInt(post['likes']);
-
-    modalSetState(() {
-      post['liked'] = !likedAntes;
-      post['likes'] = likedAntes ? (likesAntes > 0 ? likesAntes - 1 : 0) : likesAntes + 1;
-    });
-
     try {
-      final response = likedAntes
-          ? await http.delete(
-              Uri.parse('$apiUrl/post/remover_curtida/$postId'),
-              headers: {'Authorization': 'Bearer $token'},
-            )
-          : await http.post(
-              Uri.parse('$apiUrl/post/curtir/$postId'),
-              headers: {'Authorization': 'Bearer $token'},
-            );
+      final meResponse = await http
+          .get(
+            ApiConfig.uri('/profile/me'),
+            headers: _authHeaders(token),
+          )
+          .timeout(const Duration(seconds: 12));
 
-      await _parseResponse(response, 'Erro ao curtir post.');
+      final meData = await _parseResponse(
+        meResponse,
+        'Não foi possível carregar seu perfil.',
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _usuarioLogado = Map<String, dynamic>.from(meData as Map);
+        _profiles = <Map<String, dynamic>>[];
+        _loading = false;
+      });
     } catch (e) {
-      modalSetState(() {
-        post['liked'] = likedAntes;
-        post['likes'] = likesAntes;
+      if (e.toString().contains('AUTH_401')) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
+        return;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _loading = false;
       });
 
-      _showToast('Erro ao curtir post.', Colors.red);
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
     }
   }
 
-  void _showToast(String message, Color color) {
+  Future<void> _executarBusca(String termo) async {
+    final termoLimpo = termo.trim();
+
+    if (termoLimpo.length < 2) {
+      if (!mounted) return;
+
+      setState(() {
+        _profiles = <Map<String, dynamic>>[];
+        _searching = false;
+      });
+
+      return;
+    }
+
+    final token = await _getToken();
+    if (token == null || token.isEmpty || !mounted) return;
+
+    setState(() {
+      _searching = true;
+    });
+
+    try {
+      final perfis = await _buscarPerfis(
+        token: token,
+        termo: termoLimpo,
+        showLoading: false,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _profiles = perfis;
+      });
+    } catch (e) {
+      if (e.toString().contains('AUTH_401')) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
+        return;
+      }
+
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _searching = false;
+        });
+      }
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _buscarPerfis({
+    required String token,
+    required String termo,
+    bool showLoading = true,
+  }) async {
+    if (showLoading && mounted) {
+      setState(() {
+        _searching = true;
+      });
+    }
+
+    final uri = ApiConfig.uri('/profile/buscar_por_username/').replace(
+      queryParameters: {
+        'username': termo,
+        'skip': '0',
+        // Mantemos poucos cards por vez para evitar decodificar várias
+        // fotos Base64 simultaneamente no celular.
+        'limit': '4',
+      },
+    );
+
+    final response = await http
+        .get(
+          uri,
+          headers: _authHeaders(token),
+        )
+        .timeout(const Duration(seconds: 12));
+
+    final data = await _parseResponse(
+      response,
+      'Não foi possível buscar perfis.',
+    );
+
+    if (data is! List) {
+      return [];
+    }
+
+    // IMPORTANTE:
+    // Não fazemos mais /profile/{id} para cada usuário.
+    // O endpoint de busca já devolve foto, estatísticas e "segue".
+    return data
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  Future<void> _recarregar() async {
+    final termo = _searchController.text.trim();
+
+    if (termo.isEmpty) {
+      if (!mounted) return;
+
+      setState(() {
+        _profiles = <Map<String, dynamic>>[];
+      });
+
+      return;
+    }
+
+    final token = await _getToken();
+    if (token == null || token.isEmpty) return;
+
+    final perfis = await _buscarPerfis(
+      token: token,
+      termo: termo,
+    );
+
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
+    setState(() {
+      _profiles = perfis;
+    });
+  }
+
+  Future<void> _toggleFollow(Map<String, dynamic> profile) async {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) return;
+
+    final id = _toInt(profile['id']);
+    if (id <= 0) return;
+
+    final wasFollowing = profile['segue'] == true;
+
+    setState(() {
+      profile['segue'] = !wasFollowing;
+
+      final seguidores = _toInt(profile['total_seguidores']);
+      profile['total_seguidores'] = wasFollowing
+          ? (seguidores > 0 ? seguidores - 1 : 0)
+          : seguidores + 1;
+    });
+
+    try {
+      final response = wasFollowing
+          ? await http.post(
+              ApiConfig.uri('/profile/unfollow/$id'),
+              headers: _authHeaders(token),
+            )
+          : await http.post(
+              ApiConfig.uri('/profile/follow/$id'),
+              headers: _authHeaders(token),
+            );
+
+      await _parseResponse(
+        response,
+        wasFollowing
+            ? 'Não foi possível deixar de seguir.'
+            : 'Não foi possível seguir este usuário.',
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        profile['segue'] = wasFollowing;
+
+        final seguidores = _toInt(profile['total_seguidores']);
+        profile['total_seguidores'] = wasFollowing
+            ? seguidores + 1
+            : (seguidores > 0 ? seguidores - 1 : 0);
+      });
+
+      if (e.toString().contains('AUTH_401')) {
+        Navigator.of(context).pushReplacementNamed('/entrar');
+        return;
+      }
+
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
+    }
+  }
+
+  Future<void> _abrirPerfil(Map<String, dynamic> profile) async {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) return;
+
+    final userId = _toInt(profile['id']);
+    if (userId <= 0) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Fechar',
+      barrierColor: const Color(0x9908101C),
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (dialogContext, _, __) {
+        return _ProfileModalShell(
+          darkMode: darkMode,
+          child: FutureBuilder<_ProfileModalData>(
+            future: _carregarDadosModal(token, userId, profile),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const SizedBox(
+                  height: 380,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: primary,
+                    ),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError || !snapshot.hasData) {
+                return SizedBox(
+                  height: 330,
+                  child: Center(
+                    child: _ModalError(
+                      darkMode: darkMode,
+                      onClose: () => Navigator.of(dialogContext).pop(),
+                    ),
+                  ),
+                );
+              }
+
+              final data = snapshot.data!;
+
+              return _buildProfileModal(
+                dialogContext,
+                data.profile,
+                data.posts,
+              );
+            },
+          ),
+        );
+      },
+      transitionBuilder: (_, animation, __, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(
+            scale: Tween<double>(
+              begin: 0.96,
+              end: 1,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
     );
   }
 
-  Future<void> _openProfileModal(_ExplorarProfile profile) async {
-    await showDialog<void>(
-      context: context,
-      barrierColor: const Color(0x94080E1C),
-      builder: (dialogContext) {
-        return _ProfileModal(
-          profile: profile,
-          darkMode: darkMode,
-          textColor: textColor,
-          mutedColor: mutedColor,
-          avatarProvider: _avatarProvider,
-          formatarDataRelativa: _formatarDataRelativa,
-          fetchUserPosts: _fetchUserPosts,
-          onLike: _curtirPostModal,
-          showToast: _showToast,
-        );
-      },
+  Future<_ProfileModalData> _carregarDadosModal(
+    String token,
+    int userId,
+    Map<String, dynamic> fallback,
+  ) async {
+    Map<String, dynamic> profile = {...fallback};
+
+    try {
+      final response = await http.get(
+        ApiConfig.uri('/profile/$userId'),
+        headers: _authHeaders(token),
+      );
+
+      final data = await _parseResponse(
+        response,
+        'Erro ao carregar perfil.',
+      );
+
+      if (data is Map) {
+        profile = {
+          ...profile,
+          ...Map<String, dynamic>.from(data),
+        };
+      }
+    } catch (_) {}
+
+    final postsResponse = await http.get(
+      ApiConfig.uri('/post/feed'),
+      headers: _authHeaders(token),
+    );
+
+    final postsData = await _parseResponse(
+      postsResponse,
+      'Erro ao carregar posts.',
+    );
+
+    final posts = postsData is List
+        ? postsData
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .where(
+                (post) {
+                  final usuario = post['usuario'];
+                  if (usuario is Map) {
+                    return usuario['id']?.toString() == userId.toString();
+                  }
+                  return post['usuario_id']?.toString() == userId.toString();
+                },
+              )
+              .take(6)
+              .toList()
+        : <Map<String, dynamic>>[];
+
+    return _ProfileModalData(
+      profile: profile,
+      posts: posts,
+    );
+  }
+
+  Widget _buildProfileModal(
+    BuildContext dialogContext,
+    Map<String, dynamic> profile,
+    List<Map<String, dynamic>> posts,
+  ) {
+    final username = _username(profile);
+    final foto = _fotoPerfil(profile);
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(26, 26, 26, 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final compact = constraints.maxWidth < 620;
+
+                  final avatarSize = compact ? 82.0 : 96.0;
+
+                  final avatar = Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(
+                        color: primary.withOpacity(0.14),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primary.withOpacity(0.14),
+                          blurRadius: 24,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: _DeferredAvatar(
+                      value: foto,
+                      width: avatarSize - 6,
+                      height: avatarSize - 6,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  );
+
+                  final meta = Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          username,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: compact ? 25 : 29,
+                            height: 1.05,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.8,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          '@$username',
+                          style: TextStyle(
+                            color: mutedColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _ProfileTag(
+                              text:
+                                  '${_toInt(profile['total_posts'])} publicações',
+                              darkMode: darkMode,
+                            ),
+                            _ProfileTag(
+                              text:
+                                  '${_toInt(profile['total_seguidores'])} seguidores',
+                              darkMode: darkMode,
+                            ),
+                            _ProfileTag(
+                              text:
+                                  '${_toInt(profile['total_seguindo'])} seguindo',
+                              darkMode: darkMode,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (compact) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        avatar,
+                        const SizedBox(height: 18),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [meta],
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      avatar,
+                      const SizedBox(width: 20),
+                      meta,
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 28),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Publicações recentes',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              if (posts.isEmpty)
+                _ModalEmptyPosts(darkMode: darkMode)
+              else
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth >= 760 ? 2 : 1;
+                    final gap = 14.0;
+                    final width =
+                        (constraints.maxWidth - gap * (columns - 1)) / columns;
+
+                    return Wrap(
+                      spacing: gap,
+                      runSpacing: gap,
+                      children: posts.map((post) {
+                        return SizedBox(
+                          width: width,
+                          child: _ModalPostCard(
+                            darkMode: darkMode,
+                            post: post,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+
+        Positioned(
+          top: 14,
+          right: 14,
+          child: _CircleIconButton(
+            icon: Icons.close_rounded,
+            onTap: () => Navigator.of(dialogContext).pop(),
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 180.0;
-    final filtrados = profilesData.where(_profileMatch).toList();
+    final width = MediaQuery.sizeOf(context).width;
+    final mobile = width < 760;
+    final tablet = width >= 760 && width < 1080;
 
-    return Scaffold(
-      backgroundColor:
-          darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
-      body: Stack(
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: bgColor,
+        body: const Center(
+          child: CircularProgressIndicator(color: primary),
+        ),
+      );
+    }
+
+    final avatar =
+        _usuarioLogado['foto_perfil'] ??
+        _usuarioLogado['foto'] ??
+        _usuarioLogado['avatar'];
+
+    return PaceShell(
+      currentRoute: '/explorar',
+      username: _usuarioLogado['username']?.toString() ?? 'Meu perfil',
+      avatarValue: avatar?.toString(),
+      backgroundColor: bgColor,
+      child: Stack(
         children: [
           _BackgroundDecor(darkMode: darkMode),
-          Row(
-            children: [
-              _buildSidebar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    contentLeftPadding,
-                    42,
-                    42,
-                    70,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1180),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHero(),
-                          const SizedBox(height: 28),
-                          _buildSearchShell(),
-                          const SizedBox(height: 26),
-                          _buildHighlightGrid(),
-                          const SizedBox(height: 30),
-                          _buildProfilesSection(filtrados),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          _buildContent(
+            horizontalPadding: mobile
+                ? (width <= 430 ? 16 : 20)
+                : (tablet ? 28 : 38),
+            topPadding: mobile ? 24 : (tablet ? 32 : 42),
+            bottomPadding: mobile ? 70 : 80,
+            mobile: mobile,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHero() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 900;
-
-        if (isSmall) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _Badge(text: 'Descubra novas conexões'),
-              const SizedBox(height: 14),
-              Text(
-                'Explore pessoas, ideias e energia',
-                style: TextStyle(
-                  fontSize: 36,
-                  height: 1.02,
-                  fontWeight: FontWeight.w800,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Encontre perfis inspiradores, tópicos em alta e conteúdos que podem te ajudar a construir uma rotina mais forte dentro do Pace.',
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.75,
-                  color: mutedColor,
-                ),
-              ),
-              const SizedBox(height: 18),
-              _HeroCta(
-                onTap: () => Navigator.of(context).pushNamed('/postar'),
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _Badge(text: 'Descubra novas conexões'),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Explore pessoas, ideias e energia',
-                    style: TextStyle(
-                      fontSize: 42,
-                      height: 1.02,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Encontre perfis inspiradores, tópicos em alta e conteúdos que podem te ajudar a construir uma rotina mais forte dentro do Pace.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 1.75,
-                      color: mutedColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 20),
-            _HeroCta(
-              onTap: () => Navigator.of(context).pushNamed('/postar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildSearchShell() {
-    return _GlassCard(
-      darkMode: darkMode,
-      padding: const EdgeInsets.all(22),
-      radius: 28,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        height: 60,
-        decoration: BoxDecoration(
-          color: darkMode
-              ? Colors.white.withOpacity(0.03)
-              : Colors.white.withOpacity(0.86),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: darkMode
-                ? Colors.white.withOpacity(0.06)
-                : const Color(0xFF3059AA).withOpacity(0.10),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.search, color: mutedColor, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: searchController,
-                style: TextStyle(color: textColor, fontSize: 15),
-                cursorColor: const Color(0xFF3059AA),
-                decoration: InputDecoration(
-                  hintText:
-                      'Pesquisar pessoas, hábitos, ideias ou palavras-chave',
-                  hintStyle: TextStyle(color: mutedColor, fontSize: 15),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
-                onChanged: (value) async {
-                  termoAtual = value.trim();
-                  await _renderProfiles();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHighlightGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final isSingle = width < 760;
-        final isDouble = width >= 760 && width < 980;
-
-        if (isSingle) {
-          return Column(
-            children: [
-              _buildMainHighlight(),
-              const SizedBox(height: 18),
-              _buildSecondaryHighlight(
-                kicker: 'Sugestão do dia',
-                title: 'Encontre parceiros de evolução',
-                description:
-                    'Perfis com hábitos parecidos com os seus podem acelerar sua constância.',
-              ),
-              const SizedBox(height: 18),
-              _buildSecondaryHighlight(
-                kicker: 'Nova energia',
-                title: 'Conteúdos para sair da inércia',
-                description:
-                    'Veja posts curtos e diretos para te colocar em movimento hoje.',
-              ),
-            ],
-          );
-        }
-
-        if (isDouble) {
-          return Column(
-            children: [
-              _buildMainHighlight(),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSecondaryHighlight(
-                      kicker: 'Sugestão do dia',
-                      title: 'Encontre parceiros de evolução',
-                      description:
-                          'Perfis com hábitos parecidos com os seus podem acelerar sua constância.',
-                    ),
-                  ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: _buildSecondaryHighlight(
-                      kicker: 'Nova energia',
-                      title: 'Conteúdos para sair da inércia',
-                      description:
-                          'Veja posts curtos e diretos para te colocar em movimento hoje.',
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        }
-
-        return SizedBox(
-          height: 340,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 14,
-                child: _buildMainHighlight(),
-              ),
-              const SizedBox(width: 18),
-              Expanded(
-                flex: 10,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: _buildSecondaryHighlight(
-                        kicker: 'Sugestão do dia',
-                        title: 'Encontre parceiros de evolução',
-                        description:
-                            'Perfis com hábitos parecidos com os seus podem acelerar sua constância.',
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Expanded(
-                      child: _buildSecondaryHighlight(
-                        kicker: 'Nova energia',
-                        title: 'Conteúdos para sair da inércia',
-                        description:
-                            'Veja posts curtos e diretos para te colocar em movimento hoje.',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMainHighlight() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        gradient: const LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xF53059AA),
-            Color(0xEB4071CD),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.10),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'EM ALTA AGORA',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-              color: Colors.white.withOpacity(0.88),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Pequenas rotinas, grandes viradas',
-            style: TextStyle(
-              fontSize: 30,
-              height: 1.1,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Descubra pessoas que estão mostrando consistência real e compartilhe sua própria evolução com a comunidade.',
-            style: TextStyle(
-              height: 1.7,
-              color: Colors.white.withOpacity(0.88),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            children: [
-              _HighlightMeta(icon: Icons.local_fire_department, text: 'Tendências quentes'),
-              _HighlightMeta(icon: Icons.groups_outlined, text: 'Comunidade ativa'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSecondaryHighlight({
-    required String kicker,
-    required String title,
-    required String description,
+  Widget _buildContent({
+    required double horizontalPadding,
+    required double topPadding,
+    required double bottomPadding,
+    required bool mobile,
   }) {
-    return _GlassCard(
-      darkMode: darkMode,
-      padding: const EdgeInsets.all(24),
-      radius: 26,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            kicker.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-              color: Color(0xFF5EB1BF),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 22,
-              height: 1.2,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            description,
-            style: TextStyle(
-              height: 1.7,
-              color: mutedColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfilesSection(List<_ExplorarProfile> filtrados) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'PERFIS',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.2,
-            color: Color(0xFF5EB1BF),
-          ),
+    return RefreshIndicator(
+      color: primary,
+      onRefresh: _recarregar,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Pessoas para acompanhar',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
+        padding: EdgeInsets.fromLTRB(
+          horizontalPadding,
+          topPadding,
+          horizontalPadding,
+          bottomPadding,
         ),
-        const SizedBox(height: 16),
-        if (isLoadingProfiles)
-          _buildEmptyState(
-            icon: Icons.refresh,
-            spinning: true,
-            title: 'Buscando perfis',
-            description: 'Aguarde um momento...',
-          )
-        else if (filtrados.isEmpty)
-          _buildEmptyState(
-            icon: Icons.search_off,
-            title: 'Nenhum perfil encontrado',
-            description: 'Tente outro termo ou filtro.',
-          )
-        else
-          _buildProfilesGrid(filtrados),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String title,
-    required String description,
-    bool spinning = false,
-  }) {
-    return _GlassCard(
-      darkMode: darkMode,
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 42),
-      radius: 28,
-      child: Center(
-        child: Column(
-          children: [
-            spinning
-                ? _SpinningIcon(icon: icon)
-                : Icon(icon, size: 34, color: const Color(0xFF3059AA)),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: mutedColor,
-                height: 1.7,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfilesGrid(List<_ExplorarProfile> filtrados) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 980
-            ? 3
-            : constraints.maxWidth >= 760
-                ? 2
-                : 1;
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: filtrados.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            crossAxisSpacing: 18,
-            mainAxisSpacing: 18,
-            childAspectRatio: columns == 1 ? 1.9 : 1.45,
-          ),
-          itemBuilder: (context, index) {
-            return TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: 1),
-              duration: Duration(milliseconds: 550 + index * 40),
-              curve: Curves.easeOutCubic,
-              builder: (context, value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: Transform.translate(
-                    offset: Offset(0, 24 * (1 - value)),
-                    child: child,
-                  ),
-                );
-              },
-              child: _buildProfileCard(filtrados[index]),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildProfileCard(_ExplorarProfile profile) {
-    return _GlassCard(
-      darkMode: darkMode,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-  children: [
-    CircleAvatar(
-      radius: 29,
-      backgroundImage: _avatarProvider(profile.avatar),
-    ),
-    const SizedBox(width: 14),
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            profile.nome,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            profile.username,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              color: mutedColor,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
-          const SizedBox(height: 16),
-          Text(
-            profile.bio,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: mutedColor,
-              height: 1.7,
-              fontSize: 14,
-            ),
-          ),
-          if (profile.tags.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: profile.tags
-                  .map(
-                    (tag) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 9,
-                      ),
-                      decoration: BoxDecoration(
-                        color: darkMode
-                            ? Colors.white.withOpacity(0.06)
-                            : const Color(0xFF3059AA).withOpacity(0.07),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: darkMode
-                              ? const Color(0xFFDBE5F8)
-                              : const Color(0xFF4C5972),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
-          const Spacer(),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3059AA), Color(0xFF4C71C7)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ElevatedButton(
-                onPressed: () => _openProfileModal(profile),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Ver perfil',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
-    const collapsed = 84.0;
-    const expanded = 230.0;
-    final width = sidebarHovered ? expanded : collapsed;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarHovered = true),
-      onExit: (_) {
-        setState(() {
-          sidebarHovered = false;
-          sidebarItemHovered = null;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
-        width: width,
-        height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-        decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xC8080A0E)
-              : Colors.white.withOpacity(0.78),
-          border: Border(
-            right: BorderSide(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.white.withOpacity(0.55),
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
-              blurRadius: 30,
-              offset: const Offset(8, 0),
-            ),
-          ],
-        ),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1180),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 104,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 4),
-                      child: Image.asset(
-                         'assets/images/Ícone_pace.png',
-                           width: 32,
-                            height: 32,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) {
-                              return const Icon(
-                                Icons.bolt,
-                                size: 32,
-                                color: Color(0xFF3059AA),
-                              );
-                            },
-                          ),
-                        ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', false),
-                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', true),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
-                      const SizedBox(height: 18),
-                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
-                      const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
-                      _sidebarProfileItem(),
-                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
-                    ],
-                  ),
-                ),
+                _buildHero(mobile),
+                SizedBox(height: mobile ? 24 : 28),
+                _buildSearch(),
+                SizedBox(height: mobile ? 24 : 34),
+                if (!mobile) ...[
+                  _buildHighlights(false),
+                  const SizedBox(height: 38),
+                ],
+                _buildProfilesSection(mobile),
               ],
             ),
           ),
@@ -1175,61 +845,925 @@ class _ExplorarPageState extends State<ExplorarPage> {
     );
   }
 
-  Widget _sidebarProfileItem() {
-    const route = '/perfil';
-    final isHovered = sidebarItemHovered == route;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pushNamed('/perfil'),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: isHovered
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+  Widget _buildHero(bool mobile) {
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _ExplorarBadge(
+          text: 'Descubra novas conexões',
+        ),
+        SizedBox(height: mobile ? 18 : 14),
+        Text(
+          'Explore pessoas,\nideias e energia',
+          style: TextStyle(
+            color: textColor,
+            fontSize: mobile ? 37 : 50,
+            height: 1.01,
+            fontWeight: FontWeight.w900,
+            letterSpacing: mobile ? -1.6 : -2.2,
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
+        ),
+        SizedBox(height: mobile ? 15 : 12),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: Text(
+            'Encontre perfis inspiradores, tópicos em alta e conteúdos '
+            'que podem ajudar você a construir uma rotina mais forte '
+            'dentro do Pace.',
+            style: TextStyle(
+              color: mutedColor,
+              fontSize: mobile ? 15.5 : 16.5,
+              height: 1.7,
+            ),
+          ),
+        ),
+      ],
+    );
 
-              return Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
+    if (mobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          copy,
+          const SizedBox(height: 22),
+          _PrimaryButton(
+            text: 'Compartilhar algo',
+            icon: Icons.auto_awesome_rounded,
+            onTap: () => Navigator.of(context).pushNamed('/postar'),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(child: copy),
+        const SizedBox(width: 30),
+        _PrimaryButton(
+          text: 'Compartilhar algo',
+          icon: Icons.auto_awesome_rounded,
+          onTap: () => Navigator.of(context).pushNamed('/postar'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearch() {
+    return _GlassPanel(
+      darkMode: darkMode,
+      radius: 28,
+      padding: const EdgeInsets.all(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        constraints: const BoxConstraints(minHeight: 58),
+        decoration: BoxDecoration(
+          color: darkMode
+              ? Colors.white.withOpacity(0.035)
+              : Colors.white.withOpacity(0.80),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: _searching
+                ? primary.withOpacity(0.26)
+                : primary.withOpacity(0.12),
+          ),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16),
+            Icon(
+              Icons.search_rounded,
+              color: _searching ? primary : mutedColor,
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) => _executarBusca(value.trim()),
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+                decoration: InputDecoration(
+                  hintText:
+                      'Digite um nome e toque em pesquisar',
+                  hintStyle: TextStyle(
+                    color: mutedColor,
+                    fontWeight: FontWeight.w400,
                   ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          'Perfil',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+              ),
+            ),
+            if (_searching)
+              const Padding(
+                padding: EdgeInsets.only(right: 14),
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: primary,
+                  ),
+                ),
+              )
+            else ...[
+              if (_searchController.text.isNotEmpty)
+                _CircleIconButton(
+                  icon: Icons.close_rounded,
+                  onTap: () {
+                    _searchController.clear();
+                    if (mounted) {
+                      setState(() {
+                        _profiles = <Map<String, dynamic>>[];
+                      });
+                    }
+                  },
+                ),
+              const SizedBox(width: 8),
+              _CircleIconButton(
+                icon: Icons.search_rounded,
+                onTap: () => _executarBusca(
+                  _searchController.text.trim(),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHighlights(bool mobile) {
+    final main = _HighlightCard(
+      darkMode: darkMode,
+      main: true,
+      kicker: 'EM ALTA AGORA',
+      title: 'Pequenas rotinas,\ngrandes viradas',
+      description:
+          'Descubra pessoas que estão mostrando consistência real e '
+          'compartilhe sua própria evolução com a comunidade.',
+      footer: const [
+        _HighlightMeta(
+          icon: Icons.local_fire_department_rounded,
+          text: 'Tendências quentes',
+        ),
+        _HighlightMeta(
+          icon: Icons.groups_rounded,
+          text: 'Comunidade ativa',
+        ),
+      ],
+    );
+
+    final second = _HighlightCard(
+      darkMode: darkMode,
+      kicker: 'SUGESTÃO DO DIA',
+      title: 'Encontre parceiros de evolução',
+      description:
+          'Perfis com hábitos parecidos com os seus podem acelerar sua constância.',
+    );
+
+    final third = _HighlightCard(
+      darkMode: darkMode,
+      kicker: 'NOVA ENERGIA',
+      title: 'Conteúdos para sair da inércia',
+      description:
+          'Veja posts curtos e diretos para colocar você em movimento hoje.',
+    );
+
+    if (mobile) {
+      return Column(
+        children: [
+          main,
+          const SizedBox(height: 14),
+          second,
+          const SizedBox(height: 14),
+          third,
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tablet = constraints.maxWidth < 980;
+
+        if (tablet) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              main,
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: second),
+                  const SizedBox(width: 16),
+                  Expanded(child: third),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 14, child: main),
+            const SizedBox(width: 18),
+            Expanded(flex: 10, child: second),
+            const SizedBox(width: 18),
+            Expanded(flex: 10, child: third),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildProfilesSection(bool mobile) {
+    final termo = _searchController.text.trim();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'PESSOAS',
+          style: TextStyle(
+            color: accent,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.4,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Text(
+          termo.isEmpty ? 'Encontre alguém no Pace' : 'Resultados da pesquisa',
+          style: TextStyle(
+            color: textColor,
+            fontSize: mobile ? 28 : 31,
+            height: 1.05,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.8,
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        if (termo.length < 2)
+          _SearchStartState(
+            darkMode: darkMode,
+          )
+        else if (_searching)
+          _LoadingProfiles(
+            darkMode: darkMode,
+          )
+        else if (_profiles.isEmpty)
+          _EmptyProfiles(
+            darkMode: darkMode,
+            search: termo,
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              int columns;
+
+              if (constraints.maxWidth >= 1040) {
+                columns = 3;
+              } else if (constraints.maxWidth >= 680) {
+                columns = 2;
+              } else {
+                columns = 1;
+              }
+
+              const gap = 18.0;
+              final cardWidth =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
+
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: _profiles.map((profile) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: RepaintBoundary(
+                      child: _SearchProfileCard(
+                        darkMode: darkMode,
+                        profile: profile,
+                        onOpen: () => _abrirPerfil(profile),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMobileTopBar() {
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: darkMode
+              ? const Color(0xF2080A0E)
+              : Colors.white.withOpacity(0.88),
+          border: Border(
+            bottom: BorderSide(
+              color: primary.withOpacity(0.08),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF15284D).withOpacity(0.06),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: InkWell(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                borderRadius: BorderRadius.circular(14),
+                child: Padding(
+                  padding: const EdgeInsets.all(7),
+                  child: Image.asset(
+                    'assets/images/pace_icon.png',
+                    width: 42,
+                    height: 42,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pace',
+                    style: TextStyle(
+                      color: darkMode ? Colors.white : primary,
+                      fontSize: 18,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Toque na logo para abrir o menu',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _CircleIconButton(
+              icon: Icons.notifications_none_rounded,
+              onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileDrawer() {
+    return Drawer(
+      width: 292,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+          decoration: BoxDecoration(
+            color: darkMode
+                ? const Color(0xFF0B0D12).withOpacity(0.98)
+                : const Color(0xFFF8FBFF).withOpacity(0.98),
+            borderRadius: const BorderRadius.horizontal(
+              right: Radius.circular(28),
+            ),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : primary.withOpacity(0.09),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(darkMode ? 0.34 : 0.14),
+                blurRadius: 42,
+                offset: const Offset(12, 0),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/images/pace_icon.png',
+                    width: 46,
+                    height: 46,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pace',
                           style: TextStyle(
-                            color: sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.7,
                           ),
                         ),
+                        Text(
+                          'Evolução contínua',
+                          style: TextStyle(
+                            color: mutedColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _CircleIconButton(
+                    icon: Icons.close_rounded,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 18),
+
+              Divider(
+                height: 1,
+                color: primary.withOpacity(0.10),
+              ),
+
+              const SizedBox(height: 18),
+
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _drawerSectionLabel('COMUNIDADE'),
+                    _mobileDrawerItem(
+                      Icons.home_rounded,
+                      'Feed',
+                      '/feed',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.explore_outlined,
+                      'Explorar',
+                      '/explorar',
+                      active: true,
+                    ),
+                    _mobileDrawerItem(
+                      Icons.edit_square,
+                      'Postar',
+                      '/postar',
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _drawerSectionLabel('DESENVOLVIMENTO'),
+                    _mobileDrawerItem(
+                      Icons.track_changes_rounded,
+                      'Metas',
+                      '/metas',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.psychology_outlined,
+                      'Sala de foco',
+                      '/foco',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.trending_up_rounded,
+                      'Evolução',
+                      '/evolucao',
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                height: 1,
+                color: primary.withOpacity(0.10),
+              ),
+
+              const SizedBox(height: 12),
+
+              _mobileDrawerItem(
+                Icons.notifications_none_rounded,
+                'Notificações',
+                '/notificacoes',
+              ),
+              _mobileDrawerItem(
+                Icons.settings_outlined,
+                'Configurações',
+                '/config',
+              ),
+              _mobileProfileItem(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerSectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: mutedColor.withOpacity(0.8),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.25,
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileDrawerItem(
+    IconData icon,
+    String label,
+    String route, {
+    bool active = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+
+            if (!active) {
+              Future.delayed(
+                const Duration(milliseconds: 120),
+                () {
+                  if (mounted) {
+                    Navigator.of(context).pushNamed(route);
+                  }
+                },
+              );
+            }
+          },
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              gradient: active
+                  ? LinearGradient(
+                      colors: [
+                        primary.withOpacity(0.14),
+                        accent.withOpacity(0.09),
+                      ],
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(15),
+              border: active
+                  ? Border.all(
+                      color: primary.withOpacity(0.10),
+                    )
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? primary.withOpacity(0.08)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: active ? primary : sidebarTextColor,
+                    size: 21,
+                  ),
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: active ? primary : sidebarTextColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                if (!active)
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: mutedColor.withOpacity(0.65),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileProfileItem() {
+    final username =
+        _usuarioLogado['username']?.toString().trim().isNotEmpty == true
+        ? _usuarioLogado['username'].toString()
+        : 'Meu perfil';
+
+    final foto =
+        _usuarioLogado['foto_perfil'] ??
+        _usuarioLogado['foto'] ??
+        _usuarioLogado['avatar'];
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+
+          Future.delayed(
+            const Duration(milliseconds: 120),
+            () {
+              if (mounted) {
+                Navigator.of(context).pushNamed('/perfil');
+              }
+            },
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: primary.withOpacity(darkMode ? 0.10 : 0.055),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: ResizeImage(_cachedImageProvider(foto), width: 120, height: 120),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      username,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ver perfil',
+                      style: TextStyle(
+                        color: mutedColor,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
-                ],
-              );
-            },
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: mutedColor,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    const collapsed = 88.0;
+    const expanded = 244.0;
+    final width = _sidebarHovered ? expanded : collapsed;
+
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          _sidebarHovered = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _sidebarHovered = false;
+          _sidebarItemHovered = null;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        width: width,
+        height: double.infinity,
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
+        decoration: BoxDecoration(
+          color: darkMode
+              ? const Color(0xF20B0D12)
+              : const Color(0xFFF8FBFF).withOpacity(0.92),
+          border: Border(
+            right: BorderSide(
+              color: primary.withOpacity(0.09),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF112348)
+                  .withOpacity(darkMode ? 0.28 : 0.08),
+              blurRadius: 34,
+              offset: const Offset(12, 0),
+            ),
+          ],
+        ),
+        child: ClipRect(
+          child: Column(
+              children: [
+                SizedBox(
+                  height: 70,
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(left: 9),
+                        child: _PaceLogo(),
+                      ),
+                      if (_sidebarHovered) ...[
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 170),
+                            opacity: _sidebarHovered ? 1 : 0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Pace',
+                                  style: TextStyle(
+                                    color: primary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.6,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Evolução contínua',
+                                  style: TextStyle(
+                                    color: mutedColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                Divider(
+                  height: 1,
+                  color: primary.withOpacity(0.10),
+                ),
+
+                const SizedBox(height: 14),
+
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      _sidebarSectionLabel('COMUNIDADE'),
+                      _sidebarItem(
+                        Icons.home_rounded,
+                        'Feed',
+                        '/feed',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.explore_outlined,
+                        'Explorar',
+                        '/explorar',
+                        true,
+                      ),
+                      _sidebarItem(
+                        Icons.edit_square,
+                        'Postar',
+                        '/postar',
+                        false,
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      _sidebarSectionLabel('DESENVOLVIMENTO'),
+                      _sidebarItem(
+                        Icons.track_changes_rounded,
+                        'Metas',
+                        '/metas',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.psychology_outlined,
+                        'Sala de foco',
+                        '/foco',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.trending_up_rounded,
+                        'Evolução',
+                        '/evolucao',
+                        false,
+                      ),
+                    ],
+                  ),
+                ),
+
+                Divider(
+                  height: 1,
+                  color: primary.withOpacity(0.08),
+                ),
+
+                const SizedBox(height: 8),
+
+                _sidebarItem(
+                  Icons.notifications_none_rounded,
+                  'Notificações',
+                  '/notificacoes',
+                  false,
+                ),
+                _sidebarItem(
+                  Icons.settings_outlined,
+                  'Configurações',
+                  '/config',
+                  false,
+                ),
+                _sidebarProfileItem(),
+              ],
+            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sidebarSectionLabel(String label) {
+    if (!_sidebarHovered) {
+      return const SizedBox(height: 6);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 160),
+        opacity: _sidebarHovered ? 1 : 0,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: mutedColor.withOpacity(0.78),
+            fontSize: 9.5,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.25,
           ),
         ),
       ),
@@ -1242,499 +1776,293 @@ class _ExplorarPageState extends State<ExplorarPage> {
     String route,
     bool active,
   ) {
-    final isHovered = sidebarItemHovered == route;
-    final highlighted = active || isHovered;
+    final hovered = _sidebarItemHovered == route;
+    final expanded = _sidebarHovered;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          if (route != '/explorar') {
-            Navigator.of(context).pushNamed(route);
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: highlighted
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: highlighted
-                ? Border.all(
-                    color: darkMode
-                        ? Colors.white.withOpacity(0.08)
-                        : active
-                            ? const Color(0xFFB8CCEA)
-                            : const Color(0xFFC8D8F0),
-                  )
-                : null,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
-
-              return Row(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() {
+          _sidebarItemHovered = route;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _sidebarItemHovered = null;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: active
+                ? null
+                : () {
+                    Navigator.of(context).pushNamed(route);
+                  },
+            borderRadius: BorderRadius.circular(14),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              decoration: BoxDecoration(
+                gradient: active
+                    ? LinearGradient(
+                        colors: [
+                          primary.withOpacity(0.15),
+                          accent.withOpacity(0.09),
+                        ],
+                      )
+                    : null,
+                color: !active && hovered
+                    ? primary.withOpacity(0.07)
+                    : null,
+                borderRadius: BorderRadius.circular(14),
+                border: active
+                    ? Border.all(
+                        color: primary.withOpacity(0.08),
+                      )
+                    : null,
+              ),
+              child: Row(
                 children: [
-                  SizedBox(
-                    width: 24,
+                  Container(
+                    width: 38,
+                    height: 38,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: active || hovered
+                          ? primary.withOpacity(0.07)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(11),
+                    ),
                     child: Icon(
                       icon,
-                      color: highlighted
-                          ? const Color(0xFF3059AA)
-                          : sidebarTextColor,
-                      size: 24,
+                      color: active ? primary : sidebarTextColor,
+                      size: 21,
                     ),
                   ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
+                  if (expanded) ...[
+                    const SizedBox(width: 10),
                     Expanded(
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
+                        opacity: expanded ? 1 : 0,
                         child: Text(
                           label,
-                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: highlighted
-                                ? const Color(0xFF3059AA)
-                                : sidebarTextColor,
+                            color: active ? primary : sidebarTextColor,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.w800,
-                            fontSize: 15,
                           ),
                         ),
                       ),
                     ),
                   ],
                 ],
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-class _ProfileModal extends StatefulWidget {
-  final _ExplorarProfile profile;
-  final bool darkMode;
-  final Color textColor;
-  final Color mutedColor;
-  final ImageProvider Function(String?) avatarProvider;
-  final String Function(dynamic) formatarDataRelativa;
-  final Future<List<Map<String, dynamic>>?> Function(_ExplorarProfile)
-      fetchUserPosts;
-  final Future<void> Function(
-    int postId,
-    List<Map<String, dynamic>> posts,
-    void Function(VoidCallback fn) modalSetState,
-  ) onLike;
-  final void Function(String message, Color color) showToast;
+  Widget _sidebarProfileItem() {
+    final expanded = _sidebarHovered;
 
-  const _ProfileModal({
-    required this.profile,
-    required this.darkMode,
-    required this.textColor,
-    required this.mutedColor,
-    required this.avatarProvider,
-    required this.formatarDataRelativa,
-    required this.fetchUserPosts,
-    required this.onLike,
-    required this.showToast,
-  });
+    final username =
+        _usuarioLogado['username']?.toString().trim().isNotEmpty == true
+        ? _usuarioLogado['username'].toString()
+        : 'Meu perfil';
 
-  @override
-  State<_ProfileModal> createState() => _ProfileModalState();
-}
+    final foto =
+        _usuarioLogado['foto_perfil'] ??
+        _usuarioLogado['foto'] ??
+        _usuarioLogado['avatar'];
 
-class _ProfileModalState extends State<_ProfileModal> {
-  bool postsLoading = true;
-  List<Map<String, dynamic>>? posts;
-  List<Map<String, dynamic>> modalPostsCache = [];
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Navigator.of(context).pushNamed('/perfil'),
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 58),
+            margin: const EdgeInsets.only(top: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            decoration: BoxDecoration(
+              color: primary.withOpacity(darkMode ? 0.10 : 0.05),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: primary.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: primary.withOpacity(0.12),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image(
+                      image: ResizeImage(_cachedImageProvider(foto), width: 220, height: 220),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
 
-  int _toInt(dynamic value) {
+                if (expanded) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 160),
+                      opacity: expanded ? 1 : 0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            username,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Ver perfil',
+                            style: TextStyle(
+                              color: mutedColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: mutedColor,
+                    size: 17,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _username(Map<String, dynamic> profile) {
+    final value = profile['username']?.toString().trim();
+    if (value != null && value.isNotEmpty) return value;
+    return 'Usuário';
+  }
+
+  String _fotoPerfil(Map<String, dynamic> profile) {
+    return (profile['foto_perfil'] ??
+            profile['foto'] ??
+            profile['avatar'] ??
+            '')
+        .toString();
+  }
+
+  static int _toInt(dynamic value) {
     if (value is int) return value;
-    if (value is num) return value.toInt();
+    if (value is double) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
-  Map<String, dynamic> _normalizarPostModal(Map<String, dynamic> post) {
-    return {
-      ...post,
-      'id': _toInt(post['id']),
-      'likes': _toInt(post['likes']),
-      'liked': post['liked'] == true,
-    };
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPosts();
-  }
-
-  Future<void> _loadPosts() async {
-    final result = await widget.fetchUserPosts(widget.profile);
-
+  void _showToast(String message, Color color) {
     if (!mounted) return;
 
-    setState(() {
-      posts = result;
-      postsLoading = false;
-      modalPostsCache =
-          result != null ? result.map(_normalizarPostModal).toList() : [];
-    });
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
+}
+
+class _ProfileModalData {
+  final Map<String, dynamic> profile;
+  final List<Map<String, dynamic>> posts;
+
+  const _ProfileModalData({
+    required this.profile,
+    required this.posts,
+  });
+}
+
+class _BackgroundDecor extends StatelessWidget {
+  final bool darkMode;
+
+  const _BackgroundDecor({
+    required this.darkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1040, maxHeight: 880),
+    return Positioned.fill(
+      child: IgnorePointer(
         child: Stack(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: widget.darkMode
-                        ? const Color(0xF20A0C12)
-                        : Colors.white.withOpacity(0.96),
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: widget.darkMode
-                          ? Colors.white.withOpacity(0.08)
-                          : Colors.white.withOpacity(0.72),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.24),
-                        blurRadius: 80,
-                        offset: const Offset(0, 28),
-                      ),
-                    ],
-                  ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(28, 28, 28, 22),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Image(
-                                image: widget.avatarProvider(widget.profile.avatar),
-                                width: 90,
-                                height: 90,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) {
-                                  return Container(
-                                    width: 90,
-                                    height: 90,
-                                    color: const Color(0xFF3059AA).withOpacity(0.12),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: widget.mutedColor,
-                                      size: 36,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.profile.nome,
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                      color: widget.textColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    widget.profile.username,
-                                    style: TextStyle(
-                                      color: widget.mutedColor,
-                                      height: 1.7,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    widget.profile.bio,
-                                    style: TextStyle(
-                                      color: widget.mutedColor,
-                                      height: 1.7,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 26),
-                        Text(
-                          'Postagens',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: widget.textColor,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (postsLoading)
-                          _ModalMessageBox(
-                            darkMode: widget.darkMode,
-                            text: 'Carregando...',
-                          )
-                        else if (posts == null)
-                          _ModalMessageBox(
-                            darkMode: widget.darkMode,
-                            text: 'FaÃ§a login para ver as postagens.',
-                          )
-                        else if (posts!.isEmpty)
-                          _ModalMessageBox(
-                            darkMode: widget.darkMode,
-                            text: 'Nenhuma postagem encontrada.',
-                          )
-                        else
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final columns =
-                                  constraints.maxWidth >= 720 ? 2 : 1;
-
-                              return GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: modalPostsCache.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: columns,
-                                  crossAxisSpacing: 18,
-                                  mainAxisSpacing: 18,
-                                  childAspectRatio: columns == 2 ? 1.45 : 1.35,
-                                ),
-                                itemBuilder: (context, index) {
-                                  final post = modalPostsCache[index];
-                                  final conteudo = post['conteudo']?.toString() ??
-                                      'Sem descrição';
-                                  final resumo = conteudo.length > 120
-                                      ? '${conteudo.substring(0, 120)}...'
-                                      : conteudo;
-                                  final dataFmt = widget.formatarDataRelativa(
-                                    post['data_postagem'] ?? post['data'],
-                                  );
-                                  final liked = post['liked'] == true;
-                                  final postId = _toInt(post['id']);
-
-                                  return Container(
-                                    padding: const EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                      color: widget.darkMode
-                                          ? const Color(0xEB080A0E)
-                                          : Colors.white.withOpacity(0.94),
-                                      borderRadius: BorderRadius.circular(24),
-                                      border: Border.all(
-                                        color: widget.darkMode
-                                            ? Colors.white.withOpacity(0.06)
-                                            : const Color(0xFF3059AA)
-                                                .withOpacity(0.12),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFF14274D)
-                                              .withOpacity(
-                                            widget.darkMode ? 0.30 : 0.10,
-                                          ),
-                                          blurRadius: 40,
-                                          offset: const Offset(0, 12),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          resumo,
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold,
-                                            color: widget.textColor,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                            conteudo,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: widget.mutedColor,
-                                                height: 1.4,
-                                              ),
-                                            ),
-                                        if ((post['imagem'] ?? '')
-                                            .toString()
-                                            .isNotEmpty) ...[
-                                          const SizedBox(height: 12),
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(18),
-                                            child: Image.network(
-                                              post['imagem'].toString(),
-                                              width: double.infinity,
-                                              height: 120,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) {
-                                                return Container(
-                                                  height: 120,
-                                                  color: widget.darkMode
-                                                      ? Colors.white
-                                                          .withOpacity(0.06)
-                                                      : Colors.grey.shade200,
-                                                  child: Icon(
-                                                    Icons
-                                                        .image_not_supported_outlined,
-                                                    color: widget.mutedColor,
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                        const SizedBox(height: 12),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                dataFmt,
-                                                style: TextStyle(
-                                                  color: widget.darkMode
-                                                      ? const Color(0xFFA9B4CB)
-                                                      : const Color(0xFF516386),
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                            ),
-                                            InkWell(
-                                              onTap: () => widget.onLike(
-                                                postId,
-                                                modalPostsCache,
-                                                setState,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(999),
-                                              child: AnimatedContainer(
-                                                duration: const Duration(
-                                                    milliseconds: 180),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: liked
-                                                      ? const Color(0xFFE64862)
-                                                          .withOpacity(0.12)
-                                                      : widget.darkMode
-                                                          ? Colors.white
-                                                              .withOpacity(0.06)
-                                                          : const Color(
-                                                                  0xFF3059AA)
-                                                              .withOpacity(0.08),
-                                                  borderRadius:
-                                                      BorderRadius.circular(999),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      liked
-                                                          ? Icons.favorite
-                                                          : Icons.favorite_border,
-                                                      size: 17,
-                                                      color: liked
-                                                          ? const Color(
-                                                              0xFFD8425C)
-                                                          : widget.darkMode
-                                                              ? const Color(
-                                                                  0xFFA9B4CB)
-                                                              : const Color(
-                                                                  0xFF516386),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Text(
-                                                      '${_toInt(post['likes'])}',
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w800,
-                                                        color: liked
-                                                            ? const Color(
-                                                                0xFFD8425C)
-                                                            : widget.darkMode
-                                                                ? const Color(
-                                                                    0xFFA9B4CB)
-                                                                : const Color(
-                                                                    0xFF516386),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: darkMode
+                      ? const [
+                          Color(0xFF081120),
+                          Color(0xFF050B15),
+                        ]
+                      : const [
+                          Color(0xFFF4F8FD),
+                          Color(0xFFEAF1F9),
+                          Color(0xFFE4EDF8),
+                        ],
                 ),
               ),
+              child: const SizedBox.expand(),
             ),
+
             Positioned(
-              top: 18,
-              right: 18,
-              child: Material(
-                color: widget.darkMode
-                    ? const Color(0xE6141A2C)
-                    : Colors.white,
-                shape: const CircleBorder(),
-                elevation: 8,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => Navigator.pop(context),
-                  child: const SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: Icon(Icons.close, size: 22),
-                  ),
-                ),
+              right: -160,
+              top: -170,
+              child: _BlurOrb(
+                size: 430,
+                color: primary.withOpacity(darkMode ? 0.12 : 0.17),
+              ),
+            ),
+
+            Positioned(
+              left: -150,
+              bottom: 50,
+              child: _BlurOrb(
+                size: 390,
+                color: accent.withOpacity(darkMode ? 0.08 : 0.15),
               ),
             ),
           ],
@@ -1744,75 +2072,381 @@ class _ProfileModalState extends State<_ProfileModal> {
   }
 }
 
-class _ModalMessageBox extends StatelessWidget {
-  final bool darkMode;
-  final String text;
+class _BlurOrb extends StatelessWidget {
+  final double size;
+  final Color color;
 
-  const _ModalMessageBox({
-    required this.darkMode,
-    required this.text,
+  const _BlurOrb({
+    required this.size,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: darkMode
-            ? const Color(0xEB0A0C12)
-            : Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: darkMode
-              ? Colors.white.withOpacity(0.08)
-              : const Color(0xFF3059AA).withOpacity(0.12),
-        ),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91),
+    return RepaintBoundary(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color,
+              color.withOpacity(0.48),
+              color.withOpacity(0.16),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.30, 0.58, 1.0],
+          ),
         ),
       ),
     );
   }
 }
 
-class _SpinningIcon extends StatefulWidget {
-  final IconData icon;
-
-  const _SpinningIcon({required this.icon});
-
-  @override
-  State<_SpinningIcon> createState() => _SpinningIconState();
-}
-
-class _SpinningIconState extends State<_SpinningIcon>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
+class _PaceLogo extends StatelessWidget {
+  const _PaceLogo();
 
   @override
   Widget build(BuildContext context) {
-    return RotationTransition(
-      turns: controller,
-      child: Icon(widget.icon, size: 34, color: const Color(0xFF3059AA)),
+    return Image.asset(
+      'assets/images/pace_icon.png',
+      width: 46,
+      height: 46,
+      fit: BoxFit.contain,
+    );
+  }
+}
+
+class _GlassPanel extends StatelessWidget {
+  final bool darkMode;
+  final Widget child;
+  final EdgeInsets padding;
+  final double radius;
+
+  const _GlassPanel({
+    required this.darkMode,
+    required this.child,
+    required this.padding,
+    required this.radius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: darkMode
+                  ? [
+                      const Color(0xFF0C1627).withOpacity(0.96),
+                      const Color(0xFF0A121F).withOpacity(0.92),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.96),
+                      const Color(0xFFF7FAFF).withOpacity(0.88),
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.055)
+                  : primary.withOpacity(0.11),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: darkMode
+                    ? Colors.black.withOpacity(0.28)
+                    : const Color(0xFF15284D).withOpacity(0.11),
+                blurRadius: 46,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _ExplorarBadge extends StatelessWidget {
+  final String text;
+
+  const _ExplorarBadge({
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 9,
+      ),
+      decoration: BoxDecoration(
+        color: primary.withOpacity(0.09),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: primary.withOpacity(0.07),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: accent,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withOpacity(0.17),
+                  blurRadius: 0,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: const TextStyle(
+              color: primary,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatefulWidget {
+  final String text;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _PrimaryButton({
+    required this.text,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<_PrimaryButton> createState() => _PrimaryButtonState();
+}
+
+class _PrimaryButtonState extends State<_PrimaryButton> {
+  bool hover = false;
+  bool pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => pressed = true),
+        onTapUp: (_) => setState(() => pressed = false),
+        onTapCancel: () => setState(() => pressed = false),
+        child: AnimatedScale(
+          scale: pressed
+              ? 0.98
+              : hover
+              ? 1.02
+              : 1,
+          duration: const Duration(milliseconds: 120),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 14,
+            ),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  primary,
+                  primary2,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: primary.withOpacity(hover ? 0.28 : 0.20),
+                  blurRadius: hover ? 30 : 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  widget.icon,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  widget.text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HighlightCard extends StatefulWidget {
+  final bool darkMode;
+  final bool main;
+  final String kicker;
+  final String title;
+  final String description;
+  final List<Widget> footer;
+
+  const _HighlightCard({
+    required this.darkMode,
+    this.main = false,
+    required this.kicker,
+    required this.title,
+    required this.description,
+    this.footer = const [],
+  });
+
+  @override
+  State<_HighlightCard> createState() => _HighlightCardState();
+}
+
+class _HighlightCardState extends State<_HighlightCard> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalText = widget.darkMode
+        ? const Color(0xFFF2F6FF)
+        : const Color(0xFF172033);
+
+    final muted = widget.darkMode
+        ? const Color(0xFF98A8BF)
+        : const Color(0xFF6F7F96);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        transform: Matrix4.translationValues(
+          0,
+          hover ? -4 : 0,
+          0,
+        ),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: widget.main
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF315CAC),
+                    Color(0xFF4071CD),
+                  ],
+                )
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: widget.darkMode
+                      ? [
+                          const Color(0xFF0C1627).withOpacity(0.96),
+                          const Color(0xFF0A121F).withOpacity(0.92),
+                        ]
+                      : [
+                          Colors.white.withOpacity(0.96),
+                          const Color(0xFFF7FAFF).withOpacity(0.88),
+                        ],
+                ),
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(
+            color: widget.main
+                ? Colors.white.withOpacity(0.10)
+                : widget.darkMode
+                ? Colors.white.withOpacity(0.055)
+                : primary.withOpacity(0.11),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: widget.main
+                  ? primary.withOpacity(0.20)
+                  : widget.darkMode
+                  ? Colors.black.withOpacity(0.24)
+                  : const Color(0xFF15284D).withOpacity(hover ? 0.13 : 0.09),
+              blurRadius: hover ? 38 : 30,
+              offset: const Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.kicker,
+              style: TextStyle(
+                color: widget.main
+                    ? Colors.white.withOpacity(0.88)
+                    : accent,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.25,
+              ),
+            ),
+            const SizedBox(height: 9),
+            Text(
+              widget.title,
+              style: TextStyle(
+                color: widget.main ? Colors.white : normalText,
+                fontSize: widget.main ? 29 : 21,
+                height: 1.12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.6,
+              ),
+            ),
+            const SizedBox(height: 11),
+            Text(
+              widget.description,
+              style: TextStyle(
+                color: widget.main
+                    ? Colors.white.withOpacity(0.88)
+                    : muted,
+                fontSize: 14,
+                height: 1.65,
+              ),
+            ),
+            if (widget.footer.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              Wrap(
+                spacing: 16,
+                runSpacing: 10,
+                children: widget.footer,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1831,13 +2465,18 @@ class _HighlightMeta extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: Colors.white.withOpacity(0.88)),
-        const SizedBox(width: 8),
+        Icon(
+          icon,
+          color: Colors.white.withOpacity(0.90),
+          size: 18,
+        ),
+        const SizedBox(width: 7),
         Text(
           text,
           style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: Colors.white.withOpacity(0.88),
+            color: Colors.white.withOpacity(0.90),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -1845,188 +2484,1142 @@ class _HighlightMeta extends StatelessWidget {
   }
 }
 
-class _HeroCta extends StatelessWidget {
-  final VoidCallback onTap;
 
-  const _HeroCta({required this.onTap});
+class _DeferredAvatar extends StatefulWidget {
+  final String value;
+  final double width;
+  final double height;
+  final BorderRadius borderRadius;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3059AA), Color(0xFF4C71C7)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3059AA).withOpacity(0.22),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: const Icon(Icons.edit_square, size: 21),
-        label: const Text(
-          'Compartilhar algo',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BackgroundDecor extends StatelessWidget {
-  final bool darkMode;
-
-  const _BackgroundDecor({required this.darkMode});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
-          ),
-          child: const SizedBox.expand(),
-        ),
-        Positioned(
-          top: -80,
-          right: -60,
-          child: _SoftOrb(
-            size: 300,
-            color: darkMode ? const Color(0x293059AA) : const Color(0x293059AA),
-            blur: 80,
-          ),
-        ),
-        Positioned(
-          bottom: 40,
-          left: -80,
-          child: _SoftOrb(
-            size: 280,
-            color: darkMode ? const Color(0x2E5EB1BF) : const Color(0x2E5EB1BF),
-            blur: 80,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SoftOrb extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double blur;
-
-  const _SoftOrb({
-    required this.size,
-    required this.color,
-    required this.blur,
+  const _DeferredAvatar({
+    required this.value,
+    required this.width,
+    required this.height,
+    required this.borderRadius,
   });
 
   @override
+  State<_DeferredAvatar> createState() => _DeferredAvatarState();
+}
+
+class _DeferredAvatarState extends State<_DeferredAvatar> {
+  Uint8List? _bytes;
+  bool _loadingBase64 = false;
+
+  bool get _isBase64 => widget.value.trim().startsWith('data:image');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DeferredAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.value != widget.value) {
+      _bytes = null;
+      _loadingBase64 = false;
+      _loadIfNeeded();
+    }
+  }
+
+  Future<void> _loadIfNeeded() async {
+    final value = widget.value.trim();
+
+    if (value.isEmpty || !_isBase64 || _loadingBase64) {
+      return;
+    }
+
+    _loadingBase64 = true;
+
+    final result = await _decodeAvatarSerially(value);
+
+    if (!mounted) return;
+
+    setState(() {
+      _bytes = result;
+      _loadingBase64 = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-      child: Container(
-        width: size,
-        height: size,
+    Widget child;
+
+    final value = widget.value.trim();
+
+    if (_isBase64 && _bytes != null) {
+      child = Image.memory(
+        _bytes!,
+        width: widget.width,
+        height: widget.height,
+        fit: BoxFit.cover,
+        cacheWidth: 120,
+        cacheHeight: 120,
+        gaplessPlayback: true,
+      );
+    } else if (_isBase64 && _bytes == null) {
+      child = Container(
+        width: widget.width,
+        height: widget.height,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              primary.withOpacity(0.12),
+              accent.withOpacity(0.12),
+            ],
+          ),
+        ),
+        child: const SizedBox(
+          width: 17,
+          height: 17,
+          child: CircularProgressIndicator(
+            strokeWidth: 1.8,
+            color: primary,
+          ),
+        ),
+      );
+    } else if (!_isBase64 && value.isNotEmpty) {
+      child = Image(
+        image: ResizeImage(
+          ApiConfig.imageProvider(value),
+          width: 180,
+          height: 180,
+        ),
+        width: widget.width,
+        height: widget.height,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/user.png',
+          width: widget.width,
+          height: widget.height,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      child = Image.asset(
+        'assets/user.png',
+        width: widget.width,
+        height: widget.height,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: widget.borderRadius,
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: child,
+      ),
+    );
+  }
+}
+
+
+class _SearchStartState extends StatelessWidget {
+  final bool darkMode;
+
+  const _SearchStartState({
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        darkMode ? Colors.white : const Color(0xFF172033);
+
+    final muted =
+        darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
+
+    return _GlassPanel(
+      darkMode: darkMode,
+      radius: 26,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 26,
+        vertical: 34,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: primary.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.person_search_rounded,
+              color: primary,
+              size: 31,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Pesquise alguém para começar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Digite pelo menos 2 letras e toque no ícone de pesquisa. '
+            'Os perfis só são carregados quando você solicitar.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: muted,
+              fontSize: 13.5,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SearchProfileCard extends StatefulWidget {
+  final bool darkMode;
+  final Map<String, dynamic> profile;
+  final VoidCallback onOpen;
+
+  const _SearchProfileCard({
+    required this.darkMode,
+    required this.profile,
+    required this.onOpen,
+  });
+
+  @override
+  State<_SearchProfileCard> createState() => _SearchProfileCardState();
+}
+
+class _SearchProfileCardState extends State<_SearchProfileCard> {
+  bool hover = false;
+  bool pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final username =
+        widget.profile['username']?.toString().trim().isNotEmpty == true
+        ? widget.profile['username'].toString()
+        : 'Usuário';
+
+    final text =
+        widget.darkMode ? const Color(0xFFF2F6FF) : const Color(0xFF172033);
+
+    final muted =
+        widget.darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: GestureDetector(
+        onTap: widget.onOpen,
+        onTapDown: (_) => setState(() => pressed = true),
+        onTapUp: (_) => setState(() => pressed = false),
+        onTapCancel: () => setState(() => pressed = false),
+        child: AnimatedScale(
+          scale: pressed
+              ? 0.985
+              : hover
+                  ? 1.01
+                  : 1,
+          duration: const Duration(milliseconds: 120),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: widget.darkMode
+                    ? [
+                        const Color(0xFF0C1627).withOpacity(0.96),
+                        const Color(0xFF0A121F).withOpacity(0.92),
+                      ]
+                    : [
+                        Colors.white.withOpacity(0.96),
+                        const Color(0xFFF7FAFF).withOpacity(0.90),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: widget.darkMode
+                    ? Colors.white.withOpacity(0.055)
+                    : primary.withOpacity(0.10),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.darkMode
+                      ? Colors.black.withOpacity(0.20)
+                      : const Color(0xFF14274D).withOpacity(
+                          hover ? 0.12 : 0.07,
+                        ),
+                  blurRadius: hover ? 32 : 24,
+                  offset: const Offset(0, 13),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        primary.withOpacity(0.16),
+                        accent.withOpacity(0.16),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: primary.withOpacity(0.10),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primary.withOpacity(0.10),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    username.isNotEmpty
+                        ? username.characters.first.toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      color: primary,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        username,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '@$username',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: primary.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.chevron_right_rounded,
+                    color: primary,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsets padding;
-  final double radius;
+class _ProfileCard extends StatefulWidget {
   final bool darkMode;
+  final Map<String, dynamic> profile;
+  final String imageValue;
+  final VoidCallback onOpen;
+  final VoidCallback onFollow;
 
-  const _GlassCard({
-    required this.child,
+  const _ProfileCard({
     required this.darkMode,
-    this.padding = const EdgeInsets.all(22),
-    this.radius = 24,
+    required this.profile,
+    required this.imageValue,
+    required this.onOpen,
+    required this.onFollow,
   });
 
   @override
+  State<_ProfileCard> createState() => _ProfileCardState();
+}
+
+class _ProfileCardState extends State<_ProfileCard> {
+  bool hover = false;
+
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.10),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
+    final username =
+        widget.profile['username']?.toString().trim().isNotEmpty == true
+        ? widget.profile['username'].toString()
+        : 'Usuário';
+
+    final following = widget.profile['segue'] == true;
+
+    final text = widget.darkMode
+        ? const Color(0xFFF2F6FF)
+        : const Color(0xFF172033);
+
+    final muted = widget.darkMode
+        ? const Color(0xFF98A8BF)
+        : const Color(0xFF6F7F96);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        transform: Matrix4.translationValues(
+          0,
+          hover ? -5 : 0,
+          0,
+        ),
+        padding: const EdgeInsets.all(21),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: widget.darkMode
+                ? [
+                    const Color(0xFF0C1627).withOpacity(0.96),
+                    const Color(0xFF0A121F).withOpacity(0.92),
+                  ]
+                : [
+                    Colors.white.withOpacity(0.96),
+                    const Color(0xFFF7FAFF).withOpacity(0.88),
+                  ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            width: double.infinity,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: darkMode
-                  ? const Color(0xE00D0D10)
-                  : Colors.white.withOpacity(0.84),
-              borderRadius: BorderRadius.circular(radius),
-              border: Border.all(
-                color: darkMode
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.white.withOpacity(0.62),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: widget.darkMode
+                ? Colors.white.withOpacity(0.055)
+                : primary.withOpacity(0.11),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: widget.darkMode
+                  ? Colors.black.withOpacity(0.24)
+                  : const Color(0xFF14274D)
+                        .withOpacity(hover ? 0.13 : 0.09),
+              blurRadius: hover ? 40 : 28,
+              offset: const Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: widget.onOpen,
+              borderRadius: BorderRadius.circular(18),
+              child: Row(
+                children: [
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: primary.withOpacity(0.16),
+                          blurRadius: 22,
+                          offset: const Offset(0, 9),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: _DeferredAvatar(
+                      value: widget.imageValue,
+                      width: 58,
+                      height: 58,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          username,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: text,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.35,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '@$username',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: muted.withOpacity(0.70),
+                    size: 19,
+                  ),
+                ],
               ),
             ),
-            child: child,
-          ),
+
+            const SizedBox(height: 17),
+
+            Text(
+              'Acompanhe a evolução, hábitos e publicações deste perfil.',
+              style: TextStyle(
+                color: muted,
+                fontSize: 13.5,
+                height: 1.60,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _ProfilePill(
+                  text: '${_toInt(widget.profile['total_posts'])} posts',
+                  darkMode: widget.darkMode,
+                ),
+                _ProfilePill(
+                  text:
+                      '${_toInt(widget.profile['total_seguidores'])} seguidores',
+                  darkMode: widget.darkMode,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _FollowButton(
+                    following: following,
+                    onTap: widget.onFollow,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _CircleIconButton(
+                  icon: Icons.person_outline_rounded,
+                  onTap: widget.onOpen,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _Badge extends StatelessWidget {
+class _ProfilePill extends StatelessWidget {
   final String text;
+  final bool darkMode;
 
-  const _Badge({required this.text});
+  const _ProfilePill({
+    required this.text,
+    required this.darkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 11,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(0.10),
+        color: darkMode
+            ? Colors.white.withOpacity(0.055)
+            : primary.withOpacity(0.07),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Color(0xFF3059AA),
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
+        style: TextStyle(
+          color: darkMode
+              ? const Color(0xFFDBE5F8)
+              : const Color(0xFF4C5972),
+          fontSize: 11.5,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
   }
 }
 
+class _ProfileTag extends StatelessWidget {
+  final String text;
+  final bool darkMode;
+
+  const _ProfileTag({
+    required this.text,
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ProfilePill(
+      text: text,
+      darkMode: darkMode,
+    );
+  }
+}
+
+class _FollowButton extends StatefulWidget {
+  final bool following;
+  final VoidCallback onTap;
+
+  const _FollowButton({
+    required this.following,
+    required this.onTap,
+  });
+
+  @override
+  State<_FollowButton> createState() => _FollowButtonState();
+}
+
+class _FollowButtonState extends State<_FollowButton> {
+  bool hover = false;
+  bool pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => pressed = true),
+        onTapUp: (_) => setState(() => pressed = false),
+        onTapCancel: () => setState(() => pressed = false),
+        child: AnimatedScale(
+          scale: pressed ? 0.985 : 1,
+          duration: const Duration(milliseconds: 100),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            height: 46,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: widget.following
+                  ? null
+                  : const LinearGradient(
+                      colors: [
+                        primary,
+                        primary2,
+                      ],
+                    ),
+              color: widget.following
+                  ? primary.withOpacity(hover ? 0.12 : 0.08)
+                  : null,
+              borderRadius: BorderRadius.circular(14),
+              border: widget.following
+                  ? Border.all(
+                      color: primary.withOpacity(0.18),
+                    )
+                  : null,
+              boxShadow: widget.following
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: primary.withOpacity(0.16),
+                        blurRadius: 20,
+                        offset: const Offset(0, 9),
+                      ),
+                    ],
+            ),
+            child: Text(
+              widget.following ? 'Seguindo' : 'Seguir',
+              style: TextStyle(
+                color: widget.following ? primary : Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<_CircleIconButton> createState() => _CircleIconButtonState();
+}
+
+class _CircleIconButtonState extends State<_CircleIconButton> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: darkMode
+                ? Colors.white.withOpacity(hover ? 0.08 : 0.055)
+                : primary.withOpacity(hover ? 0.11 : 0.065),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            widget.icon,
+            color: primary,
+            size: 21,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingProfiles extends StatelessWidget {
+  final bool darkMode;
+
+  const _LoadingProfiles({
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _EmptyStateShell(
+      darkMode: darkMode,
+      child: const Column(
+        children: [
+          CircularProgressIndicator(
+            color: primary,
+            strokeWidth: 2.4,
+          ),
+          SizedBox(height: 18),
+          Text(
+            'Buscando perfis reais',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Aguarde um momento enquanto carregamos os perfis criados na plataforma.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xFF6F7F96),
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyProfiles extends StatelessWidget {
+  final bool darkMode;
+  final String search;
+
+  const _EmptyProfiles({
+    required this.darkMode,
+    required this.search,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = search.isEmpty
+        ? 'Ainda não há outros perfis para mostrar.'
+        : 'Nenhum perfil encontrado para “$search”.';
+
+    return _EmptyStateShell(
+      darkMode: darkMode,
+      child: Column(
+        children: [
+          const Icon(
+            Icons.travel_explore_rounded,
+            color: primary,
+            size: 38,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Nada por aqui ainda',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: darkMode ? Colors.white : const Color(0xFF172033),
+              fontSize: 23,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF6F7F96),
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyStateShell extends StatelessWidget {
+  final bool darkMode;
+  final Widget child;
+
+  const _EmptyStateShell({
+    required this.darkMode,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _GlassPanel(
+      darkMode: darkMode,
+      radius: 26,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 26,
+        vertical: 40,
+      ),
+      child: Center(child: child),
+    );
+  }
+}
+
+class _ProfileModalShell extends StatelessWidget {
+  final bool darkMode;
+  final Widget child;
+
+  const _ProfileModalShell({
+    required this.darkMode,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Material(
+            color: Colors.transparent,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 920,
+                maxHeight: 820,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: darkMode
+                          ? const Color(0xFF0A0C12).withOpacity(0.96)
+                          : Colors.white.withOpacity(0.96),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: darkMode
+                            ? Colors.white.withOpacity(0.08)
+                            : Colors.white.withOpacity(0.72),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0E1A34).withOpacity(0.24),
+                          blurRadius: 70,
+                          offset: const Offset(0, 28),
+                        ),
+                      ],
+                    ),
+                    child: child,
+                  ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModalError extends StatelessWidget {
+  final bool darkMode;
+  final VoidCallback onClose;
+
+  const _ModalError({
+    required this.darkMode,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: Color(0xFFE55353),
+            size: 42,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Não foi possível carregar este perfil.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: darkMode ? Colors.white : const Color(0xFF172033),
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 18),
+          _PrimaryButton(
+            text: 'Fechar',
+            icon: Icons.close_rounded,
+            onTap: onClose,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModalEmptyPosts extends StatelessWidget {
+  final bool darkMode;
+
+  const _ModalEmptyPosts({
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 22,
+        vertical: 28,
+      ),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? Colors.white.withOpacity(0.035)
+            : primary.withOpacity(0.045),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.06)
+              : primary.withOpacity(0.09),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.auto_awesome_rounded,
+            color: primary,
+            size: 30,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Este usuário ainda não publicou nada.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: darkMode ? Colors.white : const Color(0xFF172033),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModalPostCard extends StatelessWidget {
+  final bool darkMode;
+  final Map<String, dynamic> post;
+
+  const _ModalPostCard({
+    required this.darkMode,
+    required this.post,
+  });
+
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = darkMode ? Colors.white : const Color(0xFF172033);
+    final muted = darkMode
+        ? const Color(0xFF98A8BF)
+        : const Color(0xFF6F7F96);
+
+    final conteudo =
+        (post['conteudo'] ?? post['texto'] ?? '').toString().trim();
+
+    final imagem =
+        (post['imagem'] ?? post['imagem_url'] ?? '').toString().trim();
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF080A0E).withOpacity(0.88)
+            : Colors.white.withOpacity(0.94),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.06)
+              : primary.withOpacity(0.10),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (conteudo.isNotEmpty)
+            Text(
+              conteudo,
+              maxLines: 5,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: text,
+                fontSize: 14,
+                height: 1.6,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+          if (imagem.isNotEmpty) ...[
+            if (conteudo.isNotEmpty)
+              const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(17),
+              child: AspectRatio(
+                aspectRatio: 16 / 10,
+                child: Image(
+                  image: _cachedImageProvider(imagem),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) {
+                    return Container(
+                      color: primary.withOpacity(0.05),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: muted,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 14),
+
+          Row(
+            children: [
+              Icon(
+                post['liked'] == true
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                color: post['liked'] == true
+                    ? const Color(0xFFD8425C)
+                    : muted,
+                size: 17,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${_toInt(post['likes'])}',
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

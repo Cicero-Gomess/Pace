@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'api_config.dart';
 import 'package:http/http.dart' as http;
 
 class CadastroPage extends StatefulWidget {
@@ -97,17 +98,7 @@ class _CadastroPageState extends State<CadastroPage> {
   // API
   // ============================================================
 
-  String get apiUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:8000';
-    }
-
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8000';
-    }
-
-    return 'http://127.0.0.1:8000';
-  }
+  String get apiUrl => ApiConfig.baseUrl;
 
   // ============================================================
   // REGRAS DA SENHA
@@ -556,7 +547,7 @@ class _CadastroPageState extends State<CadastroPage> {
                         },
                         child:
                             Image.asset(
-                          'assets/images/Ícone_Pace.png',
+                          'assets/images/pace_icon.png',
                           width: mobile
                               ? 46
                               : 52,

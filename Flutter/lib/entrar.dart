@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,18 +60,7 @@ class _EntrarPageState extends State<EntrarPage> {
   // API
   // ============================================================
 
-  String get apiUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:8000';
-    }
-
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8000';
-    }
-
-    // Windows, Linux, macOS e iOS simulador/local
-    return 'http://127.0.0.1:8000';
-  }
+  String get apiUrl => ApiConfig.baseUrl;
 
   // ============================================================
   // LOGIN
@@ -383,7 +373,7 @@ class _EntrarPageState extends State<EntrarPage> {
                         },
                         child:
                             Image.asset(
-                          'assets/images/Ícone_Pace.png',
+                          'assets/images/pace_icon.png',
                           width: mobile
                               ? 46
                               : 52,

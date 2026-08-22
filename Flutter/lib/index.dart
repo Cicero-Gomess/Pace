@@ -84,7 +84,7 @@ class HomePage extends StatelessWidget {
                           );
                         },
                         child: Image.asset(
-                          'assets/images/Ícone_Pace.png',
+                          'assets/images/pace_icon.png',
                           width: mobile ? 46 : 52,
                           height: mobile ? 46 : 52,
                           fit: BoxFit.contain,

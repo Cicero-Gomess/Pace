@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api_config.dart';
+import 'pace_shell.dart';
+
+const Color _primary = Color(0xFF315CAC);
+const Color _primary2 = Color(0xFF416FC4);
+const Color _accent = Color(0xFF69C5D0);
 
 class PostarPage extends StatefulWidget {
   const PostarPage({super.key});
@@ -17,7 +23,10 @@ class PostarPage extends StatefulWidget {
 }
 
 class _PostarPageState extends State<PostarPage> {
-  static const String apiUrl = "http://127.0.0.1:8000";
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final TextEditingController textoController = TextEditingController();
+  final ImagePicker picker = ImagePicker();
 
   bool sidebarHovered = false;
   String? sidebarItemHovered;
@@ -26,32 +35,34 @@ class _PostarPageState extends State<PostarPage> {
 
   Map<String, dynamic> usuarioLogado = {};
 
-  final TextEditingController textoController = TextEditingController();
-  final ImagePicker picker = ImagePicker();
-
   Uint8List? imagemBytes;
   String? imagemNome;
   String? imagemBase64;
 
+  String get apiUrl => ApiConfig.baseUrl;
+
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get bgColor =>
-      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F8FD);
 
   Color get textColor =>
-      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+      darkMode ? const Color(0xFFF2F6FF) : const Color(0xFF172033);
+
+  Color get textSoftColor =>
+      darkMode ? const Color(0xFFDCE5F4) : const Color(0xFF2D3950);
 
   Color get mutedColor =>
-      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
+      darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
 
   Color get labelColor =>
       darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF495874);
 
   Color get sidebarTextColor =>
-      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
+      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415B);
 
   Color get inputFillColor =>
-      darkMode ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.86);
+      darkMode ? Colors.white.withOpacity(0.035) : Colors.white.withOpacity(0.82);
 
   final List<Map<String, String>> chips = const [
     {
@@ -75,19 +86,24 @@ class _PostarPageState extends State<PostarPage> {
   @override
   void initState() {
     super.initState();
+    textoController.addListener(_onTextChanged);
     _initUser();
-    textoController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
+    textoController.removeListener(_onTextChanged);
     textoController.dispose();
     super.dispose();
   }
 
+  void _onTextChanged() {
+    if (mounted) setState(() {});
+  }
+
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('token') ?? prefs.getString('access_token');
   }
 
   Future<void> _initUser() async {
@@ -95,53 +111,86 @@ class _PostarPageState extends State<PostarPage> {
 
     if (!mounted) return;
 
-    if (token == null) {
+    if (token == null || token.isEmpty) {
       Navigator.of(context).pushReplacementNamed('/entrar');
       return;
     }
 
     try {
-      final response = await http.get(
-        Uri.parse('$apiUrl/profile/me'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await http
+          .get(
+            ApiConfig.uri('/profile/me'),
+            headers: {'Authorization': 'Bearer $token'},
+          )
+          .timeout(const Duration(seconds: 12));
 
       if (response.statusCode == 401) {
-        if (mounted) Navigator.of(context).pushReplacementNamed('/entrar');
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
         return;
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = jsonDecode(response.body);
+
+        if (!mounted) return;
+
         setState(() {
-          usuarioLogado = Map<String, dynamic>.from(jsonDecode(response.body));
+          usuarioLogado = Map<String, dynamic>.from(data as Map);
           isLoadingUser = false;
         });
       } else {
-        setState(() => isLoadingUser = false);
-        _showToast('Não foi possível carregar seu perfil.', Colors.red);
+        if (!mounted) return;
+
+        setState(() {
+          isLoadingUser = false;
+        });
+
+        _showToast(
+          'Não foi possível carregar seu perfil.',
+          Colors.red,
+        );
       }
     } catch (_) {
-      setState(() => isLoadingUser = false);
-      _showToast('Não foi possível carregar seu perfil.', Colors.red);
+      if (!mounted) return;
+
+      setState(() {
+        isLoadingUser = false;
+      });
+
+      _showToast(
+        'Não foi possível carregar seu perfil.',
+        Colors.red,
+      );
     }
   }
 
-  ImageProvider _avatarProvider(String? url) {
-    if (url != null && url.trim().isNotEmpty) {
-      return NetworkImage(url);
-    }
-
-    return const AssetImage('assets/user.png');
+  ImageProvider _avatarProvider(String? value) {
+    return ApiConfig.imageProvider(value);
   }
 
   String? _fotoUsuarioLogado() {
-    final foto = usuarioLogado['foto_perfil'] ?? usuarioLogado['foto'];
-    if (foto == null || foto.toString().trim().isEmpty) return null;
+    final foto =
+        usuarioLogado['foto_perfil'] ??
+        usuarioLogado['foto'] ??
+        usuarioLogado['avatar'];
+
+    if (foto == null || foto.toString().trim().isEmpty) {
+      return null;
+    }
+
     return foto.toString();
   }
 
   String _username() {
-    return usuarioLogado['username']?.toString() ?? 'Usuário';
+    final value = usuarioLogado['username']?.toString().trim();
+
+    if (value == null || value.isEmpty) {
+      return 'Usuário';
+    }
+
+    return value;
   }
 
   String _extensaoImagem(String name) {
@@ -185,6 +234,8 @@ class _PostarPageState extends State<PostarPage> {
         final name = file.name;
         final ext = _extensaoImagem(name);
 
+        if (!mounted) return;
+
         setState(() {
           imagemBytes = bytes;
           imagemNome = name;
@@ -206,12 +257,17 @@ class _PostarPageState extends State<PostarPage> {
       final bytes = file.bytes;
 
       if (bytes == null) {
-        _showToast('Não foi possível carregar a imagem.', Colors.red);
+        _showToast(
+          'Não foi possível carregar a imagem.',
+          Colors.red,
+        );
         return;
       }
 
       final name = file.name;
       final ext = _extensaoImagem(name);
+
+      if (!mounted) return;
 
       setState(() {
         imagemBytes = bytes;
@@ -219,7 +275,10 @@ class _PostarPageState extends State<PostarPage> {
         imagemBase64 = 'data:image/$ext;base64,${base64Encode(bytes)}';
       });
     } catch (e) {
-      _showToast('Erro ao selecionar imagem: $e', Colors.red);
+      _showToast(
+        'Erro ao selecionar imagem: $e',
+        Colors.red,
+      );
     }
   }
 
@@ -233,39 +292,51 @@ class _PostarPageState extends State<PostarPage> {
 
   Future<void> _publicarPost() async {
     final token = await _getToken();
-    if (token == null) return;
+    if (token == null || token.isEmpty) return;
 
     final texto = textoController.text.trim();
 
     if (texto.isEmpty && imagemBase64 == null) {
-      _showToast('Escreva algo ou selecione uma imagem.', Colors.orange);
+      _showToast(
+        'Escreva algo ou selecione uma imagem.',
+        Colors.orange,
+      );
       return;
     }
 
-    setState(() => isPublishing = true);
+    setState(() {
+      isPublishing = true;
+    });
 
     try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/post/criar_post'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'conteudo': texto,
-          'imagem': imagemBase64 ?? '',
-        }),
-      );
+      final response = await http
+          .post(
+            ApiConfig.uri('/post/criar_post'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'conteudo': texto,
+              'imagem': imagemBase64 ?? '',
+            }),
+          )
+          .timeout(const Duration(seconds: 35));
 
       dynamic data;
+
       try {
-        data = jsonDecode(response.body);
+        data = response.body.isNotEmpty
+            ? jsonDecode(response.body)
+            : null;
       } catch (_) {
         data = null;
       }
 
       if (response.statusCode == 401) {
-        if (mounted) Navigator.of(context).pushReplacementNamed('/entrar');
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
         return;
       }
 
@@ -273,29 +344,45 @@ class _PostarPageState extends State<PostarPage> {
         final message = data is Map && data['detail'] != null
             ? data['detail'].toString()
             : 'Erro ao publicar.';
+
         throw Exception(message);
       }
 
       if (!mounted) return;
 
-      _showToast('Post publicado com sucesso!', Colors.green);
+      _showToast(
+        'Post publicado com sucesso!',
+        Colors.green,
+      );
+
       Navigator.of(context).pushReplacementNamed('/feed');
     } catch (e) {
-      _showToast(e.toString().replaceFirst('Exception: ', ''), Colors.red);
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
     } finally {
-      if (mounted) setState(() => isPublishing = false);
+      if (mounted) {
+        setState(() {
+          isPublishing = false;
+        });
+      }
     }
   }
 
   void _showToast(String message, Color color) {
     if (!mounted) return;
 
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -303,188 +390,164 @@ class _PostarPageState extends State<PostarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
+    final width = MediaQuery.sizeOf(context).width;
+    final mobile = width < 760;
+    final tablet = width >= 760 && width < 1080;
 
     if (isLoadingUser) {
       return Scaffold(
         backgroundColor: bgColor,
         body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF3059AA)),
+          child: CircularProgressIndicator(color: _primary),
         ),
       );
     }
 
-    return Scaffold(
+    return PaceShell(
+      currentRoute: '/postar',
+      username: _username(),
+      avatarValue: _fotoUsuarioLogado(),
       backgroundColor: bgColor,
-      body: Stack(
+      child: Stack(
         children: [
           _BackgroundDecor(darkMode: darkMode),
-          Row(
-            children: [
-              _buildSidebar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    contentLeftPadding,
-                    48,
-                    42,
-                    90,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHero(),
-                      const SizedBox(height: 28),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1040),
-                        child: _buildComposerCard(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          _buildScrollableContent(
+            horizontalPadding: mobile
+                ? (width <= 430 ? 16 : 20)
+                : (tablet ? 28 : 38),
+            topPadding: mobile ? 22 : (tablet ? 34 : 42),
+            bottomPadding: mobile ? 72 : 88,
+            mobile: mobile,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHero() {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1040),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isSmall = constraints.maxWidth < 850;
-
-          final copy = Column(
+  Widget _buildScrollableContent({
+    required double horizontalPadding,
+    required double topPadding,
+    required double bottomPadding,
+    required bool mobile,
+  }) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        topPadding,
+        horizontalPadding,
+        bottomPadding,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _Badge(text: 'Compartilhe sua jornada'),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: 650,
-                child: Text(
-                  'Crie algo que mova sua rotina',
-                  style: TextStyle(
-                    fontSize: 42,
-                    height: 1.02,
-                    fontWeight: FontWeight.w800,
-                    color: textColor,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: 720,
-                child: Text(
-                  'Mostre progresso, registre aprendizados ou publique algo que possa inspirar outras pessoas dentro do Pace. Quanto mais real, melhor.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.75,
-                    color: mutedColor,
-                  ),
-                ),
-              ),
+              _buildHero(mobile),
+              SizedBox(height: mobile ? 26 : 30),
+              _buildComposerCard(mobile),
             ],
-          );
-
-          final tip = _GlassSmall(
-            darkMode: darkMode,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.auto_awesome, color: Color(0xFF3059AA), size: 20),
-                const SizedBox(width: 10),
-                Text(
-                  'Postagens autênticas geram mais conexão.',
-                  style: TextStyle(
-                    color: labelColor,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          );
-
-          if (isSmall) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                copy,
-                const SizedBox(height: 18),
-                tip,
-              ],
-            );
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(child: copy),
-              const SizedBox(width: 20),
-              tip,
-            ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildComposerCard() {
-    return _GlassCard(
+  Widget _buildHero(bool mobile) {
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _Badge(
+          text: 'Compartilhe sua jornada',
+        ),
+        SizedBox(height: mobile ? 18 : 14),
+        Text(
+          'Crie algo que mova sua rotina',
+          style: TextStyle(
+            color: textColor,
+            fontSize: mobile ? 37 : 48,
+            height: 1.02,
+            fontWeight: FontWeight.w900,
+            letterSpacing: mobile ? -1.5 : -2,
+          ),
+        ),
+        SizedBox(height: mobile ? 14 : 12),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Text(
+            'Mostre progresso, registre aprendizados ou publique algo que '
+            'possa inspirar outras pessoas dentro do Pace. Quanto mais real, melhor.',
+            style: TextStyle(
+              color: mutedColor,
+              fontSize: mobile ? 15.5 : 16.5,
+              height: 1.68,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (mobile) {
+      return copy;
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(child: copy),
+        const SizedBox(width: 26),
+        _HeroTip(
+          darkMode: darkMode,
+          textColor: labelColor,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildComposerCard(bool mobile) {
+    return _SurfaceCard(
       darkMode: darkMode,
-      radius: 30,
-      padding: const EdgeInsets.all(28),
+      radius: mobile ? 26 : 30,
+      padding: EdgeInsets.all(mobile ? 18 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCardTop(),
-          const SizedBox(height: 20),
+          _buildCardTop(mobile),
+
+          SizedBox(height: mobile ? 22 : 24),
+
+          Text(
+            'UMA IDEIA PARA COMEÇAR',
+            style: TextStyle(
+              color: _accent,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.3,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
           _buildChips(),
-          const SizedBox(height: 22),
+
+          SizedBox(height: mobile ? 22 : 26),
+
           Text(
             'Conte para a comunidade o que está acontecendo',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13.5,
               fontWeight: FontWeight.w800,
               color: labelColor,
             ),
           ),
+
           const SizedBox(height: 10),
-          TextField(
-            controller: textoController,
-            maxLength: 200,
-            maxLines: 7,
-            style: TextStyle(color: textColor),
-            cursorColor: const Color(0xFF3059AA),
-            decoration: InputDecoration(
-              hintText: 'O que você está pensando?',
-              hintStyle: TextStyle(color: mutedColor),
-              counterText: '',
-              filled: true,
-              fillColor: inputFillColor,
-              contentPadding: const EdgeInsets.all(18),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(22),
-                borderSide: BorderSide(
-                  color: darkMode
-                      ? Colors.white.withOpacity(0.08)
-                      : const Color(0xFF3059AA).withOpacity(0.12),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(22),
-                borderSide: BorderSide(
-                  color: const Color(0xFF3059AA).withOpacity(0.34),
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(22),
-              ),
-            ),
-          ),
+
+          _buildTextArea(mobile),
+
+          const SizedBox(height: 8),
+
           Align(
             alignment: Alignment.centerRight,
             child: Text(
@@ -496,13 +559,18 @@ class _PostarPageState extends State<PostarPage> {
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          _buildActions(),
+
+          SizedBox(height: mobile ? 18 : 20),
+
+          _buildActions(mobile),
+
           if (imagemBytes != null) ...[
             const SizedBox(height: 18),
-            _buildPreview(),
+            _buildPreview(mobile),
           ],
-          const SizedBox(height: 22),
+
+          SizedBox(height: mobile ? 22 : 24),
+
           _PublishButton(
             loading: isPublishing,
             onTap: isPublishing ? null : _publicarPost,
@@ -512,115 +580,141 @@ class _PostarPageState extends State<PostarPage> {
     );
   }
 
-  Widget _buildCardTop() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 700;
-
-        final title = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'NOVO POST',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.4,
-                color: Color(0xFF5EB1BF),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Criar publicação',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-                color: textColor,
-              ),
-            ),
-          ],
-        );
-
-        final profile = Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.12 : 0.06),
-            borderRadius: BorderRadius.circular(18),
+  Widget _buildCardTop(bool mobile) {
+    final title = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'NOVO POST',
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.35,
+            color: _accent,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _username(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Compartilhando agora',
-                    style: TextStyle(
-                      color: mutedColor,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+        ),
+        const SizedBox(height: 7),
+        Text(
+          'Criar publicação',
+          style: TextStyle(
+            color: textColor,
+            fontSize: mobile ? 27 : 30,
+            height: 1.05,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.7,
           ),
-        );
+        ),
+      ],
+    );
 
-        if (isSmall) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              title,
-              const SizedBox(height: 16),
-              profile,
-            ],
-          );
-        }
+    final profile = Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: _primary.withOpacity(darkMode ? 0.12 : 0.055),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _primary.withOpacity(0.08),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: mobile ? 19 : 21,
+            backgroundImage: _avatarProvider(
+              _fotoUsuarioLogado(),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _username(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: mobile ? 13.5 : 14.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Compartilhando agora',
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            title,
-            profile,
-          ],
-        );
-      },
+    if (mobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          title,
+          const SizedBox(height: 16),
+          profile,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: title),
+        const SizedBox(width: 22),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 290),
+          child: profile,
+        ),
+      ],
     );
   }
 
   Widget _buildChips() {
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+      spacing: 9,
+      runSpacing: 9,
       children: chips.map((chip) {
-        return InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: () => _usarChip(chip['text']!),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.14 : 0.08),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              chip['label']!,
-              style: TextStyle(
-                color: darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF4D5A73),
-                fontWeight: FontWeight.w800,
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            onTap: () => _usarChip(chip['text']!),
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 13,
+                vertical: 9,
+              ),
+              decoration: BoxDecoration(
+                color: _primary.withOpacity(darkMode ? 0.13 : 0.07),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: _primary.withOpacity(0.07),
+                ),
+              ),
+              child: Text(
+                chip['label']!,
+                style: TextStyle(
+                  color: darkMode
+                      ? const Color(0xFFDCE5F4)
+                      : const Color(0xFF4D5A73),
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
@@ -629,83 +723,162 @@ class _PostarPageState extends State<PostarPage> {
     );
   }
 
-  Widget _buildActions() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 12,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: _selecionarImagem,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.14 : 0.08),
-              borderRadius: BorderRadius.circular(16),
+  Widget _buildTextArea(bool mobile) {
+    return TextField(
+      controller: textoController,
+      maxLength: 200,
+      minLines: mobile ? 5 : 6,
+      maxLines: mobile ? 7 : 8,
+      keyboardType: TextInputType.multiline,
+      textCapitalization: TextCapitalization.sentences,
+      style: TextStyle(
+        color: textColor,
+        fontSize: mobile ? 15 : 15.5,
+        height: 1.6,
+      ),
+      cursorColor: _primary,
+      decoration: InputDecoration(
+        hintText: 'O que você está pensando?',
+        hintStyle: TextStyle(
+          color: mutedColor,
+          fontWeight: FontWeight.w400,
+        ),
+        counterText: '',
+        filled: true,
+        fillColor: inputFillColor,
+        contentPadding: EdgeInsets.all(mobile ? 16 : 18),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: darkMode
+                ? Colors.white.withOpacity(0.07)
+                : _primary.withOpacity(0.11),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: _primary.withOpacity(0.34),
+            width: 1.4,
+          ),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActions(bool mobile) {
+    final imageButton = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: _selecionarImagem,
+        borderRadius: BorderRadius.circular(15),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            color: _primary.withOpacity(darkMode ? 0.13 : 0.075),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: _primary.withOpacity(0.08),
             ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.add_photo_alternate_outlined,
-                  color: Color(0xFF3059AA),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add_photo_alternate_outlined,
+                color: _primary,
+                size: 20,
+              ),
+              SizedBox(width: 9),
+              Text(
+                'Adicionar imagem',
+                style: TextStyle(
+                  color: _primary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
                 ),
-                SizedBox(width: 10),
-                Text(
-                  'Adicionar imagem',
-                  style: TextStyle(
-                    color: Color(0xFF3059AA),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final support = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.info_outline_rounded,
+          color: mutedColor,
+          size: 17,
+        ),
+        const SizedBox(width: 7),
+        Flexible(
+          child: Text(
+            'Você pode postar só texto ou texto com imagem.',
+            style: TextStyle(
+              color: mutedColor,
+              fontSize: 12.5,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.info_outline, color: mutedColor, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              'Você pode postar só texto ou texto com imagem.',
-              style: TextStyle(
-                color: mutedColor,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
+      ],
+    );
+
+    if (mobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          imageButton,
+          const SizedBox(height: 12),
+          support,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        imageButton,
+        const SizedBox(width: 18),
+        Expanded(child: support),
       ],
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(bool mobile) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(darkMode ? 0.10 : 0.05),
+        color: _primary.withOpacity(darkMode ? 0.09 : 0.045),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: darkMode
-              ? Colors.white.withOpacity(0.08)
-              : const Color(0xFF3059AA).withOpacity(0.08),
+              ? Colors.white.withOpacity(0.065)
+              : _primary.withOpacity(0.08),
         ),
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
             child: Image.memory(
               imagemBytes!,
-              width: 62,
-              height: 62,
+              width: mobile ? 58 : 66,
+              height: mobile ? 58 : 66,
               fit: BoxFit.cover,
+              cacheWidth: 220,
+              cacheHeight: 220,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,37 +887,459 @@ class _PostarPageState extends State<PostarPage> {
                   'Imagem pronta',
                   style: TextStyle(
                     color: textColor,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   imagemNome ?? '',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: mutedColor,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
+            tooltip: 'Remover imagem',
             onPressed: _removerImagem,
-            icon: const Icon(Icons.close, color: Color(0xFFE55353)),
+            icon: const Icon(
+              Icons.close_rounded,
+              color: Color(0xFFE55353),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // MOBILE
+  // ---------------------------------------------------------------------------
+
+  Widget _buildMobileTopBar() {
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: darkMode
+              ? const Color(0xF2080A0E)
+              : Colors.white.withOpacity(0.92),
+          border: Border(
+            bottom: BorderSide(
+              color: _primary.withOpacity(0.08),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF15284D).withOpacity(0.055),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding: const EdgeInsets.all(7),
+                child: Image.asset(
+                  'assets/images/pace_icon.png',
+                  width: 42,
+                  height: 42,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pace',
+                    style: TextStyle(
+                      color: darkMode ? Colors.white : _primary,
+                      fontSize: 18,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Toque na logo para abrir o menu',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _CircleIconButton(
+              icon: Icons.notifications_none_rounded,
+              onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileDrawer() {
+    return Drawer(
+      width: 292,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+          decoration: BoxDecoration(
+            color: darkMode
+                ? const Color(0xFF0B0D12).withOpacity(0.99)
+                : const Color(0xFFF8FBFF).withOpacity(0.99),
+            borderRadius: const BorderRadius.horizontal(
+              right: Radius.circular(28),
+            ),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : _primary.withOpacity(0.09),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(
+                  darkMode ? 0.32 : 0.13,
+                ),
+                blurRadius: 38,
+                offset: const Offset(12, 0),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/images/pace_icon.png',
+                    width: 46,
+                    height: 46,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pace',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.7,
+                          ),
+                        ),
+                        Text(
+                          'Evolução contínua',
+                          style: TextStyle(
+                            color: mutedColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _CircleIconButton(
+                    icon: Icons.close_rounded,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 18),
+
+              Divider(
+                height: 1,
+                color: _primary.withOpacity(0.10),
+              ),
+
+              const SizedBox(height: 18),
+
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _drawerSectionLabel('COMUNIDADE'),
+                    _mobileDrawerItem(
+                      Icons.home_rounded,
+                      'Feed',
+                      '/feed',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.explore_outlined,
+                      'Explorar',
+                      '/explorar',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.edit_square,
+                      'Postar',
+                      '/postar',
+                      active: true,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    _drawerSectionLabel('DESENVOLVIMENTO'),
+                    _mobileDrawerItem(
+                      Icons.track_changes_rounded,
+                      'Metas',
+                      '/metas',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.psychology_outlined,
+                      'Sala de foco',
+                      '/foco',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.trending_up_rounded,
+                      'Evolução',
+                      '/evolucao',
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                height: 1,
+                color: _primary.withOpacity(0.10),
+              ),
+
+              const SizedBox(height: 12),
+
+              _mobileDrawerItem(
+                Icons.notifications_none_rounded,
+                'Notificações',
+                '/notificacoes',
+              ),
+              _mobileDrawerItem(
+                Icons.settings_outlined,
+                'Configurações',
+                '/config',
+              ),
+              _mobileProfileItem(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerSectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: mutedColor.withOpacity(0.8),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.25,
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileDrawerItem(
+    IconData icon,
+    String label,
+    String route, {
+    bool active = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+
+            if (!active) {
+              Future.delayed(
+                const Duration(milliseconds: 100),
+                () {
+                  if (mounted) {
+                    Navigator.of(context).pushNamed(route);
+                  }
+                },
+              );
+            }
+          },
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              gradient: active
+                  ? LinearGradient(
+                      colors: [
+                        _primary.withOpacity(0.14),
+                        _accent.withOpacity(0.09),
+                      ],
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(15),
+              border: active
+                  ? Border.all(
+                      color: _primary.withOpacity(0.10),
+                    )
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? _primary.withOpacity(0.08)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: active ? _primary : sidebarTextColor,
+                    size: 21,
+                  ),
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: active ? _primary : sidebarTextColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                if (!active)
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: mutedColor.withOpacity(0.65),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileProfileItem() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+
+          Future.delayed(
+            const Duration(milliseconds: 100),
+            () {
+              if (mounted) {
+                Navigator.of(context).pushNamed('/perfil');
+              }
+            },
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _primary.withOpacity(
+              darkMode ? 0.10 : 0.055,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: _avatarProvider(
+                  _fotoUsuarioLogado(),
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _username(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ver perfil',
+                      style: TextStyle(
+                        color: mutedColor,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: mutedColor,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // DESKTOP SIDEBAR
+  // ---------------------------------------------------------------------------
+
   Widget _buildSidebar() {
-    const collapsed = 84.0;
-    const expanded = 230.0;
+    const collapsed = 88.0;
+    const expanded = 244.0;
     final width = sidebarHovered ? expanded : collapsed;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => sidebarHovered = true),
+      onEnter: (_) {
+        setState(() {
+          sidebarHovered = true;
+        });
+      },
       onExit: (_) {
         setState(() {
           sidebarHovered = false;
@@ -752,132 +1347,178 @@ class _PostarPageState extends State<PostarPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
         width: width,
         height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
           color: darkMode
-              ? const Color(0xC8080A0E)
-              : Colors.white.withOpacity(0.78),
+              ? const Color(0xFF0B0D12).withOpacity(0.98)
+              : const Color(0xFFF8FBFF).withOpacity(0.96),
           border: Border(
             right: BorderSide(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.white.withOpacity(0.55),
+              color: _primary.withOpacity(0.09),
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
+              color: const Color(0xFF112348).withOpacity(
+                darkMode ? 0.26 : 0.07,
+              ),
               blurRadius: 30,
-              offset: const Offset(8, 0),
+              offset: const Offset(10, 0),
             ),
           ],
         ),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 104,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 4),
-                      child: Image.asset(
-                        'assets/images/Ícone_Pace.png',
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
-                      ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 70,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 9),
+                    child: Image.asset(
+                      'assets/images/pace_icon.png',
+                      width: 46,
+                      height: 46,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', false),
-                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', true),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
-                      const SizedBox(height: 18),
-                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
-                      const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
-                      _sidebarProfileItem(),
-                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sidebarProfileItem() {
-    const route = '/perfil';
-    final isHovered = sidebarItemHovered == route;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pushNamed('/perfil'),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: isHovered
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
-
-              return Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
-                  ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
+                  if (sidebarHovered) ...[
+                    const SizedBox(width: 10),
                     Expanded(
                       child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          'Perfil',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
+                        duration: const Duration(milliseconds: 150),
+                        opacity: sidebarHovered ? 1 : 0,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Pace',
+                              style: TextStyle(
+                                color: _primary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Evolução contínua',
+                              style: TextStyle(
+                                color: mutedColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ],
-              );
-            },
-          ),
+              ),
+            ),
+
+            Divider(
+              height: 1,
+              color: _primary.withOpacity(0.10),
+            ),
+
+            const SizedBox(height: 14),
+
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _sidebarSectionLabel('COMUNIDADE'),
+                  _sidebarItem(
+                    Icons.home_rounded,
+                    'Feed',
+                    '/feed',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.explore_outlined,
+                    'Explorar',
+                    '/explorar',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.edit_square,
+                    'Postar',
+                    '/postar',
+                    true,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  _sidebarSectionLabel('DESENVOLVIMENTO'),
+                  _sidebarItem(
+                    Icons.track_changes_rounded,
+                    'Metas',
+                    '/metas',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.psychology_outlined,
+                    'Sala de foco',
+                    '/foco',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.trending_up_rounded,
+                    'Evolução',
+                    '/evolucao',
+                    false,
+                  ),
+                ],
+              ),
+            ),
+
+            Divider(
+              height: 1,
+              color: _primary.withOpacity(0.08),
+            ),
+
+            const SizedBox(height: 8),
+
+            _sidebarItem(
+              Icons.notifications_none_rounded,
+              'Notificações',
+              '/notificacoes',
+              false,
+            ),
+            _sidebarItem(
+              Icons.settings_outlined,
+              'Configurações',
+              '/config',
+              false,
+            ),
+            _sidebarProfileItem(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sidebarSectionLabel(String label) {
+    if (!sidebarHovered) {
+      return const SizedBox(height: 6);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: mutedColor.withOpacity(0.78),
+          fontSize: 9.5,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.25,
         ),
       ),
     );
@@ -889,252 +1530,323 @@ class _PostarPageState extends State<PostarPage> {
     String route,
     bool active,
   ) {
-    final isHovered = sidebarItemHovered == route;
-    final highlighted = active || isHovered;
+    final hovered = sidebarItemHovered == route;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          if (route != '/postar') {
-            Navigator.of(context).pushNamed(route);
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: highlighted
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: highlighted
-                ? Border.all(
-                    color: darkMode
-                        ? Colors.white.withOpacity(0.08)
-                        : active
-                            ? const Color(0xFFB8CCEA)
-                            : const Color(0xFFC8D8F0),
-                  )
-                : null,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
-
-              return Row(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        setState(() {
+          sidebarItemHovered = route;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          sidebarItemHovered = null;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: active
+                ? null
+                : () {
+                    Navigator.of(context).pushNamed(route);
+                  },
+            borderRadius: BorderRadius.circular(14),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              decoration: BoxDecoration(
+                gradient: active
+                    ? LinearGradient(
+                        colors: [
+                          _primary.withOpacity(0.15),
+                          _accent.withOpacity(0.09),
+                        ],
+                      )
+                    : null,
+                color: !active && hovered
+                    ? _primary.withOpacity(0.06)
+                    : null,
+                borderRadius: BorderRadius.circular(14),
+                border: active
+                    ? Border.all(
+                        color: _primary.withOpacity(0.08),
+                      )
+                    : null,
+              ),
+              child: Row(
                 children: [
-                  SizedBox(
-                    width: 24,
+                  Container(
+                    width: 38,
+                    height: 38,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: active || hovered
+                          ? _primary.withOpacity(0.07)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(11),
+                    ),
                     child: Icon(
                       icon,
-                      color: highlighted
-                          ? const Color(0xFF3059AA)
-                          : sidebarTextColor,
-                      size: 24,
+                      color: active ? _primary : sidebarTextColor,
+                      size: 21,
                     ),
                   ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
+                  if (sidebarHovered) ...[
+                    const SizedBox(width: 10),
                     Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: highlighted
-                                ? const Color(0xFF3059AA)
-                                : sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
+                      child: Text(
+                        label,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: active
+                              ? _primary
+                              : sidebarTextColor,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ],
                 ],
-              );
-            },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sidebarProfileItem() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Navigator.of(context).pushNamed('/perfil'),
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 58),
+            margin: const EdgeInsets.only(top: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            decoration: BoxDecoration(
+              color: _primary.withOpacity(
+                darkMode ? 0.10 : 0.05,
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: _primary.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: _primary.withOpacity(0.12),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image(
+                      image: _avatarProvider(
+                        _fotoUsuarioLogado(),
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                if (sidebarHovered) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _username(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Ver perfil',
+                          style: TextStyle(
+                            color: mutedColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: mutedColor,
+                    size: 17,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+// =============================================================================
+// VISUAL HELPERS
+// =============================================================================
 
 class _BackgroundDecor extends StatelessWidget {
   final bool darkMode;
 
-  const _BackgroundDecor({required this.darkMode});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
-          ),
-          child: const SizedBox.expand(),
-        ),
-        Positioned(
-          top: -120,
-          left: 40,
-          child: _SoftOrb(
-            size: 420,
-            color: darkMode ? const Color(0x1C3059AA) : const Color(0x225EB1BF),
-            blur: 120,
-          ),
-        ),
-        Positioned(
-          bottom: -120,
-          left: -120,
-          child: _SoftOrb(
-            size: 420,
-            color: darkMode ? const Color(0x145EB1BF) : const Color(0x185EB1BF),
-            blur: 130,
-          ),
-        ),
-        Positioned(
-          top: -140,
-          right: -80,
-          child: _SoftOrb(
-            size: 360,
-            color: darkMode ? const Color(0x1C5EB1BF) : const Color(0x143059AA),
-            blur: 130,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SoftOrb extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double blur;
-
-  const _SoftOrb({
-    required this.size,
-    required this.color,
-    required this.blur,
+  const _BackgroundDecor({
+    required this.darkMode,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: darkMode
+                  ? const [
+                      Color(0xFF081120),
+                      Color(0xFF050B15),
+                    ]
+                  : const [
+                      Color(0xFFF4F8FD),
+                      Color(0xFFEAF1F9),
+                      Color(0xFFE4EDF8),
+                    ],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -180,
+                top: -180,
+                child: _SoftGradientOrb(
+                  size: 430,
+                  color: _primary.withOpacity(
+                    darkMode ? 0.10 : 0.14,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: -170,
+                bottom: 10,
+                child: _SoftGradientOrb(
+                  size: 390,
+                  color: _accent.withOpacity(
+                    darkMode ? 0.07 : 0.12,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsets padding;
-  final double radius;
-  final bool darkMode;
+class _SoftGradientOrb extends StatelessWidget {
+  final double size;
+  final Color color;
 
-  const _GlassCard({
-    required this.child,
-    required this.darkMode,
-    this.padding = const EdgeInsets.all(22),
-    this.radius = 24,
+  const _SoftGradientOrb({
+    required this.size,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.16),
-            blurRadius: 60,
-            offset: const Offset(0, 24),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            width: double.infinity,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: darkMode
-                  ? const Color(0xE00D0D10)
-                  : Colors.white.withOpacity(0.84),
-              borderRadius: BorderRadius.circular(radius),
-              border: Border.all(
-                color: darkMode
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.white.withOpacity(0.68),
-              ),
-            ),
-            child: child,
-          ),
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            color,
+            color.withOpacity(0.46),
+            color.withOpacity(0.14),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.30, 0.60, 1.0],
         ),
       ),
     );
   }
 }
 
-class _GlassSmall extends StatelessWidget {
-  final Widget child;
+class _SurfaceCard extends StatelessWidget {
   final bool darkMode;
+  final Widget child;
+  final EdgeInsets padding;
+  final double radius;
 
-  const _GlassSmall({
-    required this.child,
+  const _SurfaceCard({
     required this.darkMode,
+    required this.child,
+    required this.padding,
+    required this.radius,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: darkMode
-                ? const Color(0xE00D0D10)
-                : Colors.white.withOpacity(0.70),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.05)
-                  : Colors.white.withOpacity(0.60),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF14274D).withOpacity(darkMode ? 0.24 : 0.10),
-                blurRadius: 40,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: child,
+    return Container(
+      width: double.infinity,
+      padding: padding,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: darkMode
+              ? [
+                  const Color(0xFF0C1627).withOpacity(0.96),
+                  const Color(0xFF0A121F).withOpacity(0.94),
+                ]
+              : [
+                  Colors.white.withOpacity(0.97),
+                  const Color(0xFFF8FBFF).withOpacity(0.94),
+                ],
         ),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.055)
+              : _primary.withOpacity(0.10),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: darkMode
+                ? Colors.black.withOpacity(0.24)
+                : const Color(0xFF15284D).withOpacity(0.10),
+            blurRadius: 38,
+            offset: const Offset(0, 16),
+          ),
+        ],
       ),
+      child: child,
     );
   }
 }
@@ -1142,29 +1854,115 @@ class _GlassSmall extends StatelessWidget {
 class _Badge extends StatelessWidget {
   final String text;
 
-  const _Badge({required this.text});
+  const _Badge({
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(0.10),
-        borderRadius: BorderRadius.circular(999),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 9,
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF3059AA),
-          fontSize: 13,
-          fontWeight: FontWeight.w800,
+      decoration: BoxDecoration(
+        color: _primary.withOpacity(0.09),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: _primary.withOpacity(0.07),
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: _accent,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: _accent.withOpacity(0.16),
+                  blurRadius: 0,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: const TextStyle(
+              color: _primary,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _PublishButton extends StatelessWidget {
+class _HeroTip extends StatelessWidget {
+  final bool darkMode;
+  final Color textColor;
+
+  const _HeroTip({
+    required this.darkMode,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 13,
+      ),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0C1627).withOpacity(0.92)
+            : Colors.white.withOpacity(0.90),
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(
+          color: _primary.withOpacity(0.09),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF15284D).withOpacity(
+              darkMode ? 0.16 : 0.08,
+            ),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.auto_awesome_rounded,
+            color: _primary,
+            size: 19,
+          ),
+          const SizedBox(width: 9),
+          Text(
+            'Postagens autênticas geram mais conexão.',
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PublishButton extends StatefulWidget {
   final bool loading;
   final VoidCallback? onTap;
 
@@ -1174,47 +1972,155 @@ class _PublishButton extends StatelessWidget {
   });
 
   @override
+  State<_PublishButton> createState() => _PublishButtonState();
+}
+
+class _PublishButtonState extends State<_PublishButton> {
+  bool hover = false;
+  bool pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 54,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3059AA), Color(0xFF4C71C7)],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3059AA).withOpacity(0.22),
-            blurRadius: 28,
-            offset: const Offset(0, 16),
+    final enabled = widget.onTap != null;
+
+    return MouseRegion(
+      cursor: enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: (_) {
+        if (enabled) setState(() => hover = true);
+      },
+      onExit: (_) {
+        if (mounted) setState(() => hover = false);
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: enabled
+            ? (_) => setState(() => pressed = true)
+            : null,
+        onTapUp: enabled
+            ? (_) => setState(() => pressed = false)
+            : null,
+        onTapCancel: enabled
+            ? () => setState(() => pressed = false)
+            : null,
+        child: AnimatedScale(
+          scale: pressed
+              ? 0.992
+              : hover
+                  ? 1.006
+                  : 1,
+          duration: const Duration(milliseconds: 100),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 170),
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: enabled
+                    ? const [
+                        _primary,
+                        _primary2,
+                      ]
+                    : [
+                        _primary.withOpacity(0.55),
+                        _primary2.withOpacity(0.55),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(17),
+              boxShadow: enabled
+                  ? [
+                      BoxShadow(
+                        color: _primary.withOpacity(
+                          hover ? 0.27 : 0.20,
+                        ),
+                        blurRadius: hover ? 28 : 22,
+                        offset: const Offset(0, 12),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: widget.loading
+                  ? const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Publicando...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                          size: 19,
+                        ),
+                        SizedBox(width: 9),
+                        Text(
+                          'Publicar agora',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
           ),
-        ],
+        ),
       ),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: loading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : const Icon(Icons.send, size: 20),
-        label: Text(
-          loading ? 'Publicando...' : 'Publicar agora',
-          style: const TextStyle(fontWeight: FontWeight.w800),
+    );
+  }
+}
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: 42,
+        height: 42,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: darkMode
+              ? Colors.white.withOpacity(0.055)
+              : _primary.withOpacity(0.065),
+          borderRadius: BorderRadius.circular(14),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+        child: Icon(
+          icon,
+          color: _primary,
+          size: 21,
         ),
       ),
     );

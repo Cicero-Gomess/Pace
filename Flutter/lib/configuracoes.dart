@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'api_config.dart';
+import 'pace_shell.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +22,7 @@ class ConfigPage extends StatefulWidget {
 }
 
 class _ConfigPageState extends State<ConfigPage> {
-  static const String apiUrl = "http://127.0.0.1:8000";
+  String get apiUrl => ApiConfig.baseUrl;
 
   bool sidebarHovered = false;
   String? sidebarItemHovered;
@@ -197,12 +199,8 @@ class _ConfigPageState extends State<ConfigPage> {
     }
   }
 
-  ImageProvider _avatarProvider(String? url) {
-    if (url != null && url.trim().isNotEmpty) {
-      return NetworkImage(url);
-    }
-
-    return const AssetImage('assets/user.png');
+  ImageProvider _avatarProvider(String? value) {
+    return ApiConfig.imageProvider(value);
   }
 
   String? _fotoUsuarioLogado() {
@@ -227,8 +225,8 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
+    final width = MediaQuery.sizeOf(context).width;
+    final mobile = width < 760;
 
     if (isLoadingUser) {
       return Scaffold(
@@ -239,36 +237,35 @@ class _ConfigPageState extends State<ConfigPage> {
       );
     }
 
-    return Scaffold(
+    return PaceShell(
+      currentRoute: '/config',
+      username: usuarioLogado['username']?.toString() ?? 'Meu perfil',
+      avatarValue: _fotoUsuarioLogado(),
       backgroundColor: bgColor,
-      body: Stack(
+      child: Stack(
         children: [
           _BackgroundDecor(darkMode: darkMode),
-          Row(
-            children: [
-              _buildSidebar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    contentLeftPadding,
-                    48,
-                    42,
-                    80,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1050),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHero(),
-                        const SizedBox(height: 28),
-                        _buildConfigGrid(),
-                      ],
-                    ),
-                  ),
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              mobile ? 18 : 38,
+              mobile ? 28 : 48,
+              mobile ? 18 : 42,
+              80,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1050),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHero(),
+                    const SizedBox(height: 28),
+                    _buildConfigGrid(),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -596,7 +593,7 @@ class _ConfigPageState extends State<ConfigPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10, top: 4),
                       child: Image.asset(
-                        'assets/images/Ícone_Pace.png',
+                        'assets/images/pace_icon.png',
                         width: 32,
                         height: 32,
                         fit: BoxFit.contain,
@@ -619,6 +616,8 @@ class _ConfigPageState extends State<ConfigPage> {
                       _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', true),
                       _sidebarProfileItem(),
                       _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
+
+                      
                     ],
                   ),
                 ),

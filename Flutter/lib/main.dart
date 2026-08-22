@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'theme_controller.dart';
-import 'sobre.dart';
 import 'index.dart';
 import 'entrar.dart';
 import 'cadastro.dart';
@@ -10,6 +9,10 @@ import 'postar.dart';
 import 'explorar.dart';
 import 'configuracoes.dart';
 import 'perfil.dart';
+import 'metas.dart';
+import 'foco.dart';
+import 'notificacoes.dart';
+import 'evolucao.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +20,11 @@ Future<void> main() async {
   final themeController = ThemeController();
   await themeController.loadTheme();
 
-  runApp(PaceApp(themeController: themeController));
+  runApp(
+    PaceApp(
+      themeController: themeController,
+    ),
+  );
 }
 
 class PaceApp extends StatelessWidget {
@@ -36,26 +43,37 @@ class PaceApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Pace',
+
           themeMode: themeController.themeMode,
+
           theme: ThemeData(
             brightness: Brightness.light,
-            scaffoldBackgroundColor: const Color(0xFFF4F7FB),
+            scaffoldBackgroundColor:
+                const Color(0xFFF4F7FB),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF3059AA),
-              brightness: Brightness.light,
+              seedColor:
+                  const Color(0xFF3059AA),
+              brightness:
+                  Brightness.light,
             ),
             useMaterial3: true,
           ),
+
           darkTheme: ThemeData(
             brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF05070C),
+            scaffoldBackgroundColor:
+                const Color(0xFF05070C),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF3059AA),
-              brightness: Brightness.dark,
+              seedColor:
+                  const Color(0xFF3059AA),
+              brightness:
+                  Brightness.dark,
             ),
             useMaterial3: true,
           ),
+
           initialRoute: '/',
+
           onGenerateRoute: (settings) {
             Widget page;
 
@@ -85,15 +103,30 @@ class PaceApp extends StatelessWidget {
                 break;
 
               case '/config':
-                page = ConfigPage(themeController: themeController);
-                break;
-
-              case '/sobre':
-                page = const SobrePage();
+                page = ConfigPage(
+                  themeController:
+                      themeController,
+                );
                 break;
 
               case '/perfil':
                 page = const PerfilPage();
+                break;
+
+              case '/metas':
+                page = const MetasPage();
+                break;
+
+              case '/foco':
+                page = const FocoPage();
+                break;
+
+              case '/notificacoes':
+                page = const NotificacoesPage();
+                break;
+
+              case '/evolucao':
+                page = const EvolucaoPage();
                 break;
 
               default:
@@ -102,41 +135,63 @@ class PaceApp extends StatelessWidget {
 
             return PageRouteBuilder(
               settings: settings,
-              transitionDuration: const Duration(milliseconds: 650),
-              reverseTransitionDuration: const Duration(milliseconds: 500),
-              pageBuilder: (context, animation, secondaryAnimation) => page,
+
+              transitionDuration: const Duration(milliseconds: 240),
+
+              reverseTransitionDuration: const Duration(milliseconds: 200),
+
+              pageBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+              ) =>
+                  page,
+
               transitionsBuilder: (
                 context,
                 animation,
                 secondaryAnimation,
                 child,
               ) {
-                final curved = CurvedAnimation(
+                final curved =
+                    CurvedAnimation(
                   parent: animation,
-                  curve: Curves.easeOutCubic,
-                  reverseCurve: Curves.easeInCubic,
+                  curve:
+                      Curves.easeOutCubic,
+                  reverseCurve:
+                      Curves.easeInCubic,
                 );
 
-                final fade = Tween<double>(
+                final fade =
+                    Tween<double>(
                   begin: 0,
                   end: 1,
-                ).animate(curved);
+                ).animate(
+                  curved,
+                );
 
-                final slide = Tween<Offset>(
-                  begin: const Offset(0.08, 0.02),
-                  end: Offset.zero,
-                ).animate(curved);
+                final slide =
+                    Tween<Offset>(
+                  begin:
+                      const Offset(
+                    0.08,
+                    0.02,
+                  ),
+                  end:
+                      Offset.zero,
+                ).animate(
+                  curved,
+                );
 
-                final scale = Tween<double>(
-                  begin: 0.985,
-                  end: 1,
-                ).animate(curved);
+                final scale = Tween<double>(begin: 1, end: 1).animate(curved);
 
                 return FadeTransition(
                   opacity: fade,
-                  child: SlideTransition(
+                  child:
+                      SlideTransition(
                     position: slide,
-                    child: ScaleTransition(
+                    child:
+                        ScaleTransition(
                       scale: scale,
                       child: child,
                     ),

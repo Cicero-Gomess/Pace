@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api_config.dart';
+import 'pace_shell.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -13,7 +17,9 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  static const String apiUrl = "http://127.0.0.1:8000";
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String get apiUrl => ApiConfig.baseUrl;
 
   List<Map<String, dynamic>> posts = [];
   Map<String, dynamic> usuarioLogado = {};
@@ -46,8 +52,9 @@ class _FeedPageState extends State<FeedPage> {
   Color get sidebarTextColor =>
       darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
 
-  Color get inputFillColor =>
-      darkMode ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.84);
+  Color get inputFillColor => darkMode
+      ? Colors.white.withOpacity(0.04)
+      : Colors.white.withOpacity(0.84);
 
   @override
   void initState() {
@@ -79,12 +86,8 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  ImageProvider _avatarProvider(String? url) {
-    if (url != null && url.trim().isNotEmpty) {
-      return NetworkImage(url);
-    }
-
-    return const AssetImage('assets/user.png');
+  ImageProvider _avatarProvider(String? value) {
+    return ApiConfig.imageProvider(value);
   }
 
   String? _fotoUsuarioLogado() {
@@ -125,7 +128,8 @@ class _FeedPageState extends State<FeedPage> {
 
     return {
       'id': NumberParser.toInt(comentario['id']),
-      'conteudo': comentario['conteudo'] ??
+      'conteudo':
+          comentario['conteudo'] ??
           comentario['texto'] ??
           comentario['comentario'] ??
           '',
@@ -153,18 +157,22 @@ class _FeedPageState extends State<FeedPage> {
       'data': post['data_postagem'] ?? post['data'],
       'usuario': {
         'id': usuario is Map ? usuario['id'] : post['usuario_id'],
-        'username': usuario is Map ? usuario['username'] ?? 'Usuário' : 'Usuário',
+        'username': usuario is Map
+            ? usuario['username'] ?? 'Usuário'
+            : 'Usuário',
         'foto_perfil': usuario is Map
             ? usuario['foto_perfil'] ?? usuario['foto']
             : post['foto_perfil'] ?? post['foto'],
       },
       'comentarios': post['comentarios'] is List
           ? (post['comentarios'] as List)
-              .where((item) => item is Map)
-              .map((item) => _normalizarComentario(
+                .where((item) => item is Map)
+                .map(
+                  (item) => _normalizarComentario(
                     Map<String, dynamic>.from(item as Map),
-                  ))
-              .toList()
+                  ),
+                )
+                .toList()
           : <Map<String, dynamic>>[],
     };
   }
@@ -253,9 +261,10 @@ class _FeedPageState extends State<FeedPage> {
 
     return data
         .where((item) => item is Map)
-        .map((item) => _normalizarComentario(
-              Map<String, dynamic>.from(item as Map),
-            ))
+        .map(
+          (item) =>
+              _normalizarComentario(Map<String, dynamic>.from(item as Map)),
+        )
         .toList();
   }
 
@@ -482,9 +491,7 @@ class _FeedPageState extends State<FeedPage> {
         content: Text(message),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -593,7 +600,10 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF3059AA).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(999),
@@ -767,80 +777,561 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentLeftPadding = screenWidth < 1000 ? 24.0 : 360.0;
-    final feedLeftPadding = screenWidth < 1000 ? 0.0 : 160.0;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final mobile = screenWidth < 760;
+    final tablet = screenWidth >= 760 && screenWidth < 1080;
 
     if (isLoading) {
       return Scaffold(
         backgroundColor: bgColor,
         body: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF3059AA),
-          ),
+          child: CircularProgressIndicator(color: Color(0xFF315CAC)),
         ),
       );
     }
 
-    return Scaffold(
+    return PaceShell(
+      currentRoute: '/feed',
+      username: usuarioLogado['username']?.toString() ?? 'Meu perfil',
+      avatarValue: _fotoUsuarioLogado(),
       backgroundColor: bgColor,
-      body: Stack(
+      child: Stack(
         children: [
           _BackgroundDecor(darkMode: darkMode),
-          Row(
+          _buildFeedContent(
+            horizontalPadding: mobile
+                ? (screenWidth <= 430 ? 16 : 20)
+                : (tablet ? 28 : 38),
+            topPadding: mobile ? 24 : (tablet ? 32 : 38),
+            bottomPadding: mobile ? 70 : 90,
+            mobile: mobile,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeedContent({
+    required double horizontalPadding,
+    required double topPadding,
+    required double bottomPadding,
+    required bool mobile,
+  }) {
+    return RefreshIndicator(
+      color: const Color(0xFF315CAC),
+      onRefresh: _recarregarFeed,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          horizontalPadding,
+          topPadding,
+          horizontalPadding,
+          bottomPadding,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1180),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHero(),
+                SizedBox(height: mobile ? 30 : 36),
+
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 820),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFeedHeader(mobile),
+                        const SizedBox(height: 16),
+                        posts.isEmpty ? _buildEmptyFeed() : _buildPosts(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _recarregarFeed() async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final usuarioData = await _buscarUsuarioAPI(token);
+      final postsData = await _getPostsAPI(token);
+
+      for (final post in postsData) {
+        try {
+          post['comentarios'] = await _buscarComentariosAPI(
+            token,
+            NumberParser.toInt(post['id']),
+          );
+        } catch (_) {
+          post['comentarios'] = <Map<String, dynamic>>[];
+        }
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        usuarioLogado = usuarioData;
+        posts = postsData;
+      });
+    } catch (e) {
+      if (e.toString().contains('AUTH_401')) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
+        return;
+      }
+
+      _showToast('Não foi possível atualizar o feed.', Colors.red);
+    }
+  }
+
+  Widget _buildFeedHeader(bool mobile) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSidebar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    contentLeftPadding,
-                    48,
-                    42,
-                    90,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHero(),
-                      const SizedBox(height: 34),
-                      Padding(
-                        padding: EdgeInsets.only(left: feedLeftPadding),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 780),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'ATUALIZAÇÕES',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.4,
-                                  color: Color(0xFF5EB1BF),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Posts recentes',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: textColor,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              posts.isEmpty ? _buildEmptyFeed() : _buildPosts(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              const Text(
+                'ATUALIZAÇÕES',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
+                  color: Color(0xFF69C5D0),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Posts recentes',
+                style: TextStyle(
+                  fontSize: mobile ? 27 : 29,
+                  height: 1.08,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.8,
+                  color: textColor,
                 ),
               ),
             ],
           ),
-        ],
+        ),
+        if (!mobile)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.white.withOpacity(0.62),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: const Color(0xFF315CAC).withOpacity(0.08),
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _OnlineDot(),
+                SizedBox(width: 8),
+                Text(
+                  'Atualizado agora',
+                  style: TextStyle(
+                    color: Color(0xFF6F7F96),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMobileTopBar() {
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: darkMode
+              ? const Color(0xF2080A0E)
+              : Colors.white.withOpacity(0.88),
+          border: Border(
+            bottom: BorderSide(
+              color: const Color(0xFF315CAC).withOpacity(0.08),
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF15284D).withOpacity(0.06),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: InkWell(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                borderRadius: BorderRadius.circular(14),
+                child: Padding(
+                  padding: const EdgeInsets.all(7),
+                  child: Image.asset(
+                    'assets/images/pace_icon.png',
+                    width: 42,
+                    height: 42,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pace',
+                    style: TextStyle(
+                      color: darkMode ? Colors.white : const Color(0xFF315CAC),
+                      fontSize: 18,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Toque na logo para abrir o menu',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _CircleIconButton(
+              icon: Icons.notifications_none_rounded,
+              onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileDrawer() {
+    return Drawer(
+      width: 292,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+          decoration: BoxDecoration(
+            color: darkMode
+                ? const Color(0xFF0B0D12).withOpacity(0.98)
+                : const Color(0xFFF8FBFF).withOpacity(0.98),
+            borderRadius: const BorderRadius.horizontal(
+              right: Radius.circular(28),
+            ),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : const Color(0xFF315CAC).withOpacity(0.09),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(darkMode ? 0.34 : 0.14),
+                blurRadius: 42,
+                offset: const Offset(12, 0),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/images/pace_icon.png',
+                    width: 46,
+                    height: 46,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pace',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.7,
+                          ),
+                        ),
+                        Text(
+                          'Evolução contínua',
+                          style: TextStyle(
+                            color: mutedColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _CircleIconButton(
+                    icon: Icons.close_rounded,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Divider(
+                height: 1,
+                color: const Color(0xFF315CAC).withOpacity(0.10),
+              ),
+              const SizedBox(height: 18),
+
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _drawerSectionLabel('COMUNIDADE'),
+                    _mobileDrawerItem(
+                      Icons.home_rounded,
+                      'Feed',
+                      '/feed',
+                      active: true,
+                    ),
+                    _mobileDrawerItem(
+                      Icons.explore_outlined,
+                      'Explorar',
+                      '/explorar',
+                    ),
+                    _mobileDrawerItem(Icons.edit_square, 'Postar', '/postar'),
+
+                    const SizedBox(height: 12),
+                    _drawerSectionLabel('DESENVOLVIMENTO'),
+                    _mobileDrawerItem(
+                      Icons.track_changes_rounded,
+                      'Metas',
+                      '/metas',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.psychology_outlined,
+                      'Sala de foco',
+                      '/foco',
+                    ),
+                    _mobileDrawerItem(
+                      Icons.trending_up_rounded,
+                      'Evolução',
+                      '/evolucao',
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                height: 1,
+                color: const Color(0xFF315CAC).withOpacity(0.10),
+              ),
+              const SizedBox(height: 12),
+              _mobileDrawerItem(
+                Icons.notifications_none_rounded,
+                'Notificações',
+                '/notificacoes',
+              ),
+              _mobileDrawerItem(
+                Icons.settings_outlined,
+                'Configurações',
+                '/config',
+              ),
+              _mobileProfileItem(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerSectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: mutedColor.withOpacity(0.8),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.25,
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileDrawerItem(
+    IconData icon,
+    String label,
+    String route, {
+    bool active = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+
+            if (!active) {
+              Future.delayed(const Duration(milliseconds: 120), () {
+                if (mounted) Navigator.of(context).pushNamed(route);
+              });
+            }
+          },
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              gradient: active
+                  ? LinearGradient(
+                      colors: [
+                        const Color(0xFF315CAC).withOpacity(0.14),
+                        const Color(0xFF69C5D0).withOpacity(0.09),
+                      ],
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(15),
+              border: active
+                  ? Border.all(color: const Color(0xFF315CAC).withOpacity(0.10))
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFF315CAC).withOpacity(0.08)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: active ? const Color(0xFF315CAC) : sidebarTextColor,
+                    size: 21,
+                  ),
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: active
+                          ? const Color(0xFF315CAC)
+                          : sidebarTextColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                if (!active)
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: mutedColor.withOpacity(0.65),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileProfileItem() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+          Future.delayed(const Duration(milliseconds: 120), () {
+            if (mounted) Navigator.of(context).pushNamed('/perfil');
+          });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF315CAC).withOpacity(darkMode ? 0.10 : 0.055),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      usuarioLogado['username']?.toString() ?? 'Meu perfil',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ver perfil',
+                      style: TextStyle(
+                        color: mutedColor,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: mutedColor, size: 20),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -848,33 +1339,46 @@ class _FeedPageState extends State<FeedPage> {
   Widget _buildHero() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 900;
+        final mobile = constraints.maxWidth < 700;
 
-        if (isSmall) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _Badge(text: 'Comunidade em movimento'),
-              const SizedBox(height: 14),
-              Text(
-                'Seu feed no Pace',
-                style: TextStyle(
-                  fontSize: 36,
-                  height: 1.05,
-                  fontWeight: FontWeight.w800,
-                  color: textColor,
-                ),
+        final copy = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _Badge(text: 'Comunidade em movimento'),
+            SizedBox(height: mobile ? 18 : 16),
+            Text(
+              'Seu feed no Pace',
+              style: TextStyle(
+                fontSize: mobile ? 38 : 52,
+                height: 1.01,
+                fontWeight: FontWeight.w800,
+                letterSpacing: mobile ? -1.7 : -2.4,
+                color: textColor,
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina cercada de pessoas que também estão evoluindo.',
+            ),
+            SizedBox(height: mobile ? 16 : 14),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: Text(
+                'Acompanhe o que a comunidade está construindo, compartilhe '
+                'progresso e mantenha sua rotina cercada de pessoas que também '
+                'estão evoluindo.',
                 style: TextStyle(
-                  fontSize: 16,
-                  height: 1.65,
+                  fontSize: mobile ? 16 : 16.5,
+                  height: mobile ? 1.62 : 1.65,
                   color: mutedColor,
                 ),
               ),
-              const SizedBox(height: 18),
+            ),
+          ],
+        );
+
+        if (mobile) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              copy,
+              const SizedBox(height: 22),
               _PrimaryButton(
                 text: 'Criar post',
                 icon: Icons.edit_square,
@@ -884,50 +1388,20 @@ class _FeedPageState extends State<FeedPage> {
           );
         }
 
-        return SizedBox(
-          width: 1100,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: 720,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _Badge(text: 'Comunidade em movimento'),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Seu feed no Pace',
-                      style: TextStyle(
-                        fontSize: 40,
-                        height: 1.05,
-                        fontWeight: FontWeight.w800,
-                        color: textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Acompanhe o que a comunidade está construindo, compartilhe progresso e mantenha sua rotina\ncercada de pessoas que também estão evoluindo.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.65,
-                        color: mutedColor,
-                      ),
-                    ),
-                  ],
-                ),
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(child: copy),
+            const SizedBox(width: 32),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: _PrimaryButton(
+                text: 'Criar post',
+                icon: Icons.edit_square,
+                onTap: () => Navigator.of(context).pushNamed('/postar'),
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(right: 20, bottom: 2),
-                child: _PrimaryButton(
-                  text: 'Criar post',
-                  icon: Icons.edit_square,
-                  onTap: () => Navigator.of(context).pushNamed('/postar'),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -970,11 +1444,7 @@ class _FeedPageState extends State<FeedPage> {
           Text(
             'Quando a comunidade começar a publicar, tudo vai aparecer aqui.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15,
-              height: 1.8,
-              color: mutedColor,
-            ),
+            style: TextStyle(fontSize: 15, height: 1.8, color: mutedColor),
           ),
         ],
       ),
@@ -1070,8 +1540,11 @@ class _FeedPageState extends State<FeedPage> {
               const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: Image.network(
-                  post['imagem'],
+                child: Image(
+                  image: ApiConfig.imageProvider(
+                    post['imagem'],
+                    fallbackAsset: 'assets/user.png',
+                  ),
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) {
@@ -1099,11 +1572,14 @@ class _FeedPageState extends State<FeedPage> {
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3059AA).withOpacity(
-                      darkMode ? 0.12 : 0.06,
-                    ),
+                    color: const Color(
+                      0xFF3059AA,
+                    ).withOpacity(darkMode ? 0.12 : 0.06),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: darkMode
@@ -1168,9 +1644,9 @@ class _FeedPageState extends State<FeedPage> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF3059AA).withOpacity(
-                  darkMode ? 0.12 : 0.08,
-                ),
+                color: const Color(
+                  0xFF3059AA,
+                ).withOpacity(darkMode ? 0.12 : 0.08),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: darkMode
@@ -1285,8 +1761,8 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _buildSidebar() {
-    const collapsed = 84.0;
-    const expanded = 230.0;
+    const collapsed = 88.0;
+    const expanded = 244.0;
     final width = sidebarHovered ? expanded : collapsed;
 
     return MouseRegion(
@@ -1298,70 +1774,174 @@ class _FeedPageState extends State<FeedPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: width,
         height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
           color: darkMode
-              ? const Color(0xC8080A0E)
-              : Colors.white.withOpacity(0.78),
+              ? const Color(0xF20B0D12)
+              : const Color(0xFFF8FBFF).withOpacity(0.92),
           border: Border(
-            right: BorderSide(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.white.withOpacity(0.55),
-            ),
+            right: BorderSide(color: const Color(0xFF315CAC).withOpacity(0.09)),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
-              blurRadius: 30,
-              offset: const Offset(8, 0),
+              color: const Color(
+                0xFF112348,
+              ).withOpacity(darkMode ? 0.28 : 0.08),
+              blurRadius: 34,
+              offset: const Offset(12, 0),
             ),
           ],
         ),
         child: ClipRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
             child: Column(
               children: [
                 SizedBox(
-                  height: 104,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 4),
-                      child: Image.asset(
-                        'assets/images/Ícone_Pace.png',
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
+                  height: 70,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 9),
+                        child: Image.asset(
+                          'assets/images/pace_icon.png',
+                          width: 46,
+                          height: 46,
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                    ),
+                      if (sidebarHovered) ...[
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 170),
+                            opacity: sidebarHovered ? 1 : 0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Pace',
+                                  style: TextStyle(
+                                    color: Color(0xFF315CAC),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.6,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Evolução contínua',
+                                  style: TextStyle(
+                                    color: mutedColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
+                Divider(
+                  height: 1,
+                  color: const Color(0xFF315CAC).withOpacity(0.10),
+                ),
+                const SizedBox(height: 14),
+
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', true),
-                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
-                      const SizedBox(height: 18),
-                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
-                      const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
-                      _sidebarProfileItem(),
-                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
+                      _sidebarSectionLabel('COMUNIDADE'),
+                      _sidebarItem(Icons.home_rounded, 'Feed', '/feed', true),
+                      _sidebarItem(
+                        Icons.explore_outlined,
+                        'Explorar',
+                        '/explorar',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.edit_square,
+                        'Postar',
+                        '/postar',
+                        false,
+                      ),
+
+                      const SizedBox(height: 10),
+                      _sidebarSectionLabel('DESENVOLVIMENTO'),
+                      _sidebarItem(
+                        Icons.track_changes_rounded,
+                        'Metas',
+                        '/metas',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.psychology_outlined,
+                        'Sala de foco',
+                        '/foco',
+                        false,
+                      ),
+                      _sidebarItem(
+                        Icons.trending_up_rounded,
+                        'Evolução',
+                        '/evolucao',
+                        false,
+                      ),
                     ],
                   ),
                 ),
+
+                Divider(
+                  height: 1,
+                  color: const Color(0xFF315CAC).withOpacity(0.08),
+                ),
+                const SizedBox(height: 8),
+                _sidebarItem(
+                  Icons.notifications_none_rounded,
+                  'Notificações',
+                  '/notificacoes',
+                  false,
+                ),
+                _sidebarItem(
+                  Icons.settings_outlined,
+                  'Configurações',
+                  '/config',
+                  false,
+                ),
+                _sidebarProfileItem(),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sidebarSectionLabel(String label) {
+    if (!sidebarHovered) {
+      return const SizedBox(height: 6);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 160),
+        opacity: sidebarHovered ? 1 : 0,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: mutedColor.withOpacity(0.78),
+            fontSize: 9.5,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.25,
           ),
         ),
       ),
@@ -1386,8 +1966,8 @@ class _FeedPageState extends State<FeedPage> {
           decoration: BoxDecoration(
             color: isHovered
                 ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
+                      ? Colors.white.withOpacity(0.06)
+                      : const Color(0xFFEAF1F7)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -1429,12 +2009,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _sidebarItem(
-    IconData icon,
-    String label,
-    String route,
-    bool active,
-  ) {
+  Widget _sidebarItem(IconData icon, String label, String route, bool active) {
     final isHovered = sidebarItemHovered == route;
     final highlighted = active || isHovered;
 
@@ -1456,8 +2031,8 @@ class _FeedPageState extends State<FeedPage> {
           decoration: BoxDecoration(
             color: highlighted
                 ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
+                      ? Colors.white.withOpacity(0.06)
+                      : const Color(0xFFEAF1F7)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: highlighted
@@ -1465,8 +2040,8 @@ class _FeedPageState extends State<FeedPage> {
                     color: darkMode
                         ? Colors.white.withOpacity(0.08)
                         : active
-                            ? const Color(0xFFB8CCEA)
-                            : const Color(0xFFC8D8F0),
+                        ? const Color(0xFFB8CCEA)
+                        : const Color(0xFFC8D8F0),
                   )
                 : null,
           ),
@@ -1512,6 +2087,29 @@ class _FeedPageState extends State<FeedPage> {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _OnlineDot extends StatelessWidget {
+  const _OnlineDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 7,
+      height: 7,
+      decoration: BoxDecoration(
+        color: const Color(0xFF37B47E),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF37B47E).withOpacity(0.20),
+            blurRadius: 0,
+            spreadRadius: 4,
+          ),
+        ],
       ),
     );
   }
@@ -1569,11 +2167,7 @@ class _SoftOrb extends StatelessWidget {
   final Color color;
   final double blur;
 
-  const _SoftOrb({
-    required this.size,
-    required this.color,
-    required this.blur,
-  });
+  const _SoftOrb({required this.size, required this.color, required this.blur});
 
   @override
   Widget build(BuildContext context) {
@@ -1582,10 +2176,7 @@ class _SoftOrb extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }
@@ -1645,10 +2236,7 @@ class _GlassDialog extends StatelessWidget {
   final Widget child;
   final double maxWidth;
 
-  const _GlassDialog({
-    required this.child,
-    this.maxWidth = 430,
-  });
+  const _GlassDialog({required this.child, this.maxWidth = 430});
 
   @override
   Widget build(BuildContext context) {
@@ -1657,10 +2245,7 @@ class _GlassDialog extends StatelessWidget {
       insetPadding: const EdgeInsets.all(20),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: _GlassCard(
-          padding: const EdgeInsets.all(24),
-          child: child,
-        ),
+        child: _GlassCard(padding: const EdgeInsets.all(24), child: child),
       ),
     );
   }
@@ -1674,18 +2259,41 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(0.1),
+        color: const Color(0xFF315CAC).withOpacity(0.08),
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFF315CAC).withOpacity(0.08)),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF3059AA),
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: const Color(0xFF69C5D0),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF69C5D0).withOpacity(0.16),
+                  blurRadius: 0,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF315CAC),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1719,10 +2327,7 @@ class _PrimaryButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onTap,
         icon: Icon(icon, size: 21),
-        label: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
+        label: Text(text, style: const TextStyle(fontWeight: FontWeight.w800)),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -1742,10 +2347,7 @@ class _GhostButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const _GhostButton({
-    required this.text,
-    required this.onTap,
-  });
+  const _GhostButton({required this.text, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1754,14 +2356,14 @@ class _GhostButton extends StatelessWidget {
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
-        foregroundColor:
-            darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF455572),
-        backgroundColor:
-            darkMode ? Colors.white.withOpacity(0.06) : const Color(0xFFF0F2F5),
+        foregroundColor: darkMode
+            ? const Color(0xFFD7DDF0)
+            : const Color(0xFF455572),
+        backgroundColor: darkMode
+            ? Colors.white.withOpacity(0.06)
+            : const Color(0xFFF0F2F5),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Text(text),
     );
@@ -1772,10 +2374,7 @@ class _DangerButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const _DangerButton({
-    required this.text,
-    required this.onTap,
-  });
+  const _DangerButton({required this.text, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1785,9 +2384,7 @@ class _DangerButton extends StatelessWidget {
         foregroundColor: Colors.white,
         backgroundColor: const Color(0xFFE55353),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Text(text),
     );
@@ -1881,8 +2478,8 @@ class _LikeButton extends StatelessWidget {
     final color = liked
         ? const Color(0xFFD8425C)
         : darkMode
-            ? const Color(0xFFD7DDF0)
-            : const Color(0xFF44536F);
+        ? const Color(0xFFD7DDF0)
+        : const Color(0xFF44536F);
 
     return InkWell(
       onTap: onTap,
@@ -1894,15 +2491,15 @@ class _LikeButton extends StatelessWidget {
           color: liked
               ? const Color(0xFFE64862).withOpacity(0.12)
               : darkMode
-                  ? Colors.white.withOpacity(0.06)
-                  : const Color(0xFFEDF2FB),
+              ? Colors.white.withOpacity(0.06)
+              : const Color(0xFFEDF2FB),
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: liked
                 ? const Color(0xFFE64862).withOpacity(0.14)
                 : darkMode
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.transparent,
+                ? Colors.white.withOpacity(0.08)
+                : Colors.transparent,
           ),
         ),
         child: Row(
@@ -1915,10 +2512,7 @@ class _LikeButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               '$likes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: color),
             ),
           ],
         ),
@@ -1970,10 +2564,7 @@ class AppText {
 }
 
 class AppInput {
-  static InputDecoration textArea(
-    String hint, {
-    required bool darkMode,
-  }) {
+  static InputDecoration textArea(String hint, {required bool darkMode}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(
@@ -1998,9 +2589,7 @@ class AppInput {
           color: const Color(0xFF3059AA).withOpacity(0.35),
         ),
       ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 }

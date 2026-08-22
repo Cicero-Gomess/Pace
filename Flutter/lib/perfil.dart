@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'api_config.dart';
+import 'pace_shell.dart';
+
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 
@@ -37,10 +40,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
   final Map<String, ImageProvider> _imageProviderCache = {};
 
-  String get apiUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8000';
-    return 'http://10.0.2.2:8000';
-  }
+  String get apiUrl => ApiConfig.baseUrl;
 
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
@@ -348,35 +348,19 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   ImageProvider _imageProvider(String value) {
-    return _imageProviderCache.putIfAbsent(value, () {
-      if (value.startsWith('data:image')) {
-        final base64Data = value.split(',').last;
-        return MemoryImage(base64Decode(base64Data));
-      }
-
-      if (value.startsWith('http')) {
-        return NetworkImage(value);
-      }
-
-      return const AssetImage('assets/user.png');
-    });
+    return _imageProviderCache.putIfAbsent(
+      value,
+      () => ApiConfig.imageProvider(value),
+    );
   }
 
-  ImageProvider? _avatarProvider(String? url) {
-    if (url == null || url.trim().isEmpty) return null;
+  ImageProvider? _avatarProvider(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
 
-    return _imageProviderCache.putIfAbsent(url, () {
-      if (url.startsWith('data:image')) {
-        final base64Data = url.split(',').last;
-        return MemoryImage(base64Decode(base64Data));
-      }
-
-      if (url.startsWith('http')) {
-        return NetworkImage(url);
-      }
-
-      return const AssetImage('assets/user.png');
-    });
+    return _imageProviderCache.putIfAbsent(
+      value,
+      () => ApiConfig.imageProvider(value),
+    );
   }
 
   Future<void> _trocarFoto() async {
@@ -542,31 +526,35 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isCompact = constraints.maxWidth < 760;
-          final isMedium = constraints.maxWidth < 980;
+    final user = _usuario ?? <String, dynamic>{};
+    final avatar =
+        user['foto_perfil'] ??
+        user['foto'] ??
+        user['avatar'];
 
-          return Stack(
-            children: [
-              _BackgroundDecor(darkMode: darkMode),
-              Row(
-                children: [
-                  _buildSidebar(),
-                  Expanded(
-                    child: _carregando && _usuario == null
-                        ? const Center(
-                            child: CircularProgressIndicator(color: azulPrincipal),
-                          )
-                        : _buildContent(isCompact, isMedium),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+    return PaceShell(
+      currentRoute: '/perfil',
+      username: user['username']?.toString() ?? 'Meu perfil',
+      avatarValue: avatar?.toString(),
+      backgroundColor: bgColor,
+      child: Stack(
+        children: [
+          _BackgroundDecor(darkMode: darkMode),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 760;
+              final medium = constraints.maxWidth < 980;
+
+              if (_carregando && _usuario == null) {
+                return const Center(
+                  child: CircularProgressIndicator(color: azulPrincipal),
+                );
+              }
+
+              return _buildContent(compact, medium);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -621,7 +609,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10, top: 4),
                       child: Image.asset(
-                        'assets/images/Ícone_Pace.png',
+                        'assets/images/pace_icon.png',
                         width: 32,
                         height: 32,
                         fit: BoxFit.contain,
