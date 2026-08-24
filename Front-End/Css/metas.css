@@ -1841,6 +1841,8 @@ body.dark .meta-status.concluida {
   background: rgba(42, 168, 121, .12);
 }
 
+
+
 @media (max-width: 620px) {
   .meta-card-status-row {
     align-items: stretch;

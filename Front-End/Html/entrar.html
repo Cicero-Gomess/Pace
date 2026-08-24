@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="description"
-    content="Entre no Pace e continue sua jornada de evolução."
-  >
+  <meta name="description" content="Entre no Pace e continue sua jornada de evolução.">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Entrar | Pace</title>
 
@@ -31,14 +22,8 @@
     <nav class="navbar" aria-label="Navegação principal">
 
       <div class="logo">
-        <a
-          href="index.html"
-          aria-label="Voltar para a página inicial"
-        >
-          <img
-            src="../Images/Ícone_Pace.png"
-            alt="Logo do Pace"
-          >
+        <a href="index.html" aria-label="Voltar para a página inicial">
+          <img src="../Images/Ícone_Pace.png" alt="Logo do Pace">
         </a>
       </div>
 
@@ -48,10 +33,7 @@
           Ainda não tem uma conta?
         </span>
 
-        <a
-          href="cadastro.html"
-          class="btn-cadastro"
-        >
+        <a href="cadastro.html" class="btn-cadastro">
           Cadastre-se
         </a>
 
@@ -171,14 +153,8 @@
                 @
               </span>
 
-              <input
-                type="email"
-                id="loginEmail"
-                name="email"
-                placeholder="nome@exemplo.com"
-                autocomplete="email"
-                required
-              >
+              <input type="email" id="loginEmail" name="email" placeholder="nome@exemplo.com" autocomplete="email"
+                required>
 
             </div>
 
@@ -192,40 +168,22 @@
                 Senha
               </label>
 
-              <a
-                href="#"
-                class="forgot-password"
-              >
+              <button type="button" id="forgotPasswordButton" class="forgot-password">
                 Esqueci minha senha
-              </a>
-
+              </button>
             </div>
 
             <div class="input-wrapper">
 
-              <span
-                class="input-icon input-icon-password"
-                aria-hidden="true"
-              >
+              <span class="input-icon input-icon-password" aria-hidden="true">
                 ●
               </span>
 
-              <input
-                type="password"
-                id="loginSenha"
-                name="senha"
-                placeholder="Digite sua senha"
-                autocomplete="current-password"
-                required
-              >
+              <input type="password" id="loginSenha" name="senha" placeholder="Digite sua senha"
+                autocomplete="current-password" required>
 
-              <button
-                type="button"
-                id="passwordToggle"
-                class="password-toggle"
-                aria-label="Mostrar senha"
-                aria-pressed="false"
-              >
+              <button type="button" id="passwordToggle" class="password-toggle" aria-label="Mostrar senha"
+                aria-pressed="false">
                 Mostrar
               </button>
 
@@ -235,16 +193,9 @@
 
           <label class="remember-option">
 
-            <input
-              type="checkbox"
-              id="lembrarUsuario"
-              name="lembrarUsuario"
-            >
+            <input type="checkbox" id="lembrarUsuario" name="lembrarUsuario">
 
-            <span
-              class="custom-checkbox"
-              aria-hidden="true"
-            ></span>
+            <span class="custom-checkbox" aria-hidden="true"></span>
 
             <span>
               Lembrar de mim
@@ -252,22 +203,14 @@
 
           </label>
 
-          <button
-            type="submit"
-            class="login-submit"
-          >
+          <button type="submit" class="login-submit">
             <span>Entrar</span>
             <span aria-hidden="true">→</span>
           </button>
 
         </form>
 
-        <p
-          id="loginMensagem"
-          class="login-message"
-          role="status"
-          aria-live="polite"
-        ></p>
+        <p id="loginMensagem" class="login-message" role="status" aria-live="polite"></p>
 
         <p class="mobile-register">
           Ainda não tem uma conta?
@@ -283,10 +226,73 @@
 
   </main>
 
-  <script
-    type="module"
-    src="../JavaScript/entrar.js"
-  ></script>
+    <div
+  id="forgotPasswordModal"
+  class="recovery-modal"
+  aria-hidden="true"
+>
+  <div
+    class="recovery-modal-backdrop"
+    data-close-recovery
+  ></div>
+
+  <section
+    class="recovery-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="recoveryTitle"
+  >
+    <button
+      type="button"
+      class="recovery-close"
+      id="recoveryClose"
+      aria-label="Fechar recuperação de senha"
+    >
+      ×
+    </button>
+
+    <span class="recovery-kicker">
+      Recuperação de acesso
+    </span>
+
+    <h2 id="recoveryTitle">
+      Esqueceu sua senha?
+    </h2>
+
+    <p class="recovery-description">
+      Informe o email cadastrado na sua conta Pace.
+    </p>
+
+    <div class="recovery-field">
+      <label for="recoveryEmail">
+        Email
+      </label>
+
+      <input
+        type="email"
+        id="recoveryEmail"
+        placeholder="nome@exemplo.com"
+        autocomplete="email"
+      >
+    </div>
+
+    <button
+      type="button"
+      id="recoverySubmit"
+      class="recovery-submit"
+    >
+      Continuar
+    </button>
+
+    <p
+      id="recoveryMessage"
+      class="recovery-message"
+      aria-live="polite"
+    ></p>
+  </section>
+</div>
+
+  <script type="module" src="../JavaScript/entrar.js"></script>
 
   <script>
     const passwordToggle =
@@ -322,4 +328,5 @@
   </script>
 
 </body>
+
 </html>

@@ -5,23 +5,25 @@
 
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Sala de Foco | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/foco.css"
-  >
+  <link rel="stylesheet" href="../Css/foco.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -29,41 +31,22 @@
 
 <body>
 
-  <div
-    class="bg-grid"
-    aria-hidden="true"
-  ></div>
+  <div class="bg-grid" aria-hidden="true"></div>
 
-  <div
-    class="bg-orb orb-1"
-    aria-hidden="true"
-  ></div>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
 
-  <div
-    class="bg-orb orb-2"
-    aria-hidden="true"
-  ></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
 
   <!-- =====================================================
        SIDEBAR
   ====================================================== -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
+    <div class="sidebar-brand" aria-label="Pace">
 
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
 
@@ -80,10 +63,7 @@
     </div>
 
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -94,10 +74,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
 
         </span>
 
@@ -112,10 +89,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
 
         </span>
 
@@ -130,10 +104,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
 
         </span>
 
@@ -153,10 +124,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
 
         </span>
 
@@ -167,18 +135,11 @@
       </a>
 
 
-      <a
-        href="foco.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="foco.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
 
         </span>
 
@@ -193,10 +154,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
 
         </span>
 
@@ -211,17 +169,11 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
 
         </span>
 
@@ -236,10 +188,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
 
         </span>
 
@@ -252,20 +201,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil"
-        >
+        <a href="perfil.html" class="perfil">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -281,10 +222,7 @@
 
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -312,10 +250,7 @@
 
           <span class="hero-badge">
 
-            <span
-              class="badge-dot"
-              aria-hidden="true"
-            ></span>
+            <span class="badge-dot" aria-hidden="true"></span>
 
             Entre no seu ritmo
 
@@ -372,10 +307,7 @@
 
         <article class="focus-stage">
 
-          <div
-            class="stage-glow"
-            aria-hidden="true"
-          ></div>
+          <div class="stage-glow" aria-hidden="true"></div>
 
 
           <header class="stage-header">
@@ -395,26 +327,15 @@
 
             <div class="stage-tools">
 
-              <button
-                id="toggleSom"
-                class="tool-button"
-                type="button"
-                aria-label="Ativar ou desativar som"
-                title="Som"
-              >
+              <button id="toggleSom" class="tool-button" type="button" aria-label="Ativar ou desativar som" title="Som">
 
                 <i data-lucide="volume-2"></i>
 
               </button>
 
 
-              <button
-                id="entrarTelaCheia"
-                class="tool-button"
-                type="button"
-                aria-label="Abrir em tela cheia"
-                title="Tela cheia"
-              >
+              <button id="entrarTelaCheia" class="tool-button" type="button" aria-label="Abrir em tela cheia"
+                title="Tela cheia">
 
                 <i data-lucide="maximize-2"></i>
 
@@ -429,18 +350,11 @@
 
           <div class="timer-shell">
 
-            <div
-              id="timerRing"
-              class="timer-ring"
-              style="--progress: 0deg"
-            >
+            <div id="timerRing" class="timer-ring" style="--progress: 0deg">
 
               <div class="timer-inner">
 
-                <span
-                  id="estadoSessao"
-                  class="timer-label"
-                >
+                <span id="estadoSessao" class="timer-label">
                   Preparação
                 </span>
 
@@ -448,10 +362,7 @@
                   25:00
                 </strong>
 
-                <span
-                  id="intencaoAtiva"
-                  class="timer-intention"
-                >
+                <span id="intencaoAtiva" class="timer-intention">
                   Defina uma intenção para sua sessão
                 </span>
 
@@ -466,23 +377,14 @@
 
           <div class="timer-controls">
 
-            <button
-              id="resetarSessao"
-              class="control-button secondary"
-              type="button"
-              aria-label="Reiniciar sessão"
-            >
+            <button id="resetarSessao" class="control-button secondary" type="button" aria-label="Reiniciar sessão">
 
               <i data-lucide="rotate-ccw"></i>
 
             </button>
 
 
-            <button
-              id="iniciarSessao"
-              class="control-button primary"
-              type="button"
-            >
+            <button id="iniciarSessao" class="control-button primary" type="button">
 
               <i data-lucide="play"></i>
 
@@ -493,13 +395,8 @@
             </button>
 
 
-            <button
-              id="finalizarSessao"
-              class="control-button secondary"
-              type="button"
-              aria-label="Finalizar sessão"
-              disabled
-            >
+            <button id="finalizarSessao" class="control-button secondary" type="button" aria-label="Finalizar sessão"
+              disabled>
 
               <i data-lucide="square"></i>
 
@@ -556,13 +453,8 @@
 
               <i data-lucide="sparkles"></i>
 
-              <input
-                id="intencaoSessao"
-                type="text"
-                maxlength="90"
-                placeholder="Ex.: Revisar a matéria da prova"
-                autocomplete="off"
-              >
+              <input id="intencaoSessao" type="text" maxlength="90" placeholder="Ex.: Revisar a matéria da prova"
+                autocomplete="off">
 
             </div>
 
@@ -580,10 +472,7 @@
             </label>
 
 
-            <div
-              id="metaPicker"
-              class="meta-picker"
-            >
+            <div id="metaPicker" class="meta-picker">
 
 
               <!--
@@ -593,12 +482,7 @@
                 O dropdown personalizado apenas controla este select.
               -->
 
-              <select
-                id="metaVinculada"
-                class="meta-native-select"
-                tabindex="-1"
-                aria-hidden="true"
-              >
+              <select id="metaVinculada" class="meta-native-select" tabindex="-1" aria-hidden="true">
 
                 <option value="">
                   Selecione uma meta
@@ -609,13 +493,8 @@
 
               <!-- TRIGGER -->
 
-              <button
-                id="metaPickerTrigger"
-                class="meta-picker-trigger"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-              >
+              <button id="metaPickerTrigger" class="meta-picker-trigger" type="button" aria-haspopup="listbox"
+                aria-expanded="false">
 
                 <span class="meta-picker-main">
 
@@ -652,10 +531,7 @@
 
               <!-- MENU -->
 
-              <div
-                id="metaPickerMenu"
-                class="meta-picker-menu hidden"
-              >
+              <div id="metaPickerMenu" class="meta-picker-menu hidden">
 
                 <div class="meta-picker-menu-header">
 
@@ -683,17 +559,10 @@
                 </div>
 
 
-                <div
-                  id="metaPickerOptions"
-                  class="meta-picker-options"
-                  role="listbox"
-                ></div>
+                <div id="metaPickerOptions" class="meta-picker-options" role="listbox"></div>
 
 
-                <div
-                  id="metaPickerEmpty"
-                  class="meta-picker-empty hidden"
-                >
+                <div id="metaPickerEmpty" class="meta-picker-empty hidden">
 
                   <span>
 
@@ -744,47 +613,27 @@
             </div>
 
 
-            <div
-              class="duration-grid"
-              role="group"
-              aria-label="Duração da sessão"
-            >
+            <div class="duration-grid" role="group" aria-label="Duração da sessão">
 
-              <button
-                class="duration-option"
-                type="button"
-                data-minutes="15"
-              >
+              <button class="duration-option" type="button" data-minutes="15">
                 15
                 <span>min</span>
               </button>
 
 
-              <button
-                class="duration-option active"
-                type="button"
-                data-minutes="25"
-              >
+              <button class="duration-option active" type="button" data-minutes="25">
                 25
                 <span>min</span>
               </button>
 
 
-              <button
-                class="duration-option"
-                type="button"
-                data-minutes="45"
-              >
+              <button class="duration-option" type="button" data-minutes="45">
                 45
                 <span>min</span>
               </button>
 
 
-              <button
-                class="duration-option"
-                type="button"
-                data-minutes="60"
-              >
+              <button class="duration-option" type="button" data-minutes="60">
                 60
                 <span>min</span>
               </button>
@@ -804,18 +653,9 @@
 
             <div class="custom-duration">
 
-              <input
-                id="duracaoPersonalizada"
-                type="number"
-                min="1"
-                max="240"
-                placeholder="Minutos"
-              >
+              <input id="duracaoPersonalizada" type="number" min="1" max="240" placeholder="Minutos">
 
-              <button
-                id="aplicarDuracao"
-                type="button"
-              >
+              <button id="aplicarDuracao" type="button">
                 Aplicar
               </button>
 
@@ -942,11 +782,7 @@
           </div>
 
 
-          <button
-            id="limparHistorico"
-            class="clear-history"
-            type="button"
-          >
+          <button id="limparHistorico" class="clear-history" type="button">
 
             <i data-lucide="trash-2"></i>
 
@@ -957,16 +793,10 @@
         </header>
 
 
-        <div
-          id="historicoSessoes"
-          class="history-list"
-        ></div>
+        <div id="historicoSessoes" class="history-list"></div>
 
 
-        <div
-          id="historicoVazio"
-          class="history-empty"
-        >
+        <div id="historicoVazio" class="history-empty">
 
           <span>
 
@@ -996,26 +826,16 @@
        MODO IMERSIVO
   ====================================================== -->
 
-  <div
-    id="immersiveMode"
-    class="immersive-mode hidden"
-    aria-hidden="true"
-  >
+  <div id="immersiveMode" class="immersive-mode hidden" aria-hidden="true">
 
-    <div
-      class="immersive-noise"
-      aria-hidden="true"
-    ></div>
+    <div class="immersive-noise" aria-hidden="true"></div>
 
 
     <header class="immersive-header">
 
       <div class="immersive-brand">
 
-        <img
-          src="../Images/Ícone_Pace.png"
-          alt="Logo Pace"
-        >
+        <img src="../Images/Ícone_Pace.png" alt="Logo Pace">
 
         <span>
           Pace Focus
@@ -1024,10 +844,7 @@
       </div>
 
 
-      <button
-        id="sairImersivo"
-        type="button"
-      >
+      <button id="sairImersivo" type="button">
 
         <i data-lucide="minimize-2"></i>
 
@@ -1061,11 +878,7 @@
 
       <div class="immersive-actions">
 
-        <button
-          id="immersivePause"
-          class="immersive-primary"
-          type="button"
-        >
+        <button id="immersivePause" class="immersive-primary" type="button">
 
           <i data-lucide="pause"></i>
 
@@ -1074,11 +887,7 @@
         </button>
 
 
-        <button
-          id="immersiveFinish"
-          class="immersive-secondary"
-          type="button"
-        >
+        <button id="immersiveFinish" class="immersive-secondary" type="button">
 
           <i data-lucide="square"></i>
 
@@ -1097,22 +906,11 @@
        MODAL CONCLUSÃO
   ====================================================== -->
 
-  <div
-    id="conclusaoModal"
-    class="modal-overlay hidden"
-  >
+  <div id="conclusaoModal" class="modal-overlay hidden">
 
-    <section
-      class="conclusion-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="conclusaoTitulo"
-    >
+    <section class="conclusion-modal" role="dialog" aria-modal="true" aria-labelledby="conclusaoTitulo">
 
-      <div
-        class="conclusion-burst"
-        aria-hidden="true"
-      ></div>
+      <div class="conclusion-burst" aria-hidden="true"></div>
 
       <span class="conclusion-icon">
 
@@ -1163,10 +961,7 @@
       </div>
 
 
-      <button
-        id="fecharConclusao"
-        type="button"
-      >
+      <button id="fecharConclusao" type="button">
         Continuar evoluindo
       </button>
 
@@ -1179,16 +974,9 @@
        MODAL CONFIRMAÇÃO
   ====================================================== -->
 
-  <div
-    id="confirmModal"
-    class="modal-overlay hidden"
-  >
+  <div id="confirmModal" class="modal-overlay hidden">
 
-    <section
-      class="confirm-modal"
-      role="dialog"
-      aria-modal="true"
-    >
+    <section class="confirm-modal" role="dialog" aria-modal="true">
 
       <span class="confirm-icon">
 
@@ -1207,20 +995,12 @@
 
       <div class="confirm-actions">
 
-        <button
-          id="cancelarConfirmacao"
-          class="confirm-secondary"
-          type="button"
-        >
+        <button id="cancelarConfirmacao" class="confirm-secondary" type="button">
           Continuar focando
         </button>
 
 
-        <button
-          id="aceitarConfirmacao"
-          class="confirm-primary"
-          type="button"
-        >
+        <button id="aceitarConfirmacao" class="confirm-primary" type="button">
           Finalizar sessão
         </button>
 
@@ -1233,16 +1013,10 @@
 
   <!-- TOAST -->
 
-  <div
-    id="toast"
-    class="toast hidden"
-  ></div>
+  <div id="toast" class="toast hidden"></div>
 
 
-  <script
-    type="module"
-    src="../JavaScript/foco.js"
-  ></script>
+  <script type="module" src="../JavaScript/foco.js"></script>
 
 </body>
 

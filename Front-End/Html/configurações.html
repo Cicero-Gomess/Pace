@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Configurações | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/config.css"
-  >
+  <link rel="stylesheet" href="../Css/config.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -32,21 +35,11 @@
 
   <!-- SIDEBAR -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
+    <div class="sidebar-brand" aria-label="Pace">
 
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -55,10 +48,7 @@
 
     </div>
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -67,10 +57,7 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
         </span>
 
         <span class="text">
@@ -82,10 +69,7 @@
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
         </span>
 
         <span class="text">
@@ -97,10 +81,7 @@
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
         </span>
 
         <span class="text">
@@ -116,10 +97,7 @@
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
         </span>
 
         <span class="text">
@@ -131,10 +109,7 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
         </span>
 
         <span class="text">
@@ -146,10 +121,7 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
         </span>
 
         <span class="text">
@@ -162,16 +134,10 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
         </span>
 
         <span class="text">
@@ -180,17 +146,10 @@
 
       </a>
 
-      <a
-        href="configurações.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="configurações.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
         </span>
 
         <span class="text">
@@ -201,20 +160,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil"
-        >
+        <a href="perfil.html" class="perfil">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/Ícone_Pace.png"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -223,10 +174,7 @@
             <small>Ver perfil</small>
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -307,10 +255,7 @@
 
               </div>
 
-              <form
-                id="senhaForm"
-                class="form-senha"
-              >
+              <form id="senhaForm" class="form-senha">
 
                 <div class="campo">
 
@@ -322,13 +267,8 @@
 
                     <i data-lucide="lock-keyhole"></i>
 
-                    <input
-                      type="password"
-                      id="senhaAtual"
-                      placeholder="Digite sua senha atual"
-                      autocomplete="current-password"
-                      required
-                    >
+                    <input type="password" id="senhaAtual" placeholder="Digite sua senha atual"
+                      autocomplete="current-password" required>
 
                   </div>
 
@@ -344,13 +284,8 @@
 
                     <i data-lucide="shield-plus"></i>
 
-                    <input
-                      type="password"
-                      id="novaSenha"
-                      placeholder="Digite sua nova senha"
-                      autocomplete="new-password"
-                      required
-                    >
+                    <input type="password" id="novaSenha" placeholder="Digite sua nova senha"
+                      autocomplete="new-password" required>
 
                   </div>
 
@@ -366,13 +301,8 @@
 
                     <i data-lucide="shield-check"></i>
 
-                    <input
-                      type="password"
-                      id="confirmarSenha"
-                      placeholder="Confirme sua nova senha"
-                      autocomplete="new-password"
-                      required
-                    >
+                    <input type="password" id="confirmarSenha" placeholder="Confirme sua nova senha"
+                      autocomplete="new-password" required>
 
                   </div>
 
@@ -392,16 +322,9 @@
 
                 </div>
 
-                <p
-                  id="senhaMensagem"
-                  class="mensagem-form hidden"
-                ></p>
+                <p id="senhaMensagem" class="mensagem-form hidden"></p>
 
-                <button
-                  type="submit"
-                  class="primary-action"
-                  id="salvarSenhaBtn"
-                >
+                <button type="submit" class="primary-action" id="salvarSenhaBtn">
 
                   <i data-lucide="save"></i>
 
@@ -472,15 +395,9 @@
 
                   </div>
 
-                  <label
-                    class="switch"
-                    aria-label="Ativar modo escuro"
-                  >
+                  <label class="switch" aria-label="Ativar modo escuro">
 
-                    <input
-                      type="checkbox"
-                      id="darkModeToggle"
-                    >
+                    <input type="checkbox" id="darkModeToggle">
 
                     <span class="slider"></span>
 
@@ -532,11 +449,7 @@
 
                 </div>
 
-                <button
-                  id="logoutBtn"
-                  class="danger-action"
-                  type="button"
-                >
+                <button id="logoutBtn" class="danger-action" type="button">
 
                   <i data-lucide="log-out"></i>
 
@@ -560,10 +473,8 @@
 
   </main>
 
-  <script
-    type="module"
-    src="../JavaScript/config.js"
-  ></script>
+  <script type="module" src="../JavaScript/config.js"></script>
 
 </body>
+
 </html>

@@ -999,6 +999,8 @@ body.dark textarea {
   color: white;
 }
 
+
+
 /* RESPONSIVO */
 @media (max-width: 900px) {
   .hero-postar {

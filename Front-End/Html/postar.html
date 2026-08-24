@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Postar | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/postar.css"
-  >
+  <link rel="stylesheet" href="../Css/postar.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -31,20 +35,10 @@
 
   <!-- SIDEBAR -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+    <div class="sidebar-brand" aria-label="Pace">
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -52,10 +46,7 @@
       </div>
     </div>
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -64,10 +55,7 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
         </span>
 
         <span class="text">
@@ -79,10 +67,7 @@
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
         </span>
 
         <span class="text">
@@ -91,17 +76,10 @@
 
       </a>
 
-      <a
-        href="postar.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="postar.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
         </span>
 
         <span class="text">
@@ -117,10 +95,7 @@
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
         </span>
 
         <span class="text">
@@ -132,10 +107,7 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
         </span>
 
         <span class="text">
@@ -147,10 +119,7 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
         </span>
 
         <span class="text">
@@ -163,16 +132,10 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
         </span>
 
         <span class="text">
@@ -184,10 +147,7 @@
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
         </span>
 
         <span class="text">
@@ -198,20 +158,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil"
-        >
+        <a href="perfil.html" class="perfil">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/Ícone_Pace.png"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -220,10 +172,7 @@
             <small>Ver perfil</small>
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -289,12 +238,8 @@
 
           <div class="perfil-mini">
 
-            <img
-              id="fotoPerfil"
-              class="foto-perfil autor-avatar"
-              src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil"
-            >
+            <img id="fotoPerfil" class="foto-perfil autor-avatar" src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil">
 
             <div>
 
@@ -316,35 +261,22 @@
 
         <div class="inspira-row">
 
-          <button
-            type="button"
-            class="inspira-chip"
-            data-texto="Hoje avancei um pouco mais naquilo que quero construir."
-          >
+          <button type="button" class="inspira-chip"
+            data-texto="Hoje avancei um pouco mais naquilo que quero construir.">
             Progresso
           </button>
 
-          <button
-            type="button"
-            class="inspira-chip"
-            data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã."
-          >
+          <button type="button" class="inspira-chip" data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã.">
             Aprendizado
           </button>
 
-          <button
-            type="button"
-            class="inspira-chip"
-            data-texto="O que estou tentando melhorar na minha rotina essa semana."
-          >
+          <button type="button" class="inspira-chip"
+            data-texto="O que estou tentando melhorar na minha rotina essa semana.">
             Rotina
           </button>
 
-          <button
-            type="button"
-            class="inspira-chip"
-            data-texto="Algo simples que me ajudou a manter consistência hoje."
-          >
+          <button type="button" class="inspira-chip"
+            data-texto="Algo simples que me ajudou a manter consistência hoje.">
             Consistência
           </button>
 
@@ -354,23 +286,13 @@
 
         <div class="campo-area">
 
-          <label
-            for="textoPost"
-            class="campo-label"
-          >
+          <label for="textoPost" class="campo-label">
             Conte para a comunidade o que está acontecendo
           </label>
 
-          <textarea
-            id="textoPost"
-            maxlength="200"
-            placeholder="O que você está pensando?"
-          ></textarea>
+          <textarea id="textoPost" maxlength="200" placeholder="O que você está pensando?"></textarea>
 
-          <div
-            class="contador"
-            id="contador"
-          >
+          <div class="contador" id="contador">
             0/200
           </div>
 
@@ -380,10 +302,7 @@
 
         <div class="actions-row">
 
-          <label
-            for="imagemPost"
-            class="btn-imagem"
-          >
+          <label for="imagemPost" class="btn-imagem">
 
             <i data-lucide="image-plus"></i>
 
@@ -393,12 +312,7 @@
 
           </label>
 
-          <input
-            type="file"
-            id="imagemPost"
-            accept="image/*"
-            hidden
-          >
+          <input type="file" id="imagemPost" accept="image/*" hidden>
 
           <div class="support-copy">
 
@@ -414,16 +328,9 @@
 
         <!-- PRÉVIA -->
 
-        <div
-          id="previewImagem"
-          class="preview-imagem hidden"
-        >
+        <div id="previewImagem" class="preview-imagem hidden">
 
-          <img
-            id="imgPreview"
-            src=""
-            alt="Prévia da imagem"
-          >
+          <img id="imgPreview" src="" alt="Prévia da imagem">
 
           <div class="preview-info">
 
@@ -435,11 +342,7 @@
 
           </div>
 
-          <button
-            id="removerImagem"
-            type="button"
-            aria-label="Remover imagem"
-          >
+          <button id="removerImagem" type="button" aria-label="Remover imagem">
             <i data-lucide="x"></i>
           </button>
 
@@ -447,11 +350,7 @@
 
         <!-- PUBLICAR -->
 
-        <button
-          id="btnPostar"
-          class="btn-postar"
-          type="button"
-        >
+        <button id="btnPostar" class="btn-postar" type="button">
 
           <i data-lucide="send"></i>
 
@@ -467,10 +366,8 @@
 
   </main>
 
-  <script
-    type="module"
-    src="../JavaScript/postar.js"
-  ></script>
+  <script type="module" src="../JavaScript/postar.js"></script>
 
 </body>
+
 </html>

@@ -5,23 +5,25 @@
 
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Evolução | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/evolucao.css"
-  >
+  <link rel="stylesheet" href="../Css/evolucao.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -38,21 +40,11 @@
        SIDEBAR
   ====================================================== -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
+    <div class="sidebar-brand" aria-label="Pace">
 
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
 
@@ -69,10 +61,7 @@
     </div>
 
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -83,10 +72,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
 
         </span>
 
@@ -101,10 +87,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
 
         </span>
 
@@ -119,10 +102,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
 
         </span>
 
@@ -142,10 +122,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
 
         </span>
 
@@ -160,10 +137,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
 
         </span>
 
@@ -174,18 +148,11 @@
       </a>
 
 
-      <a
-        href="evolucao.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="evolucao.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
 
         </span>
 
@@ -200,17 +167,11 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
 
         </span>
 
@@ -225,10 +186,7 @@
 
         <span class="nav-icon-wrap">
 
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
 
         </span>
 
@@ -241,20 +199,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil"
-        >
+        <a href="perfil.html" class="perfil">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -270,10 +220,7 @@
 
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -301,10 +248,7 @@
 
           <span class="hero-badge">
 
-            <span
-              class="badge-dot"
-              aria-hidden="true"
-            ></span>
+            <span class="badge-dot" aria-hidden="true"></span>
 
             Sua jornada em movimento
 
@@ -325,33 +269,17 @@
         </div>
 
 
-        <div
-          class="period-filter"
-          role="group"
-          aria-label="Período de análise"
-        >
+        <div class="period-filter" role="group" aria-label="Período de análise">
 
-          <button
-            class="period-button active"
-            type="button"
-            data-period="7"
-          >
+          <button class="period-button active" type="button" data-period="7">
             7 dias
           </button>
 
-          <button
-            class="period-button"
-            type="button"
-            data-period="30"
-          >
+          <button class="period-button" type="button" data-period="30">
             30 dias
           </button>
 
-          <button
-            class="period-button"
-            type="button"
-            data-period="90"
-          >
+          <button class="period-button" type="button" data-period="90">
             90 dias
           </button>
 
@@ -381,21 +309,14 @@
 
             <div class="pace-index-help">
 
-              <button
-                class="pace-index-help-button"
-                type="button"
-                aria-label="Entenda como funciona o Índice Pace"
-              >
+              <button class="pace-index-help-button" type="button" aria-label="Entenda como funciona o Índice Pace">
 
                 <i data-lucide="info"></i>
 
               </button>
 
 
-              <div
-                class="pace-index-tooltip"
-                role="tooltip"
-              >
+              <div class="pace-index-tooltip" role="tooltip">
 
                 <span class="pace-index-tooltip-icon">
 
@@ -472,11 +393,7 @@
 
           <!-- SCORE -->
 
-          <div
-            id="scoreRing"
-            class="score-ring"
-            style="--score-progress: 0deg"
-          >
+          <div id="scoreRing" class="score-ring" style="--score-progress: 0deg">
 
             <div class="score-content">
 
@@ -493,10 +410,7 @@
           </div>
 
 
-          <span
-            id="scoreLabel"
-            class="score-label"
-          >
+          <span id="scoreLabel" class="score-label">
             Sua jornada começa agora
           </span>
 
@@ -530,10 +444,7 @@
 
             <span class="comparison-icon">
 
-              <i
-                id="comparisonIcon"
-                data-lucide="minus"
-              ></i>
+              <i id="comparisonIcon" data-lucide="minus"></i>
 
             </span>
 
@@ -599,10 +510,7 @@
 
             <span class="next-step-icon">
 
-              <i
-                id="nextStepIcon"
-                data-lucide="sparkles"
-              ></i>
+              <i id="nextStepIcon" data-lucide="sparkles"></i>
 
             </span>
 
@@ -623,10 +531,7 @@
           </p>
 
 
-          <a
-            id="nextStepLink"
-            href="metas.html"
-          >
+          <a id="nextStepLink" href="metas.html">
 
             <span id="nextStepButtonText">
               Criar uma meta
@@ -788,20 +693,14 @@
 
               </div>
 
-              <span
-                id="weekChartHelper"
-                class="card-helper"
-              >
+              <span id="weekChartHelper" class="card-helper">
                 Últimos 7 dias
               </span>
 
             </header>
 
 
-            <div
-              id="weekChart"
-              class="week-chart"
-            ></div>
+            <div id="weekChart" class="week-chart"></div>
 
           </article>
 
@@ -831,16 +730,10 @@
             </header>
 
 
-            <div
-              id="evolutionTimeline"
-              class="evolution-timeline"
-            ></div>
+            <div id="evolutionTimeline" class="evolution-timeline"></div>
 
 
-            <div
-              id="timelineEmpty"
-              class="empty-panel hidden"
-            >
+            <div id="timelineEmpty" class="empty-panel hidden">
 
               <span>
 
@@ -880,10 +773,7 @@
 
               </div>
 
-              <span
-                id="consistencyPeriod"
-                class="card-helper"
-              >
+              <span id="consistencyPeriod" class="card-helper">
                 Últimas 12 semanas
               </span>
 
@@ -917,10 +807,7 @@
             </div>
 
 
-            <div
-              id="consistencyTrack"
-              class="consistency-track"
-            ></div>
+            <div id="consistencyTrack" class="consistency-track"></div>
 
           </article>
 
@@ -959,10 +846,7 @@
 
               <span class="best-moment-icon">
 
-                <i
-                  id="bestMomentIcon"
-                  data-lucide="sparkles"
-                ></i>
+                <i id="bestMomentIcon" data-lucide="sparkles"></i>
 
               </span>
 
@@ -1005,16 +889,10 @@
             </header>
 
 
-            <div
-              id="categoryProgress"
-              class="category-list"
-            ></div>
+            <div id="categoryProgress" class="category-list"></div>
 
 
-            <div
-              id="categoryEmpty"
-              class="empty-panel hidden"
-            >
+            <div id="categoryEmpty" class="empty-panel hidden">
 
               <span>
 
@@ -1061,10 +939,7 @@
 
               <span class="insight-symbol">
 
-                <i
-                  id="insightIcon"
-                  data-lucide="lightbulb"
-                ></i>
+                <i id="insightIcon" data-lucide="lightbulb"></i>
 
               </span>
 
@@ -1104,20 +979,14 @@
 
               </div>
 
-              <span
-                id="achievementCounter"
-                class="card-helper"
-              >
+              <span id="achievementCounter" class="card-helper">
                 0 de 6
               </span>
 
             </header>
 
 
-            <div
-              id="achievementGrid"
-              class="achievement-grid"
-            ></div>
+            <div id="achievementGrid" class="achievement-grid"></div>
 
           </article>
 
@@ -1130,10 +999,7 @@
   </main>
 
 
-  <script
-    type="module"
-    src="../JavaScript/evolucao.js"
-  ></script>
+  <script type="module" src="../JavaScript/evolucao.js"></script>
 
 </body>
 

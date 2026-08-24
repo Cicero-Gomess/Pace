@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Explorar | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/explorar.css"
-  >
+  <link rel="stylesheet" href="../Css/explorar.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -31,20 +35,10 @@
 
   <!-- SIDEBAR -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+    <div class="sidebar-brand" aria-label="Pace">
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -52,10 +46,7 @@
       </div>
     </div>
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -64,10 +55,7 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
         </span>
 
         <span class="text">
@@ -76,17 +64,10 @@
 
       </a>
 
-      <a
-        href="explorar.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="explorar.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
         </span>
 
         <span class="text">
@@ -98,10 +79,7 @@
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
         </span>
 
         <span class="text">
@@ -117,10 +95,7 @@
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
         </span>
 
         <span class="text">
@@ -132,10 +107,7 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
         </span>
 
         <span class="text">
@@ -147,10 +119,7 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
         </span>
 
         <span class="text">
@@ -163,16 +132,10 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
         </span>
 
         <span class="text">
@@ -184,10 +147,7 @@
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
         </span>
 
         <span class="text">
@@ -198,20 +158,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil"
-        >
+        <a href="perfil.html" class="perfil">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/Ícone_Pace.png"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -220,10 +172,7 @@
             <small>Ver perfil</small>
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -257,10 +206,7 @@
 
       </div>
 
-      <a
-        href="postar.html"
-        class="hero-cta"
-      >
+      <a href="postar.html" class="hero-cta">
 
         <i data-lucide="sparkles"></i>
 
@@ -282,12 +228,8 @@
 
           <i data-lucide="search"></i>
 
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Pesquisar pessoas, hábitos, ideias ou palavras-chave"
-            autocomplete="off"
-          >
+          <input type="text" id="searchInput" placeholder="Pesquisar pessoas, hábitos, ideias ou palavras-chave"
+            autocomplete="off">
 
         </div>
 
@@ -384,10 +326,7 @@
 
         </div>
 
-        <div
-          id="profilesGrid"
-          class="profiles-grid"
-        >
+        <div id="profilesGrid" class="profiles-grid">
 
           <div class="empty-state loading-state">
 
@@ -414,20 +353,11 @@
 
   <!-- MODAL DO PERFIL -->
 
-  <div
-    id="profileModal"
-    class="modal hidden"
-    aria-hidden="true"
-  >
+  <div id="profileModal" class="modal hidden" aria-hidden="true">
 
     <div class="modal-panel">
 
-      <button
-        id="closeProfileModal"
-        class="modal-close"
-        type="button"
-        aria-label="Fechar perfil"
-      >
+      <button id="closeProfileModal" class="modal-close" type="button" aria-label="Fechar perfil">
 
         <i data-lucide="x"></i>
 
@@ -439,10 +369,8 @@
 
   </div>
 
-  <script
-    type="module"
-    src="../JavaScript/explorar.js"
-  ></script>
+  <script type="module" src="../JavaScript/explorar.js"></script>
 
 </body>
+
 </html>

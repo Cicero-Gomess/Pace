@@ -1536,6 +1536,8 @@ body.dark .danger-action {
   background: rgba(214, 55, 55, 0.14);
 }
 
+
+
 /* RESPONSIVO */
 @media (max-width: 960px) {
   .hero-config {

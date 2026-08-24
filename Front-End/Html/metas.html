@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Metas | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/metas.css"
-  >
+  <link rel="stylesheet" href="../Css/metas.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -32,20 +35,10 @@
 
   <!-- SIDEBAR -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+    <div class="sidebar-brand" aria-label="Pace">
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -53,10 +46,7 @@
       </div>
     </div>
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -65,10 +55,7 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
         </span>
 
         <span class="text">
@@ -80,10 +67,7 @@
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
         </span>
 
         <span class="text">
@@ -95,10 +79,7 @@
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
         </span>
 
         <span class="text">
@@ -111,17 +92,10 @@
         Desenvolvimento
       </span>
 
-      <a
-        href="metas.html"
-        class="active"
-        aria-current="page"
-      >
+      <a href="metas.html" class="active" aria-current="page">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
         </span>
 
         <span class="text">
@@ -133,10 +107,7 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
         </span>
 
         <span class="text">
@@ -148,10 +119,7 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
         </span>
 
         <span class="text">
@@ -164,16 +132,10 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
         </span>
 
         <span class="text">
@@ -185,10 +147,7 @@
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
         </span>
 
         <span class="text">
@@ -197,38 +156,27 @@
 
       </a>
 
-<div class="sidebar-profile">
+      <div class="sidebar-profile">
 
-  <a
-    href="perfil.html"
-    class="perfil"
-  >
+        <a href="perfil.html" class="perfil">
 
-    <span class="profile-ring">
+          <span class="profile-ring">
 
-      <img
-        id="fotoSidebar"
-        class="foto-perfil"
-        src="../Images/avatar-placeholder.svg"
-        alt="Foto do perfil"
-        onerror="this.src='../Images/Ícone_Pace.png'"
-      >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
-    </span>
+          </span>
 
-    <span class="profile-copy">
-      <strong>Meu perfil</strong>
-      <small>Ver perfil</small>
-    </span>
+          <span class="profile-copy">
+            <strong>Meu perfil</strong>
+            <small>Ver perfil</small>
+          </span>
 
-    <i
-      data-lucide="chevron-right"
-      class="profile-arrow"
-    ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
-  </a>
+        </a>
 
-</div>
+      </div>
 
     </div>
 
@@ -246,10 +194,7 @@
 
           <span class="hero-badge">
 
-            <span
-              class="badge-dot"
-              aria-hidden="true"
-            ></span>
+            <span class="badge-dot" aria-hidden="true"></span>
 
             Seu espaço de evolução
 
@@ -266,11 +211,7 @@
 
         </div>
 
-        <button
-          id="abrirNovaMeta"
-          class="btn-nova-meta"
-          type="button"
-        >
+        <button id="abrirNovaMeta" class="btn-nova-meta" type="button">
 
           <i data-lucide="plus"></i>
 
@@ -408,49 +349,25 @@
 
           <div class="workspace-actions">
 
-            <label
-              class="search-box"
-              for="buscarMeta"
-            >
+            <label class="search-box" for="buscarMeta">
 
               <i data-lucide="search"></i>
 
-              <input
-                id="buscarMeta"
-                type="search"
-                placeholder="Buscar meta..."
-                autocomplete="off"
-              >
+              <input id="buscarMeta" type="search" placeholder="Buscar meta..." autocomplete="off">
 
             </label>
 
-            <div
-              class="filtros"
-              role="group"
-              aria-label="Filtros de metas"
-            >
+            <div class="filtros" role="group" aria-label="Filtros de metas">
 
-              <button
-                class="filtro active"
-                type="button"
-                data-filter="todas"
-              >
+              <button class="filtro active" type="button" data-filter="todas">
                 Todas
               </button>
 
-              <button
-                class="filtro"
-                type="button"
-                data-filter="andamento"
-              >
+              <button class="filtro" type="button" data-filter="andamento">
                 Em andamento
               </button>
 
-              <button
-                class="filtro"
-                type="button"
-                data-filter="concluidas"
-              >
+              <button class="filtro" type="button" data-filter="concluidas">
                 Concluídas
               </button>
 
@@ -460,25 +377,14 @@
 
         </header>
 
-        <div
-          id="metasLoading"
-          class="metas-loading hidden"
-          role="status"
-          aria-live="polite"
-        >
+        <div id="metasLoading" class="metas-loading hidden" role="status" aria-live="polite">
           <span class="loading-spinner" aria-hidden="true"></span>
           <span>Carregando suas metas...</span>
         </div>
 
-        <div
-          id="metasLista"
-          class="metas-grid"
-        ></div>
+        <div id="metasLista" class="metas-grid"></div>
 
-        <div
-          id="estadoVazio"
-          class="estado-vazio"
-        >
+        <div id="estadoVazio" class="estado-vazio">
 
           <span class="estado-icon">
             <i data-lucide="goal"></i>
@@ -493,11 +399,7 @@
             Nada será preenchido automaticamente.
           </p>
 
-          <button
-            id="abrirNovaMetaVazio"
-            class="btn-vazio"
-            type="button"
-          >
+          <button id="abrirNovaMetaVazio" class="btn-vazio" type="button">
 
             <i data-lucide="plus"></i>
 
@@ -515,24 +417,11 @@
 
   <!-- MODAL CRIAR E EDITAR -->
 
-  <div
-    id="metaModal"
-    class="modal-overlay hidden"
-  >
+  <div id="metaModal" class="modal-overlay hidden">
 
-    <section
-      class="meta-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="metaModalTitulo"
-    >
+    <section class="meta-modal" role="dialog" aria-modal="true" aria-labelledby="metaModalTitulo">
 
-      <button
-        id="fecharMetaModal"
-        class="modal-close"
-        type="button"
-        aria-label="Fechar"
-      >
+      <button id="fecharMetaModal" class="modal-close" type="button" aria-label="Fechar">
 
         <i data-lucide="x"></i>
 
@@ -556,10 +445,7 @@
 
       <form id="metaForm">
 
-        <input
-          id="metaId"
-          type="hidden"
-        >
+        <input id="metaId" type="hidden">
 
         <div class="form-group">
 
@@ -571,13 +457,7 @@
 
             <i data-lucide="target"></i>
 
-            <input
-              id="metaTitulo"
-              type="text"
-              maxlength="80"
-              placeholder="Ex.: Finalizar meu projeto"
-              required
-            >
+            <input id="metaTitulo" type="text" maxlength="80" placeholder="Ex.: Finalizar meu projeto" required>
 
           </div>
 
@@ -589,11 +469,7 @@
             Descrição
           </label>
 
-          <textarea
-            id="metaDescricao"
-            maxlength="240"
-            placeholder="Descreva o que você deseja alcançar"
-          ></textarea>
+          <textarea id="metaDescricao" maxlength="240" placeholder="Descreva o que você deseja alcançar"></textarea>
 
         </div>
 
@@ -651,10 +527,7 @@
 
               <i data-lucide="calendar-days"></i>
 
-              <input
-                id="metaPrazo"
-                type="date"
-              >
+              <input id="metaPrazo" type="date">
 
             </div>
 
@@ -662,22 +535,15 @@
 
         </div>
 
-        
+
 
         <div class="modal-actions">
 
-          <button
-            id="cancelarMeta"
-            class="btn-secondary"
-            type="button"
-          >
+          <button id="cancelarMeta" class="btn-secondary" type="button">
             Cancelar
           </button>
 
-          <button
-            class="btn-primary"
-            type="submit"
-          >
+          <button class="btn-primary" type="submit">
 
             <i data-lucide="check"></i>
 
@@ -695,16 +561,9 @@
 
   <!-- MODAL EXCLUSÃO -->
 
-  <div
-    id="confirmarExclusaoModal"
-    class="modal-overlay hidden"
-  >
+  <div id="confirmarExclusaoModal" class="modal-overlay hidden">
 
-    <section
-      class="confirm-modal"
-      role="dialog"
-      aria-modal="true"
-    >
+    <section class="confirm-modal" role="dialog" aria-modal="true">
 
       <span class="confirm-icon">
         <i data-lucide="trash-2"></i>
@@ -720,19 +579,11 @@
 
       <div class="modal-actions">
 
-        <button
-          id="cancelarExclusao"
-          class="btn-secondary"
-          type="button"
-        >
+        <button id="cancelarExclusao" class="btn-secondary" type="button">
           Cancelar
         </button>
 
-        <button
-          id="confirmarExclusao"
-          class="btn-danger"
-          type="button"
-        >
+        <button id="confirmarExclusao" class="btn-danger" type="button">
           Excluir
         </button>
 
@@ -742,17 +593,10 @@
 
   </div>
 
-  <div
-    id="metasToast"
-    class="metas-toast hidden"
-    role="status"
-    aria-live="polite"
-  ></div>
+  <div id="metasToast" class="metas-toast hidden" role="status" aria-live="polite"></div>
 
-  <script
-    type="module"
-    src="../JavaScript/metas.js"
-  ></script>
+  <script type="module" src="../JavaScript/metas.js"></script>
 
 </body>
+
 </html>

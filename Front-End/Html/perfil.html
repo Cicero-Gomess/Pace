@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="../Images/Ícone_Pace.png"
-  >
+  <meta name="theme-color" content="#07162f">
+
+  <meta name="color-scheme" content="dark">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      background: #07162f;
+    }
+  </style>
+
+
+  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
 
   <title>Meu Perfil | Pace</title>
 
-  <link
-    rel="stylesheet"
-    href="../Css/perfil.css"
-  >
+  <link rel="stylesheet" href="../Css/perfil.css">
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -32,21 +36,11 @@
 
   <!-- SIDEBAR -->
 
-  <aside
-    class="sidebar"
-    aria-label="Navegação principal"
-  >
+  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div
-      class="sidebar-brand"
-      aria-label="Pace"
-    >
+    <div class="sidebar-brand" aria-label="Pace">
 
-      <img
-        src="../Images/Ícone_Pace.png"
-        class="logo"
-        alt="Logo Pace"
-      >
+      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -55,10 +49,7 @@
 
     </div>
 
-    <nav
-      class="sidebar-nav"
-      aria-label="Navegação do Pace"
-    >
+    <nav class="sidebar-nav" aria-label="Navegação do Pace">
 
       <span class="nav-section-label">
         Comunidade
@@ -67,10 +58,7 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="house"
-            class="icon"
-          ></i>
+          <i data-lucide="house" class="icon"></i>
         </span>
 
         <span class="text">
@@ -82,10 +70,7 @@
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="compass"
-            class="icon"
-          ></i>
+          <i data-lucide="compass" class="icon"></i>
         </span>
 
         <span class="text">
@@ -97,10 +82,7 @@
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="square-pen"
-            class="icon"
-          ></i>
+          <i data-lucide="square-pen" class="icon"></i>
         </span>
 
         <span class="text">
@@ -116,10 +98,7 @@
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="target"
-            class="icon"
-          ></i>
+          <i data-lucide="target" class="icon"></i>
         </span>
 
         <span class="text">
@@ -131,10 +110,7 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="brain"
-            class="icon"
-          ></i>
+          <i data-lucide="brain" class="icon"></i>
         </span>
 
         <span class="text">
@@ -146,10 +122,7 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="chart-no-axes-combined"
-            class="icon"
-          ></i>
+          <i data-lucide="chart-no-axes-combined" class="icon"></i>
         </span>
 
         <span class="text">
@@ -162,16 +135,10 @@
 
     <div class="sidebar-footer">
 
-      <a
-        href="#"
-        aria-label="Notificações"
-      >
+      <a href="#" aria-label="Notificações">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="bell"
-            class="icon"
-          ></i>
+          <i data-lucide="bell" class="icon"></i>
         </span>
 
         <span class="text">
@@ -183,10 +150,7 @@
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i
-            data-lucide="settings"
-            class="icon"
-          ></i>
+          <i data-lucide="settings" class="icon"></i>
         </span>
 
         <span class="text">
@@ -197,21 +161,12 @@
 
       <div class="sidebar-profile">
 
-        <a
-          href="perfil.html"
-          class="perfil active"
-          aria-current="page"
-        >
+        <a href="perfil.html" class="perfil active" aria-current="page">
 
           <span class="profile-ring">
 
-            <img
-              id="fotoSidebar"
-              class="foto-perfil"
-              src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'"
-            >
+            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'">
 
           </span>
 
@@ -220,10 +175,7 @@
             <small>Ver perfil</small>
           </span>
 
-          <i
-            data-lucide="chevron-right"
-            class="profile-arrow"
-          ></i>
+          <i data-lucide="chevron-right" class="profile-arrow"></i>
 
         </a>
 
@@ -282,19 +234,11 @@
 
           <div class="foto-ring">
 
-            <img
-              id="fotoPerfil"
-              class="foto-perfil"
-              src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil"
-            >
+            <img id="fotoPerfil" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil">
 
           </div>
 
-          <label
-            for="inputFoto"
-            class="btn-trocar"
-          >
+          <label for="inputFoto" class="btn-trocar">
 
             <i data-lucide="camera"></i>
 
@@ -304,12 +248,7 @@
 
           </label>
 
-          <input
-            type="file"
-            id="inputFoto"
-            accept="image/*"
-            hidden
-          >
+          <input type="file" id="inputFoto" accept="image/*" hidden>
 
         </div>
 
@@ -419,11 +358,7 @@
 
               </div>
 
-              <button
-                id="salvarBio"
-                class="bio-action"
-                type="button"
-              >
+              <button id="salvarBio" class="bio-action" type="button">
 
                 <i data-lucide="save"></i>
 
@@ -435,11 +370,8 @@
 
             </div>
 
-            <textarea
-              id="bioUsuario"
-              maxlength="300"
-              placeholder="Escreva algo sobre você, seus objetivos e sua jornada..."
-            ></textarea>
+            <textarea id="bioUsuario" maxlength="300"
+              placeholder="Escreva algo sobre você, seus objetivos e sua jornada..."></textarea>
 
           </div>
 
@@ -523,25 +455,15 @@
 
   <!-- MODAL DO POST -->
 
-  <div
-    id="modalPost"
-    class="modal hidden"
-  >
+  <div id="modalPost" class="modal hidden">
 
     <div class="modal-content">
 
-      <button
-        id="fecharModal"
-        type="button"
-        aria-label="Fechar modal"
-      >
+      <button id="fecharModal" type="button" aria-label="Fechar modal">
         &times;
       </button>
 
-      <img
-        id="modalImg"
-        alt="Imagem do post"
-      >
+      <img id="modalImg" alt="Imagem do post">
 
       <p id="modalTexto"></p>
 
@@ -561,15 +483,10 @@
 
   </div>
 
-  <div
-    id="toast"
-    class="toast hidden"
-  ></div>
+  <div id="toast" class="toast hidden"></div>
 
-  <script
-    type="module"
-    src="../JavaScript/perfil.js"
-  ></script>
+  <script type="module" src="../JavaScript/perfil.js"></script>
 
 </body>
+
 </html>
