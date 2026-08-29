@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using sistemaadmin.Services;
 
 namespace sistemaadmin
 {
@@ -7,17 +8,28 @@ namespace sistemaadmin
     {
         private string _token;
         private Form _currentForm;
+        private bool _isAdmin;
 
         public FormPrincipal(string token)
         {
             InitializeComponent();
             _token = token;
+            _isAdmin = PermissionHelper.IsAdmin(token);
         }
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
             try
             {
+                // Verificar permissões e controlar visibilidade de botões
+                if (!_isAdmin)
+                {
+                    // Se não é admin, esconder botão de Metas
+                    // (ou poderia esconder outras funcionalidades administrativas)
+                    btnMetas.Visible = false;
+                    btnMetas.Enabled = false;
+                }
+
                 AbrirFormDashboard();
             }
             catch (Exception ex)
@@ -43,6 +55,11 @@ namespace sistemaadmin
             AbrirFormComentarios();
         }
 
+        private void BtnMetas_Click(object sender, EventArgs e)
+        {
+            AbrirFormMetas();
+        }
+
         private void BtnPerfil_Click(object sender, EventArgs e)
         {
             AbrirFormPerfil();
@@ -66,6 +83,11 @@ namespace sistemaadmin
         private void AbrirFormComentarios()
         {
             AbrirForm(new FormComentarios(_token));
+        }
+
+        private void AbrirFormMetas()
+        {
+            AbrirForm(new FormMetas(_token));
         }
 
         private void AbrirFormPerfil()

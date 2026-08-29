@@ -41,21 +41,197 @@ namespace sistemaadmin
         {
             try
             {
-                int postId;
-                if (!int.TryParse(txtPostId.Text.Trim(), out postId))
+                string searchInput = txtPostId.Text.Trim();
+
+                if (string.IsNullOrEmpty(searchInput))
                 {
-                    MessageBox.Show("Por favor, insira um ID de post válido.", "Validação",
+                    MessageBox.Show("Por favor, insira um ID de post ou texto para buscar.", "Validação",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                _postIdAtual = postId;
-                await CarregarComentarios(postId);
+                btnCarregar.Enabled = false;
+                btnCarregar.Text = "Carregando...";
+
+                // Verificar se é um ID numérico
+                if (int.TryParse(searchInput, out int postId))
+                {
+                    // Busca por ID
+                    _postIdAtual = postId;
+                    await CarregarComentariosporPostId(postId);
+                }
+                else
+                {
+                    // Busca por texto (conteúdo)
+                    await CarregarComentariosPorTexto(searchInput);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Erro: {ex.Message}", "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnCarregar.Enabled = true;
+                btnCarregar.Text = "Carregar Comentários";
+            }
+        }
+
+        private async Task CarregarComentariosporPostId(int postId)
+        {
+            try
+            {
+                btnCarregar.Enabled = false;
+                btnCarregar.Text = "Carregando...";
+
+                var json = await _comentarioService.ListarComentariosAsync(postId);
+                _comentarios = ParsearComentarios(json);
+
+                // ✅ CORREÇÃO: Atualizar UI na thread principal
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        dgvComentarios.DataSource = null;
+                        dgvComentarios.DataSource = _comentarios;
+                        LimparCampos();
+
+                        if (_comentarios.Count == 0)
+                        {
+                            MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }));
+                }
+                else
+                {
+                    dgvComentarios.DataSource = null;
+                    dgvComentarios.DataSource = _comentarios;
+                    LimparCampos();
+
+                    if (_comentarios.Count == 0)
+                    {
+                        MessageBox.Show("Nenhum comentário encontrado para este post.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar comentários:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnCarregar.Enabled = true;
+                btnCarregar.Text = "Carregar Comentários";
+            }
+        }
+
+        /// <summary>
+        /// Busca comentários por texto (conteúdo de post)
+        /// Usa API de busca de posts e depois carrega comentários de cada post encontrado
+        /// </summary>
+        private async Task CarregarComentariosPorTexto(string searchText)
+        {
+            try
+            {
+                btnCarregar.Enabled = false;
+                btnCarregar.Text = "Buscando...";
+
+                // Usar PostService para buscar posts por conteúdo
+                var postService = new PostService(_comentarioService.Token ?? "");
+                var postsJson = await postService.BuscarPostsPorConteudoAsync(searchText);
+
+                // Parsear posts encontrados
+                var postsEncontrados = ParsearPostsPorConteudo(postsJson);
+
+                if (postsEncontrados.Count == 0)
+                {
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            dgvComentarios.DataSource = null;
+                            MessageBox.Show($"Nenhum post encontrado com '{searchText}'.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }));
+                    }
+                    else
+                    {
+                        dgvComentarios.DataSource = null;
+                        MessageBox.Show($"Nenhum post encontrado com '{searchText}'.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    return;
+                }
+
+                // Carregar comentários de todos os posts encontrados
+                var todosComentarios = new List<ComentarioItem>();
+                foreach (var post in postsEncontrados)
+                {
+                    try
+                    {
+                        var comentariosJson = await _comentarioService.ListarComentariosAsync(post.Id);
+                        var comentarios = ParsearComentarios(comentariosJson);
+                        todosComentarios.AddRange(comentarios);
+                    }
+                    catch
+                    {
+                        // Ignorar erro em post individual, continuar com próximo
+                    }
+                }
+
+                _comentarios = todosComentarios;
+
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        dgvComentarios.DataSource = null;
+                        dgvComentarios.DataSource = _comentarios;
+                        LimparCampos();
+
+                        if (_comentarios.Count == 0)
+                        {
+                            MessageBox.Show($"Nenhum comentário encontrado em posts com '{searchText}'.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Encontrados {_comentarios.Count} comentário(s) em {postsEncontrados.Count} post(s) com '{searchText}'.", "Sucesso",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }));
+                }
+                else
+                {
+                    dgvComentarios.DataSource = null;
+                    dgvComentarios.DataSource = _comentarios;
+                    LimparCampos();
+
+                    if (_comentarios.Count == 0)
+                    {
+                        MessageBox.Show($"Nenhum comentário encontrado em posts com '{searchText}'.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Encontrados {_comentarios.Count} comentário(s) em {postsEncontrados.Count} post(s) com '{searchText}'.", "Sucesso",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao buscar comentários por texto:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnCarregar.Enabled = true;
+                btnCarregar.Text = "Carregar Comentários";
             }
         }
 
@@ -322,6 +498,120 @@ namespace sistemaadmin
             public string comentario { get; set; }
             public string data_comentario { get; set; }
             public string username { get; set; }
+        }
+
+        private class PostSimplificado
+        {
+            public int Id { get; set; }
+            public string Conteudo { get; set; }
+        }
+
+        /// <summary>
+        /// Parseia JSON de posts retornado pela API (/post/buscar_post_conteudo)
+        /// </summary>
+        private List<PostSimplificado> ParsearPostsPorConteudo(string json)
+        {
+            var posts = new List<PostSimplificado>();
+
+            try
+            {
+                // Remover [ e ] se existirem
+                json = json.Trim();
+                if (json.StartsWith("["))
+                    json = json.Substring(1);
+                if (json.EndsWith("]"))
+                    json = json.Substring(0, json.Length - 1);
+
+                // Split por objetos JSON
+                var objetos = SepararObjetos(json);
+
+                foreach (var obj in objetos)
+                {
+                    var post = new PostSimplificado();
+                    post.Id = ExtrairInteiro(obj, "id");
+                    post.Conteudo = ExtrairString(obj, "conteudo");
+
+                    if (post.Id > 0 && !string.IsNullOrEmpty(post.Conteudo))
+                        posts.Add(post);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao parsear posts: {ex.Message}");
+            }
+
+            return posts;
+        }
+
+        private List<string> SepararObjetos(string json)
+        {
+            var objetos = new List<string>();
+            int nivelChaves = 0;
+            int inicio = -1;
+
+            for (int i = 0; i < json.Length; i++)
+            {
+                if (json[i] == '{')
+                {
+                    if (nivelChaves == 0)
+                        inicio = i;
+                    nivelChaves++;
+                }
+                else if (json[i] == '}')
+                {
+                    nivelChaves--;
+                    if (nivelChaves == 0 && inicio >= 0)
+                    {
+                        objetos.Add(json.Substring(inicio, i - inicio + 1));
+                        inicio = -1;
+                    }
+                }
+            }
+
+            return objetos;
+        }
+
+        private int ExtrairInteiro(string json, string campo)
+        {
+            int idx = json.IndexOf($"\"{campo}\"");
+            if (idx < 0)
+                return 0;
+
+            idx = json.IndexOf(":", idx);
+            if (idx < 0)
+                return 0;
+
+            int fimIdx = json.IndexOf(",", idx);
+            if (fimIdx < 0)
+                fimIdx = json.IndexOf("}", idx);
+
+            string valor = json.Substring(idx + 1, fimIdx - idx - 1).Trim();
+            if (int.TryParse(valor, out int resultado))
+                return resultado;
+
+            return 0;
+        }
+
+        private string ExtrairString(string json, string campo)
+        {
+            int idx = json.IndexOf($"\"{campo}\"");
+            if (idx < 0)
+                return null;
+
+            idx = json.IndexOf(":", idx);
+            if (idx < 0)
+                return null;
+
+            idx = json.IndexOf("\"", idx);
+            if (idx < 0)
+                return null;
+
+            int fimIdx = json.IndexOf("\"", idx + 1);
+            if (fimIdx < 0)
+                return null;
+
+            string valor = json.Substring(idx + 1, fimIdx - idx - 1);
+            return valor;
         }
     }
 }

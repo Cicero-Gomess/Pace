@@ -8,8 +8,11 @@ namespace sistemaadmin.Services
 {
     public class ComentarioService : BaseService
     {
+        public string Token { get; private set; }
+
         public ComentarioService(string token) : base(token)
         {
+            Token = token;
         }
 
         /// <summary>
