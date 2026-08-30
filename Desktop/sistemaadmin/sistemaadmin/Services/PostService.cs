@@ -202,7 +202,7 @@ namespace sistemaadmin.Services
 
         /// <summary>
         /// Busca posts por conteúdo (texto)
-        /// GET /post/buscar_post_conteudo?q={query}
+        /// GET /post/buscar_post_conteudo/?q={query}
         /// </summary>
         public async Task<string> BuscarPostsPorConteudoAsync(string query)
         {
@@ -211,9 +211,9 @@ namespace sistemaadmin.Services
                 if (string.IsNullOrWhiteSpace(query))
                     throw new ArgumentException("Query de busca não pode estar vazia.", nameof(query));
 
-                System.Diagnostics.Debug.WriteLine($"[PostService] Requisitando GET /post/buscar_post_conteudo?q={query}");
+                System.Diagnostics.Debug.WriteLine($"[PostService] Requisitando GET /post/buscar_post_conteudo/?q={query}");
 
-                var response = await HttpClient.GetAsync($"/post/buscar_post_conteudo?q={Uri.EscapeDataString(query)}").ConfigureAwait(false);
+                var response = await HttpClient.GetAsync($"/post/buscar_post_conteudo/?q={Uri.EscapeDataString(query)}").ConfigureAwait(false);
 
                 System.Diagnostics.Debug.WriteLine($"[PostService] Response Status: {response.StatusCode}");
 

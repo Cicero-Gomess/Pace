@@ -121,12 +121,17 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="AJUSTES_ESTETICOS_RELATORIO.md" />
     <None Include="ARQUITETURA.md" />
     <None Include="ARVORE_ARQUIVOS_FORMPERFIL.md" />
     <None Include="AUDITORIA_FINAL_30_08_2026.md" />
     <None Include="COMECE_AQUI.md" />
     <None Include="COMENTARIOS_GUIA.md" />
+    <None Include="CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md" />
+    <None Include="CORRECOES_FORMULARIOS_RESUMO.md" />
+    <None Include="CORRECOES_FORMULARIOS_TECNICO.md" />
     <None Include="DIAGNOSTICO_BUGS_CORRIGIDOS.md" />
+    <None Include="DIFF.md" />
     <None Include="ENTREGA_FINAL_FORMPERFIL.md" />
     <None Include="EXEMPLOS_FORMPERFIL.md" />
     <None Include="EXEMPLOS_USO.md" />

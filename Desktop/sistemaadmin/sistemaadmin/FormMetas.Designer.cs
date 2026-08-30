@@ -86,7 +86,7 @@ namespace sistemaadmin
             this.pnlFiltro.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlFiltro.Name = "pnlFiltro";
             this.pnlFiltro.Padding = new System.Windows.Forms.Padding(15);
-            this.pnlFiltro.Size = new System.Drawing.Size(1100, 60);
+            this.pnlFiltro.Size = new System.Drawing.Size(1100, 80);
             this.pnlFiltro.TabIndex = 1;
 
             // lblStatusFiltro
@@ -95,7 +95,7 @@ namespace sistemaadmin
             this.lblStatusFiltro.ForeColor = System.Drawing.Color.FromArgb(44, 62, 80);
             this.lblStatusFiltro.Location = new System.Drawing.Point(15, 17);
             this.lblStatusFiltro.Name = "lblStatusFiltro";
-            this.lblStatusFiltro.Size = new System.Drawing.Size(100, 17);
+            this.lblStatusFiltro.Size = new System.Drawing.Size(150, 17);
             this.lblStatusFiltro.TabIndex = 0;
             this.lblStatusFiltro.Text = "Filtrar por Status:";
 
@@ -104,7 +104,7 @@ namespace sistemaadmin
             this.cmbStatusFiltro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbStatusFiltro.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.cmbStatusFiltro.Items.AddRange(new object[] { "Todos", "em andamento", "concluida" });
-            this.cmbStatusFiltro.Location = new System.Drawing.Point(125, 15);
+            this.cmbStatusFiltro.Location = new System.Drawing.Point(170, 15);
             this.cmbStatusFiltro.Name = "cmbStatusFiltro";
             this.cmbStatusFiltro.Size = new System.Drawing.Size(120, 25);
             this.cmbStatusFiltro.TabIndex = 1;
@@ -116,7 +116,7 @@ namespace sistemaadmin
             this.btnCarregarMetas.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCarregarMetas.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.btnCarregarMetas.ForeColor = System.Drawing.Color.White;
-            this.btnCarregarMetas.Location = new System.Drawing.Point(255, 15);
+            this.btnCarregarMetas.Location = new System.Drawing.Point(300, 15);
             this.btnCarregarMetas.Name = "btnCarregarMetas";
             this.btnCarregarMetas.Size = new System.Drawing.Size(150, 30);
             this.btnCarregarMetas.TabIndex = 2;

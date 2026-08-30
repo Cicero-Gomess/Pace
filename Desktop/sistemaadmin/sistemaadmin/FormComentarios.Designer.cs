@@ -89,17 +89,17 @@ namespace sistemaadmin
             this.lblPostId.ForeColor = System.Drawing.Color.FromArgb(44, 62, 80);
             this.lblPostId.Location = new System.Drawing.Point(15, 17);
             this.lblPostId.Name = "lblPostId";
-            this.lblPostId.Size = new System.Drawing.Size(100, 17);
+            this.lblPostId.Size = new System.Drawing.Size(180, 17);
             this.lblPostId.TabIndex = 0;
-            this.lblPostId.Text = "ID do Post:";
+            this.lblPostId.Text = "Id ou Conteudo do post";
 
             // txtPostId
             this.txtPostId.BackColor = System.Drawing.Color.White;
             this.txtPostId.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtPostId.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.txtPostId.Location = new System.Drawing.Point(125, 15);
+            this.txtPostId.Location = new System.Drawing.Point(200, 15);
             this.txtPostId.Name = "txtPostId";
-            this.txtPostId.Size = new System.Drawing.Size(80, 23);
+            this.txtPostId.Size = new System.Drawing.Size(180, 23);
             this.txtPostId.TabIndex = 1;
 
             // btnCarregar
@@ -108,7 +108,7 @@ namespace sistemaadmin
             this.btnCarregar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCarregar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.btnCarregar.ForeColor = System.Drawing.Color.White;
-            this.btnCarregar.Location = new System.Drawing.Point(215, 15);
+            this.btnCarregar.Location = new System.Drawing.Point(390, 15);
             this.btnCarregar.Name = "btnCarregar";
             this.btnCarregar.Size = new System.Drawing.Size(150, 30);
             this.btnCarregar.TabIndex = 2;
