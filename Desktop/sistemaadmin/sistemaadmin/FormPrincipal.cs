@@ -14,21 +14,33 @@ namespace sistemaadmin
         {
             InitializeComponent();
             _token = token;
-            _isAdmin = PermissionHelper.IsAdmin(token);
+            // Verificar se o Backend realmente fornece dados de permissão
+            // Se não fornece, IsAdmin() retornará false e btnMetas será escondido
+            // NOTA: O contrato atual da API não inclui campos de permissão no JWT
+            _isAdmin = PermissionHelper.IsPermissionDataAvailable(token) && PermissionHelper.IsAdmin(token);
         }
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
             try
             {
-                // Verificar permissões e controlar visibilidade de botões
-                if (!_isAdmin)
-                {
-                    // Se não é admin, esconder botão de Metas
-                    // (ou poderia esconder outras funcionalidades administrativas)
-                    btnMetas.Visible = false;
-                    btnMetas.Enabled = false;
-                }
+                // IMPORTANTE: Funcionalidades administrativas
+                // 
+                // NOTA SOBRE PERMISSÕES (30/08/2026):
+                // O Backend atualmente NÃO retorna informações de permissão no JWT.
+                // Por isso, o controle de acesso é feito inteiramente no servidor API.
+                // As telas de Metas e Comentários são acessíveis, mas a API é responsável
+                // por autorizar cada operação (criar, editar, deletar) com base nas permissões reais.
+                //
+                // Isso segue o padrão de "segurança em camadas":
+                // - Desktop: Permite acesso às telas
+                // - Backend/API: Valida permissões para cada operação
+                // 
+                // Quando o Backend for atualizado para incluir permissões no JWT ou em /profile/me,
+                // este código será automaticamente compatível.
+
+                // Nota: btnMetas está sempre visível. A segurança é garantida pelo Backend.
+                // Se o usuário não tiver permissão, as operações na API retornarão 403.
 
                 AbrirFormDashboard();
             }

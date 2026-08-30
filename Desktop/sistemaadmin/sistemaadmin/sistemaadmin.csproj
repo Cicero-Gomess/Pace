@@ -101,10 +101,10 @@
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\BaseService.cs" />
     <Compile Include="Services\ComentarioService.cs" />
+    <Compile Include="Services\PermissionHelper.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ProfileService.cs" />
     <Compile Include="Services\MetaService.cs" />
-    <Compile Include="Services\PermissionHelper.cs" />
     <Compile Include="Services\ServicesExemplos.cs" />
     <EmbeddedResource Include="FormDashboard.resx">
       <DependentUpon>FormDashboard.cs</DependentUpon>
@@ -123,6 +123,7 @@
     </Compile>
     <None Include="ARQUITETURA.md" />
     <None Include="ARVORE_ARQUIVOS_FORMPERFIL.md" />
+    <None Include="AUDITORIA_FINAL_30_08_2026.md" />
     <None Include="COMECE_AQUI.md" />
     <None Include="COMENTARIOS_GUIA.md" />
     <None Include="DIAGNOSTICO_BUGS_CORRIGIDOS.md" />
@@ -142,6 +143,7 @@
     <None Include="IMPLEMENTACAO.md" />
     <None Include="INDICE.md" />
     <None Include="INDICE_FORMPERFIL.md" />
+    <None Include="INTEGRACAO_FRONTEND_30_08_2026.md" />
     <None Include="POSTS_RESUMO.md" />
     <None Include="PROJETO_FORMPERFIL_CONCLUSAO.md" />
     <None Include="Properties\Settings.settings">
