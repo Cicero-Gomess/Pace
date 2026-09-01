@@ -3,6 +3,13 @@
   "WorkspaceRootPath": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-cross-thread-em-formposts.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPosts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\FormPosts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-dos-forms-de-comentrios-e-metas.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
     },
     {
@@ -112,10 +119,6 @@
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\FormDashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPosts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\FormPosts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\VALIDACAO_FIXES.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\VALIDACAO_FIXES.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
@@ -162,32 +165,57 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\Pace\\backend\\post.py||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\formmetas.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\formmetas.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formmetas.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\correcoes_formularios_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\correcoes_formularios_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\correcoes_formularios_resumo.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\correcoes_formularios_tecnico.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\correcoes_formularios_tecnico.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\correcoes_formularios_tecnico.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\diff.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\diff.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\diff.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\formcomentarios.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\formcomentarios.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\formcomentarios.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\ajustes_esteticos_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\ajustes_esteticos_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\ajustes_esteticos_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\correcao_estetica_comentarios_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\correcao_estetica_comentarios_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\correcao_estetica_comentarios_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\correcao_cross_thread_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\correcao_cross_thread_relatorio.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\correcao_cross_thread_sumario.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\correcao_cross_thread_sumario.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\relatorio_correcao_crossthread_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\relatorio_correcao_crossthread_final.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|c:\\users\\anasa\\pace\\desktop\\sistemaadmin\\sistemaadmin\\resumo_executivo_crossthread.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{ED830288-DED0-4285-92BF-18B242D826D5}|sistemaadmin\\sistemaadmin.csproj|solutionrelative:sistemaadmin\\resumo_executivo_crossthread.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\Pace\\backend\\RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\Pace\\backend\\RESUMO_CORRECAO_ADMIN.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\AnaSa\\Pace\\backend\\VALIDACAO_SEGURANCA.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     }
   ],
   "DocumentGroupContainers": [
@@ -197,7 +225,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -220,103 +248,115 @@
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 48,
-              "Title": "CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
-              "RelativeDocumentMoniker": "sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
-              "RelativeToolTip": "sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-08-30T22:11:14.419Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{269a02dc-6af8-11d3-bdc4-00c04f688e50}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
-              "Title": "AJUSTES_ESTETICOS_RELATORIO.md",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
-              "RelativeDocumentMoniker": "sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
-              "RelativeToolTip": "sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJkAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 56,
+              "Title": "VALIDACAO_SEGURANCA.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\backend\\VALIDACAO_SEGURANCA.md",
+              "RelativeDocumentMoniker": "..\\..\\backend\\VALIDACAO_SEGURANCA.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\backend\\VALIDACAO_SEGURANCA.md",
+              "RelativeToolTip": "..\\..\\backend\\VALIDACAO_SEGURANCA.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-08-30T22:05:38.505Z",
+              "WhenOpened": "2026-09-01T19:24:36.245Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
-              "Title": "FormComentarios.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
-              "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.Designer.cs",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
-              "RelativeToolTip": "sistemaadmin\\FormComentarios.Designer.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-30T22:04:46.168Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 45,
-              "Title": "DIFF.md",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\DIFF.md",
-              "RelativeDocumentMoniker": "sistemaadmin\\DIFF.md",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\DIFF.md",
-              "RelativeToolTip": "sistemaadmin\\DIFF.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 55,
+              "Title": "RESUMO_CORRECAO_ADMIN.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\backend\\RESUMO_CORRECAO_ADMIN.md",
+              "RelativeDocumentMoniker": "..\\..\\backend\\RESUMO_CORRECAO_ADMIN.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\backend\\RESUMO_CORRECAO_ADMIN.md",
+              "RelativeToolTip": "..\\..\\backend\\RESUMO_CORRECAO_ADMIN.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-08-30T21:49:47.986Z",
+              "WhenOpened": "2026-09-01T19:24:22.399Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
-              "Title": "CORRECOES_FORMULARIOS_TECNICO.md",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
-              "RelativeDocumentMoniker": "sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
-              "RelativeToolTip": "sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF4BAAAAAAAAAAAAAA==",
+              "DocumentIndex": 54,
+              "Title": "RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\backend\\RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md",
+              "RelativeDocumentMoniker": "..\\..\\backend\\RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\backend\\RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md",
+              "RelativeToolTip": "..\\..\\backend\\RELATORIO_CORRECAO_ADMIN_UPDATE_POSTS.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-08-30T21:48:46.798Z",
+              "WhenOpened": "2026-09-01T19:24:13.553Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
-              "Title": "CORRECOES_FORMULARIOS_RESUMO.md",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
-              "RelativeDocumentMoniker": "sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
-              "RelativeToolTip": "sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIMAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 53,
+              "Title": "RESUMO_EXECUTIVO_CROSSTHREAD.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\RESUMO_EXECUTIVO_CROSSTHREAD.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\RESUMO_EXECUTIVO_CROSSTHREAD.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\RESUMO_EXECUTIVO_CROSSTHREAD.md",
+              "RelativeToolTip": "sistemaadmin\\RESUMO_EXECUTIVO_CROSSTHREAD.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-08-30T21:48:02.304Z",
+              "WhenOpened": "2026-09-01T19:12:03.501Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
-              "Title": "FormMetas.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormMetas.Designer.cs",
-              "RelativeDocumentMoniker": "sistemaadmin\\FormMetas.Designer.cs",
-              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormMetas.Designer.cs",
-              "RelativeToolTip": "sistemaadmin\\FormMetas.Designer.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-30T21:45:48.534Z",
+              "DocumentIndex": 52,
+              "Title": "RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md",
+              "RelativeToolTip": "sistemaadmin\\RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-09-01T19:11:52.828Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "plan-correo-de-cross-thread-em-formposts.md [Visualiza\u00E7\u00E3o]",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-cross-thread-em-formposts.md",
+              "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-correo-de-cross-thread-em-formposts.md",
+              "ToolTip": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-cross-thread-em-formposts.md [Visualiza\u00E7\u00E3o]",
+              "RelativeToolTip": "..\\..\\..\\.copilot\\plans\\plan-correo-de-cross-thread-em-formposts.md [Visualiza\u00E7\u00E3o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-09-01T19:10:29.595Z",
+              "EditorCaption": " [Visualiza\u00E7\u00E3o]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "CORRECAO_CROSS_THREAD_SUMARIO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_CROSS_THREAD_SUMARIO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\CORRECAO_CROSS_THREAD_SUMARIO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_CROSS_THREAD_SUMARIO.md",
+              "RelativeToolTip": "sistemaadmin\\CORRECAO_CROSS_THREAD_SUMARIO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-09-01T19:00:32.656Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "CORRECAO_CROSS_THREAD_RELATORIO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_CROSS_THREAD_RELATORIO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\CORRECAO_CROSS_THREAD_RELATORIO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_CROSS_THREAD_RELATORIO.md",
+              "RelativeToolTip": "sistemaadmin\\CORRECAO_CROSS_THREAD_RELATORIO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAL4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-09-01T19:00:23.618Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "plan-correo-dos-forms-de-comentrios-e-metas.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-dos-forms-de-comentrios-e-metas.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-correo-dos-forms-de-comentrios-e-metas.md",
@@ -328,20 +368,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 42,
               "Title": "post.py",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\backend\\post.py",
               "RelativeDocumentMoniker": "..\\..\\backend\\post.py",
               "ToolTip": "C:\\Users\\AnaSa\\Pace\\backend\\post.py",
               "RelativeToolTip": "..\\..\\backend\\post.py",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAPsAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
               "WhenOpened": "2026-08-30T21:44:58.952Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "plan-integrao-de-funcionalidades-administrativas-desktopc.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-integrao-de-funcionalidades-administrativas-desktopc.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-integrao-de-funcionalidades-administrativas-desktopc.md",
@@ -353,7 +393,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 37,
               "Title": "PermissionHelper.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\543529458\\PermissionHelper.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\543529458\\PermissionHelper.cs",
@@ -365,7 +405,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "plan-auditoria-e-correo-do-desktopc-painel-administrativo.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-auditoria-e-correo-do-desktopc-painel-administrativo.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-auditoria-e-correo-do-desktopc-painel-administrativo.md",
@@ -377,7 +417,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "plan-correo-de-integrao-api-dashboard-windows-forms.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-integrao-api-dashboard-windows-forms.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-correo-de-integrao-api-dashboard-windows-forms.md",
@@ -389,7 +429,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "RELATORIO_FINAL.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\RELATORIO_FINAL.md",
               "RelativeDocumentMoniker": "RELATORIO_FINAL.md",
@@ -401,7 +441,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "GUIA_RAPIDO.txt",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\GUIA_RAPIDO.txt",
               "RelativeDocumentMoniker": "GUIA_RAPIDO.txt",
@@ -413,7 +453,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "INDICE_DOCUMENTACAO.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\INDICE_DOCUMENTACAO.md",
               "RelativeDocumentMoniker": "INDICE_DOCUMENTACAO.md",
@@ -425,7 +465,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "PATCH_ALTERACOES.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\PATCH_ALTERACOES.md",
               "RelativeDocumentMoniker": "PATCH_ALTERACOES.md",
@@ -437,7 +477,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "DIAGRAMA_VISUAL.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\DIAGRAMA_VISUAL.md",
               "RelativeDocumentMoniker": "DIAGRAMA_VISUAL.md",
@@ -449,7 +489,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "SUMARIO_CORRECAO.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\SUMARIO_CORRECAO.md",
               "RelativeDocumentMoniker": "SUMARIO_CORRECAO.md",
@@ -461,7 +501,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "TROUBLESHOOTING_BASE64.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\TROUBLESHOOTING_BASE64.md",
               "RelativeDocumentMoniker": "TROUBLESHOOTING_BASE64.md",
@@ -473,7 +513,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "RESUMO_CORRECAO_BASE64.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\RESUMO_CORRECAO_BASE64.md",
               "RelativeDocumentMoniker": "RESUMO_CORRECAO_BASE64.md",
@@ -485,7 +525,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "TECNICO_ALTERACOES_FORMPERFIL.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\TECNICO_ALTERACOES_FORMPERFIL.md",
               "RelativeDocumentMoniker": "TECNICO_ALTERACOES_FORMPERFIL.md",
@@ -497,7 +537,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "CORRECAO_ERRO_BASE64.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\CORRECAO_ERRO_BASE64.md",
               "RelativeDocumentMoniker": "CORRECAO_ERRO_BASE64.md",
@@ -509,7 +549,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "plan-correo-de-deadlock-e-loading-infinito-windows-forms.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-deadlock-e-loading-infinito-windows-forms.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-correo-de-deadlock-e-loading-infinito-windows-forms.md",
@@ -521,7 +561,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "plan-correo-de-bugs-crticos-windows-forms.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-correo-de-bugs-crticos-windows-forms.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-correo-de-bugs-crticos-windows-forms.md",
@@ -533,7 +573,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "plan-resoluo-de-problemas-de-performance-e-carregamento-de-imagem-windows-forms.md [Visualiza\u00E7\u00E3o]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\.copilot\\plans\\plan-resoluo-de-problemas-de-performance-e-carregamento-de-imagem-windows-forms.md",
               "RelativeDocumentMoniker": "..\\..\\..\\.copilot\\plans\\plan-resoluo-de-problemas-de-performance-e-carregamento-de-imagem-windows-forms.md",
@@ -545,7 +585,91 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 49,
+              "Title": "CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
+              "RelativeToolTip": "sistemaadmin\\CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-08-30T22:11:14.419Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "AJUSTES_ESTETICOS_RELATORIO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
+              "RelativeToolTip": "sistemaadmin\\AJUSTES_ESTETICOS_RELATORIO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-08-30T22:05:38.505Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "FormComentarios.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormComentarios.Designer.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-30T22:04:46.168Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "DIFF.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\DIFF.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\DIFF.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\DIFF.md",
+              "RelativeToolTip": "sistemaadmin\\DIFF.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-08-30T21:49:47.986Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "CORRECOES_FORMULARIOS_TECNICO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
+              "RelativeToolTip": "sistemaadmin\\CORRECOES_FORMULARIOS_TECNICO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-08-30T21:48:46.798Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "CORRECOES_FORMULARIOS_RESUMO.md",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
+              "RelativeDocumentMoniker": "sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
+              "RelativeToolTip": "sistemaadmin\\CORRECOES_FORMULARIOS_RESUMO.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-08-30T21:48:02.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "FormMetas.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormMetas.Designer.cs",
+              "RelativeDocumentMoniker": "sistemaadmin\\FormMetas.Designer.cs",
+              "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormMetas.Designer.cs",
+              "RelativeToolTip": "sistemaadmin\\FormMetas.Designer.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-30T21:45:48.534Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
               "Title": "INTEGRACAO_FRONTEND_30_08_2026.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\INTEGRACAO_FRONTEND_30_08_2026.md",
               "RelativeDocumentMoniker": "sistemaadmin\\INTEGRACAO_FRONTEND_30_08_2026.md",
@@ -557,7 +681,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 40,
               "Title": "AUDITORIA_FINAL_30_08_2026.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\AUDITORIA_FINAL_30_08_2026.md",
               "RelativeDocumentMoniker": "sistemaadmin\\AUDITORIA_FINAL_30_08_2026.md",
@@ -569,7 +693,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 39,
               "Title": "FormPrincipal.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPrincipal.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormPrincipal.cs",
@@ -581,7 +705,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 38,
               "Title": "PermissionHelper.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Services\\PermissionHelper.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Services\\PermissionHelper.cs",
@@ -593,7 +717,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "AssemblyInfo.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Properties\\AssemblyInfo.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Properties\\AssemblyInfo.cs",
@@ -605,7 +729,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "SOLUCAO_DASHBOARD_IMPLEMENTADA.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\SOLUCAO_DASHBOARD_IMPLEMENTADA.md",
               "RelativeDocumentMoniker": "sistemaadmin\\SOLUCAO_DASHBOARD_IMPLEMENTADA.md",
@@ -617,7 +741,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "AuthService.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Services\\AuthService.cs",
@@ -629,7 +753,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "FormDashboard.resx",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormDashboard.resx",
               "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.resx",
@@ -640,7 +764,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "FormDashboard.Designer.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormDashboard.Designer.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.Designer.cs",
@@ -652,7 +776,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 24,
               "Title": "ProfileService.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Services\\ProfileService.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Services\\ProfileService.cs",
@@ -664,7 +788,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "DIAGNOSTICO_BUGS_CORRIGIDOS.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\DIAGNOSTICO_BUGS_CORRIGIDOS.md",
               "RelativeDocumentMoniker": "sistemaadmin\\DIAGNOSTICO_BUGS_CORRIGIDOS.md",
@@ -676,7 +800,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "PostService.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Services\\PostService.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Services\\PostService.cs",
@@ -684,12 +808,11 @@
               "RelativeToolTip": "sistemaadmin\\Services\\PostService.cs",
               "ViewState": "AgIAAMsAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-17T00:22:21.044Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-17T00:22:21.044Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "FormComentarios.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.cs",
@@ -701,7 +824,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 28,
               "Title": "RESUMO_EXECUTIVO.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\RESUMO_EXECUTIVO.md",
               "RelativeDocumentMoniker": "sistemaadmin\\RESUMO_EXECUTIVO.md",
@@ -713,7 +836,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 29,
               "Title": "GUIA_BOAS_PRATICAS.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\GUIA_BOAS_PRATICAS.md",
               "RelativeDocumentMoniker": "sistemaadmin\\GUIA_BOAS_PRATICAS.md",
@@ -725,7 +848,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 30,
               "Title": "FormDashboard.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormDashboard.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.cs",
@@ -737,19 +860,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 1,
               "Title": "FormPosts.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPosts.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormPosts.cs",
               "ToolTip": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPosts.cs",
               "RelativeToolTip": "sistemaadmin\\FormPosts.cs",
-              "ViewState": "AgIAAE8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAL8AAAAAAAAAAAAewM0AAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-17T00:11:52.395Z"
+              "WhenOpened": "2026-06-17T00:11:52.395Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 31,
               "Title": "VALIDACAO_FIXES.md",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\VALIDACAO_FIXES.md",
               "RelativeDocumentMoniker": "sistemaadmin\\VALIDACAO_FIXES.md",
@@ -761,7 +885,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 32,
               "Title": "FormPerfil.Designer.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPerfil.Designer.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormPerfil.Designer.cs",
@@ -773,7 +897,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 33,
               "Title": "BaseService.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\Services\\BaseService.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\Services\\BaseService.cs",
@@ -785,7 +909,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 34,
               "Title": "FormPerfil.cs",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormPerfil.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormPerfil.cs",
@@ -797,7 +921,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 35,
               "Title": "FormDashboard.cs [Design]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormDashboard.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormDashboard.cs",
@@ -808,7 +932,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 36,
               "Title": "FormComentarios.cs [Design]",
               "DocumentMoniker": "C:\\Users\\AnaSa\\Pace\\Desktop\\sistemaadmin\\sistemaadmin\\FormComentarios.cs",
               "RelativeDocumentMoniker": "sistemaadmin\\FormComentarios.cs",

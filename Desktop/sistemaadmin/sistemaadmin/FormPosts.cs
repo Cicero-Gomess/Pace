@@ -99,13 +99,13 @@ namespace sistemaadmin
                 btnCriar.Enabled = false;
                 btnCriar.Text = "Criando...";
 
-                await _postService.CriarPostAsync(conteudo, string.IsNullOrEmpty(imagem) ? null : imagem).ConfigureAwait(false);
+                await _postService.CriarPostAsync(conteudo, string.IsNullOrEmpty(imagem) ? null : imagem);
 
                 MessageBox.Show("Post criado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                await CarregarPostsAsync().ConfigureAwait(false);
+                await CarregarPostsAsync();
             }
             catch (Exception ex)
             {
@@ -145,13 +145,13 @@ namespace sistemaadmin
                 btnAtualizar.Text = "Atualizando...";
 
                 await _postService.AtualizarPostAsync(post.id, conteudo, 
-                    string.IsNullOrEmpty(imagem) ? null : imagem).ConfigureAwait(false);
+                    string.IsNullOrEmpty(imagem) ? null : imagem);
 
                 MessageBox.Show("Post atualizado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                await CarregarPostsAsync().ConfigureAwait(false);
+                await CarregarPostsAsync();
             }
             catch (Exception ex)
             {
@@ -188,13 +188,13 @@ namespace sistemaadmin
                 btnDeletar.Enabled = false;
                 btnDeletar.Text = "Deletando...";
 
-                await _postService.DeletarPostAsync(post.id).ConfigureAwait(false);
+                await _postService.DeletarPostAsync(post.id);
 
                 MessageBox.Show("Post deletado com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 LimparCampos();
-                await CarregarPostsAsync().ConfigureAwait(false);
+                await CarregarPostsAsync();
             }
             catch (Exception ex)
             {
@@ -259,12 +259,12 @@ namespace sistemaadmin
                 btnDescurtir.Enabled = false;
                 btnDescurtir.Text = "Removendo...";
 
-                await _postService.RemoverCurtidaAsync(post.id).ConfigureAwait(false);
+                await _postService.RemoverCurtidaAsync(post.id);
 
                 MessageBox.Show("Curtida removida com sucesso!", "Sucesso",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                await CarregarPostsAsync().ConfigureAwait(false);
+                await CarregarPostsAsync();
             }
             catch (Exception ex)
             {
@@ -281,7 +281,7 @@ namespace sistemaadmin
         private async void btnRecarregar_Click(object sender, EventArgs e)
         {
             LimparCampos();
-            await CarregarPostsAsync().ConfigureAwait(false);
+            await CarregarPostsAsync();
         }
 
         private void dgvPosts_SelectionChanged(object sender, EventArgs e)
