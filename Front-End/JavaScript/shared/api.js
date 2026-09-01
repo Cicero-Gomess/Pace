@@ -44,11 +44,19 @@ export async function parseResponse(response, fallbackMessage = "Erro na requisi
 
   if (!response.ok) {
     if (response.status === 401) {
-      throw new ApiError("Sessão expirada. Faça login novamente.", {
-        status: 401,
-        code: AUTH_ERROR,
-      });
-    }
+  const isLoginRequest = response.url.includes("/auth/token");
+
+  if (isLoginRequest) {
+    throw new ApiError("Email ou senha incorretos.", {
+      status: 401,
+    });
+  }
+
+  throw new ApiError("Sessão expirada. Faça login novamente.", {
+    status: 401,
+    code: AUTH_ERROR,
+  });
+}
 
     throw new ApiError(formatDetail(data?.detail) || fallbackMessage, {
       status: response.status,
