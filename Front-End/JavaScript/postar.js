@@ -31,7 +31,7 @@ if (shellOk) {
 
   if (textarea && contador) {
     textarea.addEventListener("input", () => {
-      contador.innerText = `${textarea.value.length}/200`;
+      contador.innerText = `${textarea.value.length}/2000`;
     });
   }
 

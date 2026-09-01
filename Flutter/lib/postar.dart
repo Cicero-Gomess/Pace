@@ -551,7 +551,7 @@ class _PostarPageState extends State<PostarPage> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${textoController.text.length}/200',
+              '${textoController.text.length}/2000',
               style: TextStyle(
                 color: mutedColor,
                 fontSize: 12,
@@ -726,7 +726,7 @@ class _PostarPageState extends State<PostarPage> {
   Widget _buildTextArea(bool mobile) {
     return TextField(
       controller: textoController,
-      maxLength: 200,
+      maxLength: 2000,
       minLines: mobile ? 5 : 6,
       maxLines: mobile ? 7 : 8,
       keyboardType: TextInputType.multiline,

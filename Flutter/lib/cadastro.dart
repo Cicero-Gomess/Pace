@@ -428,6 +428,41 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
   // ============================================================
+  // TERMOS E PRIVACIDADE
+  // ============================================================
+
+  Future<void> _abrirDocumentoLegal({
+    required String titulo,
+    required String kicker,
+    required IconData icon,
+    required String introTitulo,
+    required String introTexto,
+    required List<_LegalSectionData> secoes,
+  }) async {
+    final aceitou = await showDialog<bool>(
+      context: context,
+      barrierColor: const Color(0xFF020B19).withOpacity(0.72),
+      builder: (dialogContext) {
+        return _LegalDocumentDialog(
+          titulo: titulo,
+          kicker: kicker,
+          icon: icon,
+          introTitulo: introTitulo,
+          introTexto: introTexto,
+          secoes: secoes,
+        );
+      },
+    );
+
+    if (aceitou == true && mounted) {
+      setState(() {
+        _aceitaTermos = true;
+        _mensagem = '';
+      });
+    }
+  }
+
+  // ============================================================
   // DISPOSE
   // ============================================================
 
@@ -1279,19 +1314,52 @@ class _CadastroPageState extends State<CadastroPage> {
           // TERMOS
           // ==================================================
 
-          _CheckOption(
-            value:
-                _aceitaTermos,
-            title:
-                'Aceito os termos de uso',
-            onChanged: (
-              value,
-            ) {
+          _LegalConsentRow(
+            value: _aceitaTermos,
+            onChanged: (value) {
               setState(() {
-                _aceitaTermos =
-                    value;
+                _aceitaTermos = value;
               });
             },
+            onTermsTap: () => _abrirDocumentoLegal(
+              titulo: 'Termos de Uso',
+              kicker: 'PACE',
+              icon: Icons.description_outlined,
+              introTitulo: 'Bem-vindo ao Pace.',
+              introTexto:
+                  'Estes Termos de Uso estabelecem as principais regras para utilização da plataforma. Ao criar uma conta, você declara que leu e concorda com estas condições.',
+              secoes: const [
+                _LegalSectionData('01', 'Sobre o Pace', 'O Pace é uma plataforma de desenvolvimento pessoal criada para ajudar usuários a organizar metas, acompanhar sua evolução, utilizar ferramentas de foco e interagir com uma comunidade voltada ao progresso pessoal.'),
+                _LegalSectionData('02', 'Criação e segurança da conta', 'Para utilizar determinadas funcionalidades do Pace, o usuário deverá criar uma conta utilizando informações verdadeiras e atualizadas. O usuário é responsável por manter sua senha em segurança e pelas atividades realizadas através de sua conta.'),
+                _LegalSectionData('03', 'Uso adequado da plataforma', 'O usuário concorda em utilizar o Pace de maneira responsável, respeitosa e compatível com a finalidade da plataforma. Não é permitido publicar conteúdo ilegal, discriminatório, ameaçador, fraudulento, ofensivo ou que viole direitos de terceiros.'),
+                _LegalSectionData('04', 'Publicações e imagens', 'Os usuários podem compartilhar textos, imagens e informações relacionadas à sua evolução, rotina, aprendizados e objetivos. O usuário é responsável pelo conteúdo publicado e deve possuir autorização para compartilhar qualquer material enviado para a plataforma.'),
+                _LegalSectionData('05', 'Comunidade', 'Comportamentos abusivos, perseguição, assédio, spam ou utilização maliciosa da plataforma poderão resultar em restrições, suspensão ou encerramento da conta.'),
+                _LegalSectionData('06', 'Metas, foco e evolução', 'As ferramentas de metas, foco e acompanhamento da evolução possuem finalidade organizacional e motivacional. O Pace não garante resultados específicos decorrentes da utilização dessas ferramentas.'),
+                _LegalSectionData('07', 'Disponibilidade', 'A plataforma poderá passar por atualizações, manutenções ou indisponibilidades temporárias necessárias para seu desenvolvimento, segurança ou funcionamento.'),
+                _LegalSectionData('08', 'Suspensão ou encerramento', 'Contas que violem estes Termos de Uso ou apresentem comportamento malicioso poderão ser restringidas, suspensas ou encerradas.'),
+                _LegalSectionData('09', 'Responsabilidade do usuário', 'Cada usuário é responsável pelas informações e conteúdos compartilhados através de sua conta, incluindo textos, imagens e interações realizadas dentro da comunidade.'),
+                _LegalSectionData('10', 'Alterações dos Termos', 'Estes Termos de Uso poderão ser atualizados conforme o Pace evoluir e novas funcionalidades forem adicionadas. A versão mais recente deverá permanecer disponível para consulta dos usuários.'),
+              ],
+            ),
+            onPrivacyTap: () => _abrirDocumentoLegal(
+              titulo: 'Política de Privacidade',
+              kicker: 'SUA PRIVACIDADE',
+              icon: Icons.verified_user_outlined,
+              introTitulo: 'Seus dados importam.',
+              introTexto:
+                  'Esta Política explica de forma clara quais informações podem ser utilizadas pelo Pace e para quais finalidades elas são necessárias.',
+              secoes: const [
+                _LegalSectionData('01', 'Informações coletadas', 'Para o funcionamento da plataforma, o Pace poderá armazenar informações fornecidas pelo próprio usuário, como nome de usuário, email, senha protegida, foto de perfil, publicações, comentários, metas e informações relacionadas às sessões de foco.'),
+                _LegalSectionData('02', 'Utilização dos dados', 'As informações são utilizadas para permitir autenticação, personalizar a experiência, exibir perfis e publicações, registrar metas e acompanhar a evolução do usuário dentro do Pace.'),
+                _LegalSectionData('03', 'Proteção das senhas', 'A senha utilizada para acessar o Pace deve ser protegida pelo usuário e não deve ser compartilhada com terceiros. O sistema utiliza mecanismos de proteção para evitar o armazenamento da senha de forma diretamente legível.'),
+                _LegalSectionData('04', 'Conteúdo compartilhado', 'Informações publicadas no feed ou em áreas da comunidade poderão ser visualizadas por outros usuários. Evite publicar informações pessoais ou sensíveis que não deseja compartilhar.'),
+                _LegalSectionData('05', 'Armazenamento', 'Os dados são armazenados conforme necessário para possibilitar o funcionamento das funcionalidades oferecidas pelo Pace.'),
+                _LegalSectionData('06', 'Compartilhamento de informações', 'O Pace não possui como finalidade comercializar dados pessoais dos usuários. As informações deverão ser utilizadas dentro das necessidades relacionadas ao funcionamento, desenvolvimento e segurança da plataforma.'),
+                _LegalSectionData('07', 'Direitos do usuário', 'Conforme aplicável, o usuário poderá solicitar acesso, correção ou exclusão das informações relacionadas à sua conta. Esses princípios seguem as diretrizes da Lei Geral de Proteção de Dados Pessoais (LGPD).'),
+                _LegalSectionData('08', 'Segurança', 'São adotadas medidas técnicas compatíveis com o projeto para reduzir riscos de acesso indevido, alteração ou exposição não autorizada das informações armazenadas.'),
+                _LegalSectionData('09', 'Alterações desta política', 'Esta Política de Privacidade poderá ser atualizada caso novas funcionalidades ou novas formas de tratamento de dados sejam adicionadas ao Pace.'),
+              ],
+            ),
           ),
 
           const SizedBox(
@@ -2281,6 +2349,402 @@ class _PasswordRule
 
           Text(
             text,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// TERMOS E PRIVACIDADE
+// ============================================================
+
+class _LegalSectionData {
+  final String numero;
+  final String titulo;
+  final String texto;
+
+  const _LegalSectionData(this.numero, this.titulo, this.texto);
+}
+
+class _LegalConsentRow extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final VoidCallback onTermsTap;
+  final VoidCallback onPrivacyTap;
+
+  const _LegalConsentRow({
+    required this.value,
+    required this.onChanged,
+    required this.onTermsTap,
+    required this.onPrivacyTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => onChanged(!value),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 20,
+              height: 20,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: value ? _CadastroColors.blue : Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: value
+                      ? _CadastroColors.blue
+                      : const Color(0xFFBDC9D8),
+                ),
+              ),
+              child: value
+                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                  : null,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text(
+                'Li e concordo com os ',
+                style: TextStyle(color: Color(0xFF52647A), fontSize: 12.5),
+              ),
+              _LegalTextLink(text: 'Termos de Uso', onTap: onTermsTap),
+              const Text(
+                ' e com a ',
+                style: TextStyle(color: Color(0xFF52647A), fontSize: 12.5),
+              ),
+              _LegalTextLink(
+                text: 'Política de Privacidade',
+                onTap: onPrivacyTap,
+              ),
+              const Text(
+                '. *',
+                style: TextStyle(color: Color(0xFFC84040), fontSize: 12.5),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LegalTextLink extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const _LegalTextLink({required this.text, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: _CadastroColors.blue,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w800,
+            decoration: TextDecoration.underline,
+            decorationColor: _CadastroColors.blue,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LegalDocumentDialog extends StatelessWidget {
+  final String titulo;
+  final String kicker;
+  final IconData icon;
+  final String introTitulo;
+  final String introTexto;
+  final List<_LegalSectionData> secoes;
+
+  const _LegalDocumentDialog({
+    required this.titulo,
+    required this.kicker,
+    required this.icon,
+    required this.introTitulo,
+    required this.introTexto,
+    required this.secoes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final mobile = size.width < 650;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: mobile ? 14 : 32,
+        vertical: mobile ? 18 : 32,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 780,
+          maxHeight: size.height * (mobile ? 0.92 : 0.88),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(mobile ? 24 : 30),
+          child: Material(
+            color: const Color(0xFFF9FBFE),
+            child: Column(
+              children: [
+                _buildHeader(context, mobile),
+                Expanded(
+                  child: Scrollbar(
+                    thumbVisibility: !mobile,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        mobile ? 20 : 34,
+                        22,
+                        mobile ? 20 : 34,
+                        28,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF315CAC).withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: const Color(0xFF315CAC).withOpacity(0.10),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  introTitulo,
+                                  style: const TextStyle(
+                                    color: Color(0xFF102A58),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 7),
+                                Text(
+                                  introTexto,
+                                  style: const TextStyle(
+                                    color: Color(0xFF65758A),
+                                    fontSize: 13,
+                                    height: 1.55,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...secoes.map((secao) => _LegalSection(data: secao)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                _buildFooter(context, mobile),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool mobile) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        mobile ? 20 : 30,
+        mobile ? 20 : 26,
+        mobile ? 14 : 22,
+        mobile ? 18 : 22,
+      ),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF102A58), Color(0xFF315CAC)],
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: mobile ? 44 : 50,
+            height: mobile ? 44 : 50,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.white.withOpacity(0.14)),
+            ),
+            child: Icon(icon, color: const Color(0xFF9CE8EF), size: 25),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  kicker,
+                  style: const TextStyle(
+                    color: Color(0xFF9CE8EF),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  titulo,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: mobile ? 21 : 25,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Última atualização: 01 de setembro de 2026',
+                  style: TextStyle(color: Color(0xFFC9D7EA), fontSize: 10.5),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Fechar',
+            onPressed: () => Navigator.pop(context, false),
+            icon: const Icon(Icons.close_rounded, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context, bool mobile) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: mobile ? 18 : 28,
+        vertical: 16,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: const Color(0xFF102A58).withOpacity(0.08)),
+        ),
+      ),
+      child: Row(
+        children: [
+          if (!mobile)
+            const Expanded(
+              child: Text(
+                'Leia o documento antes de continuar.',
+                style: TextStyle(color: Color(0xFF738298), fontSize: 12),
+              ),
+            )
+          else
+            const Spacer(),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Fechar'),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF315CAC),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: EdgeInsets.symmetric(
+                horizontal: mobile ? 15 : 20,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(13),
+              ),
+            ),
+            icon: const Icon(Icons.check_rounded, size: 18),
+            label: const Text(
+              'Li e concordo',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegalSection extends StatelessWidget {
+  final _LegalSectionData data;
+
+  const _LegalSection({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF315CAC).withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              data.numero,
+              style: const TextStyle(
+                color: Color(0xFF315CAC),
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.titulo,
+                  style: const TextStyle(
+                    color: Color(0xFF15243A),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  data.texto,
+                  style: const TextStyle(
+                    color: Color(0xFF65758A),
+                    fontSize: 12.5,
+                    height: 1.55,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
