@@ -127,6 +127,8 @@
     <None Include="AUDITORIA_FINAL_30_08_2026.md" />
     <None Include="COMECE_AQUI.md" />
     <None Include="COMENTARIOS_GUIA.md" />
+    <None Include="CORRECAO_CROSS_THREAD_RELATORIO.md" />
+    <None Include="CORRECAO_CROSS_THREAD_SUMARIO.md" />
     <None Include="CORRECAO_ESTETICA_COMENTARIOS_RELATORIO.md" />
     <None Include="CORRECOES_FORMULARIOS_RESUMO.md" />
     <None Include="CORRECOES_FORMULARIOS_TECNICO.md" />
@@ -164,7 +166,9 @@
     <None Include="README_FORMPERFIL.md" />
     <None Include="REFACTORING_CONCLUIDO.md" />
     <None Include="REFACTORING_RESUMO.md" />
+    <None Include="RELATORIO_CORRECAO_CROSSTHREAD_FINAL.md" />
     <None Include="RESUMO_EXECUTIVO.md" />
+    <None Include="RESUMO_EXECUTIVO_CROSSTHREAD.md" />
     <None Include="RESUMO_EXECUTIVO_FORMPERFIL.md" />
     <None Include="SOLUCAO_DASHBOARD_IMPLEMENTADA.md" />
     <None Include="STATUS_FINAL.md" />
