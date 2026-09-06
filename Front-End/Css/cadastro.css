@@ -65,7 +65,7 @@ a {
   min-height: 76px;
   padding: 12px var(--page-padding);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(25, 61, 122, 0.92);
+  background: #0A2245;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -135,8 +135,8 @@ a {
 
 .cadastro-page {
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(560px, 1.18fr);
-  min-height: 100svh;
+  grid-template-columns: minmax(0, 0.8fr) minmax(500px, 1.2fr);
+  height: 100svh;
 }
 
 .cadastro-visual {
@@ -148,8 +148,11 @@ a {
   padding: clamp(8rem, 14vh, 10rem) clamp(2rem, 6vw, 6rem) clamp(4rem, 8vh, 6rem);
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 26%, rgba(105, 197, 208, 0.12), transparent 22rem),
-    linear-gradient(138deg, #315cac 0%, #234884 44%, #102a58 73%, #07162f 100%);
+    linear-gradient(135deg,
+        #06152D 0%,
+        #0A2245 55%,
+        #0B3B8F 100%
+    );
 }
 
 .visual-grid {
@@ -168,6 +171,7 @@ a {
   position: absolute;
   z-index: -3;
   border-radius: 50%;
+  display: none;
   pointer-events: none;
 }
 
@@ -205,7 +209,7 @@ a {
   padding: 0.56rem 0.8rem;
   border: 1px solid rgba(156, 232, 239, 0.24);
   border-radius: var(--pace-radius-pill);
-  color: var(--pace-cyan-light);
+  color: white;
   background: rgba(6, 24, 54, 0.28);
   font-size: 0.76rem;
   font-weight: 750;
@@ -217,7 +221,7 @@ a {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--pace-cyan);
+  background: #FFC928;
   box-shadow: 0 0 0 5px rgba(105, 197, 208, 0.11);
 }
 
@@ -232,7 +236,7 @@ a {
 .visual-content h1 strong {
   display: block;
   margin-top: 0.12em;
-  color: var(--pace-cyan-light);
+  color: white;
   font-weight: inherit;
 }
 
@@ -292,7 +296,7 @@ a {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  color: var(--pace-cyan-light);
+  color: #FFC928;
   background: rgba(105, 197, 208, 0.12);
 }
 
@@ -317,8 +321,16 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(7rem, 11vh, 8.5rem) clamp(2rem, 5vw, 5rem) clamp(3rem, 5vh, 4rem);
-  background: linear-gradient(145deg, #f8fbff, #edf3fa);
+  padding:  
+  clamp(5rem, 8vh, 6.5rem)
+  clamp(2rem, 5vw, 5rem)
+  0.5rem;
+  background:linear-gradient(
+
+        145deg,
+        #E5F0FA,
+        #D7E8F7
+  );
 }
 
 .cadastro-panel::before {
@@ -335,7 +347,7 @@ a {
   position: relative;
   z-index: 2;
   width: min(100%, 560px);
-  padding: clamp(2.1rem, 3.5vw, 3rem);
+  padding: clamp(1.8rem, 3vw, 2.5rem);
   border: 1px solid rgba(16, 42, 88, 0.1);
   border-radius: var(--pace-radius-large);
   background: rgba(255, 255, 255, 0.97);
@@ -352,7 +364,7 @@ a {
   left: 2rem;
   height: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, var(--pace-cyan), transparent);
+  background: linear-gradient(90deg, transparent, #1769E8, transparent);
   content: "";
 }
 
@@ -385,7 +397,7 @@ a {
 #cadastroForm {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .form-group {
@@ -535,10 +547,15 @@ a {
 .password-requirements span.is-valid { color: var(--success); }
 
 .password-match {
-  min-height: 18px;
-  color: #7f8da0;
-  font-size: 0.74rem;
-  line-height: 1.35;
+    min-height: 0;
+
+    color: #7f8da0;
+    font-size: 0.74rem;
+    line-height: 1.35;
+}
+
+.password-match:empty {
+    display: none;
 }
 
 .password-match.is-valid { color: var(--success); }
@@ -1058,12 +1075,10 @@ button:focus-visible {
 }
 
 @media (max-width: 1100px) {
-  .cadastro-page { grid-template-columns: minmax(0, 0.72fr) minmax(520px, 1.28fr); }
   .cadastro-visual { padding-right: 3rem; padding-left: 3rem; }
 }
 
 @media (max-width: 900px) {
-  .cadastro-page { grid-template-columns: 1fr; }
   .cadastro-visual { min-height: 500px; padding-top: 8.5rem; padding-bottom: 3.5rem; }
   .visual-content { max-width: 700px; margin: 0 auto; text-align: center; }
   .visual-content h1 { max-width: 12ch; margin-right: auto; margin-left: auto; }

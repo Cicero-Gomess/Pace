@@ -1,49 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="theme-color" content="#07162f">
-
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#E5F0FA">
+  <meta name="color-scheme" content="light dark">
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #E5F0FA;
     }
   </style>
 
-
   <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
-
   <title>Explorar | Pace</title>
-
   <link rel="stylesheet" href="../Css/explorar.css">
-
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
-
-  <!-- SIDEBAR -->
-
   <aside class="sidebar" aria-label="Navegação principal">
 
     <div class="sidebar-brand" aria-label="Pace">
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
         <strong>Pace</strong>
         <span>Evolução contínua</span>
       </div>
+
     </div>
 
     <nav class="sidebar-nav" aria-label="Navegação do Pace">
@@ -55,7 +48,10 @@
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="house" class="icon"></i>
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -64,10 +60,17 @@
 
       </a>
 
-      <a href="explorar.html" class="active" aria-current="page">
+      <a
+        href="explorar.html"
+        class="active"
+        aria-current="page"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="compass" class="icon"></i>
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -79,7 +82,10 @@
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="square-pen" class="icon"></i>
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -95,7 +101,10 @@
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="target" class="icon"></i>
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -107,7 +116,10 @@
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="brain" class="icon"></i>
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -119,7 +131,10 @@
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -132,10 +147,16 @@
 
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="bell" class="icon"></i>
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -147,7 +168,10 @@
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="settings" class="icon"></i>
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
@@ -158,21 +182,39 @@
 
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -182,182 +224,297 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
-
   <main class="conteudo">
 
-    <section class="hero-explorar">
+    <div class="page-shell">
 
-      <div class="hero-copy">
+      <header class="explorar-topbar">
 
-        <span class="badge-explorar">
-          Descubra novas conexões
-        </span>
+        <div class="explorar-title-area">
 
-        <h1>
-          Explore pessoas, ideias e energia
-        </h1>
+          <span class="page-eyebrow">
+            Comunidade
+          </span>
 
-        <p>
-          Encontre perfis inspiradores, tópicos em alta e conteúdos
-          que podem ajudar você a construir uma rotina mais forte
-          dentro do Pace.
-        </p>
+          <h1>
+            Explorar
+          </h1>
 
-      </div>
-
-      <a href="postar.html" class="hero-cta">
-
-        <i data-lucide="sparkles"></i>
-
-        <span>
-          Compartilhar algo
-        </span>
-
-      </a>
-
-    </section>
-
-    <section class="painel-explorar">
-
-      <!-- BUSCA -->
-
-      <div class="busca-shell">
-
-        <div class="busca-box">
-
-          <i data-lucide="search"></i>
-
-          <input type="text" id="searchInput" placeholder="Pesquisar pessoas, hábitos, ideias ou palavras-chave"
-            autocomplete="off">
+          <p>
+            Encontre pessoas, comunidades e conteúdos
+            para continuar evoluindo.
+          </p>
 
         </div>
 
-      </div>
+        <a
+          href="postar.html"
+          class="hero-cta"
+        >
 
-      <!-- DESTAQUES -->
+          <i data-lucide="square-pen"></i>
 
-      <section class="destaque-grid">
-
-        <article class="highlight-card highlight-main">
-
-          <span class="highlight-kicker">
-            Em alta agora
+          <span>
+            Compartilhar algo
           </span>
 
-          <h2>
-            Pequenas rotinas, grandes viradas
-          </h2>
+        </a>
 
-          <p>
-            Descubra pessoas que estão mostrando consistência real
-            e compartilhe sua própria evolução com a comunidade.
-          </p>
+      </header>
 
-          <div class="highlight-meta">
+      <section class="painel-explorar">
 
-            <span>
-              <i data-lucide="flame"></i>
-              Tendências quentes
-            </span>
+        <div
+          class="explore-tabs"
+          role="tablist"
+          aria-label="Tipo de exploração"
+        >
 
-            <span>
-              <i data-lucide="users"></i>
-              Comunidade ativa
-            </span>
+          <button
+            type="button"
+            class="explore-tab active"
+            data-explore-tab="people"
+            role="tab"
+            aria-selected="true"
+          >
+
+            <i data-lucide="users"></i>
+
+            Pessoas
+
+          </button>
+
+          <button
+            type="button"
+            class="explore-tab"
+            data-explore-tab="communities"
+            role="tab"
+            aria-selected="false"
+          >
+
+            <i data-lucide="users-round"></i>
+
+            Comunidades
+
+          </button>
+
+        </div>
+
+        <div class="busca-shell">
+
+          <div class="busca-box">
+
+            <i data-lucide="search"></i>
+
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Pesquisar perfis"
+              autocomplete="off"
+            >
 
           </div>
 
-        </article>
+        </div>
 
-        <article class="highlight-card">
+        <div
+          id="peopleView"
+          class="explore-view"
+        >
 
-          <span class="mini-kicker">
-            Sugestão do dia
-          </span>
+          <section
+            class="destaque-grid"
+            aria-label="Destaques da comunidade"
+          >
 
-          <h3>
-            Encontre parceiros de evolução
-          </h3>
+            <article class="highlight-card highlight-main">
 
-          <p>
-            Perfis com hábitos parecidos com os seus podem
-            acelerar sua constância.
-          </p>
+              <div class="highlight-icon">
+                <i data-lucide="trending-up"></i>
+              </div>
 
-        </article>
+              <span class="highlight-kicker">
+                Em alta agora
+              </span>
 
-        <article class="highlight-card">
+              <h2>
+                Pequenas rotinas, grandes viradas
+              </h2>
 
-          <span class="mini-kicker">
-            Nova energia
-          </span>
+              <p>
+                Descubra pessoas que estão mostrando
+                consistência real e compartilhe sua própria
+                evolução com a comunidade.
+              </p>
 
-          <h3>
-            Conteúdos para sair da inércia
-          </h3>
+              <div class="highlight-meta">
 
-          <p>
-            Veja posts curtos e diretos para colocar você
-            em movimento hoje.
-          </p>
+                <span>
+                  <i data-lucide="flame"></i>
+                  Tendências quentes
+                </span>
 
-        </article>
+                <span>
+                  <i data-lucide="users"></i>
+                  Comunidade ativa
+                </span>
+
+              </div>
+
+            </article>
+
+            <article class="highlight-card">
+
+              <div class="highlight-icon">
+                <i data-lucide="users-round"></i>
+              </div>
+
+              <span class="mini-kicker">
+                Sugestão do dia
+              </span>
+
+              <h3>
+                Encontre parceiros de evolução
+              </h3>
+
+              <p>
+                Perfis com hábitos parecidos com os seus
+                podem acelerar sua constância.
+              </p>
+
+            </article>
+
+            <article class="highlight-card">
+
+              <div class="highlight-icon">
+                <i data-lucide="zap"></i>
+              </div>
+
+              <span class="mini-kicker">
+                Nova energia
+              </span>
+
+              <h3>
+                Conteúdos para sair da inércia
+              </h3>
+
+              <p>
+                Veja posts curtos e diretos para colocar
+                você em movimento hoje.
+              </p>
+
+            </article>
+
+          </section>
+
+          <section class="secao-explorar">
+
+            <div class="secao-topo">
+
+              <div>
+
+                <span class="secao-kicker">
+                  Perfis
+                </span>
+
+                <h2>
+                  Pessoas para acompanhar
+                </h2>
+
+              </div>
+
+            </div>
+
+            <div
+              id="profilesGrid"
+              class="profiles-grid"
+            >
+
+              <div class="empty-state loading-state">
+
+                <i data-lucide="refresh-cw"></i>
+
+                <h3>
+                  Buscando perfis reais
+                </h3>
+
+                <p>
+                  Aguarde um momento enquanto carregamos
+                  os perfis criados na plataforma.
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+        </div>
+
+        <div
+          id="communitiesView"
+          class="explore-view hidden-view"
+        >
+
+          <section class="secao-explorar">
+
+            <div class="secao-topo community-section-top">
+
+              <div>
+
+                <span class="secao-kicker">
+                  Comunidades
+                </span>
+
+                <h2>
+                  Encontre seu espaço
+                </h2>
+
+              </div>
+
+              <button
+                type="button"
+                id="openCreateCommunity"
+                class="community-create-btn"
+              >
+
+                <i data-lucide="plus"></i>
+
+                Criar comunidade
+
+              </button>
+
+            </div>
+
+            <div
+              id="communitiesGrid"
+              class="communities-grid"
+            ></div>
+
+          </section>
+
+        </div>
 
       </section>
 
-      <!-- PERFIS -->
-
-      <section class="secao-explorar">
-
-        <div class="secao-topo">
-
-          <div>
-
-            <span class="secao-kicker">
-              Perfis
-            </span>
-
-            <h2>
-              Pessoas para acompanhar
-            </h2>
-
-          </div>
-
-        </div>
-
-        <div id="profilesGrid" class="profiles-grid">
-
-          <div class="empty-state loading-state">
-
-            <i data-lucide="refresh-cw"></i>
-
-            <h3>
-              Buscando perfis reais
-            </h3>
-
-            <p>
-              Aguarde um momento enquanto carregamos os perfis
-              criados na plataforma.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </section>
+    </div>
 
   </main>
 
-  <!-- MODAL DO PERFIL -->
-
-  <div id="profileModal" class="modal hidden" aria-hidden="true">
+  <div
+    id="profileModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
 
     <div class="modal-panel">
 
-      <button id="closeProfileModal" class="modal-close" type="button" aria-label="Fechar perfil">
+      <button
+        id="closeProfileModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar perfil"
+      >
 
         <i data-lucide="x"></i>
 
@@ -369,8 +526,538 @@
 
   </div>
 
-  <script type="module" src="../JavaScript/explorar.js"></script>
+  <div
+    id="communityModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
+
+    <div class="modal-panel community-create-panel">
+
+      <button
+        id="closeCommunityModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar criação de comunidade"
+      >
+
+        <i data-lucide="x"></i>
+
+      </button>
+
+      <div class="modal-body">
+
+        <div class="community-create-copy">
+
+          <span class="secao-kicker">
+            Nova comunidade
+          </span>
+
+          <h2>
+            Criar comunidade
+          </h2>
+
+          <p>
+            Crie um espaço para pessoas com interesses em comum.
+          </p>
+
+        </div>
+
+        <form
+          id="communityForm"
+          class="community-form"
+        >
+
+          <div class="form-field">
+
+            <label for="communityName">
+              Nome da comunidade
+            </label>
+
+            <input
+              id="communityName"
+              name="nome"
+              type="text"
+              maxlength="50"
+              placeholder="Ex: Clube de Literatura"
+              required
+            >
+
+            <small>
+              Até 50 caracteres.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label for="communityDescription">
+              Descrição
+            </label>
+
+            <textarea
+              id="communityDescription"
+              name="descricao"
+              maxlength="220"
+              placeholder="Conte brevemente sobre o objetivo da comunidade."
+              required
+            ></textarea>
+
+            <small>
+              Até 220 caracteres.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label for="communityTopics">
+              Tópicos
+            </label>
+
+            <input
+              id="communityTopics"
+              name="topicos"
+              type="text"
+              placeholder="Ex: Literatura, Livros, Escrita"
+              required
+            >
+
+            <small>
+              Separe os tópicos por vírgulas. Máximo de 5.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label>
+              Privacidade
+            </label>
+
+            <div class="privacy-options">
+
+              <label class="privacy-option">
+
+                <input
+                  type="radio"
+                  name="privacidade"
+                  value="publica"
+                  checked
+                >
+
+                <span>
+
+                  <strong>
+                    Pública
+                  </strong>
+
+                  <small>
+                    Qualquer pessoa pode encontrar e participar.
+                  </small>
+
+                </span>
+
+              </label>
+
+              <label class="privacy-option">
+
+                <input
+                  type="radio"
+                  name="privacidade"
+                  value="privada"
+                >
+
+                <span>
+
+                  <strong>
+                    Privada
+                  </strong>
+
+                  <small>
+                    A entrada poderá ser controlada futuramente.
+                  </small>
+
+                </span>
+
+              </label>
+
+            </div>
+
+          </div>
+
+          <div
+            id="communityFormError"
+            class="form-error hidden-form-message"
+          ></div>
+
+          <button
+            type="submit"
+            class="community-submit-btn"
+          >
+
+            <i data-lucide="sparkles"></i>
+
+            Criar comunidade
+
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div
+    id="communityDetailsModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
+
+    <div class="modal-panel community-detail-panel">
+
+      <button
+        id="closeCommunityDetails"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar detalhes da comunidade"
+      >
+
+        <i data-lucide="x"></i>
+
+      </button>
+
+      <div
+        id="communityDetailsBody"
+        class="modal-body"
+      ></div>
+
+    </div>
+
+  </div>
+
+  <div
+    id="communityManageModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
+
+    <div class="modal-panel community-manage-panel">
+
+      <button
+        id="closeCommunityManage"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar gerenciamento da comunidade"
+      >
+
+        <i data-lucide="x"></i>
+
+      </button>
+
+      <div class="community-manage-header">
+
+        <span class="secao-kicker">
+          Administração
+        </span>
+
+        <h2>
+          Gerenciar comunidade
+        </h2>
+
+        <p>
+          Edite as informações, gerencie membros
+          e controle este espaço.
+        </p>
+
+      </div>
+
+      <div class="community-manage-layout">
+
+        <form
+          id="communityManageForm"
+          class="community-form community-manage-form"
+        >
+
+          <div class="community-manage-section-title">
+
+            <div>
+
+              <strong>
+                Informações da comunidade
+              </strong>
+
+              <span>
+                Esses dados aparecem para todos no Pace.
+              </span>
+
+            </div>
+
+            <i data-lucide="pencil-line"></i>
+
+          </div>
+
+          <div class="form-field">
+
+            <label for="manageCommunityName">
+              Nome da comunidade
+            </label>
+
+            <input
+              id="manageCommunityName"
+              name="nome"
+              type="text"
+              maxlength="50"
+              required
+            >
+
+            <small>
+              Até 50 caracteres.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label for="manageCommunityDescription">
+              Descrição
+            </label>
+
+            <textarea
+              id="manageCommunityDescription"
+              name="descricao"
+              maxlength="220"
+              required
+            ></textarea>
+
+            <small>
+              Até 220 caracteres.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label for="manageCommunityTopics">
+              Tópicos
+            </label>
+
+            <input
+              id="manageCommunityTopics"
+              name="topicos"
+              type="text"
+              required
+            >
+
+            <small>
+              Separe por vírgulas. Máximo de 5.
+            </small>
+
+          </div>
+
+          <div class="form-field">
+
+            <label>
+              Privacidade
+            </label>
+
+            <div class="privacy-options">
+
+              <label class="privacy-option">
+
+                <input
+                  type="radio"
+                  name="privacidade"
+                  value="publica"
+                >
+
+                <span>
+
+                  <strong>
+                    Pública
+                  </strong>
+
+                  <small>
+                    Qualquer pessoa pode encontrar e participar.
+                  </small>
+
+                </span>
+
+              </label>
+
+              <label class="privacy-option">
+
+                <input
+                  type="radio"
+                  name="privacidade"
+                  value="privada"
+                >
+
+                <span>
+
+                  <strong>
+                    Privada
+                  </strong>
+
+                  <small>
+                    A entrada poderá ter aprovação
+                    quando o backend for implementado.
+                  </small>
+
+                </span>
+
+              </label>
+
+            </div>
+
+          </div>
+
+          <div
+            id="communityManageError"
+            class="form-error hidden-form-message"
+          ></div>
+
+          <button
+            type="submit"
+            class="community-submit-btn"
+          >
+
+            <i data-lucide="save"></i>
+
+            Salvar alterações
+
+          </button>
+
+        </form>
+
+        <div class="community-manage-side">
+
+          <section class="community-manage-box">
+
+            <div class="community-manage-section-title">
+
+              <div>
+
+                <strong>
+                  Membros
+                </strong>
+
+                <span id="communityManageMembersCount">
+                  0 membros
+                </span>
+
+              </div>
+
+              <i data-lucide="users"></i>
+
+            </div>
+
+            <div
+              id="communityManageMembers"
+              class="community-manage-members"
+            ></div>
+
+          </section>
+
+          <section class="community-danger-zone">
+
+            <div>
+
+              <span class="danger-kicker">
+                Zona de perigo
+              </span>
+
+              <h3>
+                Excluir comunidade
+              </h3>
+
+              <p>
+                Esta ação remove a comunidade, seus membros
+                e os vínculos dos posts com ela.
+              </p>
+
+            </div>
+
+            <button
+              id="deleteManagedCommunity"
+              type="button"
+              class="community-danger-btn"
+            >
+
+              <i data-lucide="trash-2"></i>
+
+              Excluir comunidade
+
+            </button>
+
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div
+    id="communityDeleteModal"
+    class="modal hidden"
+    aria-hidden="true"
+  >
+
+    <div class="modal-panel community-delete-panel">
+
+      <div class="community-delete-icon">
+
+        <i data-lucide="triangle-alert"></i>
+
+      </div>
+
+      <h2>
+        Excluir comunidade?
+      </h2>
+
+      <p>
+        Essa ação não poderá ser desfeita.
+        A comunidade deixará de aparecer para todos
+        neste protótipo.
+      </p>
+
+      <div class="community-delete-actions">
+
+        <button
+          id="cancelDeleteCommunity"
+          type="button"
+          class="community-action-btn secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="confirmDeleteCommunity"
+          type="button"
+          class="community-danger-btn"
+        >
+
+          <i data-lucide="trash-2"></i>
+
+          Excluir definitivamente
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script
+    type="module"
+    src="../JavaScript/explorar.js"
+  ></script>
 
 </body>
-
 </html>

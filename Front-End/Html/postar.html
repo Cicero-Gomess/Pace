@@ -3,42 +3,34 @@
 
 <head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="theme-color" content="#07162f">
-
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#E5F0FA">
+  <meta name="color-scheme" content="light dark">
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #E5F0FA;
     }
   </style>
 
-
   <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
-
   <title>Postar | Pace</title>
-
   <link rel="stylesheet" href="../Css/postar.css">
-
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
-
-  <!-- SIDEBAR -->
-
   <aside class="sidebar" aria-label="Navegação principal">
 
     <div class="sidebar-brand" aria-label="Pace">
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
         <strong>Pace</strong>
@@ -53,7 +45,6 @@
       </span>
 
       <a href="feed.html">
-
         <span class="nav-icon-wrap">
           <i data-lucide="house" class="icon"></i>
         </span>
@@ -61,11 +52,9 @@
         <span class="text">
           Feed
         </span>
-
       </a>
 
       <a href="explorar.html">
-
         <span class="nav-icon-wrap">
           <i data-lucide="compass" class="icon"></i>
         </span>
@@ -73,11 +62,13 @@
         <span class="text">
           Explorar
         </span>
-
       </a>
 
-      <a href="postar.html" class="active" aria-current="page">
-
+      <a
+        href="postar.html"
+        class="active"
+        aria-current="page"
+      >
         <span class="nav-icon-wrap">
           <i data-lucide="square-pen" class="icon"></i>
         </span>
@@ -85,7 +76,6 @@
         <span class="text">
           Postar
         </span>
-
       </a>
 
       <span class="nav-section-label nav-section-space">
@@ -93,7 +83,6 @@
       </span>
 
       <a href="metas.html">
-
         <span class="nav-icon-wrap">
           <i data-lucide="target" class="icon"></i>
         </span>
@@ -101,11 +90,9 @@
         <span class="text">
           Metas
         </span>
-
       </a>
 
       <a href="foco.html">
-
         <span class="nav-icon-wrap">
           <i data-lucide="brain" class="icon"></i>
         </span>
@@ -113,27 +100,29 @@
         <span class="text">
           Sala de foco
         </span>
-
       </a>
 
       <a href="evolucao.html">
-
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
         </span>
 
         <span class="text">
           Evolução
         </span>
-
       </a>
 
     </nav>
 
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
-
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
         <span class="nav-icon-wrap">
           <i data-lucide="bell" class="icon"></i>
         </span>
@@ -141,11 +130,9 @@
         <span class="text">
           Notificações
         </span>
-
       </a>
 
       <a href="configurações.html">
-
         <span class="nav-icon-wrap">
           <i data-lucide="settings" class="icon"></i>
         </span>
@@ -153,26 +140,39 @@
         <span class="text">
           Configurações
         </span>
-
       </a>
 
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
-
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
-
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
           </span>
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -182,191 +182,319 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
-
   <main class="conteudo">
 
-    <section class="hero-postar">
+    <div class="page-shell">
 
-      <div class="hero-copy">
+      <header class="postar-topbar">
 
-        <span class="badge-postar">
-          Compartilhe sua jornada
-        </span>
+        <div class="postar-title-area">
 
-        <h1>
-          Crie algo que mova sua rotina
-        </h1>
+          <span class="page-eyebrow">
+            Comunidade
+          </span>
 
-        <p>
-          Mostre progresso, registre aprendizados ou publique algo
-          que possa inspirar outras pessoas dentro do Pace.
-          Quanto mais real, melhor.
-        </p>
+          <h1>
+            Postar
+          </h1>
 
-      </div>
+          <p>
+            Compartilhe progresso, aprendizados e momentos
+            da sua jornada com outras pessoas no Pace.
+          </p>
 
-      <div class="hero-tip">
+        </div>
 
-        <i data-lucide="sparkles"></i>
+        <div class="topbar-status">
 
-        <span>
-          Postagens autênticas geram mais conexão.
-        </span>
+          <span class="status-icon">
+            <i data-lucide="sparkles"></i>
+          </span>
 
-      </div>
+          <div>
+            <strong>
+              Compartilhe algo real
+            </strong>
 
-    </section>
+            <small>
+              O que você viveu hoje já pode inspirar alguém.
+            </small>
+          </div>
 
-    <section class="composer-shell">
+        </div>
 
-      <div class="card-postar">
+      </header>
 
-        <div class="card-topo">
+      <section class="composer-shell">
 
-          <div class="card-titulo">
+        <div class="card-postar">
 
-            <span class="card-kicker">
-              Novo post
-            </span>
+          <div class="card-topo">
 
-            <h2>
-              Criar publicação
-            </h2>
+            <div class="card-titulo">
+
+              <span class="card-kicker">
+                Novo post
+              </span>
+
+              <h2>
+                Criar publicação
+              </h2>
+
+            </div>
+
+            <div class="perfil-mini">
+
+              <img
+                id="fotoPerfil"
+                class="foto-perfil autor-avatar"
+                src="../Images/avatar-placeholder.svg"
+                alt="Foto do perfil"
+              >
+
+              <div>
+
+                <strong id="nomeAutor">
+                  Usuário
+                </strong>
+
+                <span>
+                  Compartilhando agora
+                </span>
+
+              </div>
+
+            </div>
 
           </div>
 
-          <div class="perfil-mini">
+          <!-- DESTINO DA PUBLICAÇÃO -->
 
-            <img id="fotoPerfil" class="foto-perfil autor-avatar" src="../Images/avatar-placeholder.svg"
-              alt="Foto do perfil">
+          <section
+            class="community-section"
+            aria-labelledby="communitySectionTitle"
+          >
 
-            <div>
+            <div class="community-section-copy">
 
-              <strong id="nomeAutor">
-                Usuário
-              </strong>
+              <span class="community-icon">
+                <i data-lucide="users-round"></i>
+              </span>
+
+              <div>
+                <strong id="communitySectionTitle">
+                  Onde você quer publicar?
+                </strong>
+
+                <small>
+                  Escolha o feed geral ou uma comunidade.
+                </small>
+              </div>
+
+            </div>
+
+            <div
+              id="communityOptions"
+              class="community-options"
+              role="radiogroup"
+              aria-label="Destino da publicação"
+            >
+
+              <label class="community-option">
+                <input
+                  type="radio"
+                  name="comunidadePost"
+                  value=""
+                  checked
+                >
+                <span>Feed geral</span>
+              </label>
+
+            </div>
+
+            <div
+              id="communityEmptyState"
+              class="community-empty-state hidden"
+            >
+              <i data-lucide="users-round"></i>
 
               <span>
-                Compartilhando agora
+                Você ainda não participa de nenhuma comunidade.
+                <a href="explorar.html">Explorar comunidades</a>
+              </span>
+            </div>
+
+          </section>
+
+          <!-- SUGESTÕES -->
+
+          <div class="inspira-area">
+
+            <span class="inspira-label">
+              Precisa de uma ideia?
+            </span>
+
+            <div class="inspira-row">
+
+              <button
+                type="button"
+                class="inspira-chip"
+                data-texto="Hoje avancei um pouco mais naquilo que quero construir."
+              >
+                Progresso
+              </button>
+
+              <button
+                type="button"
+                class="inspira-chip"
+                data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã."
+              >
+                Aprendizado
+              </button>
+
+              <button
+                type="button"
+                class="inspira-chip"
+                data-texto="O que estou tentando melhorar na minha rotina essa semana."
+              >
+                Rotina
+              </button>
+
+              <button
+                type="button"
+                class="inspira-chip"
+                data-texto="Algo simples que me ajudou a manter consistência hoje."
+              >
+                Consistência
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- TEXTO -->
+
+          <div class="campo-area">
+
+            <label
+              for="textoPost"
+              class="campo-label"
+            >
+              Conte para a comunidade o que está acontecendo
+            </label>
+
+            <textarea
+              id="textoPost"
+              maxlength="2000"
+              placeholder="O que você está pensando?"
+            ></textarea>
+
+            <div
+              class="contador"
+              id="contador"
+            >
+              0/2000
+            </div>
+
+          </div>
+
+          <!-- IMAGEM -->
+
+          <div class="actions-row">
+
+            <label
+              for="imagemPost"
+              class="btn-imagem"
+            >
+
+              <i data-lucide="image-plus"></i>
+
+              <span>
+                Adicionar imagem
+              </span>
+
+            </label>
+
+            <input
+              type="file"
+              id="imagemPost"
+              accept="image/*"
+              hidden
+            >
+
+            <div class="support-copy">
+
+              <i data-lucide="info"></i>
+
+              <span>
+                Você pode postar só texto ou texto com imagem.
               </span>
 
             </div>
 
           </div>
 
-        </div>
+          <!-- PRÉVIA -->
 
-        <!-- SUGESTÕES -->
+          <div
+            id="previewImagem"
+            class="preview-imagem hidden"
+          >
 
-        <div class="inspira-row">
+            <img
+              id="imgPreview"
+              src=""
+              alt="Prévia da imagem"
+            >
 
-          <button type="button" class="inspira-chip"
-            data-texto="Hoje avancei um pouco mais naquilo que quero construir.">
-            Progresso
-          </button>
+            <div class="preview-info">
 
-          <button type="button" class="inspira-chip" data-texto="Uma coisa que aprendi hoje e quero lembrar amanhã.">
-            Aprendizado
-          </button>
+              <strong>
+                Imagem pronta
+              </strong>
 
-          <button type="button" class="inspira-chip"
-            data-texto="O que estou tentando melhorar na minha rotina essa semana.">
-            Rotina
-          </button>
+              <span id="nomeImagem"></span>
 
-          <button type="button" class="inspira-chip"
-            data-texto="Algo simples que me ajudou a manter consistência hoje.">
-            Consistência
-          </button>
+            </div>
 
-        </div>
+            <button
+              id="removerImagem"
+              type="button"
+              aria-label="Remover imagem"
+            >
+              <i data-lucide="x"></i>
+            </button>
 
-        <!-- TEXTO -->
-
-        <div class="campo-area">
-
-          <label for="textoPost" class="campo-label">
-            Conte para a comunidade o que está acontecendo
-          </label>
-
-          <textarea id="textoPost" maxlength="2000" placeholder="O que você está pensando?"></textarea>
-
-          <div class="contador" id="contador">
-            0/2000
           </div>
 
-        </div>
+          <!-- PUBLICAR -->
 
-        <!-- IMAGEM -->
+          <button
+            id="btnPostar"
+            class="btn-postar"
+            type="button"
+          >
 
-        <div class="actions-row">
-
-          <label for="imagemPost" class="btn-imagem">
-
-            <i data-lucide="image-plus"></i>
+            <i data-lucide="send"></i>
 
             <span>
-              Adicionar imagem
+              Publicar agora
             </span>
 
-          </label>
-
-          <input type="file" id="imagemPost" accept="image/*" hidden>
-
-          <div class="support-copy">
-
-            <i data-lucide="info"></i>
-
-            <span>
-              Você pode postar só texto ou texto com imagem.
-            </span>
-
-          </div>
-
-        </div>
-
-        <!-- PRÉVIA -->
-
-        <div id="previewImagem" class="preview-imagem hidden">
-
-          <img id="imgPreview" src="" alt="Prévia da imagem">
-
-          <div class="preview-info">
-
-            <strong>
-              Imagem pronta
-            </strong>
-
-            <span id="nomeImagem"></span>
-
-          </div>
-
-          <button id="removerImagem" type="button" aria-label="Remover imagem">
-            <i data-lucide="x"></i>
           </button>
 
         </div>
 
-        <!-- PUBLICAR -->
+      </section>
 
-        <button id="btnPostar" class="btn-postar" type="button">
-
-          <i data-lucide="send"></i>
-
-          <span>
-            Publicar agora
-          </span>
-
-        </button>
-
-      </div>
-
-    </section>
+    </div>
 
   </main>
 
-  <script type="module" src="../JavaScript/postar.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/postar.js"
+  ></script>
 
 </body>
 

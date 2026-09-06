@@ -93,5 +93,5 @@ export function setFormMessage(element, texto, tipo = "erro") {
 
   element.innerText = texto;
   element.style.color =
-    tipo === "sucesso" ? "green" : tipo === "info" ? "#555" : "red";
+    tipo === "sucesso" ? "#1769E8" : tipo === "info" ? "#555" : "red";
 }

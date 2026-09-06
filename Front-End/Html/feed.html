@@ -2,255 +2,948 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="color-scheme" content="dark">
-
-  <style>
-    html,
-    body {
-      margin: 0;
-      background: #07162f;
-    }
-  </style>
-
-
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Feed | Pace</title>
 
-  <link rel="stylesheet" href="../Css/feed.css">
+  <link
+    rel="stylesheet"
+    href="../Css/feed.css"
+  >
+
   <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
-<body>
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
-  <aside class="sidebar" aria-label="Navegação principal">
-    <div class="sidebar-brand" aria-label="Pace">
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+<body>
+
+
+  <!-- =========================================
+       SIDEBAR
+  ========================================== -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
+
       <div class="brand-copy">
-        <strong>Pace</strong>
-        <span>Evolução contínua</span>
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
       </div>
+
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
-      <span class="nav-section-label">Comunidade</span>
 
-      <a href="feed.html" class="active" aria-current="page">
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
+
+
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+
+      <a
+        href="feed.html"
+        class="active"
+        aria-current="page"
+      >
+
         <span class="nav-icon-wrap">
-          <i data-lucide="house" class="icon"></i>
+
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Feed</span>
+
+        <span class="text">
+          Feed
+        </span>
+
       </a>
+
 
       <a href="explorar.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="compass" class="icon"></i>
+
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Explorar</span>
+
+        <span class="text">
+          Explorar
+        </span>
+
       </a>
+
 
       <a href="postar.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="square-pen" class="icon"></i>
+
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Postar</span>
+
+        <span class="text">
+          Postar
+        </span>
+
       </a>
 
-      <span class="nav-section-label nav-section-space">Desenvolvimento</span>
+
+      <span
+        class="
+          nav-section-label
+          nav-section-space
+        "
+      >
+        Desenvolvimento
+      </span>
+
 
       <a href="metas.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="target" class="icon"></i>
+
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Metas</span>
+
+        <span class="text">
+          Metas
+        </span>
+
       </a>
+
 
       <a href="foco.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="brain" class="icon"></i>
+
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Sala de foco</span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
       </a>
+
 
       <a href="evolucao.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Evolução</span>
+
+        <span class="text">
+          Evolução
+        </span>
+
       </a>
+
+
     </nav>
 
+
     <div class="sidebar-footer">
-      <a href="#" aria-label="Notificações">
+
+
+      <a
+        href="#"
+        aria-label="Notificações"
+      >
+
         <span class="nav-icon-wrap">
-          <i data-lucide="bell" class="icon"></i>
+
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Notificações</span>
+
+        <span class="text">
+          Notificações
+        </span>
+
       </a>
+
 
       <a href="configurações.html">
+
         <span class="nav-icon-wrap">
-          <i data-lucide="settings" class="icon"></i>
+
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+
         </span>
-        <span class="text">Configurações</span>
+
+        <span class="text">
+          Configurações
+        </span>
+
       </a>
 
+
       <div class="sidebar-profile">
-        <a href="perfil.html" class="perfil">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
           <span class="profile-ring">
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
           </span>
+
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
         </a>
+
       </div>
+
+
     </div>
+
   </aside>
 
+
+  <!-- =========================================
+       CONTEÚDO
+  ========================================== -->
+
   <main class="conteudo">
+
     <div class="page-shell">
-      <section class="hero-feed">
-        <div class="hero-copy">
-          <span class="badge-feed">
-            <span class="badge-dot" aria-hidden="true"></span>
-            Comunidade em movimento
+
+
+      <!-- CABEÇALHO -->
+
+      <section class="feed-topbar">
+
+
+        <div class="feed-title-area">
+
+          <span class="page-eyebrow">
+            Comunidade
           </span>
 
-          <h1>Seu feed no Pace</h1>
+          <h1>
+            Feed
+          </h1>
 
-          <p>
-            Acompanhe o que a comunidade está construindo, compartilhe progresso
-            e mantenha sua rotina cercada de pessoas que também estão evoluindo.
-          </p>
         </div>
 
-        <a href="postar.html" class="hero-cta">
-          <i data-lucide="square-pen"></i>
-          <span>Criar post</span>
+
+        <a
+          href="postar.html"
+          class="hero-cta"
+        >
+
+          <i data-lucide="plus"></i>
+
+          <span>
+            Criar post
+          </span>
+
         </a>
+
+
       </section>
 
-      <section class="feed-shell">
-        <div class="feed-header">
-          <div>
-            <span class="feed-kicker">Atualizações</span>
-            <h2>Posts recentes</h2>
+
+      <!-- =====================================
+           FILTROS PRINCIPAIS
+      ====================================== -->
+
+      <section
+        class="feed-filters"
+        aria-label="Filtros do feed"
+      >
+
+
+        <div class="main-filter-row">
+
+
+          <button
+            type="button"
+            class="feed-filter active"
+            data-feed-filter="general"
+          >
+
+            <i data-lucide="sparkles"></i>
+
+            <span>
+              Feed geral
+            </span>
+
+          </button>
+
+
+          <button
+            type="button"
+            class="feed-filter"
+            data-feed-filter="following"
+          >
+
+            <i data-lucide="users"></i>
+
+            <span>
+              Seguindo
+            </span>
+
+          </button>
+
+
+          <button
+            type="button"
+            class="feed-filter"
+            data-feed-filter="communities"
+          >
+
+            <i data-lucide="messages-square"></i>
+
+            <span>
+              Comunidades
+            </span>
+
+          </button>
+
+
+        </div>
+
+
+        <!--
+          As comunidades reais das quais o usuário
+          participa serão inseridas pelo feed.js.
+        -->
+
+        <div
+          id="communityFilters"
+          class="community-filter-row hidden"
+          aria-label="Minhas comunidades"
+        ></div>
+
+
+      </section>
+
+
+      <!-- =====================================
+           FEED + PROGRESSO
+      ====================================== -->
+
+      <div class="feed-layout">
+
+
+        <!-- FEED -->
+
+        <section class="feed-shell">
+
+
+          <div class="feed-header">
+
+
+            <div>
+
+              <span class="feed-kicker">
+                Atualizações
+              </span>
+
+              <h2>
+                Posts recentes
+              </h2>
+
+            </div>
+
+
+            <span class="feed-status">
+
+              <span aria-hidden="true"></span>
+
+              Atualizado agora
+
+            </span>
+
+
           </div>
 
-          <span class="feed-status">
-            <span aria-hidden="true"></span>
-            Atualizado agora
-          </span>
-        </div>
 
-        <div id="feed"></div>
-      </section>
+          <!-- Posts renderizados pelo JS -->
+
+          <div id="feed"></div>
+
+
+          <!--
+            Sentinela do carregamento progressivo.
+            A cada aproximação são liberados
+            mais 10 posts.
+          -->
+
+          <div
+            id="feedLoadMore"
+            class="feed-load-more"
+            aria-hidden="true"
+          ></div>
+
+
+        </section>
+
+
+        <!-- =================================
+             PAINEL DE PROGRESSO
+        ================================== -->
+
+        <aside
+          class="progress-panel"
+          aria-labelledby="progressPanelTitle"
+        >
+
+
+          <div class="progress-panel-head">
+
+            <span class="progress-eyebrow">
+
+              <i data-lucide="sparkles"></i>
+
+              Seu ritmo
+
+            </span>
+
+
+            <h2 id="progressPanelTitle">
+              Seu progresso
+            </h2>
+
+
+            <p>
+              Pequenos passos também contam.
+            </p>
+
+          </div>
+
+
+          <div class="progress-metrics">
+
+
+            <!-- SEQUÊNCIA -->
+
+            <article
+              class="
+                progress-metric
+                progress-metric-gold
+              "
+            >
+
+              <span class="progress-icon">
+
+                <i data-lucide="flame"></i>
+
+              </span>
+
+
+              <div>
+
+                <small>
+                  Sequência
+                </small>
+
+
+                <strong id="progressStreak">
+                  --
+                </strong>
+
+
+                <span id="progressStreakLabel">
+                  Carregando...
+                </span>
+
+              </div>
+
+            </article>
+
+
+            <!-- FOCO -->
+
+            <article class="progress-metric">
+
+              <span class="progress-icon">
+
+                <i data-lucide="timer"></i>
+
+              </span>
+
+
+              <div>
+
+                <small>
+                  Foco hoje
+                </small>
+
+
+                <strong id="progressFocusToday">
+                  --
+                </strong>
+
+
+                <span>
+                  Tempo dedicado hoje
+                </span>
+
+              </div>
+
+            </article>
+
+
+          </div>
+
+
+          <!-- META -->
+
+          <div class="progress-goal">
+
+
+            <div class="progress-goal-head">
+
+              <span>
+
+                <i data-lucide="target"></i>
+
+                Meta em destaque
+
+              </span>
+
+
+              <span
+                id="progressGoalStatus"
+                class="progress-goal-status"
+              >
+                Carregando
+              </span>
+
+            </div>
+
+
+            <strong id="progressGoalTitle">
+              Buscando suas metas...
+            </strong>
+
+
+            <p id="progressGoalDescription">
+              O Pace está preparando seu resumo.
+            </p>
+
+
+          </div>
+
+
+          <a
+            href="evolucao.html"
+            class="progress-link"
+          >
+
+            <span>
+              Ver minha evolução
+            </span>
+
+            <i data-lucide="arrow-up-right"></i>
+
+          </a>
+
+
+        </aside>
+
+
+      </div>
+
+
     </div>
+
   </main>
 
-  <div id="confirmDeleteModal" class="modal-overlay hidden">
+
+  <!-- =========================================
+       MODAL EXCLUIR POST
+  ========================================== -->
+
+  <div
+    id="confirmDeleteModal"
+    class="modal-overlay hidden"
+  >
+
     <div class="confirm-modal">
+
+
       <div class="modal-header">
-        <span class="modal-icon-wrap danger">
-          <i data-lucide="alert-circle" class="modal-icon"></i>
+
+
+        <span class="modal-icon">
+
+          <i data-lucide="trash-2"></i>
+
         </span>
 
+
         <div>
-          <h2>Excluir post</h2>
-          <p>Tem certeza que deseja excluir este post?</p>
+
+          <h3>
+            Excluir publicação?
+          </h3>
+
+          <p>
+            Essa ação não poderá ser desfeita.
+          </p>
+
         </div>
+
+
       </div>
+
 
       <div class="modal-actions">
-        <button id="cancelDelete" class="btn-secondary">Cancelar</button>
-        <button id="confirmDelete" class="btn-danger">Excluir</button>
+
+
+        <button
+          id="cancelDeleteBtn"
+          class="btn-modal cancel"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          id="confirmDeleteBtn"
+          class="btn-modal danger"
+          type="button"
+        >
+          Excluir
+        </button>
+
+
       </div>
+
+
     </div>
+
   </div>
 
-  <div id="confirmDeleteCommentModal" class="modal-overlay hidden">
-    <div class="confirm-modal">
+
+  <!-- =========================================
+       MODAL EDITAR POST
+  ========================================== -->
+
+  <div
+    id="editPostModal"
+    class="modal-overlay hidden"
+  >
+
+    <div class="edit-modal">
+
+
       <div class="modal-header">
-        <span class="modal-icon-wrap danger">
-          <i data-lucide="message-circle-warning" class="modal-icon"></i>
+
+
+        <span class="modal-icon">
+
+          <i data-lucide="pencil"></i>
+
         </span>
 
+
         <div>
-          <h2>Excluir comentário</h2>
-          <p>Tem certeza que deseja excluir este comentário?</p>
+
+          <h3>
+            Editar publicação
+          </h3>
+
+          <p>
+            Atualize o conteúdo do seu post.
+          </p>
+
         </div>
+
+
       </div>
+
+
+      <textarea
+        id="editPostText"
+        maxlength="2000"
+        placeholder="Edite sua publicação..."
+      ></textarea>
+
 
       <div class="modal-actions">
-        <button id="cancelDeleteComment" class="btn-secondary">Cancelar</button>
-        <button id="confirmDeleteComment" class="btn-danger">Excluir</button>
+
+
+        <button
+          id="cancelEditBtn"
+          class="btn-modal cancel"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          id="saveEditBtn"
+          class="btn-modal primary"
+          type="button"
+        >
+          Salvar
+        </button>
+
+
       </div>
+
+
     </div>
+
   </div>
 
-  <div id="modalEditarPost" class="edit-modal hidden">
-    <div class="edit-modal-card">
-      <button id="fecharEditarPost" class="edit-close" aria-label="Fechar">
-        <i data-lucide="x"></i>
-      </button>
 
-      <div class="edit-head">
-        <span class="edit-kicker">Editor de post</span>
-        <h3>Refinar publicação</h3>
-        <p>Atualize sua legenda com mais clareza antes de salvar.</p>
-      </div>
+  <!-- =========================================
+       MODAL EXCLUIR COMENTÁRIO
+  ========================================== -->
 
-      <div class="edit-body">
-        <label for="editPostTexto">Texto do post</label>
-        <textarea id="editPostTexto" placeholder="Digite aqui..."></textarea>
-      </div>
+  <div
+    id="confirmDeleteCommentModal"
+    class="modal-overlay hidden"
+  >
 
-      <div class="edit-actions">
-        <button id="cancelarEditarPost" class="btn-ghost">Cancelar</button>
-        <button id="salvarEditarPost" class="btn-primary">Salvar alterações</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="editCommentModal" class="modal-overlay hidden">
     <div class="confirm-modal">
+
+
       <div class="modal-header">
-        <span class="modal-icon-wrap">
-          <i data-lucide="pencil-line" class="modal-icon"></i>
+
+
+        <span class="modal-icon">
+
+          <i data-lucide="message-square-x"></i>
+
         </span>
 
+
         <div>
-          <h2>Editar comentário</h2>
-          <p>Altere seu comentário</p>
+
+          <h3>
+            Excluir comentário?
+          </h3>
+
+          <p>
+            Essa ação não poderá ser desfeita.
+          </p>
+
         </div>
+
+
       </div>
 
-      <div class="modal-body">
-        <textarea id="editCommentInput" placeholder="Digite o novo comentário..."></textarea>
-      </div>
 
       <div class="modal-actions">
-        <button id="cancelEditComment" class="btn-secondary">Cancelar</button>
-        <button id="confirmEditComment" class="btn-primary">Salvar</button>
+
+
+        <button
+          id="cancelDeleteCommentBtn"
+          class="btn-modal cancel"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          id="confirmDeleteCommentBtn"
+          class="btn-modal danger"
+          type="button"
+        >
+          Excluir
+        </button>
+
+
       </div>
+
+
     </div>
+
   </div>
 
-  <script type="module" src="../JavaScript/feed.js"></script>
+
+  <!-- =========================================
+       MODAL EDITAR COMENTÁRIO
+  ========================================== -->
+
+  <div
+    id="editCommentModal"
+    class="modal-overlay hidden"
+  >
+
+    <div class="edit-modal">
+
+
+      <div class="modal-header">
+
+
+        <span class="modal-icon">
+
+          <i data-lucide="message-square-pen"></i>
+
+        </span>
+
+
+        <div>
+
+          <h3>
+            Editar comentário
+          </h3>
+
+          <p>
+            Atualize o conteúdo do comentário.
+          </p>
+
+        </div>
+
+
+      </div>
+
+
+      <textarea
+        id="editCommentText"
+        maxlength="1000"
+        placeholder="Edite seu comentário..."
+      ></textarea>
+
+
+      <div class="modal-actions">
+
+
+        <button
+          id="cancelEditCommentBtn"
+          class="btn-modal cancel"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          id="saveEditCommentBtn"
+          class="btn-modal primary"
+          type="button"
+        >
+          Salvar
+        </button>
+
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+  <!-- TOAST -->
+
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+
+  <script
+    type="module"
+    src="../JavaScript/feed.js"
+  ></script>
+
+
 </body>
 
 </html>
