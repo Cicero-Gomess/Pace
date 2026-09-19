@@ -2,63 +2,155 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#EAF3FB"
+  >
 
-  <meta name="color-scheme" content="dark">
+  <meta
+    name="color-scheme"
+    content="light dark"
+  >
+
+  <script>
+    (() => {
+      const tema =
+        localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#EAF3FB";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#EAF3FB"
+        );
+      }
+    })();
+  </script>
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #EAF3FB;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
     }
   </style>
 
-
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Meu Perfil | Pace</title>
 
-  <link rel="stylesheet" href="../Css/perfil.css">
+  <link
+    rel="stylesheet"
+    href="../Css/perfil.css"
+  >
 
   <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body>
 
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
 
-  <!-- SIDEBAR -->
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
 
-  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div class="sidebar-brand" aria-label="Pace">
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
 
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
-        <strong>Pace</strong>
-        <span>Evolução contínua</span>
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
       </div>
 
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
       <span class="nav-section-label">
         Comunidade
       </span>
 
+
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="house" class="icon"></i>
+
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -67,10 +159,16 @@
 
       </a>
 
+
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="compass" class="icon"></i>
+
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -79,10 +177,16 @@
 
       </a>
 
+
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="square-pen" class="icon"></i>
+
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -91,14 +195,26 @@
 
       </a>
 
-      <span class="nav-section-label nav-section-space">
+
+      <span
+        class="
+          nav-section-label
+          nav-section-space
+        "
+      >
         Desenvolvimento
       </span>
+
 
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="target" class="icon"></i>
+
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -107,10 +223,16 @@
 
       </a>
 
+
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="brain" class="icon"></i>
+
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -119,10 +241,16 @@
 
       </a>
 
+
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -133,12 +261,22 @@
 
     </nav>
 
+
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+
+      <a
+        href="notificacoes.html"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="bell" class="icon"></i>
+
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -147,10 +285,16 @@
 
       </a>
 
+
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="settings" class="icon"></i>
+
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -159,23 +303,45 @@
 
       </a>
 
+
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil active" aria-current="page">
+        <a
+          href="perfil.html"
+          class="perfil active"
+          aria-current="page"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
+
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -185,20 +351,26 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
+
+  <!-- =====================================================
+       CONTEÚDO
+  ====================================================== -->
 
   <main class="conteudo">
 
     <div class="page-shell">
 
-      <!-- HERO -->
 
-      <section class="hero-perfil">
+      <!-- =================================================
+           CABEÇALHO
+      ================================================== -->
 
-        <div class="hero-copy">
+      <header class="page-header">
 
-          <span class="badge-perfil">
-            Seu espaço no Pace
+        <div>
+
+          <span class="page-eyebrow">
+            Comunidade
           </span>
 
           <h1>
@@ -206,172 +378,242 @@
           </h1>
 
           <p>
-            Organize sua identidade, acompanhe sua presença
-            na comunidade e veja tudo o que você já compartilhou.
+            Sua identidade e suas publicações no Pace.
           </p>
 
         </div>
 
-        <div class="hero-status">
+
+        <div class="profile-status">
 
           <i data-lucide="user-round-check"></i>
 
           <span>
-            Seu perfil representa sua jornada dentro da comunidade.
+            Perfil pessoal
           </span>
 
         </div>
 
-      </section>
+      </header>
 
-      <!-- CARD PRINCIPAL -->
+
+      <!-- =================================================
+           PERFIL PRINCIPAL
+      ================================================== -->
 
       <section class="profile-card">
 
-        <!-- FOTO -->
 
-        <div class="profile-left">
+        <!-- CAPA -->
 
-          <div class="foto-ring">
+        <div class="profile-cover">
 
-            <img id="fotoPerfil" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil">
+          <span class="cover-label">
 
-          </div>
+            <i data-lucide="sparkles"></i>
 
-          <label for="inputFoto" class="btn-trocar">
+            Seu espaço no Pace
 
-            <i data-lucide="camera"></i>
-
-            <span>
-              Trocar foto
-            </span>
-
-          </label>
-
-          <input type="file" id="inputFoto" accept="image/*" hidden>
+          </span>
 
         </div>
 
-        <!-- INFORMAÇÕES -->
 
-        <div class="profile-main">
+        <!-- CORPO -->
 
-          <div class="profile-identity">
+        <div class="profile-body">
 
-            <div>
 
-              <h2 id="nomeUsuario"></h2>
+          <!-- FOTO -->
 
-              <p id="emailUsuario"></p>
+          <div class="profile-photo-column">
 
-            </div>
+            <div class="foto-ring">
 
-            <span class="profile-chip">
-
-              <i data-lucide="sparkles"></i>
-
-              Em evolução
-
-            </span>
-
-          </div>
-
-          <!-- ESTATÍSTICAS -->
-
-          <div class="perfil-stats">
-
-            <article class="stat-card">
-
-              <span class="stat-icon">
-                <i data-lucide="layout-grid"></i>
-              </span>
-
-              <div class="stat-copy">
-
-                <strong id="totalPosts">
-                  0
-                </strong>
-
-                <span>
-                  Posts
-                </span>
-
-              </div>
-
-            </article>
-
-            <article class="stat-card">
-
-              <span class="stat-icon">
-                <i data-lucide="users"></i>
-              </span>
-
-              <div class="stat-copy">
-
-                <strong id="totalSeguidores">
-                  0
-                </strong>
-
-                <span>
-                  Seguidores
-                </span>
-
-              </div>
-
-            </article>
-
-            <article class="stat-card">
-
-              <span class="stat-icon">
-                <i data-lucide="user-round-plus"></i>
-              </span>
-
-              <div class="stat-copy">
-
-                <strong id="totalSeguindo">
-                  0
-                </strong>
-
-                <span>
-                  Seguindo
-                </span>
-
-              </div>
-
-            </article>
-
-          </div>
-
-          <!-- BIO -->
-
-          <div class="perfil-bio">
-
-            <div class="bio-topo">
-
-              <div class="bio-title">
-
-                <i data-lucide="notebook-pen"></i>
-
-                <h3>
-                  Sobre você
-                </h3>
-
-              </div>
-
-              <button id="salvarBio" class="bio-action" type="button">
-
-                <i data-lucide="save"></i>
-
-                <span>
-                  Salvar bio
-                </span>
-
-              </button>
+              <img
+                id="fotoPerfil"
+                class="foto-perfil"
+                src="../Images/avatar-placeholder.svg"
+                alt="Foto do perfil"
+                onerror="this.src='../Images/Ícone_Pace.png'"
+              >
 
             </div>
 
-            <textarea id="bioUsuario" maxlength="300"
-              placeholder="Escreva algo sobre você, seus objetivos e sua jornada..."></textarea>
+
+            <label
+              for="inputFoto"
+              class="btn-trocar"
+            >
+
+              <i data-lucide="camera"></i>
+
+              <span>
+                Trocar foto
+              </span>
+
+            </label>
+
+
+            <input
+              type="file"
+              id="inputFoto"
+              accept="image/*"
+              hidden
+            >
+
+          </div>
+
+
+          <!-- DADOS -->
+
+          <div class="profile-main">
+
+
+            <div class="profile-identity">
+
+
+              <div>
+
+                <h2 id="nomeUsuario"></h2>
+
+                <p id="emailUsuario"></p>
+
+              </div>
+
+
+              <span class="profile-chip">
+
+                <i data-lucide="sparkles"></i>
+
+                Em evolução
+
+              </span>
+
+            </div>
+
+
+            <!-- ESTATÍSTICAS -->
+
+            <div class="perfil-stats">
+
+
+              <article class="stat-card">
+
+                <span class="stat-icon">
+
+                  <i data-lucide="layout-grid"></i>
+
+                </span>
+
+
+                <div class="stat-copy">
+
+                  <strong id="totalPosts">
+                    0
+                  </strong>
+
+                  <span>
+                    Posts
+                  </span>
+
+                </div>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-icon">
+
+                  <i data-lucide="users"></i>
+
+                </span>
+
+
+                <div class="stat-copy">
+
+                  <strong id="totalSeguidores">
+                    0
+                  </strong>
+
+                  <span>
+                    Seguidores
+                  </span>
+
+                </div>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-icon">
+
+                  <i data-lucide="user-round-plus"></i>
+
+                </span>
+
+
+                <div class="stat-copy">
+
+                  <strong id="totalSeguindo">
+                    0
+                  </strong>
+
+                  <span>
+                    Seguindo
+                  </span>
+
+                </div>
+
+              </article>
+
+            </div>
+
+
+            <!-- BIO -->
+
+            <div class="perfil-bio">
+
+              <div class="bio-topo">
+
+
+                <div class="bio-title">
+
+                  <i data-lucide="notebook-pen"></i>
+
+                  <h3>
+                    Sobre você
+                  </h3>
+
+                </div>
+
+
+                <button
+                  id="salvarBio"
+                  class="bio-action"
+                  type="button"
+                >
+
+                  <i data-lucide="save"></i>
+
+                  <span>
+                    Salvar bio
+                  </span>
+
+                </button>
+
+              </div>
+
+
+              <textarea
+                id="bioUsuario"
+                maxlength="300"
+                placeholder="Escreva algo sobre você..."
+              ></textarea>
+
+            </div>
 
           </div>
 
@@ -379,9 +621,13 @@
 
       </section>
 
-      <!-- CONTEÚDO DO PERFIL -->
+
+      <!-- =================================================
+           CONTEÚDO DO PERFIL
+      ================================================== -->
 
       <section class="profile-content-grid">
+
 
         <!-- GALERIA -->
 
@@ -392,7 +638,7 @@
             <div>
 
               <span class="secao-kicker">
-                Galeria
+                Publicações
               </span>
 
               <h3 class="titulo-secao">
@@ -401,19 +647,22 @@
 
             </div>
 
+
             <span class="section-count">
 
               <i data-lucide="images"></i>
 
-              Publicações
+              Galeria
 
             </span>
 
           </header>
 
+
           <div id="postsImagem"></div>
 
         </article>
+
 
         <!-- POSTS DE TEXTO -->
 
@@ -424,7 +673,7 @@
             <div>
 
               <span class="secao-kicker">
-                Conteúdo
+                Atividade
               </span>
 
               <h3 class="titulo-secao">
@@ -432,6 +681,7 @@
               </h3>
 
             </div>
+
 
             <span class="section-count">
 
@@ -443,6 +693,7 @@
 
           </header>
 
+
           <div id="postsTexto"></div>
 
         </article>
@@ -453,28 +704,46 @@
 
   </main>
 
-  <!-- MODAL DO POST -->
 
-  <div id="modalPost" class="modal hidden">
+  <!-- =====================================================
+       MODAL DO POST
+  ====================================================== -->
+
+  <div
+    id="modalPost"
+    class="modal hidden"
+  >
 
     <div class="modal-content">
 
-      <button id="fecharModal" type="button" aria-label="Fechar modal">
+      <button
+        id="fecharModal"
+        type="button"
+        aria-label="Fechar modal"
+      >
         &times;
       </button>
 
-      <img id="modalImg" alt="Imagem do post">
+
+      <img
+        id="modalImg"
+        alt="Imagem do post"
+      >
+
 
       <p id="modalTexto"></p>
+
 
       <div class="modal-info">
 
         <span>
-          ❤️ <span id="modalLikes"></span>
+          ❤️
+          <span id="modalLikes"></span>
         </span>
 
         <span>
-          💬 <span id="modalComentarios"></span>
+          💬
+          <span id="modalComentarios"></span>
         </span>
 
       </div>
@@ -483,9 +752,17 @@
 
   </div>
 
-  <div id="toast" class="toast hidden"></div>
 
-  <script type="module" src="../JavaScript/perfil.js"></script>
+  <div
+    id="toast"
+    class="toast hidden"
+  ></div>
+
+
+  <script
+    type="module"
+    src="../JavaScript/perfil.js"
+  ></script>
 
 </body>
 

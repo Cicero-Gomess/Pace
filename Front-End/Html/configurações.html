@@ -2,62 +2,155 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#EAF3FB"
+  >
 
-  <meta name="color-scheme" content="dark">
+  <meta
+    name="color-scheme"
+    content="light dark"
+  >
+
+  <script>
+    (() => {
+      const tema =
+        localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#EAF3FB";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#EAF3FB"
+        );
+      }
+    })();
+  </script>
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #EAF3FB;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
     }
   </style>
 
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Configurações | Pace</title>
 
-  <link rel="stylesheet" href="../Css/config.css">
+  <link
+    rel="stylesheet"
+    href="../Css/config.css"
+  >
 
   <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body>
 
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
 
-  <!-- SIDEBAR -->
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
 
-  <aside class="sidebar" aria-label="Navegação principal">
 
-    <div class="sidebar-brand" aria-label="Pace">
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
 
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
-        <strong>Pace</strong>
-        <span>Evolução contínua</span>
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
       </div>
 
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
       <span class="nav-section-label">
         Comunidade
       </span>
 
+
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="house" class="icon"></i>
+
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -66,10 +159,16 @@
 
       </a>
 
+
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="compass" class="icon"></i>
+
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -78,10 +177,16 @@
 
       </a>
 
+
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="square-pen" class="icon"></i>
+
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -90,14 +195,26 @@
 
       </a>
 
-      <span class="nav-section-label nav-section-space">
+
+      <span
+        class="
+          nav-section-label
+          nav-section-space
+        "
+      >
         Desenvolvimento
       </span>
+
 
       <a href="metas.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="target" class="icon"></i>
+
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -106,10 +223,16 @@
 
       </a>
 
+
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="brain" class="icon"></i>
+
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -118,10 +241,16 @@
 
       </a>
 
+
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -132,12 +261,21 @@
 
     </nav>
 
+
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+      <a
+        href="notificacoes.html"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="bell" class="icon"></i>
+
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -146,10 +284,20 @@
 
       </a>
 
-      <a href="configurações.html" class="active" aria-current="page">
+
+      <a
+        href="configurações.html"
+        class="active"
+        aria-current="page"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="settings" class="icon"></i>
+
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -158,23 +306,44 @@
 
       </a>
 
+
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/Ícone_Pace.png" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/Ícone_Pace.png"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
+
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -184,18 +353,26 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
+
+  <!-- =====================================================
+       CONTEÚDO
+  ====================================================== -->
 
   <main class="conteudo">
 
     <div class="page-shell">
 
-      <section class="hero-config">
 
-        <div class="hero-copy">
+      <!-- =================================================
+           CABEÇALHO
+      ================================================== -->
 
-          <span class="badge-config">
-            Personalização
+      <header class="page-header">
+
+        <div>
+
+          <span class="page-eyebrow">
+            Conta
           </span>
 
           <h1>
@@ -203,59 +380,86 @@
           </h1>
 
           <p>
-            Ajuste sua conta, sua aparência e sua sessão
-            para deixar o Pace mais confortável para sua rotina.
+            Gerencie sua conta, aparência e sessão.
           </p>
 
         </div>
 
-        <div class="hero-note">
+
+        <div class="security-chip">
 
           <i data-lucide="shield-check"></i>
 
           <span>
-            Suas preferências ficam organizadas em um único lugar.
+            Conta e preferências
           </span>
 
         </div>
 
-      </section>
+      </header>
 
-      <section class="config-shell">
 
-        <div class="config-layout">
+      <!-- =================================================
+           GRID PRINCIPAL
+      ================================================== -->
 
-          <!-- COLUNA PRINCIPAL -->
+      <section class="config-layout">
 
-          <div class="config-column">
 
-            <article class="config-card senha-card">
+        <!-- =================================================
+             COLUNA PRINCIPAL
+        ================================================== -->
 
-              <div class="card-top">
+        <div class="config-column">
 
-                <div>
 
-                  <span class="card-kicker">
-                    Conta e segurança
-                  </span>
+          <!-- ALTERAÇÃO DE SENHA -->
 
-                  <h2>
-                    Alterar senha
-                  </h2>
+          <article
+            class="
+              config-card
+              featured
+            "
+          >
 
-                  <p class="card-description">
-                    Crie uma nova senha para manter sua conta protegida.
-                  </p>
+            <header class="card-top">
 
-                </div>
+              <div>
 
-                <div class="card-icon">
-                  <i data-lucide="key-round"></i>
-                </div>
+                <span class="card-kicker">
+                  Segurança
+                </span>
+
+                <h2>
+                  Alterar senha
+                </h2>
+
+                <p class="card-description">
+                  Atualize sua senha de acesso à conta.
+                </p>
 
               </div>
 
-              <form id="senhaForm" class="form-senha">
+
+              <span class="card-icon">
+
+                <i data-lucide="key-round"></i>
+
+              </span>
+
+            </header>
+
+
+            <form
+              id="senhaForm"
+              class="form-senha"
+            >
+
+
+              <div class="password-grid">
+
+
+                <!-- SENHA ATUAL -->
 
                 <div class="campo">
 
@@ -263,16 +467,25 @@
                     Senha atual
                   </label>
 
+
                   <div class="input-shell">
 
                     <i data-lucide="lock-keyhole"></i>
 
-                    <input type="password" id="senhaAtual" placeholder="Digite sua senha atual"
-                      autocomplete="current-password" required>
+                    <input
+                      type="password"
+                      id="senhaAtual"
+                      placeholder="Digite sua senha atual"
+                      autocomplete="current-password"
+                      required
+                    >
 
                   </div>
 
                 </div>
+
+
+                <!-- NOVA SENHA -->
 
                 <div class="campo">
 
@@ -280,16 +493,25 @@
                     Nova senha
                   </label>
 
+
                   <div class="input-shell">
 
                     <i data-lucide="shield-plus"></i>
 
-                    <input type="password" id="novaSenha" placeholder="Digite sua nova senha"
-                      autocomplete="new-password" required>
+                    <input
+                      type="password"
+                      id="novaSenha"
+                      placeholder="Digite sua nova senha"
+                      autocomplete="new-password"
+                      required
+                    >
 
                   </div>
 
                 </div>
+
+
+                <!-- CONFIRMAR SENHA -->
 
                 <div class="campo">
 
@@ -297,34 +519,68 @@
                     Confirmar nova senha
                   </label>
 
+
                   <div class="input-shell">
 
                     <i data-lucide="shield-check"></i>
 
-                    <input type="password" id="confirmarSenha" placeholder="Confirme sua nova senha"
-                      autocomplete="new-password" required>
+                    <input
+                      type="password"
+                      id="confirmarSenha"
+                      placeholder="Confirme sua nova senha"
+                      autocomplete="new-password"
+                      required
+                    >
 
                   </div>
 
                 </div>
 
-                <div class="password-guidance">
+              </div>
 
-                  <span class="guidance-item">
-                    <i data-lucide="check-circle-2"></i>
-                    Use uma senha difícil de adivinhar
-                  </span>
 
-                  <span class="guidance-item">
-                    <i data-lucide="check-circle-2"></i>
-                    Evite reutilizar senhas antigas
-                  </span>
+              <!-- ORIENTAÇÕES -->
 
-                </div>
+              <div class="password-guidance">
 
-                <p id="senhaMensagem" class="mensagem-form hidden"></p>
+                <span class="guidance-item">
 
-                <button type="submit" class="primary-action" id="salvarSenhaBtn">
+                  <i data-lucide="check-circle-2"></i>
+
+                  Use uma senha difícil de adivinhar
+
+                </span>
+
+
+                <span class="guidance-item">
+
+                  <i data-lucide="check-circle-2"></i>
+
+                  Evite reutilizar senhas antigas
+
+                </span>
+
+              </div>
+
+
+              <!-- MENSAGEM DO BACKEND / JS -->
+
+              <div
+                id="senhaMensagem"
+                class="
+                  mensagem-form
+                  hidden
+                "
+              ></div>
+
+
+              <div class="form-actions">
+
+                <button
+                  type="submit"
+                  class="primary-action"
+                  id="salvarSenhaBtn"
+                >
 
                   <i data-lucide="save"></i>
 
@@ -334,136 +590,251 @@
 
                 </button>
 
-              </form>
+              </div>
 
-            </article>
+            </form>
 
-          </div>
+          </article>
 
-          <!-- COLUNA LATERAL -->
 
-          <div class="config-column">
+          <!-- RESUMO VISUAL -->
 
-            <article class="config-card">
+          <article class="config-card">
 
-              <div class="card-top">
+            <header class="card-top">
 
-                <div>
+              <div>
 
-                  <span class="card-kicker">
-                    Aparência
-                  </span>
+                <span class="card-kicker">
+                  Organização
+                </span>
 
-                  <h2>
-                    Visual do app
-                  </h2>
+                <h2>
+                  Sua conta no Pace
+                </h2>
 
-                  <p class="card-description">
-                    Escolha o visual mais confortável para usar o Pace.
-                  </p>
-
-                </div>
-
-                <div class="card-icon">
-                  <i data-lucide="palette"></i>
-                </div>
+                <p class="card-description">
+                  As principais áreas da sua experiência ficam centralizadas aqui.
+                </p>
 
               </div>
 
-              <div class="setting-list">
 
-                <div class="setting-item">
+              <span class="card-icon">
 
-                  <div class="setting-copy">
+                <i data-lucide="layout-grid"></i>
 
-                    <span class="setting-icon">
-                      <i data-lucide="moon-star"></i>
-                    </span>
+              </span>
 
-                    <div>
+            </header>
 
-                      <strong>
-                        Modo escuro
-                      </strong>
 
-                      <p>
-                        Reduza a luminosidade da interface em ambientes
-                        com pouca luz.
-                      </p>
+            <div class="account-summary">
 
-                    </div>
+
+              <div class="account-summary-item">
+
+                <small>
+                  Segurança
+                </small>
+
+                <strong>
+                  Senha e acesso
+                </strong>
+
+              </div>
+
+
+              <div class="account-summary-item">
+
+                <small>
+                  Aparência
+                </small>
+
+                <strong>
+                  Tema da interface
+                </strong>
+
+              </div>
+
+
+              <div class="account-summary-item">
+
+                <small>
+                  Sessão
+                </small>
+
+                <strong>
+                  Controle de acesso
+                </strong>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        </div>
+
+
+        <!-- =================================================
+             COLUNA LATERAL
+        ================================================== -->
+
+        <div
+          class="
+            config-column
+            secondary
+          "
+        >
+
+
+          <!-- APARÊNCIA -->
+
+          <article class="config-card">
+
+            <header class="card-top">
+
+              <div>
+
+                <span class="card-kicker">
+                  Aparência
+                </span>
+
+                <h2>
+                  Visual do Pace
+                </h2>
+
+                <p class="card-description">
+                  Escolha como prefere visualizar a interface.
+                </p>
+
+              </div>
+
+
+              <span class="card-icon">
+
+                <i data-lucide="palette"></i>
+
+              </span>
+
+            </header>
+
+
+            <div class="setting-list">
+
+
+              <div class="setting-item">
+
+                <div class="setting-copy">
+
+                  <span class="setting-icon">
+
+                    <i data-lucide="moon-star"></i>
+
+                  </span>
+
+
+                  <div>
+
+                    <strong>
+                      Modo escuro
+                    </strong>
+
+                    <p>
+                      Use uma interface mais escura em ambientes com pouca luz.
+                    </p>
 
                   </div>
 
-                  <label class="switch" aria-label="Ativar modo escuro">
-
-                    <input type="checkbox" id="darkModeToggle">
-
-                    <span class="slider"></span>
-
-                  </label>
-
                 </div>
+
+
+                <label
+                  class="switch"
+                  aria-label="Ativar modo escuro"
+                >
+
+                  <input
+                    type="checkbox"
+                    id="darkModeToggle"
+                  >
+
+                  <span class="slider"></span>
+
+                </label>
 
               </div>
 
-            </article>
+            </div>
 
-            <article class="config-card session-card">
+          </article>
 
-              <div class="card-top">
 
-                <div>
+          <!-- SESSÃO -->
 
-                  <span class="card-kicker">
-                    Sessão
-                  </span>
+          <article class="config-card">
 
-                  <h2>
-                    Acesso à conta
-                  </h2>
+            <header class="card-top">
 
-                  <p class="card-description">
-                    Encerre sua sessão atual com segurança.
-                  </p>
+              <div>
 
-                </div>
+                <span class="card-kicker">
+                  Sessão
+                </span>
 
-                <div class="card-icon">
-                  <i data-lucide="shield-check"></i>
-                </div>
+                <h2>
+                  Acesso à conta
+                </h2>
 
-              </div>
-
-              <div class="session-panel">
-
-                <div class="session-copy">
-
-                  <strong>
-                    Sair do Pace
-                  </strong>
-
-                  <p>
-                    Você precisará entrar novamente para acessar sua conta.
-                  </p>
-
-                </div>
-
-                <button id="logoutBtn" class="danger-action" type="button">
-
-                  <i data-lucide="log-out"></i>
-
-                  <span>
-                    Sair
-                  </span>
-
-                </button>
+                <p class="card-description">
+                  Controle sua sessão atual no Pace.
+                </p>
 
               </div>
 
-            </article>
 
-          </div>
+              <span class="card-icon">
+
+                <i data-lucide="log-in"></i>
+
+              </span>
+
+            </header>
+
+
+            <div class="session-panel">
+
+              <div class="session-copy">
+
+                <strong>
+                  Sair do Pace
+                </strong>
+
+                <p>
+                  Você precisará entrar novamente para acessar sua conta.
+                </p>
+
+              </div>
+
+
+              <button
+                id="logoutBtn"
+                class="danger-action"
+                type="button"
+              >
+
+                <i data-lucide="log-out"></i>
+
+                <span>
+                  Sair
+                </span>
+
+              </button>
+
+            </div>
+
+          </article>
 
         </div>
 
@@ -473,7 +844,11 @@
 
   </main>
 
-  <script type="module" src="../JavaScript/config.js"></script>
+
+  <script
+    type="module"
+    src="../JavaScript/config.js"
+  ></script>
 
 </body>
 

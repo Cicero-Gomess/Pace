@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#06152D">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
+
+  <title>Notificações | Pace</title>
+
+  <link
+    rel="stylesheet"
+    href="../Css/notificacoes.css"
+  >
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+<body>
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
+
+      <div class="brand-copy">
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
+
+      <span class="nav-section-label">
+        Comunidade
+      </span>
+
+
+      <a href="feed.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Feed
+        </span>
+
+      </a>
+
+
+      <a href="explorar.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Explorar
+        </span>
+
+      </a>
+
+
+      <a href="postar.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Postar
+        </span>
+
+      </a>
+
+
+      <span class="nav-section-label nav-section-space">
+        Desenvolvimento
+      </span>
+
+
+      <a href="metas.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Metas
+        </span>
+
+      </a>
+
+
+      <a href="foco.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Sala de foco
+        </span>
+
+      </a>
+
+
+      <a href="evolucao.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Evolução
+        </span>
+
+      </a>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+
+      <a
+        href="notificacoes.html"
+        class="active"
+        aria-current="page"
+      >
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Notificações
+        </span>
+
+      </a>
+
+
+      <a href="configurações.html">
+
+        <span class="nav-icon-wrap">
+
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+
+        </span>
+
+        <span class="text">
+          Configurações
+        </span>
+
+      </a>
+
+
+      <div class="sidebar-profile">
+
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
+
+          <span class="profile-ring">
+
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
+
+          </span>
+
+
+          <span class="profile-copy">
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
+          </span>
+
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
+
+        </a>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTEÚDO
+  ====================================================== -->
+
+  <main class="conteudo">
+
+    <div class="page-shell">
+
+
+      <!-- CABEÇALHO -->
+
+      <header class="page-header">
+
+        <div>
+
+          <span class="page-eyebrow">
+            Atividade
+          </span>
+
+          <h1>
+            Notificações
+          </h1>
+
+          <p>
+            Veja o que aconteceu desde sua última visita.
+          </p>
+
+        </div>
+
+
+        <div class="header-actions">
+
+          <button
+            class="secondary-action"
+            type="button"
+          >
+
+            <i data-lucide="check-check"></i>
+
+            Marcar todas como lidas
+
+          </button>
+
+
+          <button
+            class="icon-action"
+            type="button"
+            aria-label="Configurações de notificações"
+            title="Configurações"
+          >
+
+            <i data-lucide="settings-2"></i>
+
+          </button>
+
+        </div>
+
+      </header>
+
+
+      <!-- LAYOUT -->
+
+      <section class="notifications-layout">
+
+
+        <!-- COLUNA PRINCIPAL -->
+
+        <div class="notifications-main">
+
+
+          <!-- FILTROS -->
+
+          <div class="notification-toolbar">
+
+            <div
+              class="notification-tabs"
+              role="tablist"
+              aria-label="Tipos de notificações"
+            >
+
+              <button
+                class="notification-tab active"
+                type="button"
+              >
+
+                Todas
+
+                <span>
+                  8
+                </span>
+
+              </button>
+
+
+              <button
+                class="notification-tab"
+                type="button"
+              >
+
+                Interações
+
+                <span>
+                  4
+                </span>
+
+              </button>
+
+
+              <button
+                class="notification-tab"
+                type="button"
+              >
+
+                Comunidades
+
+                <span>
+                  2
+                </span>
+
+              </button>
+
+
+              <button
+                class="notification-tab"
+                type="button"
+              >
+
+                Sistema
+
+              </button>
+
+            </div>
+
+
+            <button
+              class="filter-button"
+              type="button"
+              aria-label="Filtrar notificações"
+              title="Filtrar"
+            >
+
+              <i data-lucide="sliders-horizontal"></i>
+
+            </button>
+
+          </div>
+
+
+          <!-- HOJE -->
+
+          <section class="notification-group">
+
+            <div class="group-title">
+
+              <h2>
+                Hoje
+              </h2>
+
+              <span>
+                5 novas
+              </span>
+
+            </div>
+
+
+            <div class="notification-list">
+
+
+              <!-- CURTIDA -->
+
+              <article class="notification-card unread">
+
+                <div class="notification-visual social">
+
+                  <img
+                    src="../Images/avatar-placeholder.svg"
+                    alt=""
+                    onerror="this.src='../Images/Ícone_Pace.png'"
+                  >
+
+                  <span class="notification-type-badge">
+
+                    <i data-lucide="heart"></i>
+
+                  </span>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    <strong>Lucas Martins</strong>
+                    curtiu sua publicação.
+                  </p>
+
+                  <div class="notification-preview">
+                    “Finalmente consegui concluir essa etapa do projeto.”
+                  </div>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      há 4 min
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Feed
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <span
+                    class="unread-dot"
+                    aria-label="Não lida"
+                  ></span>
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+
+              <!-- COMENTÁRIO -->
+
+              <article class="notification-card unread">
+
+                <div class="notification-visual social">
+
+                  <img
+                    src="../Images/avatar-placeholder.svg"
+                    alt=""
+                    onerror="this.src='../Images/Ícone_Pace.png'"
+                  >
+
+                  <span class="notification-type-badge">
+
+                    <i data-lucide="message-circle"></i>
+
+                  </span>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    <strong>Ana Souza</strong>
+                    comentou em uma publicação sua.
+                  </p>
+
+                  <div class="notification-preview">
+                    “Muito bom! Como você organizou essa meta?”
+                  </div>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      há 18 min
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Feed
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <span
+                    class="unread-dot"
+                    aria-label="Não lida"
+                  ></span>
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+
+              <!-- SEGUIR -->
+
+              <article class="notification-card unread">
+
+                <div class="notification-visual social">
+
+                  <img
+                    src="../Images/avatar-placeholder.svg"
+                    alt=""
+                    onerror="this.src='../Images/Ícone_Pace.png'"
+                  >
+
+                  <span class="notification-type-badge">
+
+                    <i data-lucide="user-plus"></i>
+
+                  </span>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    <strong>Gabriel Costa</strong>
+                    começou a seguir você.
+                  </p>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      há 36 min
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Perfil
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <span
+                    class="unread-dot"
+                    aria-label="Não lida"
+                  ></span>
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+
+              <!-- COMUNIDADE -->
+
+              <article class="notification-card unread">
+
+                <div class="notification-visual community">
+
+                  <i data-lucide="users-round"></i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    Uma nova publicação foi feita em
+                    <strong>Desenvolvimento Pessoal</strong>.
+                  </p>
+
+                  <div class="notification-preview">
+                    “Como manter constância sem transformar rotina em pressão?”
+                  </div>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      há 1h
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Comunidade
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <span
+                    class="unread-dot"
+                    aria-label="Não lida"
+                  ></span>
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+
+              <!-- META -->
+
+              <article class="notification-card unread">
+
+                <div class="notification-visual accent">
+
+                  <i data-lucide="target"></i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    A meta
+                    <strong>Finalizar apresentação do TCC</strong>
+                    está próxima do prazo.
+                  </p>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      há 2h
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Metas
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <span
+                    class="unread-dot"
+                    aria-label="Não lida"
+                  ></span>
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+            </div>
+
+          </section>
+
+
+          <!-- ONTEM -->
+
+          <section class="notification-group">
+
+            <div class="group-title">
+
+              <h2>
+                Ontem
+              </h2>
+
+              <span>
+                2 notificações
+              </span>
+
+            </div>
+
+
+            <div class="notification-list">
+
+
+              <article class="notification-card">
+
+                <div class="notification-visual success">
+
+                  <i data-lucide="circle-check-big"></i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    Você concluiu uma sequência de
+                    <strong>3 dias de foco</strong>.
+                  </p>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      ontem às 20:42
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Sala de foco
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+
+              <article class="notification-card">
+
+                <div class="notification-visual community">
+
+                  <i data-lucide="shield-check"></i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    Você agora faz parte da comunidade
+                    <strong>Programação e Tecnologia</strong>.
+                  </p>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      ontem às 15:18
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Comunidades
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+            </div>
+
+          </section>
+
+
+          <!-- ANTERIORES -->
+
+          <section class="notification-group">
+
+            <div class="group-title">
+
+              <h2>
+                Anteriores
+              </h2>
+            </div>
+
+
+            <div class="notification-list">
+
+              <article class="notification-card">
+
+                <div class="notification-visual">
+
+                  <i data-lucide="sparkles"></i>
+
+                </div>
+
+
+                <div class="notification-content">
+
+                  <p>
+                    Seu painel de
+                    <strong>Evolução</strong>
+                    já possui novos dados para acompanhar.
+                  </p>
+
+                  <div class="notification-meta">
+
+                    <span>
+                      17 set
+                    </span>
+
+                    <span class="dot"></span>
+
+                    <span>
+                      Pace
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="notification-actions">
+
+                  <button
+                    class="notification-action"
+                    type="button"
+                    aria-label="Mais opções"
+                  >
+
+                    <i data-lucide="ellipsis"></i>
+
+                  </button>
+
+                </div>
+
+              </article>
+
+            </div>
+
+          </section>
+
+        </div>
+
+
+        <!-- =================================================
+             PAINEL LATERAL
+        ================================================== -->
+
+        <aside class="notifications-side">
+
+
+          <section class="side-card">
+
+            <header class="side-card-header">
+
+              <h3>
+                Atividade
+              </h3>
+
+              <span>
+                <i data-lucide="activity"></i>
+              </span>
+
+            </header>
+
+
+            <div class="activity-summary">
+
+              <div class="activity-item">
+
+                <small>
+                  Não lidas
+                </small>
+
+                <strong>
+                  5
+                </strong>
+
+              </div>
+
+
+              <div class="activity-item">
+
+                <small>
+                  Hoje
+                </small>
+
+                <strong>
+                  5
+                </strong>
+
+              </div>
+
+
+              <div class="activity-item">
+
+                <small>
+                  Interações
+                </small>
+
+                <strong>
+                  3
+                </strong>
+
+              </div>
+
+
+              <div class="activity-item">
+
+                <small>
+                  Comunidades
+                </small>
+
+                <strong>
+                  2
+                </strong>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <section class="side-card">
+
+            <header class="side-card-header">
+
+              <h3>
+                Tipos de aviso
+              </h3>
+
+              <span>
+                <i data-lucide="bell-ring"></i>
+              </span>
+
+            </header>
+
+
+            <div class="notification-guide">
+
+              <div class="guide-item">
+
+                <span class="guide-icon">
+
+                  <i data-lucide="heart"></i>
+
+                </span>
+
+                <div class="guide-copy">
+
+                  <strong>
+                    Interações
+                  </strong>
+
+                  <span>
+                    Curtidas, comentários e seguidores
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="guide-item">
+
+                <span class="guide-icon">
+
+                  <i data-lucide="users-round"></i>
+
+                </span>
+
+                <div class="guide-copy">
+
+                  <strong>
+                    Comunidades
+                  </strong>
+
+                  <span>
+                    Atividade nos espaços que você participa
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="guide-item">
+
+                <span class="guide-icon">
+
+                  <i data-lucide="target"></i>
+
+                </span>
+
+                <div class="guide-copy">
+
+                  <strong>
+                    Desenvolvimento
+                  </strong>
+
+                  <span>
+                    Metas, foco e progresso
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="guide-item">
+
+                <span class="guide-icon">
+
+                  <i data-lucide="sparkles"></i>
+
+                </span>
+
+                <div class="guide-copy">
+
+                  <strong>
+                    Pace
+                  </strong>
+
+                  <span>
+                    Atualizações importantes da plataforma
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+
+        </aside>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons === "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
+    const tema =
+      localStorage.getItem("darkMode");
+
+    document.body.classList.toggle(
+      "dark",
+      tema === "true" ||
+      tema === "dark"
+    );
+
+  </script>
+
+</body>
+
+</html>

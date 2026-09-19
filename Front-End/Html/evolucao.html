@@ -5,25 +5,78 @@
 
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#EAF3FB"
+  >
 
-  <meta name="color-scheme" content="dark">
+  <meta
+    name="color-scheme"
+    content="light dark"
+  >
+
+  <script>
+    (() => {
+      const tema =
+        localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#EAF3FB";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#EAF3FB"
+        );
+      }
+    })();
+  </script>
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #EAF3FB;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
     }
   </style>
 
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Evolução | Pace</title>
 
-  <link rel="stylesheet" href="../Css/evolucao.css">
+  <link
+    rel="stylesheet"
+    href="../Css/evolucao.css"
+  >
 
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -31,20 +84,54 @@
 
 <body>
 
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
+
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
+
+
+  <div
+    class="bg-grid"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    class="bg-orb orb-1"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    class="bg-orb orb-2"
+    aria-hidden="true"
+  ></div>
 
 
   <!-- =====================================================
        SIDEBAR
   ====================================================== -->
 
-  <aside class="sidebar" aria-label="Navegação principal">
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
 
-    <div class="sidebar-brand" aria-label="Pace">
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
 
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
 
@@ -61,7 +148,10 @@
     </div>
 
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
       <span class="nav-section-label">
         Comunidade
@@ -72,7 +162,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="house" class="icon"></i>
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -87,7 +180,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="compass" class="icon"></i>
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -102,7 +198,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="square-pen" class="icon"></i>
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -122,7 +221,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="target" class="icon"></i>
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -137,7 +239,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="brain" class="icon"></i>
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -148,11 +253,18 @@
       </a>
 
 
-      <a href="evolucao.html" class="active" aria-current="page">
+      <a
+        href="evolucao.html"
+        class="active"
+        aria-current="page"
+      >
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -167,11 +279,17 @@
 
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+      <a
+        href="notificacoes.html"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="bell" class="icon"></i>
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -186,7 +304,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="settings" class="icon"></i>
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -199,12 +320,20 @@
 
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
 
@@ -220,7 +349,10 @@
 
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -248,38 +380,53 @@
 
           <span class="hero-badge">
 
-            <span class="badge-dot" aria-hidden="true"></span>
+            <span
+              class="badge-dot"
+              aria-hidden="true"
+            ></span>
 
-            Sua jornada em movimento
+            Desenvolvimento
 
           </span>
 
           <h1>
-            Você não está apenas avançando.
-            <span>
-              Está se transformando.
-            </span>
+            Evolução
           </h1>
 
           <p>
-            O Pace reúne suas metas, sessões de foco e constância
-            para revelar como sua evolução está acontecendo de verdade.
+            Acompanhe seus dados de metas, foco e constância.
           </p>
 
         </div>
 
 
-        <div class="period-filter" role="group" aria-label="Período de análise">
+        <div
+          class="period-filter"
+          role="group"
+          aria-label="Período de análise"
+        >
 
-          <button class="period-button active" type="button" data-period="7">
+          <button
+            class="period-button active"
+            type="button"
+            data-period="7"
+          >
             7 dias
           </button>
 
-          <button class="period-button" type="button" data-period="30">
+          <button
+            class="period-button"
+            type="button"
+            data-period="30"
+          >
             30 dias
           </button>
 
-          <button class="period-button" type="button" data-period="90">
+          <button
+            class="period-button"
+            type="button"
+            data-period="90"
+          >
             90 dias
           </button>
 
@@ -298,8 +445,6 @@
         <div class="spotlight-score">
 
 
-          <!-- NOVO CABEÇALHO -->
-
           <div class="score-title-row">
 
             <span class="score-eyebrow">
@@ -309,14 +454,21 @@
 
             <div class="pace-index-help">
 
-              <button class="pace-index-help-button" type="button" aria-label="Entenda como funciona o Índice Pace">
+              <button
+                class="pace-index-help-button"
+                type="button"
+                aria-label="Entenda como funciona o Índice Pace"
+              >
 
                 <i data-lucide="info"></i>
 
               </button>
 
 
-              <div class="pace-index-tooltip" role="tooltip">
+              <div
+                class="pace-index-tooltip"
+                role="tooltip"
+              >
 
                 <span class="pace-index-tooltip-icon">
 
@@ -347,7 +499,6 @@
 
                     </span>
 
-
                     <span>
 
                       <i data-lucide="brain"></i>
@@ -356,7 +507,6 @@
 
                     </span>
 
-
                     <span>
 
                       <i data-lucide="flame"></i>
@@ -364,7 +514,6 @@
                       Sequência
 
                     </span>
-
 
                     <span>
 
@@ -391,9 +540,11 @@
           </div>
 
 
-          <!-- SCORE -->
-
-          <div id="scoreRing" class="score-ring" style="--score-progress: 0deg">
+          <div
+            id="scoreRing"
+            class="score-ring"
+            style="--score-progress: 0deg"
+          >
 
             <div class="score-content">
 
@@ -410,7 +561,10 @@
           </div>
 
 
-          <span id="scoreLabel" class="score-label">
+          <span
+            id="scoreLabel"
+            class="score-label"
+          >
             Sua jornada começa agora
           </span>
 
@@ -421,8 +575,6 @@
 
         </div>
 
-
-        <!-- HISTÓRIA -->
 
         <div class="spotlight-story">
 
@@ -444,7 +596,10 @@
 
             <span class="comparison-icon">
 
-              <i id="comparisonIcon" data-lucide="minus"></i>
+              <i
+                id="comparisonIcon"
+                data-lucide="minus"
+              ></i>
 
             </span>
 
@@ -502,15 +657,16 @@
         </div>
 
 
-        <!-- PRÓXIMO PASSO -->
-
         <aside class="next-step">
 
           <div class="next-step-top">
 
             <span class="next-step-icon">
 
-              <i id="nextStepIcon" data-lucide="sparkles"></i>
+              <i
+                id="nextStepIcon"
+                data-lucide="sparkles"
+              ></i>
 
             </span>
 
@@ -531,7 +687,10 @@
           </p>
 
 
-          <a id="nextStepLink" href="metas.html">
+          <a
+            id="nextStepLink"
+            href="metas.html"
+          >
 
             <span id="nextStepButtonText">
               Criar uma meta
@@ -670,8 +829,6 @@
       <section class="dashboard-grid">
 
 
-        <!-- COLUNA ESQUERDA -->
-
         <div class="dashboard-column">
 
 
@@ -684,23 +841,100 @@
               <div>
 
                 <span class="section-kicker">
-                  Seu ritmo
+                  Seu foco
                 </span>
 
                 <h2>
-                  Foco ao longo da semana
+                  Foco da semana
                 </h2>
 
               </div>
 
-              <span id="weekChartHelper" class="card-helper">
+              <span
+                id="weekChartHelper"
+                class="card-helper"
+              >
                 Últimos 7 dias
               </span>
 
             </header>
 
 
-            <div id="weekChart" class="week-chart"></div>
+            <div class="chart-summary">
+
+              <div class="chart-summary-item">
+
+                <small>
+                  Total
+                </small>
+
+                <strong id="weekTotalMinutes">
+                  0 min
+                </strong>
+
+              </div>
+
+
+              <div class="chart-summary-item">
+
+                <small>
+                  Média diária
+                </small>
+
+                <strong id="weekAverageMinutes">
+                  0 min
+                </strong>
+
+              </div>
+
+
+              <div class="chart-summary-item">
+
+                <small>
+                  Melhor dia
+                </small>
+
+                <strong id="bestFocusDay">
+                  —
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <div class="week-chart-shell">
+
+              <div
+                id="weekChartYAxis"
+                class="chart-y-axis"
+              ></div>
+
+
+              <div class="chart-plot">
+
+                <div
+                  class="chart-grid"
+                  aria-hidden="true"
+                >
+
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+
+                </div>
+
+
+                <div
+                  id="weekChart"
+                  class="week-chart"
+                ></div>
+
+              </div>
+
+            </div>
 
           </article>
 
@@ -730,10 +964,16 @@
             </header>
 
 
-            <div id="evolutionTimeline" class="evolution-timeline"></div>
+            <div
+              id="evolutionTimeline"
+              class="evolution-timeline"
+            ></div>
 
 
-            <div id="timelineEmpty" class="empty-panel hidden">
+            <div
+              id="timelineEmpty"
+              class="empty-panel hidden"
+            >
 
               <span>
 
@@ -755,7 +995,7 @@
           </article>
 
 
-          <!-- TRILHA -->
+          <!-- CONSTÂNCIA -->
 
           <article class="dashboard-card consistency-card">
 
@@ -768,13 +1008,16 @@
                 </span>
 
                 <h2>
-                  Sua trilha de evolução
+                  Resumo por semana
                 </h2>
 
               </div>
 
-              <span id="consistencyPeriod" class="card-helper">
-                Últimas 12 semanas
+              <span
+                id="consistencyPeriod"
+                class="card-helper"
+              >
+                Últimas 8 semanas
               </span>
 
             </header>
@@ -807,16 +1050,32 @@
             </div>
 
 
-            <div id="consistencyTrack" class="consistency-track"></div>
+            <div class="consistency-table-head">
+
+              <span>
+                Período
+              </span>
+
+              <span>
+                Volume
+              </span>
+
+              <span>
+                Resumo
+              </span>
+
+            </div>
+
+
+            <div
+              id="consistencyTrack"
+              class="consistency-track"
+            ></div>
 
           </article>
 
         </div>
 
-
-        <!-- =================================================
-             COLUNA DIREITA
-        ================================================== -->
 
         <div class="dashboard-column">
 
@@ -846,7 +1105,10 @@
 
               <span class="best-moment-icon">
 
-                <i id="bestMomentIcon" data-lucide="sparkles"></i>
+                <i
+                  id="bestMomentIcon"
+                  data-lucide="sparkles"
+                ></i>
 
               </span>
 
@@ -889,10 +1151,16 @@
             </header>
 
 
-            <div id="categoryProgress" class="category-list"></div>
+            <div
+              id="categoryProgress"
+              class="category-list"
+            ></div>
 
 
-            <div id="categoryEmpty" class="empty-panel hidden">
+            <div
+              id="categoryEmpty"
+              class="empty-panel hidden"
+            >
 
               <span>
 
@@ -939,7 +1207,10 @@
 
               <span class="insight-symbol">
 
-                <i id="insightIcon" data-lucide="lightbulb"></i>
+                <i
+                  id="insightIcon"
+                  data-lucide="lightbulb"
+                ></i>
 
               </span>
 
@@ -979,14 +1250,20 @@
 
               </div>
 
-              <span id="achievementCounter" class="card-helper">
+              <span
+                id="achievementCounter"
+                class="card-helper"
+              >
                 0 de 6
               </span>
 
             </header>
 
 
-            <div id="achievementGrid" class="achievement-grid"></div>
+            <div
+              id="achievementGrid"
+              class="achievement-grid"
+            ></div>
 
           </article>
 
@@ -999,7 +1276,10 @@
   </main>
 
 
-  <script type="module" src="../JavaScript/evolucao.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/evolucao.js"
+  ></script>
 
 </body>
 

@@ -93,6 +93,9 @@ if (shellOk) {
   let filtroFeedAtivo =
     "general";
 
+  let filtroConteudoAtivo =
+    "all";
+
   let comunidadeFiltroAtiva =
     "all";
 
@@ -329,7 +332,9 @@ if (shellOk) {
         ? valor
         : [];
 
-    } catch {
+    }
+
+    catch {
 
       return [];
 
@@ -401,7 +406,9 @@ if (shellOk) {
 
         }
 
-      } catch {
+      }
+
+      catch {
 
         // Continua procurando.
 
@@ -511,9 +518,7 @@ if (shellOk) {
     comunidadeId
   ) {
 
-    if (
-      !comunidadeId
-    ) {
+    if (!comunidadeId) {
 
       return null;
 
@@ -607,9 +612,7 @@ if (shellOk) {
           );
 
 
-        if (
-          !comunidadeId
-        ) {
+        if (!comunidadeId) {
 
           return {
 
@@ -688,30 +691,140 @@ if (shellOk) {
 
 
   /* =========================================================
+     TIPOS DE POST
+  ========================================================= */
+
+  function obterTipoPost(
+    post
+  ) {
+
+    const valorBruto =
+      post?.tipoPost ??
+      post?.tipo_post ??
+      post?.postType ??
+      post?.post_type ??
+      post?.tipo ??
+      post?.type ??
+      "normal";
+
+
+    const valor =
+      String(
+        valorBruto
+      )
+        .trim()
+        .toLowerCase();
+
+
+    const tiposConquista =
+      new Set([
+        "conquista",
+        "achievement",
+        "meta_concluida",
+        "meta-concluida",
+        "goal_completed",
+        "goal-completed",
+      ]);
+
+
+    const tiposFoco =
+      new Set([
+        "foco",
+        "focus",
+        "sessao_foco",
+        "sessao-foco",
+        "focus_session",
+        "focus-session",
+      ]);
+
+
+    if (
+      tiposConquista.has(
+        valor
+      ) ||
+      post?.metaConcluida === true ||
+      post?.meta_concluida === true
+    ) {
+
+      return "achievement";
+
+    }
+
+
+    if (
+      tiposFoco.has(
+        valor
+      ) ||
+      post?.sessaoFoco === true ||
+      post?.sessao_foco === true
+    ) {
+
+      return "focus";
+
+    }
+
+
+    return "normal";
+
+  }
+
+
+  function filtrarPostsPorTipo(
+    posts
+  ) {
+
+    if (
+      filtroConteudoAtivo ===
+      "all"
+    ) {
+
+      return posts;
+
+    }
+
+
+    return posts.filter(
+      (post) =>
+
+        obterTipoPost(
+          post
+        ) ===
+        filtroConteudoAtivo
+    );
+
+  }
+
+
+  /* =========================================================
      FILTRO DOS POSTS
   ========================================================= */
 
   function obterPostsFiltrados() {
+
+    let postsBase =
+      postsCarregados;
+
 
     if (
       filtroFeedAtivo ===
       "following"
     ) {
 
-      return postsCarregados.filter(
-        (post) =>
+      postsBase =
+        postsCarregados.filter(
+          (post) =>
 
-          seguindoIds.has(
-            String(
-              post.userId
+            seguindoIds.has(
+              String(
+                post.userId
+              )
             )
-          )
-      );
+        );
 
     }
 
 
-    if (
+    else if (
       filtroFeedAtivo ===
       "communities"
     ) {
@@ -732,48 +845,51 @@ if (shellOk) {
         );
 
 
-      return postsCarregados.filter(
-        (post) => {
+      postsBase =
+        postsCarregados.filter(
+          (post) => {
 
-          const comunidadeId =
-            obterComunidadeIdDoPost(
-              post
-            );
-
-
-          if (
-            !comunidadeId ||
-            !idsPermitidos.has(
-              comunidadeId
-            )
-          ) {
-
-            return false;
-
-          }
+            const comunidadeId =
+              obterComunidadeIdDoPost(
+                post
+              );
 
 
-          return (
+            if (
+              !comunidadeId ||
+              !idsPermitidos.has(
+                comunidadeId
+              )
+            ) {
 
-            comunidadeFiltroAtiva ===
+              return false;
+
+            }
+
+
+            return (
+
+              comunidadeFiltroAtiva ===
               "all"
 
-            ||
+              ||
 
-            comunidadeId ===
+              comunidadeId ===
               String(
                 comunidadeFiltroAtiva
               )
 
-          );
+            );
 
-        }
-      );
+          }
+        );
 
     }
 
 
-    return postsCarregados;
+    return filtrarPostsPorTipo(
+      postsBase
+    );
 
   }
 
@@ -784,9 +900,7 @@ if (shellOk) {
 
   function renderizarFiltrosComunidades() {
 
-    if (
-      !communityFilters
-    ) {
+    if (!communityFilters) {
 
       return;
 
@@ -797,9 +911,7 @@ if (shellOk) {
       obterMinhasComunidades();
 
 
-    if (
-      !comunidades.length
-    ) {
+    if (!comunidades.length) {
 
       communityFilters.innerHTML = `
 
@@ -824,7 +936,7 @@ if (shellOk) {
     const filtroAindaExiste =
 
       comunidadeFiltroAtiva ===
-        "all"
+      "all"
 
       ||
 
@@ -841,9 +953,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !filtroAindaExiste
-    ) {
+    if (!filtroAindaExiste) {
 
       comunidadeFiltroAtiva =
         "all";
@@ -916,6 +1026,314 @@ if (shellOk) {
 
 
   /* =========================================================
+     FILTRO DE CONTEÚDO
+  ========================================================= */
+
+  function renderizarFiltrosConteudo() {
+
+    const feedFilters =
+      document.querySelector(
+        ".feed-filters"
+      );
+
+
+    const mainFilterRow =
+      feedFilters?.querySelector(
+        ".main-filter-row"
+      );
+
+
+    if (
+      !feedFilters ||
+      !mainFilterRow
+    ) {
+
+      return;
+
+    }
+
+
+    let filterControl =
+      document.getElementById(
+        "contentFilterControl"
+      );
+
+
+    if (!filterControl) {
+
+      filterControl =
+        document.createElement(
+          "div"
+        );
+
+
+      filterControl.id =
+        "contentFilterControl";
+
+
+      filterControl.className =
+        "content-filter-control";
+
+
+      mainFilterRow.appendChild(
+        filterControl
+      );
+
+    }
+
+
+    const opcoes = [
+
+      {
+        id:
+          "all",
+
+        label:
+          "Todos",
+
+        icon:
+          "layout-grid",
+      },
+
+      {
+        id:
+          "achievement",
+
+        label:
+          "Conquistas",
+
+        icon:
+          "trophy",
+      },
+
+      {
+        id:
+          "focus",
+
+        label:
+          "Foco",
+
+        icon:
+          "timer-reset",
+      },
+
+      {
+        id:
+          "normal",
+
+        label:
+          "Publicações",
+
+        icon:
+          "message-square-text",
+      },
+
+    ];
+
+
+    const filtroAtivo =
+
+      opcoes.find(
+        (opcao) =>
+
+          opcao.id ===
+          filtroConteudoAtivo
+      )
+
+      ||
+
+      opcoes[0];
+
+
+    const menuAberto =
+      filterControl
+        .classList
+        .contains(
+          "open"
+        );
+
+
+    filterControl.innerHTML = `
+
+      <button
+        type="button"
+        class="content-filter-trigger ${
+          filtroConteudoAtivo !==
+          "all"
+
+            ? "has-filter"
+
+            : ""
+        }"
+        data-action="toggle-content-filter"
+        aria-label="Filtrar publicações"
+        aria-haspopup="menu"
+        aria-expanded="${
+          menuAberto
+            ? "true"
+            : "false"
+        }"
+        title="Filtrar publicações"
+      >
+
+        <i data-lucide="sliders-horizontal"></i>
+
+
+        <span
+          class="content-filter-dot"
+          aria-hidden="true"
+        ></span>
+
+      </button>
+
+
+      <div
+        class="content-filter-popover"
+        role="menu"
+        aria-label="Tipo de conteúdo"
+      >
+
+
+        <div class="content-filter-popover-head">
+
+          <span>
+            Tipo de conteúdo
+          </span>
+
+          <small>
+            ${escaparHTML(
+              filtroAtivo.label
+            )}
+          </small>
+
+        </div>
+
+
+        <div class="content-filter-options">
+
+          ${
+
+            opcoes
+
+              .map(
+                (opcao) => `
+
+                  <button
+                    type="button"
+                    class="content-filter-option ${
+                      filtroConteudoAtivo ===
+                      opcao.id
+
+                        ? "active"
+
+                        : ""
+                    }"
+                    data-content-filter="${opcao.id}"
+                    role="menuitemradio"
+                    aria-checked="${
+                      filtroConteudoAtivo ===
+                      opcao.id
+
+                        ? "true"
+
+                        : "false"
+                    }"
+                  >
+
+
+                    <span class="content-filter-option-icon">
+
+                      <i data-lucide="${opcao.icon}"></i>
+
+                    </span>
+
+
+                    <span class="content-filter-option-label">
+
+                      ${opcao.label}
+
+                    </span>
+
+
+                    <span class="content-filter-option-check">
+
+                      ${
+
+                        filtroConteudoAtivo ===
+                        opcao.id
+
+                          ? '<i data-lucide="check"></i>'
+
+                          : ""
+
+                      }
+
+                    </span>
+
+
+                  </button>
+
+                `
+              )
+
+              .join("")
+
+          }
+
+        </div>
+
+
+      </div>
+
+    `;
+
+
+    filterControl
+      .classList
+      .toggle(
+        "open",
+        menuAberto
+      );
+
+
+    initLucide();
+
+  }
+
+
+  function fecharFiltroConteudo() {
+
+    const control =
+      document.getElementById(
+        "contentFilterControl"
+      );
+
+
+    if (!control) {
+
+      return;
+
+    }
+
+
+    control.classList.remove(
+      "open"
+    );
+
+
+    control
+      .querySelector(
+        '[data-action="toggle-content-filter"]'
+      )
+      ?.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+
+  }
+
+
+  /* =========================================================
      PAGINAÇÃO VISUAL
   ========================================================= */
 
@@ -931,9 +1349,7 @@ if (shellOk) {
     total
   ) {
 
-    if (
-      !feedLoadMore
-    ) {
+    if (!feedLoadMore) {
 
       return;
 
@@ -1003,9 +1419,7 @@ if (shellOk) {
             );
 
 
-          if (
-            !entrou
-          ) {
+          if (!entrou) {
 
             return;
 
@@ -1056,9 +1470,7 @@ if (shellOk) {
 
   function renderEmptyFeed() {
 
-    if (
-      !feedEl
-    ) {
+    if (!feedEl) {
 
       return;
 
@@ -1307,6 +1719,499 @@ if (shellOk) {
 
 
   /* =========================================================
+     POST ENRIQUECIDO / TÓPICOS
+  ========================================================= */
+
+  function obterTopicosPost(
+    post
+  ) {
+
+    const valor =
+      post?.topicos ??
+      post?.topics ??
+      post?.tags ??
+      [];
+
+
+    if (
+      Array.isArray(
+        valor
+      )
+    ) {
+
+      return valor
+
+        .map(
+          (item) =>
+
+            typeof item ===
+            "string"
+
+              ? item
+
+              : (
+                  item?.nome ??
+                  item?.name ??
+                  item?.titulo ??
+                  item?.title ??
+                  ""
+                )
+        )
+
+        .map(
+          (item) =>
+            String(
+              item
+            ).trim()
+        )
+
+        .filter(
+          Boolean
+        )
+
+        .slice(
+          0,
+          6
+        );
+
+    }
+
+
+    if (
+      typeof valor ===
+      "string"
+    ) {
+
+      return valor
+
+        .split(
+          /[,#]/
+        )
+
+        .map(
+          (item) =>
+            item.trim()
+        )
+
+        .filter(
+          Boolean
+        )
+
+        .slice(
+          0,
+          6
+        );
+
+    }
+
+
+    return [];
+
+  }
+
+
+  function criarTopicosHTML(
+    post
+  ) {
+
+    const topicos =
+      obterTopicosPost(
+        post
+      );
+
+
+    if (!topicos.length) {
+
+      return "";
+
+    }
+
+
+    return `
+
+      <div
+        class="post-topics"
+        aria-label="Tópicos da publicação"
+      >
+
+        ${
+
+          topicos
+
+            .map(
+              (topico) => `
+
+                <span class="post-topic">
+
+                  #${escaparHTML(
+                    topico.replace(
+                      /^#/,
+                      ""
+                    )
+                  )}
+
+                </span>
+
+              `
+            )
+
+            .join("")
+
+        }
+
+      </div>
+
+    `;
+
+  }
+
+
+  function formatarDuracaoFoco(
+    valor
+  ) {
+
+    const minutos =
+      Number(
+        valor
+      );
+
+
+    if (
+      !Number.isFinite(
+        minutos
+      ) ||
+      minutos <= 0
+    ) {
+
+      return "";
+
+    }
+
+
+    const horas =
+      Math.floor(
+        minutos / 60
+      );
+
+
+    const restante =
+      Math.round(
+        minutos % 60
+      );
+
+
+    if (
+      horas > 0 &&
+      restante > 0
+    ) {
+
+      return `${horas}h ${restante}min`;
+
+    }
+
+
+    if (
+      horas > 0
+    ) {
+
+      return `${horas}h`;
+
+    }
+
+
+    return `${restante}min`;
+
+  }
+
+
+  function criarIdentidadeTipoPostHTML(
+    post
+  ) {
+
+    const tipo =
+      obterTipoPost(
+        post
+      );
+
+
+    if (
+      tipo ===
+      "achievement"
+    ) {
+
+      return `
+
+        <div
+          class="
+            post-type-badge
+            post-type-badge-achievement
+          "
+        >
+
+          <i data-lucide="trophy"></i>
+
+          <span>
+            Conquista
+          </span>
+
+        </div>
+
+      `;
+
+    }
+
+
+    if (
+      tipo ===
+      "focus"
+    ) {
+
+      return `
+
+        <div
+          class="
+            post-type-badge
+            post-type-badge-focus
+          "
+        >
+
+          <i data-lucide="timer-reset"></i>
+
+          <span>
+            Sessão de foco
+          </span>
+
+        </div>
+
+      `;
+
+    }
+
+
+    return "";
+
+  }
+
+
+  function criarResumoEnriquecidoHTML(
+    post
+  ) {
+
+    const tipo =
+      obterTipoPost(
+        post
+      );
+
+
+    if (
+      tipo ===
+      "achievement"
+    ) {
+
+      const titulo =
+
+        post?.metaTitulo ??
+
+        post?.meta_titulo ??
+
+        post?.goalTitle ??
+
+        post?.goal_title ??
+
+        post?.meta?.titulo ??
+
+        post?.meta?.title ??
+
+        "Meta concluída";
+
+
+      const categoria =
+
+        post?.metaCategoria ??
+
+        post?.meta_categoria ??
+
+        post?.categoria ??
+
+        post?.meta?.categoria ??
+
+        "";
+
+
+      return `
+
+        <section
+          class="
+            post-enriched
+            post-enriched-achievement
+          "
+        >
+
+          <div class="post-enriched-icon">
+
+            <i data-lucide="target"></i>
+
+          </div>
+
+
+          <div class="post-enriched-copy">
+
+            <small>
+              Meta concluída
+            </small>
+
+            <strong>
+              ${escaparHTML(
+                String(
+                  titulo
+                )
+              )}
+            </strong>
+
+            ${
+              categoria
+
+                ? `
+                    <span>
+                      ${escaparHTML(
+                        String(
+                          categoria
+                        )
+                      )}
+                    </span>
+                  `
+
+                : ""
+            }
+
+          </div>
+
+
+          <span class="post-enriched-status">
+
+            <i data-lucide="check"></i>
+
+            Concluída
+
+          </span>
+
+        </section>
+
+      `;
+
+    }
+
+
+    if (
+      tipo ===
+      "focus"
+    ) {
+
+      const metaTitulo =
+
+        post?.metaTitulo ??
+
+        post?.meta_titulo ??
+
+        post?.goalTitle ??
+
+        post?.goal_title ??
+
+        post?.meta?.titulo ??
+
+        post?.meta?.title ??
+
+        "Sessão concluída";
+
+
+      const duracao =
+        formatarDuracaoFoco(
+
+          post?.duracaoMinutos ??
+
+          post?.duracao_minutos ??
+
+          post?.focusMinutes ??
+
+          post?.focus_minutes ??
+
+          post?.duracao ??
+
+          post?.sessao?.duracao ??
+
+          0
+
+        );
+
+
+      return `
+
+        <section
+          class="
+            post-enriched
+            post-enriched-focus
+          "
+        >
+
+          <div class="post-enriched-icon">
+
+            <i data-lucide="brain"></i>
+
+          </div>
+
+
+          <div class="post-enriched-copy">
+
+            <small>
+              Foco dedicado a
+            </small>
+
+            <strong>
+              ${escaparHTML(
+                String(
+                  metaTitulo
+                )
+              )}
+            </strong>
+
+            <span>
+
+              ${
+                duracao
+
+                  ? escaparHTML(
+                      duracao
+                    )
+
+                  : "Sessão finalizada"
+              }
+
+            </span>
+
+          </div>
+
+
+          <span class="post-enriched-status">
+
+            <i data-lucide="flame"></i>
+
+            Foco
+
+          </span>
+
+        </section>
+
+      `;
+
+    }
+
+
+    return "";
+
+  }
+
+
+  /* =========================================================
      POST HTML
   ========================================================= */
 
@@ -1351,12 +2256,12 @@ if (shellOk) {
     const estaNaComunidadeEspecifica =
 
       filtroFeedAtivo ===
-        "communities"
+      "communities"
 
       &&
 
       comunidadeFiltroAtiva !==
-        "all"
+      "all"
 
       &&
 
@@ -1385,9 +2290,12 @@ if (shellOk) {
     return `
 
       <article
-        class="card"
+        class="card post-type-${obterTipoPost(
+          post
+        )}"
         data-post-id="${post.id}"
       >
+
 
         <div class="post-topo">
 
@@ -1484,6 +2392,11 @@ if (shellOk) {
         </div>
 
 
+        ${criarIdentidadeTipoPostHTML(
+          post
+        )}
+
+
         ${
 
           deveMostrarComunidade
@@ -1529,6 +2442,11 @@ if (shellOk) {
         }
 
 
+        ${criarResumoEnriquecidoHTML(
+          post
+        )}
+
+
         ${
 
           post.texto
@@ -1548,6 +2466,11 @@ if (shellOk) {
             : ""
 
         }
+
+
+        ${criarTopicosHTML(
+          post
+        )}
 
 
         ${
@@ -1661,6 +2584,7 @@ if (shellOk) {
 
         </div>
 
+
       </article>
 
     `;
@@ -1674,9 +2598,7 @@ if (shellOk) {
 
   function renderFeed() {
 
-    if (
-      !feedEl
-    ) {
+    if (!feedEl) {
 
       return;
 
@@ -1687,9 +2609,7 @@ if (shellOk) {
       obterPostsFiltrados();
 
 
-    if (
-      !postsFiltrados.length
-    ) {
+    if (!postsFiltrados.length) {
 
 
       if (
@@ -1702,7 +2622,9 @@ if (shellOk) {
           <div class="empty-feed">
 
             <div class="empty-icon">
+
               <i data-lucide="users"></i>
+
             </div>
 
 
@@ -1762,11 +2684,13 @@ if (shellOk) {
             <h3>
 
               ${
+
                 possuiComunidades
 
                   ? "Nenhum post nesta comunidade"
 
                   : "Você ainda não participa de comunidades"
+
               }
 
             </h3>
@@ -1775,11 +2699,13 @@ if (shellOk) {
             <p>
 
               ${
+
                 possuiComunidades
 
                   ? "Quando houver publicações nas comunidades que você participa, elas aparecerão aqui."
 
                   : "Explore as comunidades do Pace e participe das que combinam com você."
+
               }
 
             </p>
@@ -1818,6 +2744,7 @@ if (shellOk) {
 
 
       initLucide();
+
 
       return;
 
@@ -1867,9 +2794,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !card
-    ) {
+    if (!card) {
 
       return {
 
@@ -1940,9 +2865,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -1957,9 +2880,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !contador
-    ) {
+    if (!contador) {
 
       return;
 
@@ -1984,9 +2905,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -2002,9 +2921,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !lista
-    ) {
+    if (!lista) {
 
       return;
 
@@ -2024,6 +2941,7 @@ if (shellOk) {
       `;
 
     }
+
 
     else {
 
@@ -2045,9 +2963,7 @@ if (shellOk) {
     }
 
 
-    if (
-      contador
-    ) {
+    if (contador) {
 
       contador.textContent =
         String(
@@ -2077,9 +2993,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -2160,6 +3074,7 @@ if (shellOk) {
         postId
       );
 
+
       return;
 
     }
@@ -2201,6 +3116,7 @@ if (shellOk) {
       );
 
     }
+
 
     catch (
       error
@@ -2268,9 +3184,9 @@ if (shellOk) {
       !button ||
       button.disabled ||
       userKey ===
-        String(
-          usuario.id
-        )
+      String(
+        usuario.id
+      )
     ) {
 
       return;
@@ -2290,9 +3206,7 @@ if (shellOk) {
 
     try {
 
-      if (
-        jaSegue
-      ) {
+      if (jaSegue) {
 
         await unfollowUser(
           userId
@@ -2304,6 +3218,7 @@ if (shellOk) {
         );
 
       }
+
 
       else {
 
@@ -2375,6 +3290,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -2398,6 +3314,7 @@ if (shellOk) {
       }
 
     }
+
 
     finally {
 
@@ -2475,9 +3392,7 @@ if (shellOk) {
     );
 
 
-    if (
-      contador
-    ) {
+    if (contador) {
 
       contador.textContent =
         String(
@@ -2489,15 +3404,14 @@ if (shellOk) {
 
     try {
 
-      if (
-        curtidoAntes
-      ) {
+      if (curtidoAntes) {
 
         await unlikePost(
           postId
         );
 
       }
+
 
       else {
 
@@ -2534,9 +3448,7 @@ if (shellOk) {
       );
 
 
-      if (
-        contador
-      ) {
+      if (contador) {
 
         contador.textContent =
           String(
@@ -2546,6 +3458,7 @@ if (shellOk) {
       }
 
     }
+
 
     catch (
       error
@@ -2565,9 +3478,7 @@ if (shellOk) {
       );
 
 
-      if (
-        contador
-      ) {
+      if (contador) {
 
         contador.textContent =
           String(
@@ -2597,6 +3508,7 @@ if (shellOk) {
 
     }
 
+
     finally {
 
       likeButton.disabled =
@@ -2620,14 +3532,13 @@ if (shellOk) {
       input.value.trim();
 
 
-    if (
-      !texto
-    ) {
+    if (!texto) {
 
       showToast(
         "Escreva um comentário antes de enviar.",
         "error"
       );
+
 
       return;
 
@@ -2640,9 +3551,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -2669,9 +3578,7 @@ if (shellOk) {
       );
 
 
-    if (
-      botaoEnviar
-    ) {
+    if (botaoEnviar) {
 
       botaoEnviar.disabled =
         true;
@@ -2717,6 +3624,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -2741,15 +3649,14 @@ if (shellOk) {
 
     }
 
+
     finally {
 
       input.disabled =
         false;
 
 
-      if (
-        botaoEnviar
-      ) {
+      if (botaoEnviar) {
 
         botaoEnviar.disabled =
           false;
@@ -2770,9 +3677,7 @@ if (shellOk) {
 
   async function salvarEdicaoComentario() {
 
-    if (
-      !comentarioEmEdicao
-    ) {
+    if (!comentarioEmEdicao) {
 
       return;
 
@@ -2785,14 +3690,13 @@ if (shellOk) {
         .trim();
 
 
-    if (
-      !novoTexto
-    ) {
+    if (!novoTexto) {
 
       showToast(
         "O comentário não pode ficar vazio.",
         "error"
       );
+
 
       return;
 
@@ -2812,9 +3716,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -2875,6 +3777,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -2899,6 +3802,7 @@ if (shellOk) {
 
     }
 
+
     finally {
 
       confirmEditCommentBtn.disabled =
@@ -2915,9 +3819,7 @@ if (shellOk) {
 
   async function excluirComentarioConfirmado() {
 
-    if (
-      !comentarioParaExcluir
-    ) {
+    if (!comentarioParaExcluir) {
 
       return;
 
@@ -2937,9 +3839,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !post
-    ) {
+    if (!post) {
 
       return;
 
@@ -2987,6 +3887,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -3011,6 +3912,7 @@ if (shellOk) {
 
     }
 
+
     finally {
 
       confirmDeleteCommentBtn.disabled =
@@ -3027,9 +3929,7 @@ if (shellOk) {
 
   async function salvarEdicaoPost() {
 
-    if (
-      !postEmEdicao
-    ) {
+    if (!postEmEdicao) {
 
       return;
 
@@ -3042,14 +3942,13 @@ if (shellOk) {
         .trim();
 
 
-    if (
-      !novoTexto
-    ) {
+    if (!novoTexto) {
 
       showToast(
         "O texto do post não pode ficar vazio.",
         "error"
       );
+
 
       return;
 
@@ -3098,9 +3997,7 @@ if (shellOk) {
         );
 
 
-      if (
-        textoEl
-      ) {
+      if (textoEl) {
 
         textoEl.textContent =
           postEmEdicao.texto;
@@ -3128,6 +4025,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -3152,6 +4050,7 @@ if (shellOk) {
 
     }
 
+
     finally {
 
       salvarEditarPost.disabled =
@@ -3168,9 +4067,7 @@ if (shellOk) {
 
   async function excluirPostConfirmado() {
 
-    if (
-      !postParaExcluir
-    ) {
+    if (!postParaExcluir) {
 
       return;
 
@@ -3241,6 +4138,7 @@ if (shellOk) {
 
     }
 
+
     catch (
       error
     ) {
@@ -3264,6 +4162,7 @@ if (shellOk) {
       }
 
     }
+
 
     finally {
 
@@ -3291,9 +4190,7 @@ if (shellOk) {
         );
 
 
-      if (
-        !button
-      ) {
+      if (!button) {
 
         return;
 
@@ -3331,9 +4228,7 @@ if (shellOk) {
           button.dataset.communityId;
 
 
-        if (
-          !comunidadeId
-        ) {
+        if (!comunidadeId) {
 
           return;
 
@@ -3357,9 +4252,7 @@ if (shellOk) {
             );
 
 
-        if (
-          !participaDaComunidade
-        ) {
+        if (!participaDaComunidade) {
 
           localStorage.setItem(
 
@@ -3404,7 +4297,7 @@ if (shellOk) {
               "active",
 
               item.dataset.feedFilter ===
-                "communities"
+              "communities"
 
             );
 
@@ -3458,6 +4351,7 @@ if (shellOk) {
           button
         );
 
+
         return;
 
       }
@@ -3473,6 +4367,7 @@ if (shellOk) {
           button
         );
 
+
         return;
 
       }
@@ -3487,6 +4382,7 @@ if (shellOk) {
           postId,
           button
         );
+
 
         return;
 
@@ -3506,9 +4402,7 @@ if (shellOk) {
           );
 
 
-        if (
-          input
-        ) {
+        if (input) {
 
           await criarComentarioNoPost(
             postId,
@@ -3534,9 +4428,7 @@ if (shellOk) {
           );
 
 
-        if (
-          !post
-        ) {
+        if (!post) {
 
           return;
 
@@ -3603,9 +4495,7 @@ if (shellOk) {
           );
 
 
-        if (
-          !comentario
-        ) {
+        if (!comentario) {
 
           return;
 
@@ -3613,8 +4503,11 @@ if (shellOk) {
 
 
         comentarioEmEdicao = {
+
           postId,
+
           commentId,
+
         };
 
 
@@ -3639,8 +4532,11 @@ if (shellOk) {
       ) {
 
         comentarioParaExcluir = {
+
           postId,
+
           commentId,
+
         };
 
 
@@ -3851,9 +4747,7 @@ if (shellOk) {
             );
 
 
-          if (
-            comunidadesAtivas
-          ) {
+          if (comunidadesAtivas) {
 
             renderizarFiltrosComunidades();
 
@@ -3867,6 +4761,145 @@ if (shellOk) {
 
         }
       );
+
+    }
+  );
+
+
+  /* =========================================================
+     FILTRO DE CONTEÚDO
+  ========================================================= */
+
+  document
+    .querySelector(
+      ".feed-filters"
+    )
+    ?.addEventListener(
+      "click",
+      (event) => {
+
+        const toggleButton =
+          event.target.closest(
+            '[data-action="toggle-content-filter"]'
+          );
+
+
+        if (toggleButton) {
+
+          const control =
+            toggleButton.closest(
+              ".content-filter-control"
+            );
+
+
+          if (!control) {
+
+            return;
+
+          }
+
+
+          const vaiAbrir =
+            !control.classList.contains(
+              "open"
+            );
+
+
+          control.classList.toggle(
+            "open",
+            vaiAbrir
+          );
+
+
+          toggleButton.setAttribute(
+            "aria-expanded",
+            String(
+              vaiAbrir
+            )
+          );
+
+
+          return;
+
+        }
+
+
+        const button =
+          event.target.closest(
+            "[data-content-filter]"
+          );
+
+
+        if (!button) {
+
+          return;
+
+        }
+
+
+        filtroConteudoAtivo =
+          button.dataset.contentFilter ||
+          "all";
+
+
+        fecharFiltroConteudo();
+
+
+        renderizarFiltrosConteudo();
+
+
+        resetarPaginacaoFeed();
+
+
+        renderFeed();
+
+      }
+    );
+
+
+  document.addEventListener(
+    "click",
+    (event) => {
+
+      const control =
+        document.getElementById(
+          "contentFilterControl"
+        );
+
+
+      if (
+        !control ||
+        !control.classList.contains(
+          "open"
+        ) ||
+        control.contains(
+          event.target
+        )
+      ) {
+
+        return;
+
+      }
+
+
+      fecharFiltroConteudo();
+
+    }
+  );
+
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (
+        event.key ===
+        "Escape"
+      ) {
+
+        fecharFiltroConteudo();
+
+      }
 
     }
   );
@@ -3889,9 +4922,7 @@ if (shellOk) {
           );
 
 
-        if (
-          !button
-        ) {
+        if (!button) {
 
           return;
 
@@ -4064,9 +5095,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !diasAtivos.size
-    ) {
+    if (!diasAtivos.size) {
 
       return 0;
 
@@ -4138,9 +5167,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !andamento.length
-    ) {
+    if (!andamento.length) {
 
       return null;
 
@@ -4180,18 +5207,14 @@ if (shellOk) {
           }
 
 
-          if (
-            a?.prazo
-          ) {
+          if (a?.prazo) {
 
             return -1;
 
           }
 
 
-          if (
-            b?.prazo
-          ) {
+          if (b?.prazo) {
 
             return 1;
 
@@ -4233,9 +5256,7 @@ if (shellOk) {
     }
 
 
-    if (
-      !metas.length
-    ) {
+    if (!metas.length) {
 
       progressGoalTitle.textContent =
         "Sua primeira meta começa aqui";
@@ -4260,9 +5281,7 @@ if (shellOk) {
       );
 
 
-    if (
-      !metaAtiva
-    ) {
+    if (!metaAtiva) {
 
       progressGoalTitle.textContent =
         "Você concluiu todas as suas metas";
@@ -4292,9 +5311,7 @@ if (shellOk) {
       "Em andamento";
 
 
-    if (
-      metaAtiva.prazo
-    ) {
+    if (metaAtiva.prazo) {
 
       const prazo =
         new Date(
@@ -4345,9 +5362,7 @@ if (shellOk) {
 
   function renderizarPainelIndisponivel() {
 
-    if (
-      progressStreak
-    ) {
+    if (progressStreak) {
 
       progressStreak.textContent =
         "--";
@@ -4355,9 +5370,7 @@ if (shellOk) {
     }
 
 
-    if (
-      progressStreakLabel
-    ) {
+    if (progressStreakLabel) {
 
       progressStreakLabel.textContent =
         "Dados indisponíveis";
@@ -4365,9 +5378,7 @@ if (shellOk) {
     }
 
 
-    if (
-      progressFocusToday
-    ) {
+    if (progressFocusToday) {
 
       progressFocusToday.textContent =
         "--";
@@ -4375,9 +5386,7 @@ if (shellOk) {
     }
 
 
-    if (
-      progressGoalTitle
-    ) {
+    if (progressGoalTitle) {
 
       progressGoalTitle.textContent =
         "Não foi possível carregar";
@@ -4385,9 +5394,7 @@ if (shellOk) {
     }
 
 
-    if (
-      progressGoalStatus
-    ) {
+    if (progressGoalStatus) {
 
       progressGoalStatus.textContent =
         "Indisponível";
@@ -4395,9 +5402,7 @@ if (shellOk) {
     }
 
 
-    if (
-      progressGoalDescription
-    ) {
+    if (progressGoalDescription) {
 
       progressGoalDescription.textContent =
         "Seu feed continua funcionando normalmente.";
@@ -4537,9 +5542,7 @@ if (shellOk) {
         );
 
 
-      if (
-        progressStreak
-      ) {
+      if (progressStreak) {
 
         progressStreak.textContent =
           String(
@@ -4549,9 +5552,7 @@ if (shellOk) {
       }
 
 
-      if (
-        progressStreakLabel
-      ) {
+      if (progressStreakLabel) {
 
         progressStreakLabel.textContent =
 
@@ -4564,9 +5565,7 @@ if (shellOk) {
       }
 
 
-      if (
-        progressFocusToday
-      ) {
+      if (progressFocusToday) {
 
         progressFocusToday.textContent =
           formatarDuracaoPainel(
@@ -4579,6 +5578,7 @@ if (shellOk) {
       initLucide();
 
     }
+
 
     catch (
       error
@@ -4610,7 +5610,7 @@ if (shellOk) {
 
 
   /* =========================================================
-     INICIALIZAÇÃO DO FEED
+     INICIALIZAÇÃO
   ========================================================= */
 
   async function initFeed() {
@@ -4624,6 +5624,7 @@ if (shellOk) {
       usuario = {
 
         ...usuario,
+
         ...userAPI,
 
       };
@@ -4660,6 +5661,7 @@ if (shellOk) {
 
               .map(
                 (user) =>
+
                   String(
                     user.id
                   )
@@ -4668,6 +5670,7 @@ if (shellOk) {
           );
 
       }
+
 
       catch {
 
@@ -4712,6 +5715,9 @@ if (shellOk) {
         );
 
 
+      renderizarFiltrosConteudo();
+
+
       renderizarFiltrosComunidades();
 
 
@@ -4724,6 +5730,7 @@ if (shellOk) {
       configurarInfiniteScroll();
 
     }
+
 
     catch (
       error

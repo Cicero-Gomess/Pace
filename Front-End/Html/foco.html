@@ -2,51 +2,114 @@
 <html lang="pt-BR">
 
 <head>
-
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#E5F0FA"
+  >
 
-  <meta name="color-scheme" content="dark">
+  <meta
+    name="color-scheme"
+    content="light dark"
+  >
+
+  <script>
+    (() => {
+      const tema =
+        localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#E5F0FA";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#E5F0FA"
+        );
+      }
+    })();
+  </script>
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #E5F0FA;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
     }
   </style>
 
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Sala de Foco | Pace</title>
 
-  <link rel="stylesheet" href="../Css/foco.css">
+  <link
+    rel="stylesheet"
+    href="../Css/foco.css"
+  >
 
   <script src="https://unpkg.com/lucide@latest"></script>
-
 </head>
 
 <body>
 
-  <div class="bg-grid" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
 
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
 
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
 
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
 
-  <!-- =====================================================
-       SIDEBAR
-  ====================================================== -->
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
 
-  <aside class="sidebar" aria-label="Navegação principal">
-
-    <div class="sidebar-brand" aria-label="Pace">
-
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
 
@@ -63,7 +126,10 @@
     </div>
 
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
       <span class="nav-section-label">
         Comunidade
@@ -74,7 +140,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="house" class="icon"></i>
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -89,7 +158,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="compass" class="icon"></i>
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -104,7 +176,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="square-pen" class="icon"></i>
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -115,7 +190,12 @@
       </a>
 
 
-      <span class="nav-section-label nav-section-space">
+      <span
+        class="
+          nav-section-label
+          nav-section-space
+        "
+      >
         Desenvolvimento
       </span>
 
@@ -124,7 +204,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="target" class="icon"></i>
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -135,11 +218,18 @@
       </a>
 
 
-      <a href="foco.html" class="active" aria-current="page">
+      <a
+        href="foco.html"
+        class="active"
+        aria-current="page"
+      >
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="brain" class="icon"></i>
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -154,7 +244,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -169,11 +262,17 @@
 
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+      <a
+        href="notificacoes.html"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="bell" class="icon"></i>
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -188,7 +287,10 @@
 
         <span class="nav-icon-wrap">
 
-          <i data-lucide="settings" class="icon"></i>
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
 
         </span>
 
@@ -201,14 +303,23 @@
 
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
+
 
           <span class="profile-copy">
 
@@ -222,7 +333,11 @@
 
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -233,56 +348,43 @@
   </aside>
 
 
-  <!-- =====================================================
-       CONTEÚDO
-  ====================================================== -->
-
   <main class="conteudo">
 
     <div class="page-shell">
 
 
-      <!-- HERO -->
+      <header class="page-topbar">
 
-      <section class="hero-foco">
+        <div class="page-title-area">
 
-        <div class="hero-copy">
-
-          <span class="hero-badge">
-
-            <span class="badge-dot" aria-hidden="true"></span>
-
-            Entre no seu ritmo
-
+          <span class="page-eyebrow">
+            Desenvolvimento
           </span>
 
           <h1>
-            Silencie o ruído.
-            <span>
-              Faça acontecer.
-            </span>
+            Sala de foco
           </h1>
 
           <p>
-            Escolha uma intenção, defina seu tempo e transforme
-            alguns minutos de presença em progresso real.
+            Timer, metas e histórico das suas sessões.
           </p>
 
         </div>
 
 
-        <div class="hero-streak">
+        <div class="focus-streak-card">
 
-          <span class="hero-streak-icon">
+          <span class="focus-streak-icon">
 
             <i data-lucide="flame"></i>
 
           </span>
 
+
           <div>
 
             <small>
-              Sequência de foco
+              Sequência
             </small>
 
             <strong id="sequenciaFoco">
@@ -293,22 +395,13 @@
 
         </div>
 
-      </section>
+      </header>
 
-
-      <!-- ===================================================
-           PAINEL PRINCIPAL
-      ==================================================== -->
 
       <section class="focus-layout">
 
 
-        <!-- PALCO -->
-
         <article class="focus-stage">
-
-          <div class="stage-glow" aria-hidden="true"></div>
-
 
           <header class="stage-header">
 
@@ -327,15 +420,26 @@
 
             <div class="stage-tools">
 
-              <button id="toggleSom" class="tool-button" type="button" aria-label="Ativar ou desativar som" title="Som">
+              <button
+                id="toggleSom"
+                class="tool-button"
+                type="button"
+                aria-label="Ativar ou desativar som"
+                title="Som"
+              >
 
                 <i data-lucide="volume-2"></i>
 
               </button>
 
 
-              <button id="entrarTelaCheia" class="tool-button" type="button" aria-label="Abrir em tela cheia"
-                title="Tela cheia">
+              <button
+                id="entrarTelaCheia"
+                class="tool-button"
+                type="button"
+                aria-label="Abrir em tela cheia"
+                title="Tela cheia"
+              >
 
                 <i data-lucide="maximize-2"></i>
 
@@ -346,24 +450,51 @@
           </header>
 
 
-          <!-- TIMER -->
+          <div class="session-context">
+
+            <span
+              id="estadoSessao"
+              class="session-state"
+            >
+              Preparação
+            </span>
+
+
+            <span
+              class="session-context-divider"
+            ></span>
+
+
+            <span
+              id="intencaoAtiva"
+              class="session-intention"
+            >
+              Defina uma intenção para sua sessão
+            </span>
+
+          </div>
+
 
           <div class="timer-shell">
 
-            <div id="timerRing" class="timer-ring" style="--progress: 0deg">
+            <div
+              id="timerRing"
+              class="timer-ring"
+              style="--progress: 0deg"
+            >
 
               <div class="timer-inner">
 
-                <span id="estadoSessao" class="timer-label">
-                  Preparação
+                <span class="timer-mini-label">
+                  Tempo restante
                 </span>
 
                 <strong id="timerDisplay">
                   25:00
                 </strong>
 
-                <span id="intencaoAtiva" class="timer-intention">
-                  Defina uma intenção para sua sessão
+                <span class="timer-mini-copy">
+                  minutos
                 </span>
 
               </div>
@@ -373,18 +504,31 @@
           </div>
 
 
-          <!-- CONTROLES -->
-
           <div class="timer-controls">
 
-            <button id="resetarSessao" class="control-button secondary" type="button" aria-label="Reiniciar sessão">
+            <button
+              id="resetarSessao"
+              class="
+                control-button
+                secondary
+              "
+              type="button"
+              aria-label="Reiniciar sessão"
+            >
 
               <i data-lucide="rotate-ccw"></i>
 
             </button>
 
 
-            <button id="iniciarSessao" class="control-button primary" type="button">
+            <button
+              id="iniciarSessao"
+              class="
+                control-button
+                primary
+              "
+              type="button"
+            >
 
               <i data-lucide="play"></i>
 
@@ -395,8 +539,16 @@
             </button>
 
 
-            <button id="finalizarSessao" class="control-button secondary" type="button" aria-label="Finalizar sessão"
-              disabled>
+            <button
+              id="finalizarSessao"
+              class="
+                control-button
+                secondary
+              "
+              type="button"
+              aria-label="Finalizar sessão"
+              disabled
+            >
 
               <i data-lucide="square"></i>
 
@@ -405,16 +557,18 @@
           </div>
 
 
-          <p class="timer-hint">
-            Sua sessão continua contando mesmo se você atualizar a página.
-          </p>
+          <div class="stage-footer-note">
+
+            <i data-lucide="refresh-cw"></i>
+
+            <span>
+              Sua sessão continua contando mesmo se a página for atualizada.
+            </span>
+
+          </div>
 
         </article>
 
-
-        <!-- =================================================
-             CONFIGURAÇÃO
-        ================================================== -->
 
         <aside class="focus-panel">
 
@@ -423,14 +577,15 @@
             <div>
 
               <span class="panel-kicker">
-                Preparação
+                Configuração
               </span>
 
               <h2>
-                Configure sua sessão
+                Preparar sessão
               </h2>
 
             </div>
+
 
             <span class="panel-icon">
 
@@ -441,48 +596,48 @@
           </header>
 
 
-          <!-- INTENÇÃO -->
-
           <div class="form-group">
 
             <label for="intencaoSessao">
-              No que você vai focar?
+              Intenção
             </label>
 
             <div class="input-shell">
 
-              <i data-lucide="sparkles"></i>
+              <i data-lucide="pen-line"></i>
 
-              <input id="intencaoSessao" type="text" maxlength="90" placeholder="Ex.: Revisar a matéria da prova"
-                autocomplete="off">
+              <input
+                id="intencaoSessao"
+                type="text"
+                maxlength="90"
+                placeholder="Ex.: Revisar a matéria da prova"
+                autocomplete="off"
+              >
 
             </div>
 
           </div>
 
 
-          <!-- =================================================
-               NOVO META PICKER
-          ================================================== -->
-
           <div class="form-group">
 
             <label>
-              Vincular a uma meta
+              Meta vinculada
             </label>
 
 
-            <div id="metaPicker" class="meta-picker">
+            <div
+              id="metaPicker"
+              class="meta-picker"
+            >
 
 
-              <!--
-                SELECT REAL.
-
-                Continua sendo a fonte oficial para o foco.js.
-                O dropdown personalizado apenas controla este select.
-              -->
-
-              <select id="metaVinculada" class="meta-native-select" tabindex="-1" aria-hidden="true">
+              <select
+                id="metaVinculada"
+                class="meta-native-select"
+                tabindex="-1"
+                aria-hidden="true"
+              >
 
                 <option value="">
                   Selecione uma meta
@@ -491,10 +646,13 @@
               </select>
 
 
-              <!-- TRIGGER -->
-
-              <button id="metaPickerTrigger" class="meta-picker-trigger" type="button" aria-haspopup="listbox"
-                aria-expanded="false">
+              <button
+                id="metaPickerTrigger"
+                class="meta-picker-trigger"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+              >
 
                 <span class="meta-picker-main">
 
@@ -529,9 +687,13 @@
               </button>
 
 
-              <!-- MENU -->
-
-              <div id="metaPickerMenu" class="meta-picker-menu hidden">
+              <div
+                id="metaPickerMenu"
+                class="
+                  meta-picker-menu
+                  hidden
+                "
+              >
 
                 <div class="meta-picker-menu-header">
 
@@ -542,7 +704,7 @@
                     </small>
 
                     <strong>
-                      Escolha onde quer avançar
+                      Escolha uma meta
                     </strong>
 
                   </div>
@@ -559,10 +721,20 @@
                 </div>
 
 
-                <div id="metaPickerOptions" class="meta-picker-options" role="listbox"></div>
+                <div
+                  id="metaPickerOptions"
+                  class="meta-picker-options"
+                  role="listbox"
+                ></div>
 
 
-                <div id="metaPickerEmpty" class="meta-picker-empty hidden">
+                <div
+                  id="metaPickerEmpty"
+                  class="
+                    meta-picker-empty
+                    hidden
+                  "
+                >
 
                   <span>
 
@@ -588,17 +760,15 @@
 
             </div>
 
-
-            <small class="field-helper">
-              Escolha a meta em que esta sessão vai ajudar você a avançar.
-            </small>
-
           </div>
 
 
-          <!-- DURAÇÃO -->
-
-          <div class="form-group">
+          <div
+            class="
+              form-group
+              duration-group
+            "
+          >
 
             <div class="label-row">
 
@@ -613,27 +783,50 @@
             </div>
 
 
-            <div class="duration-grid" role="group" aria-label="Duração da sessão">
+            <div
+              class="duration-grid"
+              role="group"
+              aria-label="Duração da sessão"
+            >
 
-              <button class="duration-option" type="button" data-minutes="15">
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="15"
+              >
                 15
                 <span>min</span>
               </button>
 
 
-              <button class="duration-option active" type="button" data-minutes="25">
+              <button
+                class="
+                  duration-option
+                  active
+                "
+                type="button"
+                data-minutes="25"
+              >
                 25
                 <span>min</span>
               </button>
 
 
-              <button class="duration-option" type="button" data-minutes="45">
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="45"
+              >
                 45
                 <span>min</span>
               </button>
 
 
-              <button class="duration-option" type="button" data-minutes="60">
+              <button
+                class="duration-option"
+                type="button"
+                data-minutes="60"
+              >
                 60
                 <span>min</span>
               </button>
@@ -643,19 +836,32 @@
           </div>
 
 
-          <!-- TEMPO PERSONALIZADO -->
-
-          <div class="form-group">
+          <div
+            class="
+              form-group
+              custom-time-group
+            "
+          >
 
             <label for="duracaoPersonalizada">
               Tempo personalizado
             </label>
 
+
             <div class="custom-duration">
 
-              <input id="duracaoPersonalizada" type="number" min="1" max="240" placeholder="Minutos">
+              <input
+                id="duracaoPersonalizada"
+                type="number"
+                min="1"
+                max="240"
+                placeholder="Minutos"
+              >
 
-              <button id="aplicarDuracao" type="button">
+              <button
+                id="aplicarDuracao"
+                type="button"
+              >
                 Aplicar
               </button>
 
@@ -668,13 +874,12 @@
 
             <span>
 
-              <i data-lucide="shield-check"></i>
+              <i data-lucide="maximize"></i>
 
             </span>
 
             <p>
-              Durante a sessão, o painel entra em modo imersivo
-              para reduzir distrações.
+              Você pode abrir a sessão em modo imersivo durante o foco.
             </p>
 
           </div>
@@ -684,11 +889,10 @@
       </section>
 
 
-      <!-- ===================================================
-           RESUMO
-      ==================================================== -->
-
-      <section class="focus-insights">
+      <section
+        class="focus-insights"
+        aria-label="Resumo do foco"
+      >
 
         <article class="insight-card">
 
@@ -701,7 +905,7 @@
           <div>
 
             <small>
-              Tempo focado hoje
+              Foco hoje
             </small>
 
             <strong id="tempoHoje">
@@ -715,7 +919,12 @@
 
         <article class="insight-card">
 
-          <span class="insight-icon success">
+          <span
+            class="
+              insight-icon
+              success
+            "
+          >
 
             <i data-lucide="circle-check-big"></i>
 
@@ -738,7 +947,12 @@
 
         <article class="insight-card">
 
-          <span class="insight-icon accent">
+          <span
+            class="
+              insight-icon
+              accent
+            "
+          >
 
             <i data-lucide="calendar-check-2"></i>
 
@@ -761,10 +975,6 @@
       </section>
 
 
-      <!-- ===================================================
-           HISTÓRICO
-      ==================================================== -->
-
       <section class="history-card">
 
         <header class="history-header">
@@ -776,13 +986,17 @@
             </span>
 
             <h2>
-              Suas sessões recentes
+              Sessões recentes
             </h2>
 
           </div>
 
 
-          <button id="limparHistorico" class="clear-history" type="button">
+          <button
+            id="limparHistorico"
+            class="clear-history"
+            type="button"
+          >
 
             <i data-lucide="trash-2"></i>
 
@@ -793,10 +1007,16 @@
         </header>
 
 
-        <div id="historicoSessoes" class="history-list"></div>
+        <div
+          id="historicoSessoes"
+          class="history-list"
+        ></div>
 
 
-        <div id="historicoVazio" class="history-empty">
+        <div
+          id="historicoVazio"
+          class="history-empty"
+        >
 
           <span>
 
@@ -805,12 +1025,11 @@
           </span>
 
           <h3>
-            Seu foco ainda vai deixar marcas aqui.
+            Nenhuma sessão registrada.
           </h3>
 
           <p>
-            Conclua sua primeira sessão para começar a construir
-            seu histórico de evolução.
+            As sessões concluídas aparecerão aqui.
           </p>
 
         </div>
@@ -822,20 +1041,23 @@
   </main>
 
 
-  <!-- =====================================================
-       MODO IMERSIVO
-  ====================================================== -->
-
-  <div id="immersiveMode" class="immersive-mode hidden" aria-hidden="true">
-
-    <div class="immersive-noise" aria-hidden="true"></div>
-
+  <div
+    id="immersiveMode"
+    class="
+      immersive-mode
+      hidden
+    "
+    aria-hidden="true"
+  >
 
     <header class="immersive-header">
 
       <div class="immersive-brand">
 
-        <img src="../Images/Ícone_Pace.png" alt="Logo Pace">
+        <img
+          src="../Images/Ícone_Pace.png"
+          alt="Logo Pace"
+        >
 
         <span>
           Pace Focus
@@ -844,7 +1066,10 @@
       </div>
 
 
-      <button id="sairImersivo" type="button">
+      <button
+        id="sairImersivo"
+        type="button"
+      >
 
         <i data-lucide="minimize-2"></i>
 
@@ -871,14 +1096,14 @@
         Sua intenção
       </h2>
 
-      <p>
-        Continue. O próximo minuto também conta.
-      </p>
-
 
       <div class="immersive-actions">
 
-        <button id="immersivePause" class="immersive-primary" type="button">
+        <button
+          id="immersivePause"
+          class="immersive-primary"
+          type="button"
+        >
 
           <i data-lucide="pause"></i>
 
@@ -887,7 +1112,11 @@
         </button>
 
 
-        <button id="immersiveFinish" class="immersive-secondary" type="button">
+        <button
+          id="immersiveFinish"
+          class="immersive-secondary"
+          type="button"
+        >
 
           <i data-lucide="square"></i>
 
@@ -902,15 +1131,20 @@
   </div>
 
 
-  <!-- =====================================================
-       MODAL CONCLUSÃO
-  ====================================================== -->
+  <div
+    id="conclusaoModal"
+    class="
+      modal-overlay
+      hidden
+    "
+  >
 
-  <div id="conclusaoModal" class="modal-overlay hidden">
-
-    <section class="conclusion-modal" role="dialog" aria-modal="true" aria-labelledby="conclusaoTitulo">
-
-      <div class="conclusion-burst" aria-hidden="true"></div>
+    <section
+      class="conclusion-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="conclusaoTitulo"
+    >
 
       <span class="conclusion-icon">
 
@@ -923,7 +1157,7 @@
       </span>
 
       <h2 id="conclusaoTitulo">
-        Você fez acontecer.
+        Sessão finalizada
       </h2>
 
       <p id="conclusaoResumo">
@@ -961,8 +1195,11 @@
       </div>
 
 
-      <button id="fecharConclusao" type="button">
-        Continuar evoluindo
+      <button
+        id="fecharConclusao"
+        type="button"
+      >
+        Fechar
       </button>
 
     </section>
@@ -970,13 +1207,19 @@
   </div>
 
 
-  <!-- =====================================================
-       MODAL CONFIRMAÇÃO
-  ====================================================== -->
+  <div
+    id="confirmModal"
+    class="
+      modal-overlay
+      hidden
+    "
+  >
 
-  <div id="confirmModal" class="modal-overlay hidden">
-
-    <section class="confirm-modal" role="dialog" aria-modal="true">
+    <section
+      class="confirm-modal"
+      role="dialog"
+      aria-modal="true"
+    >
 
       <span class="confirm-icon">
 
@@ -995,12 +1238,20 @@
 
       <div class="confirm-actions">
 
-        <button id="cancelarConfirmacao" class="confirm-secondary" type="button">
+        <button
+          id="cancelarConfirmacao"
+          class="confirm-secondary"
+          type="button"
+        >
           Continuar focando
         </button>
 
 
-        <button id="aceitarConfirmacao" class="confirm-primary" type="button">
+        <button
+          id="aceitarConfirmacao"
+          class="confirm-primary"
+          type="button"
+        >
           Finalizar sessão
         </button>
 
@@ -1011,12 +1262,19 @@
   </div>
 
 
-  <!-- TOAST -->
+  <div
+    id="toast"
+    class="
+      toast
+      hidden
+    "
+  ></div>
 
-  <div id="toast" class="toast hidden"></div>
 
-
-  <script type="module" src="../JavaScript/foco.js"></script>
+  <script
+    type="module"
+    src="../JavaScript/foco.js"
+  ></script>
 
 </body>
 

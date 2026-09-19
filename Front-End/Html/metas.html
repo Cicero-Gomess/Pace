@@ -4,58 +4,166 @@
 <head>
   <meta charset="UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <meta name="theme-color" content="#07162f">
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#E5F0FA"
+  >
 
-  <meta name="color-scheme" content="dark">
+  <meta
+    name="color-scheme"
+    content="light dark"
+  >
+
+  <script>
+    (() => {
+      const tema =
+        localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#E5F0FA";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#E5F0FA"
+        );
+      }
+    })();
+  </script>
 
   <style>
     html,
     body {
       margin: 0;
-      background: #07162f;
+      background: #E5F0FA;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
     }
   </style>
 
-  <link rel="icon" type="image/png" href="../Images/Ícone_Pace.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="../Images/Ícone_Pace.png"
+  >
 
   <title>Metas | Pace</title>
 
-  <link rel="stylesheet" href="../Css/metas.css">
+  <link
+    rel="stylesheet"
+    href="../Css/metas.css"
+  >
 
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-  <div class="bg-grid" aria-hidden="true"></div>
-  <div class="bg-orb orb-1" aria-hidden="true"></div>
-  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
 
-  <!-- SIDEBAR -->
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
 
-  <aside class="sidebar" aria-label="Navegação principal">
+  <div
+    class="bg-grid"
+    aria-hidden="true"
+  ></div>
 
-    <div class="sidebar-brand" aria-label="Pace">
-      <img src="../Images/Ícone_Pace.png" class="logo" alt="Logo Pace">
+  <div
+    class="bg-orb orb-1"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    class="bg-orb orb-2"
+    aria-hidden="true"
+  ></div>
+
+
+  <!-- =========================================
+       SIDEBAR
+  ========================================== -->
+
+  <aside
+    class="sidebar"
+    aria-label="Navegação principal"
+  >
+
+    <div
+      class="sidebar-brand"
+      aria-label="Pace"
+    >
+
+      <img
+        src="../Images/Ícone_Pace.png"
+        class="logo"
+        alt="Logo Pace"
+      >
 
       <div class="brand-copy">
-        <strong>Pace</strong>
-        <span>Evolução contínua</span>
+
+        <strong>
+          Pace
+        </strong>
+
+        <span>
+          Evolução contínua
+        </span>
+
       </div>
+
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegação do Pace">
+
+    <nav
+      class="sidebar-nav"
+      aria-label="Navegação do Pace"
+    >
 
       <span class="nav-section-label">
         Comunidade
       </span>
 
+
       <a href="feed.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="house" class="icon"></i>
+
+          <i
+            data-lucide="house"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -64,10 +172,16 @@
 
       </a>
 
+
       <a href="explorar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="compass" class="icon"></i>
+
+          <i
+            data-lucide="compass"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -76,10 +190,16 @@
 
       </a>
 
+
       <a href="postar.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="square-pen" class="icon"></i>
+
+          <i
+            data-lucide="square-pen"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -88,14 +208,30 @@
 
       </a>
 
-      <span class="nav-section-label nav-section-space">
+
+      <span
+        class="
+          nav-section-label
+          nav-section-space
+        "
+      >
         Desenvolvimento
       </span>
 
-      <a href="metas.html" class="active" aria-current="page">
+
+      <a
+        href="metas.html"
+        class="active"
+        aria-current="page"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="target" class="icon"></i>
+
+          <i
+            data-lucide="target"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -104,10 +240,16 @@
 
       </a>
 
+
       <a href="foco.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="brain" class="icon"></i>
+
+          <i
+            data-lucide="brain"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -116,10 +258,16 @@
 
       </a>
 
+
       <a href="evolucao.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="chart-no-axes-combined" class="icon"></i>
+
+          <i
+            data-lucide="chart-no-axes-combined"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -130,12 +278,21 @@
 
     </nav>
 
+
     <div class="sidebar-footer">
 
-      <a href="#" aria-label="Notificações">
+      <a
+        href="notificacoes.html"
+        aria-label="Notificações"
+      >
 
         <span class="nav-icon-wrap">
-          <i data-lucide="bell" class="icon"></i>
+
+          <i
+            data-lucide="bell"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -144,10 +301,16 @@
 
       </a>
 
+
       <a href="configurações.html">
 
         <span class="nav-icon-wrap">
-          <i data-lucide="settings" class="icon"></i>
+
+          <i
+            data-lucide="settings"
+            class="icon"
+          ></i>
+
         </span>
 
         <span class="text">
@@ -156,23 +319,44 @@
 
       </a>
 
+
       <div class="sidebar-profile">
 
-        <a href="perfil.html" class="perfil">
+        <a
+          href="perfil.html"
+          class="perfil"
+        >
 
           <span class="profile-ring">
 
-            <img id="fotoSidebar" class="foto-perfil" src="../Images/avatar-placeholder.svg" alt="Foto do perfil"
-              onerror="this.src='../Images/Ícone_Pace.png'">
+            <img
+              id="fotoSidebar"
+              class="foto-perfil"
+              src="../Images/avatar-placeholder.svg"
+              alt="Foto do perfil"
+              onerror="this.src='../Images/Ícone_Pace.png'"
+            >
 
           </span>
+
 
           <span class="profile-copy">
-            <strong>Meu perfil</strong>
-            <small>Ver perfil</small>
+
+            <strong>
+              Meu perfil
+            </strong>
+
+            <small>
+              Ver perfil
+            </small>
+
           </span>
 
-          <i data-lucide="chevron-right" class="profile-arrow"></i>
+
+          <i
+            data-lucide="chevron-right"
+            class="profile-arrow"
+          ></i>
 
         </a>
 
@@ -182,36 +366,44 @@
 
   </aside>
 
-  <!-- CONTEÚDO -->
+
+  <!-- =========================================
+       CONTEÚDO
+  ========================================== -->
 
   <main class="conteudo">
 
     <div class="page-shell">
 
-      <section class="hero-metas">
 
-        <div class="hero-copy">
+      <!-- =====================================
+           CABEÇALHO
+      ====================================== -->
 
-          <span class="hero-badge">
+      <header class="page-topbar">
 
-            <span class="badge-dot" aria-hidden="true"></span>
+        <div class="page-title-area">
 
-            Seu espaço de evolução
-
+          <span class="page-eyebrow">
+            Desenvolvimento
           </span>
 
           <h1>
-            Metas que viram progresso.
+            Metas
           </h1>
 
           <p>
-            Organize o que importa, avance no seu ritmo
-            e acompanhe sua evolução de forma clara.
+            Organize e acompanhe seus objetivos.
           </p>
 
         </div>
 
-        <button id="abrirNovaMeta" class="btn-nova-meta" type="button">
+
+        <button
+          id="abrirNovaMeta"
+          class="btn-nova-meta"
+          type="button"
+        >
 
           <i data-lucide="plus"></i>
 
@@ -221,39 +413,61 @@
 
         </button>
 
-      </section>
+      </header>
 
-      <!-- RESUMO -->
 
-      <section class="dashboard-metas">
+      <!-- =====================================
+           RESUMO
+      ====================================== -->
 
-        <article class="resumo-card resumo-principal">
+      <section
+        class="metas-overview"
+        aria-label="Resumo das metas"
+      >
 
-          <div class="resumo-topo">
+        <article class="overview-main">
+
+          <div class="overview-head">
 
             <div>
-              <span class="resumo-kicker">
+
+              <span class="overview-kicker">
                 Visão geral
               </span>
 
               <h2>
-                Seu momento
+                Seu progresso
               </h2>
+
             </div>
 
-            <span class="resumo-icon">
+
+            <span
+              class="overview-icon"
+              aria-hidden="true"
+            >
+
               <i data-lucide="activity"></i>
+
             </span>
 
           </div>
 
+
           <div class="status-overview">
 
-            <span class="status-overview-icon">
+            <span
+              class="status-overview-icon"
+              aria-hidden="true"
+            >
+
               <i data-lucide="route"></i>
+
             </span>
 
+
             <div>
+
               <strong id="statusResumo">
                 Nenhuma meta ativa
               </strong>
@@ -261,75 +475,107 @@
               <span id="statusResumoTexto">
                 Crie uma meta e comece seu próximo passo.
               </span>
+
             </div>
 
           </div>
 
         </article>
 
-        <article class="resumo-card">
 
-          <span class="resumo-icon pequeno">
-            <i data-lucide="list-checks"></i>
-          </span>
+        <section
+          class="overview-metrics"
+          aria-label="Indicadores das metas"
+        >
 
-          <div>
+          <article class="metric-item">
 
-            <strong id="totalMetas">
-              0
-            </strong>
+            <span
+              class="metric-icon"
+              aria-hidden="true"
+            >
 
-            <span>
-              metas criadas
+              <i data-lucide="list-checks"></i>
+
             </span>
 
-          </div>
 
-        </article>
+            <div>
 
-        <article class="resumo-card">
+              <strong id="totalMetas">
+                0
+              </strong>
 
-          <span class="resumo-icon pequeno sucesso">
-            <i data-lucide="circle-check-big"></i>
-          </span>
+              <span>
+                metas criadas
+              </span>
 
-          <div>
+            </div>
 
-            <strong id="metasConcluidas">
-              0
-            </strong>
+          </article>
 
-            <span>
-              concluídas
+
+          <article class="metric-item">
+
+            <span
+              class="metric-icon success"
+              aria-hidden="true"
+            >
+
+              <i data-lucide="circle-check-big"></i>
+
             </span>
 
-          </div>
 
-        </article>
+            <div>
 
-        <article class="resumo-card">
+              <strong id="metasConcluidas">
+                0
+              </strong>
 
-          <span class="resumo-icon pequeno foco">
-            <i data-lucide="flame"></i>
-          </span>
+              <span>
+                concluídas
+              </span>
 
-          <div>
+            </div>
 
-            <strong id="metasEmAndamento">
-              0
-            </strong>
+          </article>
 
-            <span>
-              em andamento
+
+          <article class="metric-item">
+
+            <span
+              class="metric-icon warning"
+              aria-hidden="true"
+            >
+
+              <i data-lucide="flame"></i>
+
             </span>
 
-          </div>
 
-        </article>
+            <div>
+
+              <strong id="metasEmAndamento">
+                0
+              </strong>
+
+              <span>
+                em andamento
+              </span>
+
+            </div>
+
+          </article>
+
+        </section>
 
       </section>
 
-      <!-- ÁREA DE METAS -->
+
+      <!-- =====================================
+           ÁREA DE METAS
+      ====================================== -->
 
       <section class="metas-workspace">
 
@@ -347,27 +593,55 @@
 
           </div>
 
+
           <div class="workspace-actions">
 
-            <label class="search-box" for="buscarMeta">
+            <label
+              class="search-box"
+              for="buscarMeta"
+            >
 
               <i data-lucide="search"></i>
 
-              <input id="buscarMeta" type="search" placeholder="Buscar meta..." autocomplete="off">
+              <input
+                id="buscarMeta"
+                type="search"
+                placeholder="Buscar meta..."
+                autocomplete="off"
+              >
 
             </label>
 
-            <div class="filtros" role="group" aria-label="Filtros de metas">
 
-              <button class="filtro active" type="button" data-filter="todas">
+            <div
+              class="filtros"
+              role="group"
+              aria-label="Filtros de metas"
+            >
+
+              <button
+                class="filtro active"
+                type="button"
+                data-filter="todas"
+              >
                 Todas
               </button>
 
-              <button class="filtro" type="button" data-filter="andamento">
+
+              <button
+                class="filtro"
+                type="button"
+                data-filter="andamento"
+              >
                 Em andamento
               </button>
 
-              <button class="filtro" type="button" data-filter="concluidas">
+
+              <button
+                class="filtro"
+                type="button"
+                data-filter="concluidas"
+              >
                 Concluídas
               </button>
 
@@ -377,33 +651,63 @@
 
         </header>
 
-        <div id="metasLoading" class="metas-loading hidden" role="status" aria-live="polite">
-          <span class="loading-spinner" aria-hidden="true"></span>
-          <span>Carregando suas metas...</span>
-        </div>
 
-        <div id="metasLista" class="metas-grid"></div>
+        <div
+          id="metasLoading"
+          class="metas-loading hidden"
+          role="status"
+          aria-live="polite"
+        >
 
-        <div id="estadoVazio" class="estado-vazio">
+          <span
+            class="loading-spinner"
+            aria-hidden="true"
+          ></span>
 
-          <span class="estado-icon">
-            <i data-lucide="goal"></i>
+          <span>
+            Carregando suas metas...
           </span>
 
+        </div>
+
+
+        <div
+          id="metasLista"
+          class="metas-grid"
+        ></div>
+
+
+        <div
+          id="estadoVazio"
+          class="estado-vazio"
+        >
+
+          <span class="estado-icon">
+
+            <i data-lucide="goal"></i>
+
+          </span>
+
+
           <h3>
-            Sua primeira meta começa aqui.
+            Nenhuma meta por aqui.
           </h3>
+
 
           <p>
             Crie uma meta para começar a organizar seus objetivos.
-            Nada será preenchido automaticamente.
           </p>
 
-          <button id="abrirNovaMetaVazio" class="btn-vazio" type="button">
+
+          <button
+            id="abrirNovaMetaVazio"
+            class="btn-vazio"
+            type="button"
+          >
 
             <i data-lucide="plus"></i>
 
-            Criar primeira meta
+            Criar meta
 
           </button>
 
@@ -415,22 +719,39 @@
 
   </main>
 
-  <!-- MODAL CRIAR E EDITAR -->
 
-  <div id="metaModal" class="modal-overlay hidden">
+  <!-- =========================================
+       MODAL CRIAR / EDITAR
+  ========================================== -->
 
-    <section class="meta-modal" role="dialog" aria-modal="true" aria-labelledby="metaModalTitulo">
+  <div
+    id="metaModal"
+    class="modal-overlay hidden"
+  >
 
-      <button id="fecharMetaModal" class="modal-close" type="button" aria-label="Fechar">
+    <section
+      class="meta-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="metaModalTitulo"
+    >
+
+      <button
+        id="fecharMetaModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar"
+      >
 
         <i data-lucide="x"></i>
 
       </button>
 
+
       <header class="modal-head">
 
         <span class="modal-kicker">
-          Planeje seu próximo passo
+          Meta
         </span>
 
         <h2 id="metaModalTitulo">
@@ -438,14 +759,19 @@
         </h2>
 
         <p>
-          Defina um objetivo claro. Quando terminar, marque a meta como concluída.
+          Preencha as informações abaixo.
         </p>
 
       </header>
 
+
       <form id="metaForm">
 
-        <input id="metaId" type="hidden">
+        <input
+          id="metaId"
+          type="hidden"
+        >
+
 
         <div class="form-group">
 
@@ -457,11 +783,18 @@
 
             <i data-lucide="target"></i>
 
-            <input id="metaTitulo" type="text" maxlength="80" placeholder="Ex.: Finalizar meu projeto" required>
+            <input
+              id="metaTitulo"
+              type="text"
+              maxlength="80"
+              placeholder="Ex.: Finalizar meu projeto"
+              required
+            >
 
           </div>
 
         </div>
+
 
         <div class="form-group">
 
@@ -469,9 +802,14 @@
             Descrição
           </label>
 
-          <textarea id="metaDescricao" maxlength="240" placeholder="Descreva o que você deseja alcançar"></textarea>
+          <textarea
+            id="metaDescricao"
+            maxlength="240"
+            placeholder="Descreva o que você deseja alcançar"
+          ></textarea>
 
         </div>
+
 
         <div class="form-grid">
 
@@ -517,6 +855,7 @@
 
           </div>
 
+
           <div class="form-group">
 
             <label for="metaPrazo">
@@ -527,7 +866,10 @@
 
               <i data-lucide="calendar-days"></i>
 
-              <input id="metaPrazo" type="date">
+              <input
+                id="metaPrazo"
+                type="date"
+              >
 
             </div>
 
@@ -536,14 +878,21 @@
         </div>
 
 
-
         <div class="modal-actions">
 
-          <button id="cancelarMeta" class="btn-secondary" type="button">
+          <button
+            id="cancelarMeta"
+            class="btn-secondary"
+            type="button"
+          >
             Cancelar
           </button>
 
-          <button class="btn-primary" type="submit">
+
+          <button
+            class="btn-primary"
+            type="submit"
+          >
 
             <i data-lucide="check"></i>
 
@@ -559,31 +908,55 @@
 
   </div>
 
-  <!-- MODAL EXCLUSÃO -->
 
-  <div id="confirmarExclusaoModal" class="modal-overlay hidden">
+  <!-- =========================================
+       MODAL EXCLUSÃO
+  ========================================== -->
 
-    <section class="confirm-modal" role="dialog" aria-modal="true">
+  <div
+    id="confirmarExclusaoModal"
+    class="modal-overlay hidden"
+  >
+
+    <section
+      class="confirm-modal"
+      role="dialog"
+      aria-modal="true"
+    >
 
       <span class="confirm-icon">
+
         <i data-lucide="trash-2"></i>
+
       </span>
+
 
       <h2>
         Excluir meta?
       </h2>
 
+
       <p>
         Essa ação remove a meta permanentemente da sua conta.
       </p>
 
+
       <div class="modal-actions">
 
-        <button id="cancelarExclusao" class="btn-secondary" type="button">
+        <button
+          id="cancelarExclusao"
+          class="btn-secondary"
+          type="button"
+        >
           Cancelar
         </button>
 
-        <button id="confirmarExclusao" class="btn-danger" type="button">
+
+        <button
+          id="confirmarExclusao"
+          class="btn-danger"
+          type="button"
+        >
           Excluir
         </button>
 
@@ -593,9 +966,19 @@
 
   </div>
 
-  <div id="metasToast" class="metas-toast hidden" role="status" aria-live="polite"></div>
 
-  <script type="module" src="../JavaScript/metas.js"></script>
+  <div
+    id="metasToast"
+    class="metas-toast hidden"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+
+  <script
+    type="module"
+    src="../JavaScript/metas.js"
+  ></script>
 
 </body>
 

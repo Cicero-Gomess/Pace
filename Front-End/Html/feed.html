@@ -10,6 +10,53 @@
     content="width=device-width, initial-scale=1.0"
   >
 
+  <meta
+    id="themeColorMeta"
+    name="theme-color"
+    content="#EAF3FB"
+  >
+
+  <script>
+    (() => {
+      const tema = localStorage.getItem("darkMode");
+
+      const dark =
+        tema === "true" ||
+        tema === "dark";
+
+      document.documentElement.dataset.theme =
+        dark ? "dark" : "light";
+
+      document.documentElement.style.backgroundColor =
+        dark ? "#06152D" : "#EAF3FB";
+
+      const meta =
+        document.getElementById("themeColorMeta");
+
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          dark ? "#06152D" : "#EAF3FB"
+        );
+      }
+    })();
+  </script>
+
+  <style>
+    html {
+      background: #EAF3FB;
+    }
+
+    html[data-theme="dark"] {
+      background: #06152D;
+      color-scheme: dark;
+    }
+
+    html[data-theme="dark"] body {
+      background: #06152D;
+    }
+  </style>
+
   <link
     rel="icon"
     type="image/png"
@@ -29,6 +76,18 @@
 
 
 <body>
+
+  <script>
+    (() => {
+      const dark =
+        document.documentElement.dataset.theme === "dark";
+
+      document.body.classList.toggle(
+        "dark",
+        dark
+      );
+    })();
+  </script>
 
 
   <!-- =========================================
@@ -207,7 +266,7 @@
 
 
       <a
-        href="#"
+        href="notificacoes.html"
         aria-label="Notificações"
       >
 

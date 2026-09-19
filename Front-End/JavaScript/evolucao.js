@@ -138,6 +138,26 @@ const elementos = {
       "weekChartHelper"
     ),
 
+  weekChartYAxis:
+    document.getElementById(
+      "weekChartYAxis"
+    ),
+
+  weekTotalMinutes:
+    document.getElementById(
+      "weekTotalMinutes"
+    ),
+
+  weekAverageMinutes:
+    document.getElementById(
+      "weekAverageMinutes"
+    ),
+
+  bestFocusDay:
+    document.getElementById(
+      "bestFocusDay"
+    ),
+
   evolutionTimeline:
     document.getElementById(
       "evolutionTimeline"
@@ -676,7 +696,6 @@ function normalizarMeta(
 
 /*
   API = MINUTOS
-
   FRONT = SEGUNDOS
 */
 
@@ -1243,19 +1262,6 @@ function calcularScore(
   }
 
 
-  /*
-    Não existe mais porcentagem manual de meta.
-
-    A única razão percentual aqui é:
-
-    metas concluídas
-        ÷
-    total de metas
-
-    Isso representa resultado global,
-    não progresso digitado pelo usuário.
-  */
-
   const taxaMetas =
     resumo.totalMetas >
     0
@@ -1358,10 +1364,8 @@ function atualizarIndice(
     label =
       "Ritmo em construção";
 
-
     titulo =
       "Seu progresso está ganhando forma.";
-
 
     descricao =
       "Continue repetindo as ações que estão funcionando.";
@@ -1377,10 +1381,8 @@ function atualizarIndice(
     label =
       "Constância sólida";
 
-
     titulo =
       "Sua consistência já está aparecendo.";
-
 
     descricao =
       "Metas e foco estão trabalhando juntos.";
@@ -1396,10 +1398,8 @@ function atualizarIndice(
     label =
       "Alta evolução";
 
-
     titulo =
       "Você está vivendo um ótimo momento.";
-
 
     descricao =
       "Continue protegendo sua rotina e concluindo seus objetivos.";
@@ -1806,8 +1806,7 @@ function renderizarGrafico() {
 
 
     data.setDate(
-      data.getDate() -
-      i
+      data.getDate() - i
     );
 
 
@@ -1827,7 +1826,6 @@ function renderizarGrafico() {
 
     const segundos =
       sessoes
-
         .filter(
           (
             sessao
@@ -1835,7 +1833,6 @@ function renderizarGrafico() {
             sessao.date ===
             chave
         )
-
         .reduce(
           (
             total,
@@ -1847,41 +1844,192 @@ function renderizarGrafico() {
         );
 
 
-    dias.push(
-      {
+    dias.push({
 
-        data,
+      data,
 
-        segundos,
+      segundos,
 
-      }
-    );
+      minutos:
+        Math.round(
+          segundos /
+          60
+        ),
+
+    });
 
   }
 
 
-  const maior =
+  const totalMinutos =
+    dias.reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.minutos,
+      0
+    );
+
+
+  const mediaMinutos =
+    Math.round(
+      totalMinutos /
+      dias.length
+    );
+
+
+  const melhorDia =
+    dias.reduce(
+      (
+        melhor,
+        item
+      ) =>
+        item.segundos >
+        melhor.segundos
+          ? item
+          : melhor,
+      dias[0] || {
+        data:
+          new Date(),
+        segundos:
+          0,
+        minutos:
+          0,
+      }
+    );
+
+
+  const maiorMinutos =
     Math.max(
       ...dias.map(
         (
           item
         ) =>
-          item.segundos
+          item.minutos
       ),
-      1
+      0
     );
 
 
-  const formatador =
+  const escalaTopo =
+    maiorMinutos <=
+    10
+      ? 10
+      : maiorMinutos <=
+        30
+        ? Math.ceil(
+            maiorMinutos /
+            5
+          ) *
+          5
+        : Math.ceil(
+            maiorMinutos /
+            10
+          ) *
+          10;
+
+
+  const ticks = [
+
+    escalaTopo,
+
+    Math.round(
+      escalaTopo *
+      0.75
+    ),
+
+    Math.round(
+      escalaTopo *
+      0.5
+    ),
+
+    Math.round(
+      escalaTopo *
+      0.25
+    ),
+
+    0,
+
+  ];
+
+
+  const formatadorCurto =
     new Intl.DateTimeFormat(
       "pt-BR",
       {
-
         weekday:
           "short",
-
       }
     );
+
+
+  const formatadorLongo =
+    new Intl.DateTimeFormat(
+      "pt-BR",
+      {
+        weekday:
+          "long",
+      }
+    );
+
+
+  if (
+    elementos.weekChartYAxis
+  ) {
+
+    elementos.weekChartYAxis.innerHTML =
+      ticks
+        .map(
+          (
+            valor
+          ) =>
+            `<span>${valor}m</span>`
+        )
+        .join("");
+
+  }
+
+
+  if (
+    elementos.weekTotalMinutes
+  ) {
+
+    elementos.weekTotalMinutes.textContent =
+      `${totalMinutos} min`;
+
+  }
+
+
+  if (
+    elementos.weekAverageMinutes
+  ) {
+
+    elementos.weekAverageMinutes.textContent =
+      `${mediaMinutos} min`;
+
+  }
+
+
+  if (
+    elementos.bestFocusDay
+  ) {
+
+    elementos.bestFocusDay.textContent =
+      melhorDia.minutos >
+      0
+        ? `${formatadorLongo
+            .format(
+              melhorDia.data
+            )
+            .replace(
+              "-feira",
+              ""
+            )} · ${melhorDia.minutos} min`
+        : "Sem atividade";
+
+  }
 
 
   elementos.weekChart.innerHTML =
@@ -1892,66 +2040,76 @@ function renderizarGrafico() {
         ) => {
 
           const altura =
-            item.segundos
+            item.minutos >
+            0
               ? Math.max(
                   8,
                   (
-                    item.segundos /
-                    maior
+                    item.minutos /
+                    escalaTopo
                   ) *
-                    100
+                  100
                 )
-              : 2;
+              : 4;
+
+
+          const labelCurta =
+            formatadorCurto
+              .format(
+                item.data
+              )
+              .replace(
+                ".",
+                ""
+              )
+              .slice(
+                0,
+                3
+              );
+
+
+          const labelLonga =
+            formatadorLongo
+              .format(
+                item.data
+              )
+              .replace(
+                "-feira",
+                ""
+              );
 
 
           return `
 
-            <div class="day-column">
+            <div class="chart-column">
 
-              <span class="day-value">
-
-                ${
-                  item.segundos
-                    ? `${Math.round(
-                        item.segundos /
-                        60
-                      )}m`
-                    : "0"
-                }
-
-              </span>
-
-
-              <div class="bar-shell">
+              <div class="chart-bar-wrap">
 
                 <span
-                  class="day-bar ${
-                    !item.segundos
+                  class="chart-bar ${
+                    item.minutos ===
+                    0
                       ? "zero"
                       : ""
                   }"
                   style="height:${altura}%"
+                  title="${item.minutos} min em ${labelLonga}"
                 ></span>
 
               </div>
 
 
-              <span class="day-label">
+              <div class="chart-column-footer">
 
-                ${formatador
-                  .format(
-                    item.data
-                  )
-                  .replace(
-                    ".",
-                    ""
-                  )
-                  .slice(
-                    0,
-                    3
-                  )}
+                <strong>
+                  ${item.minutos}m
+                </strong>
 
-              </span>
+                <span>
+                  ${labelCurta}
+                </span>
+
+              </div>
 
             </div>
 
@@ -2297,7 +2455,7 @@ function renderizarTrilhaDeConstancia() {
 
   const semanas =
     obterUltimasSemanas(
-      12
+      8
     );
 
 
@@ -2361,14 +2519,15 @@ function renderizarTrilhaDeConstancia() {
     dados
       .map(
         (
-          semana
+          semana,
+          indice
         ) => {
 
           const porcentagem =
             semana.totalSegundos >
             0
               ? Math.max(
-                  10,
+                  6,
                   Math.round(
                     (
                       semana.totalSegundos /
@@ -2380,120 +2539,87 @@ function renderizarTrilhaDeConstancia() {
               : 0;
 
 
-          const ativa =
-            semana.totalSegundos >
-            0;
-
-
           const atual =
-            semana.numero ===
-            dados.length;
+            indice ===
+            dados.length -
+            1;
 
 
           return `
 
             <article
-              class="consistency-week ${
-                ativa
-                  ? "active"
-                  : ""
-              } ${
+              class="consistency-row ${
                 atual
                   ? "current"
                   : ""
               }"
             >
 
-              <div class="week-indicator">
+              <div class="consistency-row-title">
 
-                <span class="week-dot"></span>
+                <small>
+                  Semana ${semana.numero}
+                </small>
 
-                <span class="week-line"></span>
+                <strong>
+
+                  ${formatarDataCurta(
+                    semana.inicio
+                  )}
+
+                  —
+
+                  ${formatarDataCurta(
+                    semana.fim
+                  )}
+
+                </strong>
 
               </div>
 
 
-              <div class="week-content">
+              <div class="consistency-row-bar">
 
-                <div class="week-heading">
+                <span
+                  style="width:${porcentagem}%"
+                ></span>
 
-                  <div>
-
-                    <small>
-                      Semana ${semana.numero}
-                    </small>
-
-                    <strong>
-
-                      ${formatarDataCurta(
-                        semana.inicio
-                      )}
-
-                      —
-
-                      ${formatarDataCurta(
-                        semana.fim
-                      )}
-
-                    </strong>
-
-                  </div>
+              </div>
 
 
-                  <span>
+              <div class="consistency-row-metrics">
 
-                    ${formatarDuracao(
-                      semana.totalSegundos
-                    )}
+                <strong>
 
-                  </span>
+                  ${formatarDuracao(
+                    semana.totalSegundos
+                  )}
 
-                </div>
+                </strong>
 
+                <span>
 
-                <div class="week-progress">
+                  ${semana.totalSessoes}
 
-                  <span
-                    style="width:${porcentagem}%"
-                  ></span>
+                  ${
+                    semana.totalSessoes ===
+                    1
+                      ? "sessão"
+                      : "sessões"
+                  }
 
-                </div>
+                  •
 
+                  ${semana.diasAtivos}
 
-                <div class="week-details">
+                  ${
+                    semana.diasAtivos ===
+                    1
+                      ? "dia ativo"
+                      : "dias ativos"
+                  }
 
-                  <span>
-
-                    <i data-lucide="brain"></i>
-
-                    ${semana.totalSessoes}
-
-                    ${
-                      semana.totalSessoes ===
-                      1
-                        ? "sessão"
-                        : "sessões"
-                    }
-
-                  </span>
-
-
-                  <span>
-
-                    <i data-lucide="calendar-check-2"></i>
-
-                    ${semana.diasAtivos}
-
-                    ${
-                      semana.diasAtivos ===
-                      1
-                        ? "dia ativo"
-                        : "dias ativos"
-                    }
-
-                  </span>
-
-                </div>
+                </span>
 
               </div>
 
@@ -2544,7 +2670,7 @@ function renderizarTrilhaDeConstancia() {
 
 
   elementos.consistencyPeriod.textContent =
-    "Últimas 12 semanas";
+    "Últimas 8 semanas";
 
 }
 
@@ -2643,16 +2769,6 @@ function renderizarCategorias() {
           nome,
           dados,
         ]) => {
-
-          /*
-            Esta barra NÃO é progresso manual.
-
-            Ela representa:
-
-            metas concluídas
-                  /
-            metas da categoria
-          */
 
           const porcentagem =
             dados.total >
