@@ -4,21 +4,25 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   // ============================================================
-  // CORES
+  // IDENTIDADE PACE
   // ============================================================
 
-  static const Color navy = Color(0xFF06152E);
+  static const Color navy = Color(0xFF06152D);
   static const Color navyDeep = Color(0xFF041126);
-  static const Color navyLight = Color(0xFF0A234A);
+  static const Color navyLight = Color(0xFF0A2245);
 
-  static const Color blue = Color(0xFF174B9C);
-  static const Color blueMedium = Color(0xFF123E80);
+  static const Color blue = Color(0xFF1769E8);
+  static const Color blueDark = Color(0xFF0B3D91);
+  static const Color blueSoft = Color(0xFFE8F3FF);
 
-  static const Color cyan = Color(0xFF58D4E5);
-  static const Color cyanLight = Color(0xFF8CECF3);
+  static const Color ice = Color(0xFFEAF3FB);
+  static const Color iceStrong = Color(0xFFD7E8F7);
 
-  static const Color textSoft = Color(0xFFC8D5E7);
-  static const Color textMuted = Color(0xFF9EB0C8);
+  static const Color yellow = Color(0xFFFFC928);
+
+  static const Color textWhite = Color(0xFFF7FAFF);
+  static const Color textSoft = Color(0xFFC7D5E8);
+  static const Color textMuted = Color(0xFF8FA5C0);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,7 @@ class HomePage extends StatelessWidget {
         final width = constraints.maxWidth;
 
         final bool mobile = width < 700;
-        final bool compact = width <= 380;
+        final bool compact = width <= 390;
 
         return Container(
           width: double.infinity,
@@ -56,23 +60,22 @@ class HomePage extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 1360,
+                maxWidth: 1380,
               ),
               child: Container(
-                height: mobile ? 70 : 80,
+                height: mobile ? 68 : 78,
                 padding: EdgeInsets.symmetric(
-                  horizontal: mobile ? 18 : 38,
+                  horizontal: mobile ? 18 : 42,
                 ),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withOpacity(0.07),
                     ),
                   ),
                 ),
                 child: Row(
                   children: [
-                    // LOGO
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
@@ -83,18 +86,54 @@ class HomePage extends StatelessWidget {
                             (route) => false,
                           );
                         },
-                        child: Image.asset(
-                          'assets/images/pace_icon.png',
-                          width: mobile ? 46 : 52,
-                          height: mobile ? 46 : 52,
-                          fit: BoxFit.contain,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: mobile ? 42 : 46,
+                              height: mobile ? 42 : 46,
+                              padding: const EdgeInsets.all(3),
+                              child: Image.asset(
+                                'assets/images/pace_icon.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            if (!compact) ...[
+                              const SizedBox(width: 10),
+                              const Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pace',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.4,
+                                    ),
+                                  ),
+                                  SizedBox(height: 1),
+                                  Text(
+                                    'Evolução contínua',
+                                    style: TextStyle(
+                                      color: textMuted,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
 
                     const Spacer(),
 
-                    // ENTRAR
                     _TopButton(
                       text: 'Entrar',
                       outlined: true,
@@ -108,12 +147,11 @@ class HomePage extends StatelessWidget {
                     ),
 
                     SizedBox(
-                      width: mobile ? 9 : 12,
+                      width: mobile ? 8 : 12,
                     ),
 
-                    // CADASTRO
                     _TopButton(
-                      text: 'Cadastre-se',
+                      text: compact ? 'Criar conta' : 'Cadastre-se',
                       compact: compact,
                       onTap: () {
                         Navigator.pushNamed(
@@ -142,97 +180,59 @@ class HomePage extends StatelessWidget {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
 
-        // Dashboard só aparece em telas realmente grandes.
-        final bool desktop = width >= 1050;
-
-        final bool tablet = width >= 700 && width < 1050;
-        final bool smallMobile = width <= 380;
+        final bool desktop = width >= 1080;
+        final bool tablet = width >= 700 && width < 1080;
+        final bool smallMobile = width <= 390;
 
         return Stack(
           fit: StackFit.expand,
           children: [
-            // ======================================================
-            // BACKGROUND
-            // ======================================================
-
             const DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [
-                    0,
-                    0.34,
-                    0.68,
-                    1,
-                  ],
-                  colors: [
-                    Color(0xFF1D55A5),
-                    Color(0xFF123E80),
-                    Color(0xFF092653),
-                    Color(0xFF05152F),
-                  ],
+                color: navy,
+              ),
+            ),
+
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 4,
+                color: yellow,
+              ),
+            ),
+
+            Positioned(
+              top: 0,
+              left: 0,
+              width: desktop ? 410 : 180,
+              height: desktop ? 410 : 180,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _GridPainter(),
                 ),
               ),
             ),
 
-            // ======================================================
-            // GLOWS
-            // ======================================================
-
             Positioned(
-              top: -220,
-              left: -170,
-              child: _Glow(
-                size: desktop ? 560 : 400,
-                color: const Color(0xFF397DE4).withOpacity(0.22),
+              bottom: 0,
+              right: 0,
+              width: desktop ? 500 : 260,
+              height: desktop ? 430 : 260,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _CornerPainter(),
+                ),
               ),
             ),
-
-            Positioned(
-              top: 20,
-              right: -200,
-              child: _Glow(
-                size: desktop ? 560 : 380,
-                color: cyan.withOpacity(0.13),
-              ),
-            ),
-
-            Positioned(
-              bottom: -250,
-              left: desktop ? width * 0.32 : -140,
-              child: _Glow(
-                size: desktop ? 650 : 420,
-                color: const Color(0xFF1768CF).withOpacity(0.12),
-              ),
-            ),
-
-            // ======================================================
-            // DETALHES
-            // ======================================================
-
-            Positioned(
-              top: desktop ? 130 : 250,
-              right: desktop ? 120 : 45,
-              child: const _TinyGlow(),
-            ),
-
-            Positioned(
-              bottom: desktop ? 100 : 150,
-              left: desktop ? 90 : 55,
-              child: const _TinyGlow(),
-            ),
-
-            // ======================================================
-            // CONTEÚDO
-            // ======================================================
 
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: 1360,
+                    maxWidth: 1380,
                     minHeight: height,
                   ),
                   child: Padding(
@@ -240,11 +240,11 @@ class HomePage extends StatelessWidget {
                       horizontal: desktop
                           ? 48
                           : tablet
-                              ? 42
+                              ? 38
                               : smallMobile
-                                  ? 20
-                                  : 26,
-                      vertical: desktop ? 48 : 42,
+                                  ? 18
+                                  : 24,
+                      vertical: desktop ? 52 : 38,
                     ),
                     child: desktop
                         ? _buildDesktopHero(context)
@@ -270,15 +270,11 @@ class HomePage extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // ========================================================
-        // LADO ESQUERDO
-        // ========================================================
-
         Expanded(
           flex: 10,
           child: ConstrainedBox(
             constraints: const BoxConstraints(
-              maxWidth: 610,
+              maxWidth: 620,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -286,46 +282,53 @@ class HomePage extends StatelessWidget {
               children: [
                 const _HeroBadge(),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
 
                 const Text(
-                  'Organize sua vida.',
+                  'Transforme objetivos',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 58,
-                    fontWeight: FontWeight.w800,
                     height: 1,
-                    letterSpacing: -2.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -2.7,
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 9),
 
                 const Text(
-                  'Construa sua\nmelhor versão.',
+                  'em progresso real.',
                   style: TextStyle(
-                    color: cyanLight,
+                    color: blueSoft,
                     fontSize: 58,
+                    height: 1.02,
                     fontWeight: FontWeight.w800,
-                    height: 1.04,
-                    letterSpacing: -2.5,
+                    letterSpacing: -2.7,
                   ),
                 ),
 
-                const SizedBox(height: 27),
+                const SizedBox(height: 26),
 
-                ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 550,
+                Container(
+                  width: 72,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: yellow,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    'Uma rede social feita para quem busca disciplina, '
-                    'foco e uma comunidade que cresce junta todos os dias.',
-                    style: TextStyle(
-                      color: textSoft,
-                      fontSize: 17,
-                      height: 1.7,
-                    ),
+                ),
+
+                const SizedBox(height: 24),
+
+                const Text(
+                  'Metas, foco, evolução e comunidade reunidos '
+                  'em um só lugar para ajudar você a continuar avançando.',
+                  style: TextStyle(
+                    color: textSoft,
+                    fontSize: 17,
+                    height: 1.65,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
 
@@ -334,7 +337,7 @@ class HomePage extends StatelessWidget {
                 Row(
                   children: [
                     SizedBox(
-                      width: 220,
+                      width: 210,
                       child: _MainButton(
                         text: 'Começar agora',
                         onTap: () {
@@ -349,7 +352,7 @@ class HomePage extends StatelessWidget {
                     const SizedBox(width: 14),
 
                     SizedBox(
-                      width: 210,
+                      width: 205,
                       child: _SecondaryButton(
                         text: 'Já tenho uma conta',
                         onTap: () {
@@ -363,23 +366,27 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 38),
 
                 const Wrap(
-                  spacing: 24,
-                  runSpacing: 18,
+                  spacing: 26,
+                  runSpacing: 16,
                   children: [
                     _DesktopBenefit(
-                      icon: Icons.track_changes_rounded,
-                      text: 'Metas com propósito',
+                      icon: Icons.flag_rounded,
+                      text: 'Metas',
+                    ),
+                    _DesktopBenefit(
+                      icon: Icons.timer_rounded,
+                      text: 'Foco',
+                    ),
+                    _DesktopBenefit(
+                      icon: Icons.show_chart_rounded,
+                      text: 'Evolução',
                     ),
                     _DesktopBenefit(
                       icon: Icons.groups_rounded,
-                      text: 'Comunidade ativa',
-                    ),
-                    _DesktopBenefit(
-                      icon: Icons.trending_up_rounded,
-                      text: 'Evolução constante',
+                      text: 'Comunidade',
                     ),
                   ],
                 ),
@@ -388,15 +395,11 @@ class HomePage extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 80),
-
-        // ========================================================
-        // DASHBOARD DIREITO
-        // ========================================================
+        const SizedBox(width: 70),
 
         const Expanded(
           flex: 9,
-          child: _JourneyVisual(),
+          child: _ProductPreview(),
         ),
       ],
     );
@@ -414,7 +417,7 @@ class HomePage extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxWidth: 560,
+          maxWidth: 580,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,49 +425,60 @@ class HomePage extends StatelessWidget {
             const _HeroBadge(),
 
             SizedBox(
-              height: smallMobile ? 28 : 36,
+              height: smallMobile ? 26 : 34,
             ),
 
             Text(
-              'Organize sua vida.',
+              'Transforme objetivos',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: smallMobile ? 36 : 42,
+                fontSize: smallMobile ? 37 : 44,
                 fontWeight: FontWeight.w800,
                 height: 1,
-                letterSpacing: -1.7,
+                letterSpacing: -1.8,
               ),
             ),
 
             const SizedBox(height: 8),
 
             Text(
-              'Construa sua\nmelhor versão.',
+              'em progresso real.',
               style: TextStyle(
-                color: cyanLight,
-                fontSize: smallMobile ? 36 : 42,
+                color: blueSoft,
+                fontSize: smallMobile ? 37 : 44,
                 fontWeight: FontWeight.w800,
-                height: 1.06,
-                letterSpacing: -1.7,
+                height: 1.05,
+                letterSpacing: -1.8,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            Container(
+              width: 60,
+              height: 4,
+              decoration: BoxDecoration(
+                color: yellow,
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
 
             SizedBox(
-              height: smallMobile ? 25 : 31,
+              height: smallMobile ? 20 : 24,
             ),
 
             Text(
-              'Uma rede social feita para quem busca disciplina, '
-              'foco e uma comunidade que cresce junta todos os dias.',
+              'Metas, foco, evolução e comunidade reunidos '
+              'em um só lugar para ajudar você a continuar avançando.',
               style: TextStyle(
                 color: textSoft,
-                fontSize: smallMobile ? 15 : 16,
-                height: 1.7,
+                fontSize: smallMobile ? 14.5 : 16,
+                height: 1.65,
               ),
             ),
 
             SizedBox(
-              height: smallMobile ? 28 : 34,
+              height: smallMobile ? 27 : 32,
             ),
 
             _MainButton(
@@ -477,7 +491,7 @@ class HomePage extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             _SecondaryButton(
               text: 'Já tenho uma conta',
@@ -490,40 +504,39 @@ class HomePage extends StatelessWidget {
             ),
 
             SizedBox(
-              height: smallMobile ? 35 : 43,
+              height: smallMobile ? 34 : 42,
             ),
 
             const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _Feature(
-                    icon: Icons.track_changes_rounded,
-                    text: 'Metas com\npropósito',
+                    icon: Icons.flag_rounded,
+                    text: 'Metas',
                   ),
                 ),
-
-                SizedBox(width: 8),
-
+                SizedBox(width: 9),
                 Expanded(
                   child: _Feature(
-                    icon: Icons.groups_rounded,
-                    text: 'Comunidade\nativa',
+                    icon: Icons.timer_rounded,
+                    text: 'Foco',
                   ),
                 ),
-
-                SizedBox(width: 8),
-
+                SizedBox(width: 9),
                 Expanded(
                   child: _Feature(
-                    icon: Icons.trending_up_rounded,
-                    text: 'Evolução\nconstante',
+                    icon: Icons.show_chart_rounded,
+                    text: 'Evolução',
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+
+            const _MobileProductPreview(),
+
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -532,135 +545,75 @@ class HomePage extends StatelessWidget {
 }
 
 // ============================================================================
-// DASHBOARD DESKTOP
+// PREVIEW PRINCIPAL DO PRODUTO
 // ============================================================================
 
-class _JourneyVisual extends StatelessWidget {
-  const _JourneyVisual();
+class _ProductPreview extends StatelessWidget {
+  const _ProductPreview();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 560,
+      height: 570,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          // Glow atrás do dashboard
-          Positioned(
-            child: Container(
-              width: 470,
-              height: 470,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    HomePage.cyan.withOpacity(0.10),
-                    Colors.transparent,
-                  ],
-                ),
+          Container(
+            width: 500,
+            height: 500,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(38),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
               ),
             ),
           ),
 
-          // Dashboard
-          Container(
-            width: 445,
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.13),
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withOpacity(0.09),
-                  Colors.white.withOpacity(0.03),
+          Positioned(
+            top: 25,
+            right: 0,
+            child: Container(
+              width: 455,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FBFF),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: const Color(0xFFD9E7F5),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.22),
+                    blurRadius: 55,
+                    offset: const Offset(0, 25),
+                  ),
                 ],
               ),
-              color: const Color(0xFF071B3C).withOpacity(0.92),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.30),
-                  blurRadius: 55,
-                  offset: const Offset(0, 25),
-                ),
-              ],
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _JourneyHeader(),
-
-                SizedBox(height: 28),
-
-                _ProgressCard(),
-
-                SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatisticCard(
-                        value: '08',
-                        label: 'Metas ativas',
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatisticCard(
-                        value: '24',
-                        label: 'Dias em foco',
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatisticCard(
-                        value: '05',
-                        label: 'Comunidades',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              child: const Column(
+                children: [
+                  _PreviewHeader(),
+                  _PreviewBody(),
+                ],
+              ),
             ),
           ),
 
-          // ========================================================
-          // CARD PROGRESSO
-          // ========================================================
-
           const Positioned(
-            top: 26,
-            left: -18,
-            child: _FloatingInfoCard(
-              icon: Icons.check_rounded,
-              smallTitle: 'Progresso',
-              title: 'Mais um passo concluído',
-            ),
+            top: 8,
+            left: 0,
+            child: _FloatingGoalCard(),
           ),
 
-          // ========================================================
-          // CARD SEQUÊNCIA
-          // ========================================================
-
           const Positioned(
-            top: 110,
-            right: -35,
-            child: _StreakCard(),
+            bottom: 54,
+            left: -10,
+            child: _FloatingFocusCard(),
           ),
 
-          // ========================================================
-          // CARD COMUNIDADE
-          // ========================================================
-
           const Positioned(
-            right: -15,
-            bottom: 35,
-            child: _CommunityCard(),
+            right: -16,
+            bottom: 6,
+            child: _FloatingCommunityCard(),
           ),
         ],
       ),
@@ -669,100 +622,238 @@ class _JourneyVisual extends StatelessWidget {
 }
 
 // ============================================================================
-// HEADER DO DASHBOARD
+// CABEÇALHO PREVIEW
 // ============================================================================
 
-class _JourneyHeader extends StatelessWidget {
-  const _JourneyHeader();
+class _PreviewHeader extends StatelessWidget {
+  const _PreviewHeader();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'SUA JORNADA',
-                style: TextStyle(
-                  color: HomePage.cyanLight,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Evolua todos os dias',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.8,
-                ),
-              ),
-            ],
-          ),
+    return Container(
+      height: 72,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 22,
+      ),
+      decoration: const BoxDecoration(
+        color: HomePage.navy,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(27),
         ),
+      ),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/images/pace_icon.png',
+            width: 34,
+            height: 34,
+          ),
 
-        Container(
-          width: 11,
-          height: 11,
-          decoration: BoxDecoration(
-            color: HomePage.cyan,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: HomePage.cyan.withOpacity(0.35),
-                blurRadius: 10,
-                spreadRadius: 4,
-              ),
-            ],
+          const SizedBox(width: 10),
+
+          const Text(
+            'Pace',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-        ),
-      ],
+
+          const Spacer(),
+
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: HomePage.yellow,
+              shape: BoxShape.circle,
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          const Text(
+            'Seu espaço',
+            style: TextStyle(
+              color: HomePage.textSoft,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 // ============================================================================
-// PROGRESSO
+// CORPO PREVIEW
 // ============================================================================
 
-class _ProgressCard extends StatelessWidget {
-  const _ProgressCard();
+class _PreviewBody extends StatelessWidget {
+  const _PreviewBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        22,
+        24,
+        22,
+        22,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'DESENVOLVIMENTO',
+            style: TextStyle(
+              color: HomePage.blue,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          const Text(
+            'Seu progresso',
+            style: TextStyle(
+              color: HomePage.navy,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.7,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          const Text(
+            'Acompanhe sua evolução no Pace.',
+            style: TextStyle(
+              color: Color(0xFF60738B),
+              fontSize: 12.5,
+            ),
+          ),
+
+          const SizedBox(height: 22),
+
+          const _PaceIndexCard(),
+
+          const SizedBox(height: 15),
+
+          const Row(
+            children: [
+              Expanded(
+                child: _MiniMetric(
+                  icon: Icons.flag_rounded,
+                  value: '8',
+                  label: 'Metas',
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MiniMetric(
+                  icon: Icons.timer_rounded,
+                  value: '4h',
+                  label: 'Foco',
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MiniMetric(
+                  icon: Icons.local_fire_department_rounded,
+                  value: '12',
+                  label: 'Sequência',
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: HomePage.blueSoft,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Row(
+              children: [
+                _ActivityIcon(),
+
+                SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Seu ritmo está crescendo',
+                        style: TextStyle(
+                          color: HomePage.navy,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Continue avançando um passo por vez.',
+                        style: TextStyle(
+                          color: Color(0xFF60738B),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// ÍNDICE PACE
+// ============================================================================
+
+class _PaceIndexCard extends StatelessWidget {
+  const _PaceIndexCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.045),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.09),
-        ),
+        color: HomePage.navy,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Progresso semanal',
-                  style: TextStyle(
-                    color: HomePage.textSoft,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+              Text(
+                'Índice Pace',
+                style: TextStyle(
+                  color: HomePage.textSoft,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+              Spacer(),
               Text(
-                '72%',
+                '72 / 100',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -773,28 +864,107 @@ class _ProgressCard extends StatelessWidget {
 
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: SizedBox(
-              height: 9,
-              child: Stack(
-                children: [
-                  Container(
-                    color: Colors.white.withOpacity(0.12),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: 0.72,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            HomePage.cyan,
-                            HomePage.cyanLight,
-                          ],
-                        ),
+            child: Stack(
+              children: [
+                Container(
+                  height: 8,
+                  color: Colors.white.withOpacity(0.10),
+                ),
+                FractionallySizedBox(
+                  widthFactor: 0.72,
+                  child: Container(
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          HomePage.blue,
+                          Color(0xFF3C8DFF),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const Row(
+            children: [
+              Icon(
+                Icons.trending_up_rounded,
+                size: 15,
+                color: HomePage.yellow,
               ),
+              SizedBox(width: 6),
+              Text(
+                'Evolução consistente nesta semana',
+                style: TextStyle(
+                  color: HomePage.textSoft,
+                  fontSize: 10.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// MINI MÉTRICA
+// ============================================================================
+
+class _MiniMetric extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+
+  const _MiniMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 90,
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFDCE8F4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: HomePage.blue,
+          ),
+
+          const Spacer(),
+
+          Text(
+            value,
+            style: const TextStyle(
+              color: HomePage.navy,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF71849C),
+              fontSize: 10.5,
             ),
           ),
         ],
@@ -804,14 +974,370 @@ class _ProgressCard extends StatelessWidget {
 }
 
 // ============================================================================
-// ESTATÍSTICA
+// ÍCONE ATIVIDADE
 // ============================================================================
 
-class _StatisticCard extends StatelessWidget {
+class _ActivityIcon extends StatelessWidget {
+  const _ActivityIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: HomePage.blue,
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: const Icon(
+        Icons.show_chart_rounded,
+        color: Colors.white,
+        size: 22,
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CARDS FLUTUANTES
+// ============================================================================
+
+class _FloatingGoalCard extends StatelessWidget {
+  const _FloatingGoalCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _FloatingCard(
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FloatingIcon(
+            icon: Icons.check_rounded,
+            accent: HomePage.blue,
+          ),
+
+          SizedBox(width: 11),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'META CONCLUÍDA',
+                style: TextStyle(
+                  color: HomePage.blue,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.7,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                'Mais um passo completo',
+                style: TextStyle(
+                  color: HomePage.navy,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloatingFocusCard extends StatelessWidget {
+  const _FloatingFocusCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _FloatingCard(
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FloatingIcon(
+            icon: Icons.timer_rounded,
+            accent: HomePage.yellow,
+          ),
+
+          SizedBox(width: 11),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'FOCO',
+                style: TextStyle(
+                  color: Color(0xFF9B7000),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.7,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                '25 min concluídos',
+                style: TextStyle(
+                  color: HomePage.navy,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloatingCommunityCard extends StatelessWidget {
+  const _FloatingCommunityCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _FloatingCard(
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FloatingIcon(
+            icon: Icons.groups_rounded,
+            accent: HomePage.blueDark,
+          ),
+
+          SizedBox(width: 11),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'COMUNIDADE',
+                style: TextStyle(
+                  color: HomePage.blueDark,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.7,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                'Evolua junto',
+                style: TextStyle(
+                  color: HomePage.navy,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FloatingCard extends StatelessWidget {
+  final Widget child;
+
+  const _FloatingCard({
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFD8E5F2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.13),
+            blurRadius: 28,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+class _FloatingIcon extends StatelessWidget {
+  final IconData icon;
+  final Color accent;
+
+  const _FloatingIcon({
+    required this.icon,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: accent.withOpacity(0.11),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        icon,
+        color: accent,
+        size: 20,
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// PREVIEW MOBILE
+// ============================================================================
+
+class _MobileProductPreview extends StatelessWidget {
+  const _MobileProductPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A2245),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.dashboard_rounded,
+                color: HomePage.yellow,
+                size: 18,
+              ),
+
+              SizedBox(width: 8),
+
+              Text(
+                'Seu espaço no Pace',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 17),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ÍNDICE PACE',
+                  style: TextStyle(
+                    color: HomePage.blueSoft,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+
+                SizedBox(height: 7),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '72',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+
+                    SizedBox(width: 4),
+
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '/100',
+                        style: TextStyle(
+                          color: HomePage.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+
+                    Spacer(),
+
+                    Icon(
+                      Icons.trending_up_rounded,
+                      color: HomePage.yellow,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const Row(
+            children: [
+              Expanded(
+                child: _MobileMetric(
+                  value: '8',
+                  label: 'Metas',
+                ),
+              ),
+              SizedBox(width: 9),
+              Expanded(
+                child: _MobileMetric(
+                  value: '4h',
+                  label: 'Foco',
+                ),
+              ),
+              SizedBox(width: 9),
+              Expanded(
+                child: _MobileMetric(
+                  value: '12',
+                  label: 'Sequência',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileMetric extends StatelessWidget {
   final String value;
   final String label;
 
-  const _StatisticCard({
+  const _MobileMetric({
     required this.value,
     required this.label,
   });
@@ -819,17 +1345,13 @@ class _StatisticCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 92,
       padding: const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 15,
+        horizontal: 12,
+        vertical: 13,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.09),
-        ),
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -838,295 +1360,22 @@ class _StatisticCard extends StatelessWidget {
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
-
-          const SizedBox(height: 6),
-
+          const SizedBox(height: 2),
           Text(
             label,
             style: const TextStyle(
-              color: HomePage.textSoft,
-              fontSize: 11,
-              height: 1.2,
+              color: HomePage.textMuted,
+              fontSize: 9.5,
             ),
           ),
         ],
       ),
     );
   }
-}
-
-// ============================================================================
-// CARD FLUTUANTE
-// ============================================================================
-
-class _FloatingInfoCard extends StatelessWidget {
-  final IconData icon;
-  final String smallTitle;
-  final String title;
-
-  const _FloatingInfoCard({
-    required this.icon,
-    required this.smallTitle,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 13,
-      ),
-      decoration: _floatingDecoration(),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 41,
-            height: 41,
-            decoration: BoxDecoration(
-              color: HomePage.cyan.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: HomePage.cyanLight,
-            ),
-          ),
-
-          const SizedBox(width: 11),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                smallTitle,
-                style: const TextStyle(
-                  color: HomePage.textMuted,
-                  fontSize: 10.5,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// STREAK
-// ============================================================================
-
-class _StreakCard extends StatelessWidget {
-  const _StreakCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
-      decoration: _floatingDecoration(),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '12',
-            style: TextStyle(
-              color: HomePage.cyanLight,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-
-          SizedBox(width: 12),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Sequência',
-                style: TextStyle(
-                  color: HomePage.textMuted,
-                  fontSize: 10.5,
-                ),
-              ),
-              SizedBox(height: 3),
-              Text(
-                'Dias de evolução',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// COMUNIDADE
-// ============================================================================
-
-class _CommunityCard extends StatelessWidget {
-  const _CommunityCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 13,
-      ),
-      decoration: _floatingDecoration(),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _AvatarGroup(),
-
-          SizedBox(width: 12),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Comunidade',
-                style: TextStyle(
-                  color: HomePage.textMuted,
-                  fontSize: 10.5,
-                ),
-              ),
-              SizedBox(height: 3),
-              Text(
-                'Cresça junto',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// AVATARES
-// ============================================================================
-
-class _AvatarGroup extends StatelessWidget {
-  const _AvatarGroup();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 78,
-      height: 34,
-      child: Stack(
-        children: [
-          const Positioned(
-            left: 0,
-            child: _Avatar(
-              text: 'JS',
-              color: Color(0xFF315CAC),
-            ),
-          ),
-          const Positioned(
-            left: 22,
-            child: _Avatar(
-              text: 'PY',
-              color: Color(0xFF22427D),
-            ),
-          ),
-          Positioned(
-            left: 44,
-            child: _Avatar(
-              text: '+',
-              color: HomePage.cyan,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String text;
-  final Color color;
-
-  const _Avatar({
-    required this.text,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFF0B2551),
-          width: 2,
-        ),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 9,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// DECORAÇÃO DOS CARDS
-// ============================================================================
-
-BoxDecoration _floatingDecoration() {
-  return BoxDecoration(
-    color: const Color(0xFF071938).withOpacity(0.96),
-    borderRadius: BorderRadius.circular(17),
-    border: Border.all(
-      color: Colors.white.withOpacity(0.12),
-    ),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.27),
-        blurRadius: 28,
-        offset: const Offset(0, 13),
-      ),
-    ],
-  );
 }
 
 // ============================================================================
@@ -1140,31 +1389,49 @@ class _HeroBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 10,
+        horizontal: 13,
+        vertical: 9,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF071E43).withOpacity(0.75),
-        borderRadius: BorderRadius.circular(40),
+        color: HomePage.blue.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: HomePage.cyan.withOpacity(0.32),
+          color: HomePage.blue.withOpacity(0.28),
         ),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _BadgeDot(),
-          SizedBox(width: 10),
+          _BadgeMark(),
+
+          SizedBox(width: 9),
+
           Text(
-            'EVOLUA NO SEU RITMO',
+            'DESENVOLVIMENTO PESSOAL',
             style: TextStyle(
-              color: HomePage.cyanLight,
-              fontSize: 12,
+              color: HomePage.blueSoft,
+              fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.7,
+              letterSpacing: 0.8,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BadgeMark extends StatelessWidget {
+  const _BadgeMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 14,
+      height: 3,
+      decoration: BoxDecoration(
+        color: HomePage.yellow,
+        borderRadius: BorderRadius.circular(20),
       ),
     );
   }
@@ -1189,23 +1456,20 @@ class _DesktopBenefit extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 34,
+          height: 34,
           decoration: BoxDecoration(
-            color: HomePage.cyan.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: HomePage.cyan.withOpacity(0.13),
-            ),
+            color: HomePage.blue.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
             icon,
-            color: HomePage.cyanLight,
-            size: 19,
+            color: HomePage.blueSoft,
+            size: 17,
           ),
         ),
 
-        const SizedBox(width: 9),
+        const SizedBox(width: 8),
 
         Text(
           text,
@@ -1235,45 +1499,53 @@ class _Feature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 62,
-          height: 62,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(0xFF0D2A56).withOpacity(0.75),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withOpacity(0.09),
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.035),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.07),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: HomePage.blue.withOpacity(0.14),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(
+              icon,
+              color: HomePage.blueSoft,
+              size: 21,
             ),
           ),
-          child: Icon(
-            icon,
-            color: HomePage.cyanLight,
-            size: 29,
-          ),
-        ),
 
-        const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w700,
-            height: 1.35,
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 // ============================================================================
-// NAV BUTTON
+// BOTÃO NAVBAR
 // ============================================================================
 
 class _TopButton extends StatefulWidget {
@@ -1320,42 +1592,46 @@ class _TopButtonState extends State<_TopButton> {
         },
         child: AnimatedScale(
           scale: pressed
-              ? 0.96
+              ? 0.97
               : hover
-                  ? 1.03
+                  ? 1.025
                   : 1,
-          duration: const Duration(milliseconds: 130),
+          duration: const Duration(
+            milliseconds: 130,
+          ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(
+              milliseconds: 170,
+            ),
             height: widget.compact ? 39 : 42,
             padding: EdgeInsets.symmetric(
-              horizontal: widget.compact ? 13 : 18,
+              horizontal: widget.compact ? 12 : 18,
             ),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: widget.outlined
                   ? hover
-                      ? Colors.white.withOpacity(0.07)
+                      ? Colors.white.withOpacity(0.06)
                       : Colors.transparent
                   : hover
-                      ? HomePage.cyanLight
-                      : HomePage.cyan,
-              borderRadius: BorderRadius.circular(30),
+                      ? const Color(0xFF2D79EB)
+                      : HomePage.blue,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: widget.outlined
-                    ? hover
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.60)
-                    : HomePage.cyanLight.withOpacity(0.45),
+                    ? Colors.white.withOpacity(
+                        hover ? 0.75 : 0.25,
+                      )
+                    : HomePage.blue,
               ),
             ),
             child: Text(
               widget.text,
               style: TextStyle(
                 color: widget.outlined
-                    ? HomePage.cyanLight
+                    ? Colors.white
                     : Colors.white,
-                fontSize: widget.compact ? 11.5 : 13,
+                fontSize: widget.compact ? 11 : 12.5,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1412,36 +1688,32 @@ class _MainButtonState extends State<_MainButton> {
           scale: pressed
               ? 0.98
               : hover
-                  ? 1.018
+                  ? 1.015
                   : 1,
-          duration: const Duration(milliseconds: 130),
+          duration: const Duration(
+            milliseconds: 130,
+          ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            height: 56,
+            duration: const Duration(
+              milliseconds: 180,
+            ),
             width: double.infinity,
+            height: 55,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: hover
-                    ? [
-                        HomePage.cyanLight,
-                        HomePage.cyan,
-                      ]
-                    : [
-                        const Color(0xFF57D5E9),
-                        const Color(0xFF53C5D9),
-                      ],
-              ),
-              borderRadius: BorderRadius.circular(32),
+              color: hover
+                  ? const Color(0xFF2E7DF0)
+                  : HomePage.blue,
+              borderRadius: BorderRadius.circular(15),
               border: Border.all(
-                color: HomePage.cyanLight.withOpacity(0.65),
+                color: const Color(0xFF4C91F2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: HomePage.cyan.withOpacity(
-                    hover ? 0.24 : 0.14,
+                  color: HomePage.blue.withOpacity(
+                    hover ? 0.30 : 0.20,
                   ),
-                  blurRadius: hover ? 30 : 22,
-                  offset: const Offset(0, 10),
+                  blurRadius: hover ? 24 : 17,
+                  offset: const Offset(0, 9),
                 ),
               ],
             ),
@@ -1452,22 +1724,24 @@ class _MainButtonState extends State<_MainButton> {
                   widget.text,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 15.5,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
 
-                const SizedBox(width: 13),
+                const SizedBox(width: 10),
 
                 AnimatedSlide(
-                  duration: const Duration(milliseconds: 180),
+                  duration: const Duration(
+                    milliseconds: 180,
+                  ),
                   offset: hover
                       ? const Offset(0.18, 0)
                       : Offset.zero,
                   child: const Icon(
                     Icons.arrow_forward_rounded,
                     color: Colors.white,
-                    size: 21,
+                    size: 19,
                   ),
                 ),
               ],
@@ -1527,33 +1801,35 @@ class _SecondaryButtonState
           scale: pressed
               ? 0.98
               : hover
-                  ? 1.018
+                  ? 1.015
                   : 1,
-          duration: const Duration(milliseconds: 130),
+          duration: const Duration(
+            milliseconds: 130,
+          ),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(
+              milliseconds: 180,
+            ),
             width: double.infinity,
-            height: 56,
+            height: 55,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: hover
-                  ? Colors.white
-                  : Colors.white.withOpacity(0.02),
-              borderRadius: BorderRadius.circular(32),
+                  ? Colors.white.withOpacity(0.07)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(15),
               border: Border.all(
-                color: hover
-                    ? Colors.white
-                    : HomePage.cyanLight.withOpacity(0.78),
+                color: Colors.white.withOpacity(
+                  hover ? 0.50 : 0.20,
+                ),
               ),
             ),
             child: Text(
               widget.text,
-              style: TextStyle(
-                color: hover
-                    ? HomePage.navyLight
-                    : Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -1564,82 +1840,95 @@ class _SecondaryButtonState
 }
 
 // ============================================================================
-// DECORAÇÕES
+// DETALHES DE FUNDO
 // ============================================================================
 
-class _Glow extends StatelessWidget {
-  final double size;
-  final Color color;
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(
+    Canvas canvas,
+    Size size,
+  ) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.025)
+      ..strokeWidth = 1;
 
-  const _Glow({
-    required this.size,
-    required this.color,
-  });
+    const double spacing = 34;
+
+    for (
+      double x = 0;
+      x <= size.width;
+      x += spacing
+    ) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+
+    for (
+      double y = 0;
+      y <= size.height;
+      y += spacing
+    ) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color,
-              color.withOpacity(0),
-            ],
-          ),
-        ),
-      ),
-    );
+  bool shouldRepaint(
+    covariant CustomPainter oldDelegate,
+  ) {
+    return false;
   }
 }
 
-class _TinyGlow extends StatelessWidget {
-  const _TinyGlow();
-
+class _CornerPainter extends CustomPainter {
   @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: 5,
-        height: 5,
-        decoration: BoxDecoration(
-          color: HomePage.cyanLight,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: HomePage.cyan,
-              blurRadius: 12,
-              spreadRadius: 4,
-            ),
-          ],
-        ),
-      ),
+  void paint(
+    Canvas canvas,
+    Size size,
+  ) {
+    final bluePaint = Paint()
+      ..color = HomePage.blue.withOpacity(0.06)
+      ..style = PaintingStyle.fill;
+
+    final yellowPaint = Paint()
+      ..color = HomePage.yellow.withOpacity(0.07)
+      ..style = PaintingStyle.fill;
+
+    final pathBlue = Path()
+      ..moveTo(size.width * 0.32, size.height)
+      ..lineTo(size.width, size.height * 0.20)
+      ..lineTo(size.width, size.height)
+      ..close();
+
+    canvas.drawPath(
+      pathBlue,
+      bluePaint,
+    );
+
+    final pathYellow = Path()
+      ..moveTo(size.width * 0.72, size.height)
+      ..lineTo(size.width, size.height * 0.73)
+      ..lineTo(size.width, size.height)
+      ..close();
+
+    canvas.drawPath(
+      pathYellow,
+      yellowPaint,
     );
   }
-}
-
-class _BadgeDot extends StatelessWidget {
-  const _BadgeDot();
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: HomePage.cyan,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: HomePage.cyan,
-            blurRadius: 8,
-            spreadRadius: 3,
-          ),
-        ],
-      ),
-    );
+  bool shouldRepaint(
+    covariant CustomPainter oldDelegate,
+  ) {
+    return false;
   }
 }

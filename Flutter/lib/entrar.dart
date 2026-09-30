@@ -18,16 +18,18 @@ class _EntrarPageState extends State<EntrarPage> {
   // CORES
   // ============================================================
 
-  static const Color navy = Color(0xFF06152E);
+  static const Color navy = Color(0xFF06152D);
   static const Color navyDeep = Color(0xFF041126);
-  static const Color navyLight = Color(0xFF0A234A);
+  static const Color navyLight = Color(0xFF0A2245);
 
-  static const Color blue = Color(0xFF315CAC);
-  static const Color blueMedium = Color(0xFF234884);
-  static const Color blueDark = Color(0xFF102A58);
+  static const Color blue = Color(0xFF1769E8);
+  static const Color blueMedium = Color(0xFF0B3D91);
+  static const Color blueDark = Color(0xFF0B3D91);
 
-  static const Color cyan = Color(0xFF69C5D0);
-  static const Color cyanLight = Color(0xFF9CE8EF);
+  static const Color cyan = Color(0xFF1769E8);
+  static const Color cyanLight = Color(0xFFE8F3FF);
+
+  static const Color yellow = Color(0xFFFFC928);
 
   static const Color textSoft = Color(0xFFDCE7F5);
   static const Color textMuted = Color(0xFFAEBED1);
@@ -848,8 +850,7 @@ class _LoginPresentation
               maxWidth: 500,
             ),
             child: Text(
-              'Entre na sua conta e retome suas metas, '
-              'conexões e conquistas dentro do Pace.',
+              'Entre na sua conta e continue de onde parou no Pace.',
               style: TextStyle(
                 color:
                     _EntrarColors
@@ -1367,7 +1368,7 @@ class _LoginCard
         ),
         borderRadius:
             BorderRadius.circular(
-          28,
+          24,
         ),
         border: Border.all(
           color:
@@ -1413,15 +1414,8 @@ class _LoginCard
                         .circular(
                   999,
                 ),
-                gradient:
-                    const LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    _EntrarColors
-                        .cyan,
-                    Colors.transparent,
-                  ],
-                ),
+                color:
+                    _EntrarColors.yellow,
               ),
             ),
           ),
@@ -1466,7 +1460,7 @@ class _LoginCard
           ),
 
           const Text(
-            'Acesse sua conta para continuar sua jornada.',
+            'Acesse sua conta para continuar no Pace.',
             style: TextStyle(
               color:
                   Color(
@@ -2454,42 +2448,23 @@ class _NavbarButtonState
             decoration:
                 BoxDecoration(
               color: hover
-                  ? _EntrarColors
-                      .cyanLight
-                  : _EntrarColors
-                      .cyan,
+                  ? Colors.white
+                      .withOpacity(
+                    0.07,
+                  )
+                  : Colors.transparent,
               borderRadius:
                   BorderRadius
                       .circular(
-                999,
+                14,
               ),
               border: Border.all(
                 color:
-                    _EntrarColors
-                        .cyanLight
+                    Colors.white
                         .withOpacity(
-                  0.45,
+                  hover ? 0.72 : 0.42,
                 ),
               ),
-              boxShadow: hover
-                  ? [
-                      BoxShadow(
-                        color:
-                            _EntrarColors
-                                .cyan
-                                .withOpacity(
-                          0.22,
-                        ),
-                        blurRadius:
-                            20,
-                        offset:
-                            const Offset(
-                          0,
-                          8,
-                        ),
-                      ),
-                    ]
-                  : null,
             ),
             child: Text(
               widget.text,
@@ -2632,19 +2607,22 @@ class _BadgeDot
 
 class _EntrarColors {
   static const Color navy =
-      Color(0xFF06152E);
+      Color(0xFF06152D);
 
   static const Color blue =
-      Color(0xFF315CAC);
+      Color(0xFF1769E8);
 
   static const Color blueDark =
-      Color(0xFF102A58);
+      Color(0xFF0B3D91);
 
   static const Color cyan =
-      Color(0xFF69C5D0);
+      Color(0xFF1769E8);
 
   static const Color cyanLight =
-      Color(0xFF9CE8EF);
+      Color(0xFFE8F3FF);
+
+  static const Color yellow =
+      Color(0xFFFFC928);
 
   static const Color textSoft =
       Color(0xFFDCE7F5);

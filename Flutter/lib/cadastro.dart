@@ -17,14 +17,16 @@ class _CadastroPageState extends State<CadastroPage> {
   // CORES
   // ============================================================
 
-  static const Color navy = Color(0xFF06152E);
+  static const Color navy = Color(0xFF06152D);
   static const Color navyDeep = Color(0xFF041126);
 
-  static const Color blue = Color(0xFF315CAC);
-  static const Color blueDark = Color(0xFF102A58);
+  static const Color blue = Color(0xFF1769E8);
+  static const Color blueDark = Color(0xFF0B3D91);
 
-  static const Color cyan = Color(0xFF69C5D0);
-  static const Color cyanLight = Color(0xFF9CE8EF);
+  static const Color cyan = Color(0xFF1769E8);
+  static const Color cyanLight = Color(0xFFE8F3FF);
+
+  static const Color yellow = Color(0xFFFFC928);
 
   // ============================================================
   // CONTROLLERS
@@ -725,8 +727,8 @@ class _CadastroPageState extends State<CadastroPage> {
                         ? 580
                         : 430,
                 color:
-                    cyan.withOpacity(
-                  0.11,
+                    blue.withOpacity(
+                  0.07,
                 ),
               ),
             ),
@@ -870,7 +872,7 @@ class _CadastroPageState extends State<CadastroPage> {
         ),
         borderRadius:
             BorderRadius.circular(
-          28,
+          24,
         ),
         border: Border.all(
           color:
@@ -919,14 +921,8 @@ class _CadastroPageState extends State<CadastroPage> {
                         .circular(
                   999,
                 ),
-                gradient:
-                    const LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    cyan,
-                    Colors.transparent,
-                  ],
-                ),
+                color:
+                    yellow,
               ),
             ),
           ),
@@ -1496,7 +1492,7 @@ class _CadastroPresentation
           ),
 
           const Text(
-            'Comece sua',
+            'Transforme objetivos',
             style: TextStyle(
               color:
                   Colors.white,
@@ -1516,7 +1512,7 @@ class _CadastroPresentation
           ),
 
           const Text(
-            'evolução hoje.',
+            'em progresso real.',
             style: TextStyle(
               color:
                   Color(
@@ -2503,7 +2499,7 @@ class _LegalDocumentDialog extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(mobile ? 24 : 30),
           child: Material(
-            color: const Color(0xFFF9FBFE),
+            color: const Color(0xFFF8FBFF),
             child: Column(
               children: [
                 _buildHeader(context, mobile),
@@ -2524,10 +2520,10 @@ class _LegalDocumentDialog extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF315CAC).withOpacity(0.06),
+                              color: const Color(0xFF1769E8).withOpacity(0.06),
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(
-                                color: const Color(0xFF315CAC).withOpacity(0.10),
+                                color: const Color(0xFF1769E8).withOpacity(0.10),
                               ),
                             ),
                             child: Column(
@@ -2536,7 +2532,7 @@ class _LegalDocumentDialog extends StatelessWidget {
                                 Text(
                                   introTitulo,
                                   style: const TextStyle(
-                                    color: Color(0xFF102A58),
+                                    color: Color(0xFF0B3D91),
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
                                   ),
@@ -2545,7 +2541,7 @@ class _LegalDocumentDialog extends StatelessWidget {
                                 Text(
                                   introTexto,
                                   style: const TextStyle(
-                                    color: Color(0xFF65758A),
+                                    color: Color(0xFF60738B),
                                     fontSize: 13,
                                     height: 1.55,
                                   ),
@@ -2581,7 +2577,7 @@ class _LegalDocumentDialog extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF102A58), Color(0xFF315CAC)],
+          colors: [Color(0xFF0B3D91), Color(0xFF1769E8)],
         ),
       ),
       child: Row(
@@ -2594,7 +2590,7 @@ class _LegalDocumentDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.white.withOpacity(0.14)),
             ),
-            child: Icon(icon, color: const Color(0xFF9CE8EF), size: 25),
+            child: Icon(icon, color: const Color(0xFFE8F3FF), size: 25),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -2604,7 +2600,7 @@ class _LegalDocumentDialog extends StatelessWidget {
                 Text(
                   kicker,
                   style: const TextStyle(
-                    color: Color(0xFF9CE8EF),
+                    color: Color(0xFFE8F3FF),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1,
@@ -2647,7 +2643,7 @@ class _LegalDocumentDialog extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: const Color(0xFF102A58).withOpacity(0.08)),
+          top: BorderSide(color: const Color(0xFF0B3D91).withOpacity(0.08)),
         ),
       ),
       child: Row(
@@ -2656,7 +2652,7 @@ class _LegalDocumentDialog extends StatelessWidget {
             const Expanded(
               child: Text(
                 'Leia o documento antes de continuar.',
-                style: TextStyle(color: Color(0xFF738298), fontSize: 12),
+                style: TextStyle(color: Color(0xFF71849C), fontSize: 12),
               ),
             )
           else
@@ -2669,7 +2665,7 @@ class _LegalDocumentDialog extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF315CAC),
+              backgroundColor: const Color(0xFF1769E8),
               foregroundColor: Colors.white,
               elevation: 0,
               padding: EdgeInsets.symmetric(
@@ -2709,13 +2705,13 @@ class _LegalSection extends StatelessWidget {
             height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFF315CAC).withOpacity(0.08),
+              color: const Color(0xFF1769E8).withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               data.numero,
               style: const TextStyle(
-                color: Color(0xFF315CAC),
+                color: Color(0xFF1769E8),
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
               ),
@@ -2738,7 +2734,7 @@ class _LegalSection extends StatelessWidget {
                 Text(
                   data.texto,
                   style: const TextStyle(
-                    color: Color(0xFF65758A),
+                    color: Color(0xFF60738B),
                     fontSize: 12.5,
                     height: 1.55,
                   ),
@@ -3460,23 +3456,26 @@ class _BadgeDot
 
 class _CadastroColors {
   static const Color navy =
-      Color(0xFF06152E);
+      Color(0xFF06152D);
 
   static const Color blue =
-      Color(0xFF315CAC);
+      Color(0xFF1769E8);
 
   static const Color blueDark =
-      Color(0xFF102A58);
+      Color(0xFF0B3D91);
 
   static const Color cyan =
-      Color(0xFF69C5D0);
+      Color(0xFF1769E8);
 
   static const Color cyanLight =
-      Color(0xFF9CE8EF);
+      Color(0xFFE8F3FF);
+
+  static const Color yellow =
+      Color(0xFFFFC928);
 
   static const Color textSoft =
       Color(0xFFDCE7F5);
 
   static const Color textMuted =
-      Color(0xFFAEBED0);
+      Color(0xFF9FB2C9);
 }
