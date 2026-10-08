@@ -9,11 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
-import 'pace_shell.dart';
 
-const Color primary = Color(0xFF315CAC);
-const Color primary2 = Color(0xFF416FC4);
-const Color accent = Color(0xFF69C5D0);
+const Color primary = Color(0xFF1769E8);
+const Color primary2 = Color(0xFF0B3D91);
+const Color accent = Color(0xFFFFC928);
 
 
 dynamic _decodeJsonOnIsolate(String source) {
@@ -116,19 +115,18 @@ class _ExplorarPageState extends State<ExplorarPage> {
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get bgColor =>
-      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F8FD);
+      darkMode ? const Color(0xFF041126) : const Color(0xFFEAF3FB);
 
   Color get textColor =>
-      darkMode ? const Color(0xFFF2F6FF) : const Color(0xFF172033);
+      darkMode ? const Color(0xFFF7FAFF) : const Color(0xFF06152D);
 
   Color get textSoftColor =>
-      darkMode ? const Color(0xFFDCE5F4) : const Color(0xFF2D3950);
+      darkMode ? const Color(0xFFC7D5E8) : const Color(0xFF203B61);
 
   Color get mutedColor =>
-      darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
+      darkMode ? const Color(0xFF8FA5C0) : const Color(0xFF61758F);
 
-  Color get sidebarTextColor =>
-      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415B);
+  Color get sidebarTextColor => const Color(0xFFC7D5E8);
 
   Color get cardColor => darkMode
       ? const Color(0xFF0C1627).withOpacity(0.94)
@@ -361,7 +359,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
   Future<void> _recarregar() async {
     final termo = _searchController.text.trim();
 
-    if (termo.isEmpty) {
+    if (termo.length < 2) {
       if (!mounted) return;
 
       setState(() {
@@ -557,7 +555,19 @@ class _ExplorarPageState extends State<ExplorarPage> {
     final posts = postsData is List
         ? postsData
               .whereType<Map>()
-              .map((item) => Map<String, dynamic>.from(item))
+              .map((item) {
+                final post = Map<String, dynamic>.from(item);
+
+                post['commentsCount'] = _toInt(
+                  post['commentsCount'] ??
+                      post['comentariosCount'] ??
+                      post['commentCount'] ??
+                      post['totalComentarios'] ??
+                      post['total_comentarios'],
+                );
+
+                return post;
+              })
               .where(
                 (post) {
                   final usuario = post['usuario'];
@@ -782,21 +792,34 @@ class _ExplorarPageState extends State<ExplorarPage> {
         _usuarioLogado['foto'] ??
         _usuarioLogado['avatar'];
 
-    return PaceShell(
-      currentRoute: '/explorar',
-      username: _usuarioLogado['username']?.toString() ?? 'Meu perfil',
-      avatarValue: avatar?.toString(),
+    final page = Stack(
+      children: [
+        _BackgroundDecor(darkMode: darkMode),
+        _buildContent(
+          horizontalPadding: mobile
+              ? (width <= 430 ? 16 : 20)
+              : (tablet ? 28 : 38),
+          topPadding: mobile ? 24 : (tablet ? 32 : 42),
+          bottomPadding: mobile ? 70 : 80,
+          mobile: mobile,
+        ),
+      ],
+    );
+
+    return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: bgColor,
-      child: Stack(
+      drawer: mobile ? _buildMobileDrawer() : null,
+      body: Row(
         children: [
-          _BackgroundDecor(darkMode: darkMode),
-          _buildContent(
-            horizontalPadding: mobile
-                ? (width <= 430 ? 16 : 20)
-                : (tablet ? 28 : 38),
-            topPadding: mobile ? 24 : (tablet ? 32 : 42),
-            bottomPadding: mobile ? 70 : 80,
-            mobile: mobile,
+          if (!mobile) _buildSidebar(),
+          Expanded(
+            child: Column(
+              children: [
+                if (mobile) _buildMobileTopBar(),
+                Expanded(child: page),
+              ],
+            ),
           ),
         ],
       ),
@@ -846,49 +869,54 @@ class _ExplorarPageState extends State<ExplorarPage> {
   }
 
   Widget _buildHero(bool mobile) {
-    final copy = Column(
+    final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _ExplorarBadge(
-          text: 'Descubra novas conexões',
+        const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 18,
+              child: Divider(
+                color: Color(0xFFFFC928),
+                thickness: 3,
+              ),
+            ),
+            SizedBox(width: 8),
+            Text(
+              'COMUNIDADE',
+              style: TextStyle(
+                color: Color(0xFF1769E8),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.25,
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: mobile ? 18 : 14),
+        const SizedBox(height: 8),
         Text(
-          'Explore pessoas,\nideias e energia',
+          'Explorar',
           style: TextStyle(
             color: textColor,
-            fontSize: mobile ? 37 : 50,
-            height: 1.01,
+            fontSize: mobile ? 36 : 44,
+            height: 1,
             fontWeight: FontWeight.w900,
-            letterSpacing: mobile ? -1.6 : -2.2,
-          ),
-        ),
-        SizedBox(height: mobile ? 15 : 12),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760),
-          child: Text(
-            'Encontre perfis inspiradores, tópicos em alta e conteúdos '
-            'que podem ajudar você a construir uma rotina mais forte '
-            'dentro do Pace.',
-            style: TextStyle(
-              color: mutedColor,
-              fontSize: mobile ? 15.5 : 16.5,
-              height: 1.7,
-            ),
+            letterSpacing: -1.5,
           ),
         ),
       ],
     );
 
     if (mobile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          copy,
-          const SizedBox(height: 22),
+          Expanded(child: title),
+          const SizedBox(width: 12),
           _PrimaryButton(
-            text: 'Compartilhar algo',
-            icon: Icons.auto_awesome_rounded,
+            text: 'Postar',
+            icon: Icons.add_rounded,
             onTap: () => Navigator.of(context).pushNamed('/postar'),
           ),
         ],
@@ -898,11 +926,11 @@ class _ExplorarPageState extends State<ExplorarPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Expanded(child: copy),
-        const SizedBox(width: 30),
+        Expanded(child: title),
+        const SizedBox(width: 24),
         _PrimaryButton(
           text: 'Compartilhar algo',
-          icon: Icons.auto_awesome_rounded,
+          icon: Icons.edit_outlined,
           onTap: () => Navigator.of(context).pushNamed('/postar'),
         ),
       ],
@@ -912,15 +940,15 @@ class _ExplorarPageState extends State<ExplorarPage> {
   Widget _buildSearch() {
     return _GlassPanel(
       darkMode: darkMode,
-      radius: 28,
-      padding: const EdgeInsets.all(20),
+      radius: 22,
+      padding: const EdgeInsets.all(14),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         constraints: const BoxConstraints(minHeight: 58),
         decoration: BoxDecoration(
           color: darkMode
               ? Colors.white.withOpacity(0.035)
-              : Colors.white.withOpacity(0.80),
+              : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: _searching
@@ -1168,45 +1196,34 @@ class _ExplorarPageState extends State<ExplorarPage> {
     return SafeArea(
       bottom: false,
       child: Container(
-        height: 72,
+        height: 74,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xF2080A0E)
-              : Colors.white.withOpacity(0.88),
+        decoration: const BoxDecoration(
+          color: Color(0xFF041126),
           border: Border(
             bottom: BorderSide(
-              color: primary.withOpacity(0.08),
+              color: Color(0xFFFFC928),
+              width: 3,
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF15284D).withOpacity(0.06),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Row(
           children: [
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: InkWell(
-                onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                borderRadius: BorderRadius.circular(14),
-                child: Padding(
-                  padding: const EdgeInsets.all(7),
-                  child: Image.asset(
-                    'assets/images/pace_icon.png',
-                    width: 42,
-                    height: 42,
-                    fit: BoxFit.contain,
-                  ),
+            InkWell(
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Image.asset(
+                  'assets/images/pace_icon.png',
+                  width: 43,
+                  height: 43,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
+            const Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1214,20 +1231,17 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   Text(
                     'Pace',
                     style: TextStyle(
-                      color: darkMode ? Colors.white : primary,
+                      color: Colors.white,
                       fontSize: 18,
-                      height: 1,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 3),
                   Text(
-                    'Toque na logo para abrir o menu',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    'Evolução contínua',
                     style: TextStyle(
-                      color: mutedColor,
+                      color: Color(0xFF8FA5C0),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1235,9 +1249,22 @@ class _ExplorarPageState extends State<ExplorarPage> {
                 ],
               ),
             ),
-            _CircleIconButton(
-              icon: Icons.notifications_none_rounded,
-              onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+            Material(
+              color: const Color(0xFF0A2245),
+              borderRadius: BorderRadius.circular(13),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(13),
+                onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+                child: const SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 21,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -1255,16 +1282,12 @@ class _ExplorarPageState extends State<ExplorarPage> {
           margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
           decoration: BoxDecoration(
-            color: darkMode
-                ? const Color(0xFF0B0D12).withOpacity(0.98)
-                : const Color(0xFFF8FBFF).withOpacity(0.98),
+            color: const Color(0xFF06152D),
             borderRadius: const BorderRadius.horizontal(
               right: Radius.circular(28),
             ),
             border: Border.all(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.06)
-                  : primary.withOpacity(0.09),
+              color: Colors.white.withOpacity(0.07),
             ),
             boxShadow: [
               BoxShadow(
@@ -1291,7 +1314,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
                         Text(
                           'Pace',
                           style: TextStyle(
-                            color: textColor,
+                            color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
                             letterSpacing: -0.7,
@@ -1300,7 +1323,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
                         Text(
                           'Evolução contínua',
                           style: TextStyle(
-                            color: mutedColor,
+                            color: const Color(0xFF8FA5C0),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1314,14 +1337,11 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 18),
-
               Divider(
                 height: 1,
-                color: primary.withOpacity(0.10),
+                color: Colors.white.withOpacity(0.08),
               ),
-
               const SizedBox(height: 18),
 
               Expanded(
@@ -1340,14 +1360,9 @@ class _ExplorarPageState extends State<ExplorarPage> {
                       '/explorar',
                       active: true,
                     ),
-                    _mobileDrawerItem(
-                      Icons.edit_square,
-                      'Postar',
-                      '/postar',
-                    ),
+                    _mobileDrawerItem(Icons.edit_square, 'Postar', '/postar'),
 
                     const SizedBox(height: 12),
-
                     _drawerSectionLabel('DESENVOLVIMENTO'),
                     _mobileDrawerItem(
                       Icons.track_changes_rounded,
@@ -1370,11 +1385,9 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
               Divider(
                 height: 1,
-                color: primary.withOpacity(0.10),
+                color: Colors.white.withOpacity(0.08),
               ),
-
               const SizedBox(height: 12),
-
               _mobileDrawerItem(
                 Icons.notifications_none_rounded,
                 'Notificações',
@@ -1399,7 +1412,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
       child: Text(
         text,
         style: TextStyle(
-          color: mutedColor.withOpacity(0.8),
+          color: const Color(0xFF8FA5C0),
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.25,
@@ -1438,18 +1451,13 @@ class _ExplorarPageState extends State<ExplorarPage> {
             constraints: const BoxConstraints(minHeight: 52),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              gradient: active
-                  ? LinearGradient(
-                      colors: [
-                        primary.withOpacity(0.14),
-                        accent.withOpacity(0.09),
-                      ],
-                    )
-                  : null,
+              color: active
+                  ? const Color(0xFF174A9B)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(15),
               border: active
                   ? Border.all(
-                      color: primary.withOpacity(0.10),
+                      color: const Color(0xFF1769E8).withOpacity(0.10),
                     )
                   : null,
             ),
@@ -1461,13 +1469,13 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: active
-                        ? primary.withOpacity(0.08)
+                        ? const Color(0xFF1769E8).withOpacity(0.08)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: Icon(
                     icon,
-                    color: active ? primary : sidebarTextColor,
+                    color: active ? Colors.white : const Color(0xFFC7D5E8),
                     size: 21,
                   ),
                 ),
@@ -1476,7 +1484,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   child: Text(
                     label,
                     style: TextStyle(
-                      color: active ? primary : sidebarTextColor,
+                      color: active ? Colors.white : const Color(0xFFC7D5E8),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1497,65 +1505,49 @@ class _ExplorarPageState extends State<ExplorarPage> {
   }
 
   Widget _mobileProfileItem() {
-    final username =
-        _usuarioLogado['username']?.toString().trim().isNotEmpty == true
-        ? _usuarioLogado['username'].toString()
-        : 'Meu perfil';
-
-    final foto =
-        _usuarioLogado['foto_perfil'] ??
-        _usuarioLogado['foto'] ??
-        _usuarioLogado['avatar'];
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
           Navigator.of(context).pop();
-
-          Future.delayed(
-            const Duration(milliseconds: 120),
-            () {
-              if (mounted) {
-                Navigator.of(context).pushNamed('/perfil');
-              }
-            },
-          );
+          Future.delayed(const Duration(milliseconds: 120), () {
+            if (mounted) Navigator.of(context).pushNamed('/perfil');
+          });
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           margin: const EdgeInsets.only(top: 4),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: primary.withOpacity(darkMode ? 0.10 : 0.055),
+            color: Colors.white.withOpacity(0.06),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: ResizeImage(_cachedImageProvider(foto), width: 120, height: 120),
+                backgroundImage: _cachedImageProvider(_fotoPerfil(_usuarioLogado)),
               ),
               const SizedBox(width: 11),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      username,
+                    const Text(
+                      'Meu perfil',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: textColor,
+                        color: Colors.white,
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    const Text(
                       'Ver perfil',
                       style: TextStyle(
-                        color: mutedColor,
+                        color: Color(0xFF8FA5C0),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1563,9 +1555,9 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.chevron_right_rounded,
-                color: mutedColor,
+                color: Color(0xFF8FA5C0),
                 size: 20,
               ),
             ],
@@ -1581,11 +1573,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
     final width = _sidebarHovered ? expanded : collapsed;
 
     return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          _sidebarHovered = true;
-        });
-      },
+      onEnter: (_) => setState(() => _sidebarHovered = true),
       onExit: (_) {
         setState(() {
           _sidebarHovered = false;
@@ -1593,82 +1581,86 @@ class _ExplorarPageState extends State<ExplorarPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         width: width,
         height: double.infinity,
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xF20B0D12)
-              : const Color(0xFFF8FBFF).withOpacity(0.92),
+          color: const Color(0xFF06152D),
           border: Border(
-            right: BorderSide(
-              color: primary.withOpacity(0.09),
-            ),
+            right: BorderSide(color: const Color(0xFF1769E8).withOpacity(0.09)),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF112348)
-                  .withOpacity(darkMode ? 0.28 : 0.08),
-              blurRadius: 34,
-              offset: const Offset(12, 0),
-            ),
-          ],
+          boxShadow: const [],
         ),
         child: ClipRect(
-          child: Column(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+            child: Column(
               children: [
                 SizedBox(
                   height: 70,
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 9),
-                        child: _PaceLogo(),
-                      ),
-                      if (_sidebarHovered) ...[
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 170),
-                            opacity: _sidebarHovered ? 1 : 0,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Pace',
-                                  style: TextStyle(
-                                    color: primary,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -0.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Evolução contínua',
-                                  style: TextStyle(
-                                    color: mutedColor,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // O texto só entra quando a largura REAL da animação
+                      // já comporta logo + espaçamento + textos.
+                      // Isso evita RenderFlex/overflow no primeiro frame.
+                      final showBrandText = constraints.maxWidth >= 150;
+
+                      return Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 9),
+                            child: Image.asset(
+                              'assets/images/pace_icon.png',
+                              width: 46,
+                              height: 46,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (showBrandText) ...[
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pace',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.clip,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.6,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Evolução contínua',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.clip,
+                                    style: TextStyle(
+                                      color: Color(0xFF8FA5C0),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ),
-
                 Divider(
                   height: 1,
-                  color: primary.withOpacity(0.10),
+                  color: const Color(0xFF1769E8).withOpacity(0.10),
                 ),
-
                 const SizedBox(height: 14),
 
                 Expanded(
@@ -1676,12 +1668,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
                     padding: EdgeInsets.zero,
                     children: [
                       _sidebarSectionLabel('COMUNIDADE'),
-                      _sidebarItem(
-                        Icons.home_rounded,
-                        'Feed',
-                        '/feed',
-                        false,
-                      ),
+                      _sidebarItem(Icons.home_rounded, 'Feed', '/feed', false),
                       _sidebarItem(
                         Icons.explore_outlined,
                         'Explorar',
@@ -1696,7 +1683,6 @@ class _ExplorarPageState extends State<ExplorarPage> {
                       ),
 
                       const SizedBox(height: 10),
-
                       _sidebarSectionLabel('DESENVOLVIMENTO'),
                       _sidebarItem(
                         Icons.track_changes_rounded,
@@ -1722,11 +1708,9 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
                 Divider(
                   height: 1,
-                  color: primary.withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.08),
                 ),
-
                 const SizedBox(height: 8),
-
                 _sidebarItem(
                   Icons.notifications_none_rounded,
                   'Notificações',
@@ -1742,128 +1726,135 @@ class _ExplorarPageState extends State<ExplorarPage> {
                 _sidebarProfileItem(),
               ],
             ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sidebarSectionLabel(String label) {
-    if (!_sidebarHovered) {
-      return const SizedBox(height: 6);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 160),
-        opacity: _sidebarHovered ? 1 : 0,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: mutedColor.withOpacity(0.78),
-            fontSize: 9.5,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.25,
           ),
         ),
       ),
     );
   }
 
-  Widget _sidebarItem(
-    IconData icon,
-    String label,
-    String route,
-    bool active,
-  ) {
-    final hovered = _sidebarItemHovered == route;
-    final expanded = _sidebarHovered;
+  Widget _sidebarSectionLabel(String label) {
+    return SizedBox(
+      height: 30,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showText = constraints.maxWidth >= 130;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: showText
+                  ? Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      style: const TextStyle(
+                        color: Color(0xFF8FA5C0),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _sidebarItem(IconData icon, String label, String route, bool active) {
+    final isHovered = _sidebarItemHovered == route;
+    final highlighted = active || isHovered;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) {
-        setState(() {
-          _sidebarItemHovered = route;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          _sidebarItemHovered = null;
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 5),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: active
-                ? null
-                : () {
-                    Navigator.of(context).pushNamed(route);
-                  },
-            borderRadius: BorderRadius.circular(14),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              constraints: const BoxConstraints(minHeight: 48),
-              padding: const EdgeInsets.symmetric(horizontal: 7),
-              decoration: BoxDecoration(
-                gradient: active
-                    ? LinearGradient(
-                        colors: [
-                          primary.withOpacity(0.15),
-                          accent.withOpacity(0.09),
-                        ],
-                      )
-                    : null,
-                color: !active && hovered
-                    ? primary.withOpacity(0.07)
-                    : null,
-                borderRadius: BorderRadius.circular(14),
-                border: active
-                    ? Border.all(
-                        color: primary.withOpacity(0.08),
-                      )
-                    : null,
-              ),
-              child: Row(
+      onEnter: (_) => setState(() => _sidebarItemHovered = route),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          if (route != '/explorar') {
+            Navigator.of(context).pushNamed(route);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: highlighted
+                ? (active
+                    ? const Color(0xFF174A9B)
+                    : Colors.white.withOpacity(0.07))
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: highlighted
+                ? Border.all(
+                    color: active
+                        ? const Color(0xFF1769E8).withOpacity(0.55)
+                        : Colors.white.withOpacity(0.08),
+                  )
+                : null,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final showText = _sidebarHovered && constraints.maxWidth > 90;
+
+              return Row(
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: active || hovered
-                          ? primary.withOpacity(0.07)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: active ? primary : sidebarTextColor,
-                      size: 21,
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      if (active)
+                        Positioned(
+                          left: -12,
+                          top: 1,
+                          bottom: 1,
+                          child: Container(
+                            width: 3,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFC928),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        width: 24,
+                        child: Icon(
+                          icon,
+                          color: highlighted
+                              ? Colors.white
+                              : const Color(0xFFC7D5E8),
+                          size: 24,
+                        ),
+                      ),
+                    ],
                   ),
-                  if (expanded) ...[
-                    const SizedBox(width: 10),
+                  if (showText) ...[
+                    const SizedBox(width: 16),
                     Expanded(
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 160),
-                        opacity: expanded ? 1 : 0,
+                        opacity: showText ? 1 : 0,
                         child: Text(
                           label,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: active ? primary : sidebarTextColor,
-                            fontSize: 13.5,
+                            color: highlighted
+                                ? Colors.white
+                                : const Color(0xFFC7D5E8),
                             fontWeight: FontWeight.w800,
+                            fontSize: 15,
                           ),
                         ),
                       ),
                     ),
                   ],
                 ],
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -1871,96 +1862,78 @@ class _ExplorarPageState extends State<ExplorarPage> {
   }
 
   Widget _sidebarProfileItem() {
-    final expanded = _sidebarHovered;
-
-    final username =
-        _usuarioLogado['username']?.toString().trim().isNotEmpty == true
-        ? _usuarioLogado['username'].toString()
-        : 'Meu perfil';
-
-    final foto =
-        _usuarioLogado['foto_perfil'] ??
-        _usuarioLogado['foto'] ??
-        _usuarioLogado['avatar'];
+    const route = '/perfil';
+    final isHovered = _sidebarItemHovered == route;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => Navigator.of(context).pushNamed('/perfil'),
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 58),
-            margin: const EdgeInsets.only(top: 3),
-            padding: const EdgeInsets.symmetric(horizontal: 7),
-            decoration: BoxDecoration(
-              color: primary.withOpacity(darkMode ? 0.10 : 0.05),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: primary.withOpacity(0.07),
-                    borderRadius: BorderRadius.circular(13),
-                    border: Border.all(
-                      color: primary.withOpacity(0.12),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image(
-                      image: ResizeImage(_cachedImageProvider(foto), width: 220, height: 220),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+      onEnter: (_) => setState(() => _sidebarItemHovered = route),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.of(context).pushNamed('/perfil'),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          height: 50,
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isHovered
+                ? Colors.white.withOpacity(0.07)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final showText = _sidebarHovered && constraints.maxWidth > 90;
 
-                if (expanded) ...[
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 160),
-                      opacity: expanded ? 1 : 0,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            username,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w800,
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundImage: _cachedImageProvider(_fotoPerfil(_usuarioLogado)),
+                  ),
+                  if (showText) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 160),
+                        opacity: showText ? 1 : 0,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Meu perfil',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Ver perfil',
-                            style: TextStyle(
-                              color: mutedColor,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                            SizedBox(height: 2),
+                            Text(
+                              'Ver perfil',
+                              style: TextStyle(
+                                color: Color(0xFF8FA5C0),
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: mutedColor,
-                    size: 17,
-                  ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF8FA5C0),
+                      size: 18,
+                    ),
+                  ],
                 ],
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -2026,49 +1999,58 @@ class _BackgroundDecor extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: IgnorePointer(
-        child: Stack(
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: darkMode
-                      ? const [
-                          Color(0xFF081120),
-                          Color(0xFF050B15),
-                        ]
-                      : const [
-                          Color(0xFFF4F8FD),
-                          Color(0xFFEAF1F9),
-                          Color(0xFFE4EDF8),
-                        ],
-                ),
-              ),
-              child: const SizedBox.expand(),
+        child: Container(
+          color: darkMode
+              ? const Color(0xFF041126)
+              : const Color(0xFFEAF3FB),
+          child: CustomPaint(
+            painter: _ExplorarGridPainter(
+              darkMode: darkMode,
             ),
-
-            Positioned(
-              right: -160,
-              top: -170,
-              child: _BlurOrb(
-                size: 430,
-                color: primary.withOpacity(darkMode ? 0.12 : 0.17),
-              ),
-            ),
-
-            Positioned(
-              left: -150,
-              bottom: 50,
-              child: _BlurOrb(
-                size: 390,
-                color: accent.withOpacity(darkMode ? 0.08 : 0.15),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class _ExplorarGridPainter extends CustomPainter {
+  final bool darkMode;
+
+  const _ExplorarGridPainter({
+    required this.darkMode,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = darkMode
+          ? Colors.white.withOpacity(0.018)
+          : const Color(0xFF1769E8).withOpacity(0.035)
+      ..strokeWidth = 1;
+
+    const step = 38.0;
+
+    for (double x = 0; x <= size.width; x += step) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+
+    for (double y = 0; y <= size.height; y += step) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ExplorarGridPainter oldDelegate) {
+    return oldDelegate.darkMode != darkMode;
   }
 }
 
@@ -3512,7 +3494,7 @@ class _ModalEmptyPosts extends StatelessWidget {
   }
 }
 
-class _ModalPostCard extends StatelessWidget {
+class _ModalPostCard extends StatefulWidget {
   final bool darkMode;
   final Map<String, dynamic> post;
 
@@ -3521,18 +3503,125 @@ class _ModalPostCard extends StatelessWidget {
     required this.post,
   });
 
+  @override
+  State<_ModalPostCard> createState() => _ModalPostCardState();
+}
+
+class _ModalPostCardState extends State<_ModalPostCard> {
+  bool _commentsOpen = false;
+  bool _commentsLoading = false;
+  bool _commentsLoaded = false;
+  List<Map<String, dynamic>> _comments = [];
+  late int _commentsCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _commentsCount = _toInt(
+      widget.post['commentsCount'] ??
+          widget.post['comentariosCount'] ??
+          widget.post['commentCount'] ??
+          widget.post['totalComentarios'] ??
+          widget.post['total_comentarios'],
+    );
+  }
+
   int _toInt(dynamic value) {
     if (value is int) return value;
     if (value is double) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token') ?? prefs.getString('access_token');
+  }
+
+  Future<void> _toggleComments() async {
+    if (_commentsOpen) {
+      setState(() {
+        _commentsOpen = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _commentsOpen = true;
+    });
+
+    if (_commentsLoaded || _commentsLoading) return;
+
+    final postId = _toInt(widget.post['id']);
+    if (postId <= 0) return;
+
+    final token = await _getToken();
+    if (token == null || token.isEmpty || !mounted) return;
+
+    setState(() {
+      _commentsLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        ApiConfig.uri('/comments/comentarios/$postId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      dynamic data;
+      try {
+        data = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      } catch (_) {
+        data = null;
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Erro ao carregar comentários.');
+      }
+
+      final comments = data is List
+          ? data
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+          : <Map<String, dynamic>>[];
+
+      if (!mounted) return;
+
+      setState(() {
+        _comments = comments;
+        _commentsCount = comments.length;
+        _commentsLoaded = true;
+        _commentsLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _commentsOpen = false;
+        _commentsLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Não foi possível carregar os comentários.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final text = darkMode ? Colors.white : const Color(0xFF172033);
-    final muted = darkMode
-        ? const Color(0xFF98A8BF)
-        : const Color(0xFF6F7F96);
+    final darkMode = widget.darkMode;
+    final post = widget.post;
+
+    final text = darkMode ? Colors.white : const Color(0xFF06152D);
+    final muted =
+        darkMode ? const Color(0xFF8FA5C0) : const Color(0xFF61758F);
 
     final conteudo =
         (post['conteudo'] ?? post['texto'] ?? '').toString().trim();
@@ -3544,13 +3633,13 @@ class _ModalPostCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: darkMode
-            ? const Color(0xFF080A0E).withOpacity(0.88)
-            : Colors.white.withOpacity(0.94),
+            ? const Color(0xFF071A36)
+            : Colors.white.withOpacity(0.96),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: darkMode
               ? Colors.white.withOpacity(0.06)
-              : primary.withOpacity(0.10),
+              : const Color(0xFF06152D).withOpacity(0.06),
         ),
       ),
       child: Column(
@@ -3570,8 +3659,7 @@ class _ModalPostCard extends StatelessWidget {
             ),
 
           if (imagem.isNotEmpty) ...[
-            if (conteudo.isNotEmpty)
-              const SizedBox(height: 14),
+            if (conteudo.isNotEmpty) const SizedBox(height: 14),
             ClipRRect(
               borderRadius: BorderRadius.circular(17),
               child: AspectRatio(
@@ -3579,6 +3667,7 @@ class _ModalPostCard extends StatelessWidget {
                 child: Image(
                   image: _cachedImageProvider(imagem),
                   fit: BoxFit.cover,
+                  gaplessPlayback: true,
                   errorBuilder: (_, __, ___) {
                     return Container(
                       color: primary.withOpacity(0.05),
@@ -3616,8 +3705,123 @@ class _ModalPostCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
+              const SizedBox(width: 18),
+              InkWell(
+                onTap: _toggleComments,
+                borderRadius: BorderRadius.circular(999),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.mode_comment_outlined,
+                        color: _commentsOpen ? primary : muted,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$_commentsCount',
+                        style: TextStyle(
+                          color: _commentsOpen ? primary : muted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
+
+          if (_commentsOpen) ...[
+            const SizedBox(height: 14),
+
+            if (_commentsLoading)
+              const Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: primary,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Carregando comentários...',
+                    style: TextStyle(
+                      color: Color(0xFF61758F),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              )
+            else if (_comments.isEmpty)
+              Text(
+                'Nenhum comentário ainda.',
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            else
+              Column(
+                children: _comments.map((comment) {
+                  final usuario = comment['usuario'];
+                  final username = usuario is Map
+                      ? (usuario['username'] ?? 'Usuário').toString()
+                      : (comment['username'] ?? 'Usuário').toString();
+
+                  final conteudoComentario =
+                      (comment['conteudo'] ??
+                              comment['texto'] ??
+                              comment['comentario'] ??
+                              '')
+                          .toString();
+
+                  return Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(11),
+                    decoration: BoxDecoration(
+                      color: darkMode
+                          ? Colors.white.withOpacity(0.045)
+                          : const Color(0xFFEAF3FB),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '@$username',
+                          style: TextStyle(
+                            color: text,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          conteudoComentario,
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: 12.5,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
         ],
       ),
     );

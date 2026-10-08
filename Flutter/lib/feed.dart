@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
-import 'pace_shell.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -24,30 +23,61 @@ class _FeedPageState extends State<FeedPage> {
   List<Map<String, dynamic>> posts = [];
   Map<String, dynamic> usuarioLogado = {};
 
+  // ============================================================
+  // FILTROS / COMUNIDADES LOCAIS
+  // Mesma ideia da versão web, usando SharedPreferences como
+  // armazenamento local no Flutter.
+  // ============================================================
+
+  static const String _communityStorageKey = 'paceCommunities';
+  static const String _communityMembersStorageKey = 'paceCommunityMembers';
+  static const String _communityPostsStorageKey = 'paceCommunityPosts';
+  static const String _followingStorageKey = 'paceFollowing';
+  static const String _feedFilterStorageKey = 'paceFeedFilter';
+  static const String _communityFilterStorageKey = 'paceCommunityFilter';
+
+  List<Map<String, dynamic>> comunidadesLocais = [];
+  List<Map<String, dynamic>> membrosComunidadesLocais = [];
+  List<Map<String, dynamic>> vinculosPostsComunidadesLocais = [];
+  Set<String> seguindoIdsLocais = <String>{};
+
+  String filtroFeedAtivo = 'general';
+  String comunidadeFiltroAtiva = 'all';
+
   bool isLoading = true;
   bool sidebarHovered = false;
   String? sidebarItemHovered;
+
+  // Resumo de evolução exibido no feed desktop.
+  int _sequenciaAtual = 0;
+  int _focoHojeSegundos = 0;
+  Map<String, dynamic>? _metaDestaque;
+  bool _progressoCarregando = true;
 
   final TextEditingController editPostController = TextEditingController();
   final TextEditingController editCommentController = TextEditingController();
   final Map<int, TextEditingController> commentControllers = {};
 
+  // Mantém os mesmos ImageProvider entre rebuilds.
+  // Assim abrir/fechar comentários não faz avatar/imagem "piscar".
+  final Map<String, ImageProvider> _imageProviderCache = {};
+
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get bgColor =>
-      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+      darkMode ? const Color(0xFF041126) : const Color(0xFFEAF3FB);
 
   Color get textColor =>
-      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+      darkMode ? const Color(0xFFF7FAFF) : const Color(0xFF06152D);
 
   Color get mutedColor =>
-      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
+      darkMode ? const Color(0xFF8FA5C0) : const Color(0xFF61758F);
 
   Color get bodyTextColor =>
-      darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF24304A);
+      darkMode ? const Color(0xFFC7D5E8) : const Color(0xFF203B61);
 
   Color get labelColor =>
-      darkMode ? const Color(0xFFD7DDF0) : const Color(0xFF33415C);
+      darkMode ? const Color(0xFFD7E8F7) : const Color(0xFF203B61);
 
   Color get sidebarTextColor =>
       darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
@@ -86,8 +116,24 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
+  ImageProvider _cachedImageProvider(
+    dynamic value, {
+    String fallbackAsset = 'assets/user.png',
+  }) {
+    final raw = value?.toString().trim() ?? '';
+    final key = '$fallbackAsset::$raw';
+
+    return _imageProviderCache.putIfAbsent(
+      key,
+      () => ApiConfig.imageProvider(
+        raw.isEmpty ? null : raw,
+        fallbackAsset: fallbackAsset,
+      ),
+    );
+  }
+
   ImageProvider _avatarProvider(String? value) {
-    return ApiConfig.imageProvider(value);
+    return _cachedImageProvider(value);
   }
 
   String? _fotoUsuarioLogado() {
@@ -154,7 +200,28 @@ class _FeedPageState extends State<FeedPage> {
       'imagem': post['imagem'] ?? '',
       'likes': NumberParser.toInt(post['likes']),
       'liked': post['liked'] ?? false,
+      'commentsCount': NumberParser.toInt(
+        post['commentsCount'] ??
+            post['comentariosCount'] ??
+            post['commentCount'] ??
+            post['totalComentarios'] ??
+            post['total_comentarios'],
+      ),
+      'comentariosCarregados': false,
+      'comentariosAbertos': false,
+      'comentariosCarregando': false,
       'data': post['data_postagem'] ?? post['data'],
+      'comunidadeId':
+          post['comunidadeId'] ??
+          post['communityId'] ??
+          post['comunidade_id'] ??
+          post['community_id'],
+      'comunidadeNome':
+          post['comunidadeNome'] ??
+          post['communityName'] ??
+          post['comunidade_nome'] ??
+          post['community_name'],
+      'seguindo': post['seguindo'] ?? post['following'] ?? false,
       'usuario': {
         'id': usuario is Map ? usuario['id'] : post['usuario_id'],
         'username': usuario is Map
@@ -177,6 +244,259 @@ class _FeedPageState extends State<FeedPage> {
     };
   }
 
+  List<Map<String, dynamic>> _decodeLocalList(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return <Map<String, dynamic>>[];
+
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return <Map<String, dynamic>>[];
+
+      return decoded
+          .where((item) => item is Map)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    } catch (_) {
+      return <Map<String, dynamic>>[];
+    }
+  }
+
+  Future<void> _carregarDadosLocaisFeed() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final comunidades = _decodeLocalList(
+      prefs.getString(_communityStorageKey),
+    );
+
+    final membros = _decodeLocalList(
+      prefs.getString(_communityMembersStorageKey),
+    );
+
+    final vinculos = _decodeLocalList(
+      prefs.getString(_communityPostsStorageKey),
+    );
+
+    final seguindoRaw = _decodeLocalList(
+      prefs.getString(_followingStorageKey),
+    );
+
+    final seguindoIds = <String>{};
+
+    for (final item in seguindoRaw) {
+      final id =
+          item['id'] ??
+          item['usuarioId'] ??
+          item['usuario_id'] ??
+          item['userId'] ??
+          item['user_id'] ??
+          item['seguindoId'] ??
+          item['seguindo_id'];
+
+      if (id != null) seguindoIds.add(id.toString());
+    }
+
+    // Também aceita uma lista simples de IDs salva como JSON.
+    final rawFollowing = prefs.getString(_followingStorageKey);
+    if (rawFollowing != null) {
+      try {
+        final decoded = jsonDecode(rawFollowing);
+        if (decoded is List) {
+          for (final item in decoded) {
+            if (item is num || item is String) {
+              seguindoIds.add(item.toString());
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    filtroFeedAtivo = prefs.getString(_feedFilterStorageKey) ?? 'general';
+    comunidadeFiltroAtiva =
+        prefs.getString(_communityFilterStorageKey) ?? 'all';
+
+    if (!{'general', 'following', 'communities'}.contains(filtroFeedAtivo)) {
+      filtroFeedAtivo = 'general';
+    }
+
+    comunidadesLocais = comunidades;
+    membrosComunidadesLocais = membros;
+    vinculosPostsComunidadesLocais = vinculos;
+    seguindoIdsLocais = seguindoIds;
+  }
+
+  Future<void> _salvarFiltroFeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_feedFilterStorageKey, filtroFeedAtivo);
+    await prefs.setString(_communityFilterStorageKey, comunidadeFiltroAtiva);
+  }
+
+  String? _obterComunidadeIdDoPost(Map<String, dynamic> post) {
+    final id =
+        post['comunidadeId'] ??
+        post['communityId'] ??
+        post['comunidade_id'] ??
+        post['community_id'];
+
+    if (id == null || id.toString().trim().isEmpty) return null;
+    return id.toString();
+  }
+
+  String _idUsuarioAtual() {
+    final id = usuarioLogado['id'];
+    return id == null ? '' : id.toString();
+  }
+
+  List<Map<String, dynamic>> get _minhasComunidades {
+    final userId = _idUsuarioAtual();
+    if (userId.isEmpty) return <Map<String, dynamic>>[];
+
+    final idsParticipando = membrosComunidadesLocais
+        .where((membro) {
+          final usuarioId =
+              membro['usuarioId'] ??
+              membro['usuario_id'] ??
+              membro['userId'] ??
+              membro['user_id'];
+
+          return usuarioId?.toString() == userId;
+        })
+        .map((membro) {
+          return (
+                membro['comunidadeId'] ??
+                membro['comunidade_id'] ??
+                membro['communityId'] ??
+                membro['community_id']
+              )
+              ?.toString();
+        })
+        .whereType<String>()
+        .toSet();
+
+    return comunidadesLocais.where((comunidade) {
+      return idsParticipando.contains(comunidade['id']?.toString());
+    }).toList();
+  }
+
+  Map<String, dynamic>? _comunidadePorId(String? comunidadeId) {
+    if (comunidadeId == null) return null;
+
+    for (final comunidade in comunidadesLocais) {
+      if (comunidade['id']?.toString() == comunidadeId) {
+        return comunidade;
+      }
+    }
+
+    return null;
+  }
+
+  List<Map<String, dynamic>> _aplicarVinculosComunidades(
+    List<Map<String, dynamic>> source,
+  ) {
+    final vinculosPorPost = <String, Map<String, dynamic>>{};
+
+    for (final vinculo in vinculosPostsComunidadesLocais) {
+      final postId =
+          vinculo['postId'] ??
+          vinculo['post_id'];
+
+      if (postId != null) {
+        vinculosPorPost[postId.toString()] = vinculo;
+      }
+    }
+
+    return source.map((post) {
+      final copia = Map<String, dynamic>.from(post);
+      final vinculo = vinculosPorPost[copia['id']?.toString()];
+
+      final comunidadeId =
+          _obterComunidadeIdDoPost(copia) ??
+          (
+            vinculo?['comunidadeId'] ??
+            vinculo?['comunidade_id'] ??
+            vinculo?['communityId'] ??
+            vinculo?['community_id']
+          )?.toString();
+
+      if (comunidadeId == null || comunidadeId.isEmpty) {
+        copia['comunidadeId'] = null;
+        copia['comunidadeNome'] = null;
+        return copia;
+      }
+
+      final comunidade = _comunidadePorId(comunidadeId);
+
+      copia['comunidadeId'] = comunidadeId;
+      copia['comunidadeNome'] =
+          comunidade?['nome']?.toString() ??
+          vinculo?['comunidadeNome']?.toString() ??
+          vinculo?['nome']?.toString() ??
+          'Comunidade';
+
+      return copia;
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> get _postsFiltrados {
+    if (filtroFeedAtivo == 'following') {
+      return posts.where((post) {
+        final usuario = post['usuario'];
+        final userId = usuario is Map
+            ? usuario['id']?.toString()
+            : post['usuario_id']?.toString();
+
+        if (userId == null) return false;
+
+        // Se houver IDs locais, eles são a fonte principal.
+        if (seguindoIdsLocais.isNotEmpty) {
+          return seguindoIdsLocais.contains(userId);
+        }
+
+        // Compatibilidade com feeds que já tragam a informação.
+        return post['seguindo'] == true || post['following'] == true;
+      }).toList();
+    }
+
+    if (filtroFeedAtivo == 'communities') {
+      final idsPermitidos = _minhasComunidades
+          .map((comunidade) => comunidade['id']?.toString())
+          .whereType<String>()
+          .toSet();
+
+      return posts.where((post) {
+        final comunidadeId = _obterComunidadeIdDoPost(post);
+
+        if (comunidadeId == null || !idsPermitidos.contains(comunidadeId)) {
+          return false;
+        }
+
+        return comunidadeFiltroAtiva == 'all' ||
+            comunidadeId == comunidadeFiltroAtiva;
+      }).toList();
+    }
+
+    return posts;
+  }
+
+  Future<void> _alterarFiltroFeed(String filtro) async {
+    setState(() {
+      filtroFeedAtivo = filtro;
+
+      if (filtro != 'communities') {
+        comunidadeFiltroAtiva = 'all';
+      }
+    });
+
+    await _salvarFiltroFeed();
+  }
+
+  Future<void> _alterarFiltroComunidade(String comunidadeId) async {
+    setState(() {
+      filtroFeedAtivo = 'communities';
+      comunidadeFiltroAtiva = comunidadeId;
+    });
+
+    await _salvarFiltroFeed();
+  }
+
   Future<void> _initFeed() async {
     final token = await _getToken();
 
@@ -188,13 +508,16 @@ class _FeedPageState extends State<FeedPage> {
     }
 
     try {
+      await _carregarDadosLocaisFeed();
+
       final usuarioData = await _buscarUsuarioAPI(token);
-      final postsData = await _getPostsAPI(token);
+      usuarioLogado = usuarioData;
 
-      for (final post in postsData) {
-        post['comentarios'] = await _buscarComentariosAPI(token, post['id']);
-      }
+      final postsDaApi = await _getPostsAPI(token);
+      final postsData = _aplicarVinculosComunidades(postsDaApi);
 
+      // Igual ao web: comentários NÃO são carregados junto com o feed.
+      // Eles só são buscados quando o usuário abre o painel de comentários.
       if (!mounted) return;
 
       setState(() {
@@ -202,6 +525,14 @@ class _FeedPageState extends State<FeedPage> {
         posts = postsData;
         isLoading = false;
       });
+
+      // Atualiza somente os números dos comentários em segundo plano.
+      // As listas de comentários continuam sendo buscadas apenas ao clicar.
+      _carregarContagensComentariosEmSegundoPlano(token, postsData);
+
+      // O painel é complementar: se a API de metas/sessões falhar,
+      // o feed continua funcionando normalmente.
+      await _carregarPainelProgresso(token);
     } catch (e) {
       if (e.toString().contains('AUTH_401')) {
         if (mounted) {
@@ -310,6 +641,107 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  Future<void> _carregarContagensComentariosEmSegundoPlano(
+    String token,
+    List<Map<String, dynamic>> postsAlvo,
+  ) async {
+    final resultados = await Future.wait(
+      postsAlvo.map((post) async {
+        final postId = NumberParser.toInt(post['id']);
+
+        if (postId <= 0) {
+          return MapEntry(postId, NumberParser.toInt(post['commentsCount']));
+        }
+
+        try {
+          final comentarios = await _buscarComentariosAPI(token, postId);
+          return MapEntry(postId, comentarios.length);
+        } catch (_) {
+          return MapEntry(postId, NumberParser.toInt(post['commentsCount']));
+        }
+      }),
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      for (final resultado in resultados) {
+        final post = posts.firstWhere(
+          (item) => NumberParser.toInt(item['id']) == resultado.key,
+          orElse: () => <String, dynamic>{},
+        );
+
+        if (post.isNotEmpty && post['comentariosCarregados'] != true) {
+          post['commentsCount'] = resultado.value;
+        }
+      }
+    });
+  }
+
+  Future<void> _alternarComentarios(int postId) async {
+    final post = posts.firstWhere(
+      (item) => NumberParser.toInt(item['id']) == postId,
+      orElse: () => <String, dynamic>{},
+    );
+
+    if (post.isEmpty) return;
+
+    final abertos = post['comentariosAbertos'] == true;
+
+    if (abertos) {
+      setState(() {
+        post['comentariosAbertos'] = false;
+      });
+      return;
+    }
+
+    setState(() {
+      post['comentariosAbertos'] = true;
+    });
+
+    if (post['comentariosCarregados'] == true) {
+      return;
+    }
+
+    if (post['comentariosCarregando'] == true) {
+      return;
+    }
+
+    final token = await _getToken();
+    if (token == null) return;
+
+    setState(() {
+      post['comentariosCarregando'] = true;
+    });
+
+    try {
+      final comentarios = await _buscarComentariosAPI(token, postId);
+
+      if (!mounted) return;
+
+      setState(() {
+        post['comentarios'] = comentarios;
+        post['commentsCount'] = comentarios.length;
+        post['comentariosCarregados'] = true;
+        post['comentariosCarregando'] = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        post['comentariosAbertos'] = false;
+        post['comentariosCarregando'] = false;
+      });
+
+      if (e.toString().contains('AUTH_401')) {
+        Navigator.of(context).pushReplacementNamed('/entrar');
+        return;
+      }
+
+      _showToast('Não foi possível carregar os comentários.', Colors.red);
+    }
+  }
+
   Future<void> _criarComentario(int postId) async {
     final token = await _getToken();
     if (token == null) return;
@@ -344,6 +776,9 @@ class _FeedPageState extends State<FeedPage> {
           post['comentarios'].add(
             _normalizarComentario(Map<String, dynamic>.from(data)),
           );
+          post['commentsCount'] = (post['comentarios'] as List).length;
+          post['comentariosCarregados'] = true;
+          post['comentariosAbertos'] = true;
           controller.clear();
         });
 
@@ -471,9 +906,14 @@ class _FeedPageState extends State<FeedPage> {
 
       setState(() {
         for (final post in posts) {
-          (post['comentarios'] as List).removeWhere(
+          final comentarios = post['comentarios'] as List;
+          comentarios.removeWhere(
             (comentario) => comentario['id'] == comentarioId,
           );
+
+          if (post['comentariosCarregados'] == true) {
+            post['commentsCount'] = comentarios.length;
+          }
         }
       });
 
@@ -605,13 +1045,13 @@ class _FeedPageState extends State<FeedPage> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3059AA).withOpacity(0.1),
+                  color: const Color(0xFF1769E8).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Text(
                   'EDITOR DE POST',
                   style: TextStyle(
-                    color: Color(0xFF3059AA),
+                    color: Color(0xFF1769E8),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -637,7 +1077,7 @@ class _FeedPageState extends State<FeedPage> {
                 controller: editPostController,
                 maxLines: 6,
                 style: TextStyle(color: textColor),
-                cursorColor: const Color(0xFF3059AA),
+                cursorColor: const Color(0xFF1769E8),
                 decoration: AppInput.textArea(
                   'Digite aqui...',
                   darkMode: darkMode,
@@ -696,7 +1136,7 @@ class _FeedPageState extends State<FeedPage> {
                 children: [
                   const Icon(
                     Icons.edit_outlined,
-                    color: Color(0xFF3059AA),
+                    color: Color(0xFF1769E8),
                     size: 34,
                   ),
                   const SizedBox(width: 14),
@@ -723,7 +1163,7 @@ class _FeedPageState extends State<FeedPage> {
                 controller: editCommentController,
                 maxLines: 4,
                 style: TextStyle(color: textColor),
-                cursorColor: const Color(0xFF3059AA),
+                cursorColor: const Color(0xFF1769E8),
                 decoration: AppInput.textArea(
                   'Digite o novo comentário...',
                   darkMode: darkMode,
@@ -779,32 +1219,47 @@ class _FeedPageState extends State<FeedPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final mobile = screenWidth < 760;
-    final tablet = screenWidth >= 760 && screenWidth < 1080;
+    final tablet = screenWidth >= 760 && screenWidth < 1100;
+    final desktop = screenWidth >= 1100;
 
     if (isLoading) {
       return Scaffold(
         backgroundColor: bgColor,
         body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF315CAC)),
+          child: CircularProgressIndicator(color: Color(0xFF1769E8)),
         ),
       );
     }
 
-    return PaceShell(
-      currentRoute: '/feed',
-      username: usuarioLogado['username']?.toString() ?? 'Meu perfil',
-      avatarValue: _fotoUsuarioLogado(),
+    final page = Stack(
+      children: [
+        _BackgroundDecor(darkMode: darkMode),
+        _buildFeedContent(
+          horizontalPadding: mobile
+              ? (screenWidth <= 430 ? 16 : 20)
+              : (tablet ? 28 : 42),
+          topPadding: mobile ? 24 : (tablet ? 30 : 32),
+          bottomPadding: mobile ? 70 : 90,
+          mobile: mobile,
+          desktop: desktop,
+        ),
+      ],
+    );
+
+    return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: bgColor,
-      child: Stack(
+      drawer: mobile ? _buildMobileDrawer() : null,
+      body: Row(
         children: [
-          _BackgroundDecor(darkMode: darkMode),
-          _buildFeedContent(
-            horizontalPadding: mobile
-                ? (screenWidth <= 430 ? 16 : 20)
-                : (tablet ? 28 : 38),
-            topPadding: mobile ? 24 : (tablet ? 32 : 38),
-            bottomPadding: mobile ? 70 : 90,
-            mobile: mobile,
+          if (!mobile) _buildSidebar(),
+          Expanded(
+            child: Column(
+              children: [
+                if (mobile) _buildMobileTopBar(),
+                Expanded(child: page),
+              ],
+            ),
           ),
         ],
       ),
@@ -816,9 +1271,25 @@ class _FeedPageState extends State<FeedPage> {
     required double topPadding,
     required double bottomPadding,
     required bool mobile,
+    required bool desktop,
   }) {
+    final postsVisiveis = _postsFiltrados;
+
+    final feedColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFeedFilters(mobile),
+        const SizedBox(height: 24),
+        _buildFeedHeader(mobile),
+        const SizedBox(height: 16),
+        postsVisiveis.isEmpty
+            ? _buildEmptyFeed()
+            : _buildPosts(postsVisiveis),
+      ],
+    );
+
     return RefreshIndicator(
-      color: const Color(0xFF315CAC),
+      color: const Color(0xFF1769E8),
       onRefresh: _recarregarFeed,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(
@@ -837,21 +1308,24 @@ class _FeedPageState extends State<FeedPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHero(),
-                SizedBox(height: mobile ? 30 : 36),
+                SizedBox(height: mobile ? 28 : 26),
 
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 820),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildFeedHeader(mobile),
-                        const SizedBox(height: 16),
-                        posts.isEmpty ? _buildEmptyFeed() : _buildPosts(),
-                      ],
-                    ),
-                  ),
-                ),
+                if (desktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: feedColumn,
+                      ),
+                      const SizedBox(width: 34),
+                      SizedBox(
+                        width: 292,
+                        child: _buildProgressPanel(),
+                      ),
+                    ],
+                  )
+                else
+                  feedColumn,
               ],
             ),
           ),
@@ -865,26 +1339,25 @@ class _FeedPageState extends State<FeedPage> {
     if (token == null) return;
 
     try {
+      await _carregarDadosLocaisFeed();
+
       final usuarioData = await _buscarUsuarioAPI(token);
-      final postsData = await _getPostsAPI(token);
+      usuarioLogado = usuarioData;
 
-      for (final post in postsData) {
-        try {
-          post['comentarios'] = await _buscarComentariosAPI(
-            token,
-            NumberParser.toInt(post['id']),
-          );
-        } catch (_) {
-          post['comentarios'] = <Map<String, dynamic>>[];
-        }
-      }
+      final postsDaApi = await _getPostsAPI(token);
+      final postsData = _aplicarVinculosComunidades(postsDaApi);
 
+      // Refresh também mantém o lazy load dos comentários.
       if (!mounted) return;
 
       setState(() {
         usuarioLogado = usuarioData;
         posts = postsData;
       });
+
+      _carregarContagensComentariosEmSegundoPlano(token, postsData);
+
+      await _carregarPainelProgresso(token);
     } catch (e) {
       if (e.toString().contains('AUTH_401')) {
         if (mounted) {
@@ -895,6 +1368,560 @@ class _FeedPageState extends State<FeedPage> {
 
       _showToast('Não foi possível atualizar o feed.', Colors.red);
     }
+  }
+
+
+  Future<void> _carregarPainelProgresso(String token) async {
+    try {
+      final metasResponse = await http.get(
+        Uri.parse('$apiUrl/metas/listar_metas'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      final metasData = await _parseResponse(
+        metasResponse,
+        'Erro ao buscar metas.',
+      );
+
+      final metas = metasData is List
+          ? metasData
+              .where((item) => item is Map)
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList()
+          : <Map<String, dynamic>>[];
+
+      Map<String, dynamic>? metaAtiva;
+
+      final emAndamento = metas
+          .where(
+            (meta) =>
+                (meta['status'] ?? '').toString().toLowerCase() ==
+                'em andamento',
+          )
+          .toList();
+
+      if (emAndamento.isNotEmpty) {
+        emAndamento.sort((a, b) {
+          final prazoA = _parseDateOnly(a['prazo']);
+          final prazoB = _parseDateOnly(b['prazo']);
+
+          if (prazoA != null && prazoB != null) {
+            return prazoA.compareTo(prazoB);
+          }
+
+          if (prazoA != null) return -1;
+          if (prazoB != null) return 1;
+
+          return NumberParser.toInt(a['id']).compareTo(
+            NumberParser.toInt(b['id']),
+          );
+        });
+
+        metaAtiva = emAndamento.first;
+      }
+
+      final sessoes = <Map<String, dynamic>>[];
+
+      for (final meta in metas) {
+        final id = NumberParser.toInt(meta['id']);
+        if (id <= 0) continue;
+
+        try {
+          final response = await http.get(
+            Uri.parse('$apiUrl/sessoes/meta/$id'),
+            headers: {'Authorization': 'Bearer $token'},
+          );
+
+          final data = await _parseResponse(
+            response,
+            'Erro ao buscar sessões.',
+          );
+
+          if (data is List) {
+            sessoes.addAll(
+              data
+                  .where((item) => item is Map)
+                  .map((item) => Map<String, dynamic>.from(item as Map)),
+            );
+          }
+        } catch (_) {
+          // Uma meta sem sessões não deve quebrar o restante do feed.
+        }
+      }
+
+      final hoje = _dateKey(DateTime.now());
+
+      final focoHoje = sessoes
+          .where((sessao) => _dateKeyFromValue(sessao['inicio']) == hoje)
+          .fold<int>(
+            0,
+            (total, sessao) =>
+                total + NumberParser.toInt(sessao['duracao']),
+          );
+
+      final sequencia = _calcularSequencia(sessoes);
+
+      if (!mounted) return;
+
+      setState(() {
+        _sequenciaAtual = sequencia;
+        _focoHojeSegundos = focoHoje;
+        _metaDestaque = metaAtiva;
+        _progressoCarregando = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _progressoCarregando = false;
+      });
+    }
+  }
+
+  DateTime? _parseDateOnly(dynamic value) {
+    if (value == null || value.toString().trim().isEmpty) return null;
+
+    final raw = value.toString().trim();
+    return DateTime.tryParse(raw.length == 10 ? '${raw}T12:00:00' : raw);
+  }
+
+  String _dateKey(DateTime date) {
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  String? _dateKeyFromValue(dynamic value) {
+    if (value == null) return null;
+    final date = DateTime.tryParse(value.toString());
+    if (date == null) return null;
+    return _dateKey(date.toLocal());
+  }
+
+  int _calcularSequencia(List<Map<String, dynamic>> sessoes) {
+    final diasAtivos = sessoes
+        .where((sessao) => NumberParser.toInt(sessao['duracao']) > 0)
+        .map((sessao) => _dateKeyFromValue(sessao['inicio']))
+        .whereType<String>()
+        .toSet();
+
+    if (diasAtivos.isEmpty) return 0;
+
+    var cursor = DateTime.now();
+
+    if (!diasAtivos.contains(_dateKey(cursor))) {
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+
+    var sequencia = 0;
+
+    while (diasAtivos.contains(_dateKey(cursor))) {
+      sequencia++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+
+    return sequencia;
+  }
+
+  String _formatarDuracao(int segundos) {
+    final total = segundos < 0 ? 0 : segundos;
+    final horas = total ~/ 3600;
+    final minutos = (total % 3600) ~/ 60;
+
+    if (horas > 0) {
+      return minutos > 0 ? '${horas}h ${minutos}min' : '${horas}h';
+    }
+
+    return minutos > 0 ? '${minutos}min' : '0min';
+  }
+
+  String _descricaoMetaDestaque() {
+    final meta = _metaDestaque;
+
+    if (meta == null) {
+      return 'Crie uma meta e transforme intenção em direção.';
+    }
+
+    final prazo = _parseDateOnly(meta['prazo']);
+
+    if (prazo != null) {
+      final dia = prazo.day.toString().padLeft(2, '0');
+      final mes = prazo.month.toString().padLeft(2, '0');
+      return 'Prazo: $dia/$mes/${prazo.year}';
+    }
+
+    final descricao = (meta['descricao'] ?? '').toString().trim();
+
+    return descricao.isNotEmpty
+        ? descricao
+        : 'Continue avançando no seu ritmo.';
+  }
+
+  Widget _buildProgressPanel() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: darkMode ? const Color(0xFF0A2245) : const Color(0xFFF9FBFE),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.06)
+              : const Color(0xFFD7E8F7),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF06152D).withOpacity(
+              darkMode ? 0.26 : 0.08,
+            ),
+            blurRadius: 34,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: _progressoCarregando
+          ? const SizedBox(
+              height: 280,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF1769E8),
+                  strokeWidth: 2.5,
+                ),
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionEyebrow(
+                  text: 'SEU RITMO',
+                  icon: Icons.auto_awesome_rounded,
+                  color: Color(0xFFB67D00),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Seu progresso',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 22,
+                    height: 1.05,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.7,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  'Pequenos passos também contam.',
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 12.5,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Divider(
+                  height: 1,
+                  color: darkMode
+                      ? Colors.white.withOpacity(0.08)
+                      : const Color(0xFFD7E8F7),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ProgressMetricCard(
+                        icon: Icons.local_fire_department_rounded,
+                        iconColor: const Color(0xFFB67D00),
+                        iconBackground: const Color(0xFFFFF3C6),
+                        label: 'Sequência',
+                        value: '$_sequenciaAtual',
+                        caption: _sequenciaAtual == 1
+                            ? 'dia de constância'
+                            : 'dias de constância',
+                        darkMode: darkMode,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _ProgressMetricCard(
+                        icon: Icons.timer_rounded,
+                        iconColor: const Color(0xFF1769E8),
+                        iconBackground: const Color(0xFFE8F3FF),
+                        label: 'Foco hoje',
+                        value: _formatarDuracao(_focoHojeSegundos),
+                        caption: 'Tempo dedicado hoje',
+                        darkMode: darkMode,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: darkMode
+                        ? Colors.white.withOpacity(0.035)
+                        : const Color(0xFFF1F7FD),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: darkMode
+                          ? Colors.white.withOpacity(0.06)
+                          : const Color(0xFFD7E8F7),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.track_changes_rounded,
+                            size: 15,
+                            color: Color(0xFF1769E8),
+                          ),
+                          const SizedBox(width: 7),
+                          const Expanded(
+                            child: Text(
+                              'META EM DESTAQUE',
+                              style: TextStyle(
+                                color: Color(0xFF1769E8),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.7,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFC928).withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              _metaDestaque == null
+                                  ? 'Começar'
+                                  : 'Em andamento',
+                              style: const TextStyle(
+                                color: Color(0xFF8A6200),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        (_metaDestaque?['titulo'] ??
+                                'Sua primeira meta começa aqui')
+                            .toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                          height: 1.25,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _descricaoMetaDestaque(),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: mutedColor,
+                          fontSize: 10.5,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                InkWell(
+                  onTap: () => Navigator.of(context).pushNamed('/evolucao'),
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 7),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Ver minha evolução',
+                            style: TextStyle(
+                              color: Color(0xFF1769E8),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_outward_rounded,
+                          size: 17,
+                          color: Color(0xFF1769E8),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildFeedFilters(bool mobile) {
+    final comunidades = _minhasComunidades;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(mobile ? 10 : 8),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? Colors.white.withOpacity(0.035)
+            : const Color(0xFFDCE9F6),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.07)
+              : const Color(0xFF06152D).withOpacity(0.045),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (mobile)
+            Row(
+              children: [
+                Expanded(
+                  child: _FeedFilterButton(
+                    label: 'Feed geral',
+                    icon: Icons.auto_awesome_rounded,
+                    active: filtroFeedAtivo == 'general',
+                    compact: true,
+                    onTap: () => _alterarFiltroFeed('general'),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _FeedFilterButton(
+                    label: 'Seguindo',
+                    icon: Icons.people_alt_outlined,
+                    active: filtroFeedAtivo == 'following',
+                    compact: true,
+                    onTap: () => _alterarFiltroFeed('following'),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _FeedFilterButton(
+                    label: 'Comunidades',
+                    icon: Icons.forum_outlined,
+                    active: filtroFeedAtivo == 'communities',
+                    compact: true,
+                    onTap: () => _alterarFiltroFeed('communities'),
+                  ),
+                ),
+              ],
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _FeedFilterButton(
+                  label: 'Feed geral',
+                  icon: Icons.auto_awesome_rounded,
+                  active: filtroFeedAtivo == 'general',
+                  onTap: () => _alterarFiltroFeed('general'),
+                ),
+                _FeedFilterButton(
+                  label: 'Seguindo',
+                  icon: Icons.people_alt_outlined,
+                  active: filtroFeedAtivo == 'following',
+                  onTap: () => _alterarFiltroFeed('following'),
+                ),
+                _FeedFilterButton(
+                  label: 'Comunidades',
+                  icon: Icons.forum_outlined,
+                  active: filtroFeedAtivo == 'communities',
+                  onTap: () => _alterarFiltroFeed('communities'),
+                ),
+              ],
+            ),
+
+          if (filtroFeedAtivo == 'communities') ...[
+            const SizedBox(height: 10),
+            Divider(
+              height: 1,
+              color: darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : const Color(0xFF06152D).withOpacity(0.06),
+            ),
+            const SizedBox(height: 10),
+
+            if (comunidades.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 17,
+                      color: mutedColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Você ainda não participa de nenhuma comunidade.',
+                        style: TextStyle(
+                          color: mutedColor,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _CommunityFilterButton(
+                      label: 'Todas',
+                      active: comunidadeFiltroAtiva == 'all',
+                      onTap: () => _alterarFiltroComunidade('all'),
+                    ),
+                    const SizedBox(width: 8),
+                    ...comunidades.expand((comunidade) {
+                      final id = comunidade['id']?.toString() ?? '';
+                      final nome =
+                          comunidade['nome']?.toString() ?? 'Comunidade';
+
+                      return [
+                        _CommunityFilterButton(
+                          label: nome,
+                          active: comunidadeFiltroAtiva == id,
+                          onTap: () => _alterarFiltroComunidade(id),
+                        ),
+                        const SizedBox(width: 8),
+                      ];
+                    }),
+                  ],
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildFeedHeader(bool mobile) {
@@ -911,7 +1938,7 @@ class _FeedPageState extends State<FeedPage> {
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.4,
-                  color: Color(0xFF69C5D0),
+                  color: Color(0xFF1769E8),
                 ),
               ),
               const SizedBox(height: 6),
@@ -937,7 +1964,7 @@ class _FeedPageState extends State<FeedPage> {
                   : Colors.white.withOpacity(0.62),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: const Color(0xFF315CAC).withOpacity(0.08),
+                color: Colors.white.withOpacity(0.08),
               ),
             ),
             child: const Row(
@@ -964,24 +1991,16 @@ class _FeedPageState extends State<FeedPage> {
     return SafeArea(
       bottom: false,
       child: Container(
-        height: 72,
+        height: 74,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xF2080A0E)
-              : Colors.white.withOpacity(0.88),
+        decoration: const BoxDecoration(
+          color: Color(0xFF041126),
           border: Border(
             bottom: BorderSide(
-              color: const Color(0xFF315CAC).withOpacity(0.08),
+              color: Color(0xFFFFC928),
+              width: 3,
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF15284D).withOpacity(0.06),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Row(
           children: [
@@ -989,20 +2008,20 @@ class _FeedPageState extends State<FeedPage> {
               cursor: SystemMouseCursors.click,
               child: InkWell(
                 onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 child: Padding(
-                  padding: const EdgeInsets.all(7),
+                  padding: const EdgeInsets.all(5),
                   child: Image.asset(
                     'assets/images/pace_icon.png',
-                    width: 42,
-                    height: 42,
+                    width: 43,
+                    height: 43,
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
+            const Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1010,20 +2029,20 @@ class _FeedPageState extends State<FeedPage> {
                   Text(
                     'Pace',
                     style: TextStyle(
-                      color: darkMode ? Colors.white : const Color(0xFF315CAC),
+                      color: Colors.white,
                       fontSize: 18,
                       height: 1,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
-                    'Toque na logo para abrir o menu',
+                    'Evolução contínua',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: mutedColor,
+                      color: Color(0xFF8FA5C0),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1031,9 +2050,29 @@ class _FeedPageState extends State<FeedPage> {
                 ],
               ),
             ),
-            _CircleIconButton(
-              icon: Icons.notifications_none_rounded,
-              onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+            Material(
+              color: const Color(0xFF0A2245),
+              borderRadius: BorderRadius.circular(13),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(13),
+                onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.08),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 21,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -1051,16 +2090,12 @@ class _FeedPageState extends State<FeedPage> {
           margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
           decoration: BoxDecoration(
-            color: darkMode
-                ? const Color(0xFF0B0D12).withOpacity(0.98)
-                : const Color(0xFFF8FBFF).withOpacity(0.98),
+            color: const Color(0xFF06152D),
             borderRadius: const BorderRadius.horizontal(
               right: Radius.circular(28),
             ),
             border: Border.all(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.06)
-                  : const Color(0xFF315CAC).withOpacity(0.09),
+              color: Colors.white.withOpacity(0.07),
             ),
             boxShadow: [
               BoxShadow(
@@ -1087,7 +2122,7 @@ class _FeedPageState extends State<FeedPage> {
                         Text(
                           'Pace',
                           style: TextStyle(
-                            color: textColor,
+                            color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
                             letterSpacing: -0.7,
@@ -1096,7 +2131,7 @@ class _FeedPageState extends State<FeedPage> {
                         Text(
                           'Evolução contínua',
                           style: TextStyle(
-                            color: mutedColor,
+                            color: const Color(0xFF8FA5C0),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1113,7 +2148,7 @@ class _FeedPageState extends State<FeedPage> {
               const SizedBox(height: 18),
               Divider(
                 height: 1,
-                color: const Color(0xFF315CAC).withOpacity(0.10),
+                color: Colors.white.withOpacity(0.08),
               ),
               const SizedBox(height: 18),
 
@@ -1158,7 +2193,7 @@ class _FeedPageState extends State<FeedPage> {
 
               Divider(
                 height: 1,
-                color: const Color(0xFF315CAC).withOpacity(0.10),
+                color: Colors.white.withOpacity(0.08),
               ),
               const SizedBox(height: 12),
               _mobileDrawerItem(
@@ -1185,7 +2220,7 @@ class _FeedPageState extends State<FeedPage> {
       child: Text(
         text,
         style: TextStyle(
-          color: mutedColor.withOpacity(0.8),
+          color: const Color(0xFF8FA5C0),
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.25,
@@ -1219,17 +2254,12 @@ class _FeedPageState extends State<FeedPage> {
             constraints: const BoxConstraints(minHeight: 52),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              gradient: active
-                  ? LinearGradient(
-                      colors: [
-                        const Color(0xFF315CAC).withOpacity(0.14),
-                        const Color(0xFF69C5D0).withOpacity(0.09),
-                      ],
-                    )
-                  : null,
+              color: active
+                  ? const Color(0xFF174A9B)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(15),
               border: active
-                  ? Border.all(color: const Color(0xFF315CAC).withOpacity(0.10))
+                  ? Border.all(color: const Color(0xFF1769E8).withOpacity(0.10))
                   : null,
             ),
             child: Row(
@@ -1240,13 +2270,13 @@ class _FeedPageState extends State<FeedPage> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: active
-                        ? const Color(0xFF315CAC).withOpacity(0.08)
+                        ? const Color(0xFF1769E8).withOpacity(0.08)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: Icon(
                     icon,
-                    color: active ? const Color(0xFF315CAC) : sidebarTextColor,
+                    color: active ? Colors.white : const Color(0xFFC7D5E8),
                     size: 21,
                   ),
                 ),
@@ -1256,8 +2286,8 @@ class _FeedPageState extends State<FeedPage> {
                     label,
                     style: TextStyle(
                       color: active
-                          ? const Color(0xFF315CAC)
-                          : sidebarTextColor,
+                          ? Colors.white
+                          : const Color(0xFFC7D5E8),
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1267,7 +2297,7 @@ class _FeedPageState extends State<FeedPage> {
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 18,
-                    color: mutedColor.withOpacity(0.65),
+                    color: const Color(0xFF8FA5C0),
                   ),
               ],
             ),
@@ -1292,7 +2322,7 @@ class _FeedPageState extends State<FeedPage> {
           margin: const EdgeInsets.only(top: 4),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF315CAC).withOpacity(darkMode ? 0.10 : 0.055),
+            color: Colors.white.withOpacity(0.06),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -1306,21 +2336,21 @@ class _FeedPageState extends State<FeedPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      usuarioLogado['username']?.toString() ?? 'Meu perfil',
+                    const Text(
+                      'Meu perfil',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: textColor,
+                        color: Colors.white,
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    const Text(
                       'Ver perfil',
                       style: TextStyle(
-                        color: mutedColor,
+                        color: Color(0xFF8FA5C0),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1328,7 +2358,11 @@ class _FeedPageState extends State<FeedPage> {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: mutedColor, size: 20),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFF8FA5C0),
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -1341,47 +2375,37 @@ class _FeedPageState extends State<FeedPage> {
       builder: (context, constraints) {
         final mobile = constraints.maxWidth < 700;
 
-        final copy = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _Badge(text: 'Comunidade em movimento'),
-            SizedBox(height: mobile ? 18 : 16),
-            Text(
-              'Seu feed no Pace',
-              style: TextStyle(
-                fontSize: mobile ? 38 : 52,
-                height: 1.01,
-                fontWeight: FontWeight.w800,
-                letterSpacing: mobile ? -1.7 : -2.4,
-                color: textColor,
-              ),
-            ),
-            SizedBox(height: mobile ? 16 : 14),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Text(
-                'Acompanhe o que a comunidade está construindo, compartilhe '
-                'progresso e mantenha sua rotina cercada de pessoas que também '
-                'estão evoluindo.',
-                style: TextStyle(
-                  fontSize: mobile ? 16 : 16.5,
-                  height: mobile ? 1.62 : 1.65,
-                  color: mutedColor,
+        if (!mobile) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _SectionEyebrow(
+                      text: 'COMUNIDADE',
+                      showLine: true,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Feed',
+                      style: TextStyle(
+                        fontSize: 44,
+                        height: 1,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1.8,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        );
-
-        if (mobile) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              copy,
-              const SizedBox(height: 22),
+              const SizedBox(width: 28),
               _PrimaryButton(
                 text: 'Criar post',
-                icon: Icons.edit_square,
+                icon: Icons.add_rounded,
+                dark: true,
                 onTap: () => Navigator.of(context).pushNamed('/postar'),
               ),
             ],
@@ -1391,15 +2415,34 @@ class _FeedPageState extends State<FeedPage> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Expanded(child: copy),
-            const SizedBox(width: 32),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: _PrimaryButton(
-                text: 'Criar post',
-                icon: Icons.edit_square,
-                onTap: () => Navigator.of(context).pushNamed('/postar'),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _SectionEyebrow(
+                    text: 'COMUNIDADE',
+                    showLine: true,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Feed',
+                    style: TextStyle(
+                      fontSize: 36,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1.5,
+                      color: textColor,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 14),
+            _PrimaryButton(
+              text: 'Criar post',
+              icon: Icons.add_rounded,
+              dark: true,
+              onTap: () => Navigator.of(context).pushNamed('/postar'),
             ),
           ],
         );
@@ -1416,17 +2459,17 @@ class _FeedPageState extends State<FeedPage> {
             width: 78,
             height: 78,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(22),
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF3059AA).withOpacity(0.14),
+                  const Color(0xFF1769E8).withOpacity(0.14),
                   const Color(0xFF5EB1BF).withOpacity(0.18),
                 ],
               ),
             ),
             child: const Icon(
               Icons.auto_awesome,
-              color: Color(0xFF3059AA),
+              color: Color(0xFF1769E8),
               size: 32,
             ),
           ),
@@ -1451,9 +2494,9 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _buildPosts() {
+  Widget _buildPosts(List<Map<String, dynamic>> postsVisiveis) {
     return Column(
-      children: posts.asMap().entries.map((entry) {
+      children: postsVisiveis.asMap().entries.map((entry) {
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
           duration: Duration(milliseconds: 450 + entry.key * 70),
@@ -1476,6 +2519,11 @@ class _FeedPageState extends State<FeedPage> {
   Widget _buildPostCard(Map<String, dynamic> post) {
     final usuario = Map<String, dynamic>.from(post['usuario'] ?? {});
     final comentarios = post['comentarios'] as List;
+    final comentariosAbertos = post['comentariosAbertos'] == true;
+    final comentariosCarregando = post['comentariosCarregando'] == true;
+    final totalComentarios = post['comentariosCarregados'] == true
+        ? comentarios.length
+        : NumberParser.toInt(post['commentsCount']);
     final isMyPost = _isMine(usuario['id']);
     final postId = NumberParser.toInt(post['id']);
 
@@ -1525,6 +2573,50 @@ class _FeedPageState extends State<FeedPage> {
                 ],
               ],
             ),
+            if ((post['comunidadeId'] ?? '').toString().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => _alterarFiltroComunidade(
+                  post['comunidadeId'].toString(),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1769E8).withOpacity(
+                      darkMode ? 0.16 : 0.08,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF1769E8).withOpacity(0.16),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.groups_2_outlined,
+                        size: 15,
+                        color: Color(0xFF1769E8),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Publicado em ${post['comunidadeNome'] ?? 'Comunidade'}',
+                        style: const TextStyle(
+                          color: Color(0xFF0B3D91),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
             if ((post['conteudo'] ?? '').toString().isNotEmpty) ...[
               const SizedBox(height: 14),
               Text(
@@ -1541,7 +2633,7 @@ class _FeedPageState extends State<FeedPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
                 child: Image(
-                  image: ApiConfig.imageProvider(
+                  image: _cachedImageProvider(
                     post['imagem'],
                     fallbackAsset: 'assets/user.png',
                   ),
@@ -1571,52 +2663,111 @@ class _FeedPageState extends State<FeedPage> {
                   onTap: () => _toggleLike(postId),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF3059AA,
-                    ).withOpacity(darkMode ? 0.12 : 0.06),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _alternarComentarios(postId),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: darkMode
-                          ? Colors.white.withOpacity(0.08)
-                          : const Color(0xFF3059AA).withOpacity(0.08),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.mode_comment_outlined,
-                        size: 18,
-                        color: mutedColor,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${comentarios.length}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: mutedColor,
+                      decoration: BoxDecoration(
+                        color: comentariosAbertos
+                            ? const Color(0xFF1769E8).withOpacity(
+                                darkMode ? 0.20 : 0.11,
+                              )
+                            : const Color(0xFF1769E8).withOpacity(
+                                darkMode ? 0.12 : 0.06,
+                              ),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: comentariosAbertos
+                              ? const Color(0xFF1769E8).withOpacity(0.28)
+                              : darkMode
+                                  ? Colors.white.withOpacity(0.08)
+                                  : const Color(0xFF1769E8).withOpacity(0.08),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.mode_comment_outlined,
+                            size: 18,
+                            color: comentariosAbertos
+                                ? const Color(0xFF1769E8)
+                                : mutedColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$totalComentarios',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: comentariosAbertos
+                                  ? const Color(0xFF1769E8)
+                                  : mutedColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-            if (comentarios.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Column(
-                children: comentarios
-                    .map((comentario) => _buildComment(comentario))
-                    .toList(),
-              ),
+            if (comentariosAbertos) ...[
+              const SizedBox(height: 14),
+
+              if (comentariosCarregando)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFF1769E8),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Carregando comentários...',
+                        style: TextStyle(
+                          color: mutedColor,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                if (comentarios.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      'Nenhum comentário ainda.',
+                      style: TextStyle(
+                        color: mutedColor,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    children: comentarios
+                        .map((comentario) => _buildComment(comentario))
+                        .toList(),
+                  ),
+
+                const SizedBox(height: 4),
+                _buildCommentInput(postId),
+              ],
             ],
-            const SizedBox(height: 16),
-            _buildCommentInput(postId),
           ],
         ),
       ),
@@ -1645,7 +2796,7 @@ class _FeedPageState extends State<FeedPage> {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(
-                  0xFF3059AA,
+                  0xFF1769E8,
                 ).withOpacity(darkMode ? 0.12 : 0.08),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
@@ -1711,7 +2862,7 @@ class _FeedPageState extends State<FeedPage> {
             controller: controller,
             onSubmitted: (_) => _criarComentario(postId),
             style: TextStyle(color: textColor),
-            cursorColor: const Color(0xFF3059AA),
+            cursorColor: const Color(0xFF1769E8),
             decoration: InputDecoration(
               hintText: 'Compartilhe algo...',
               hintStyle: TextStyle(color: mutedColor),
@@ -1726,13 +2877,13 @@ class _FeedPageState extends State<FeedPage> {
                 borderSide: BorderSide(
                   color: darkMode
                       ? Colors.white.withOpacity(0.08)
-                      : const Color(0xFF3059AA).withOpacity(0.14),
+                      : const Color(0xFF1769E8).withOpacity(0.14),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(999),
                 borderSide: BorderSide(
-                  color: const Color(0xFF3059AA).withOpacity(0.34),
+                  color: const Color(0xFF1769E8).withOpacity(0.34),
                 ),
               ),
               border: OutlineInputBorder(
@@ -1747,7 +2898,7 @@ class _FeedPageState extends State<FeedPage> {
           height: 42,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF3059AA), Color(0xFF4C71C7)],
+              colors: [Color(0xFF1769E8), Color(0xFF0B3D91)],
             ),
             borderRadius: BorderRadius.circular(999),
           ),
@@ -1774,85 +2925,85 @@ class _FeedPageState extends State<FeedPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         width: width,
         height: double.infinity,
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xF20B0D12)
-              : const Color(0xFFF8FBFF).withOpacity(0.92),
+          color: const Color(0xFF06152D),
           border: Border(
-            right: BorderSide(color: const Color(0xFF315CAC).withOpacity(0.09)),
+            right: BorderSide(color: const Color(0xFF1769E8).withOpacity(0.09)),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(
-                0xFF112348,
-              ).withOpacity(darkMode ? 0.28 : 0.08),
-              blurRadius: 34,
-              offset: const Offset(12, 0),
-            ),
-          ],
+          boxShadow: const [],
         ),
         child: ClipRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+            filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
             child: Column(
               children: [
                 SizedBox(
                   height: 70,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 9),
-                        child: Image.asset(
-                          'assets/images/pace_icon.png',
-                          width: 46,
-                          height: 46,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      if (sidebarHovered) ...[
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 170),
-                            opacity: sidebarHovered ? 1 : 0,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Pace',
-                                  style: TextStyle(
-                                    color: Color(0xFF315CAC),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -0.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Evolução contínua',
-                                  style: TextStyle(
-                                    color: mutedColor,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // O texto só entra quando a largura REAL da animação
+                      // já comporta logo + espaçamento + textos.
+                      // Isso evita RenderFlex/overflow no primeiro frame.
+                      final showBrandText = constraints.maxWidth >= 150;
+
+                      return Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 9),
+                            child: Image.asset(
+                              'assets/images/pace_icon.png',
+                              width: 46,
+                              height: 46,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (showBrandText) ...[
+                            const SizedBox(width: 10),
+                            const Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Pace',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.clip,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.6,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Evolução contínua',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.clip,
+                                    style: TextStyle(
+                                      color: Color(0xFF8FA5C0),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ),
                 Divider(
                   height: 1,
-                  color: const Color(0xFF315CAC).withOpacity(0.10),
+                  color: const Color(0xFF1769E8).withOpacity(0.10),
                 ),
                 const SizedBox(height: 14),
 
@@ -1901,7 +3052,7 @@ class _FeedPageState extends State<FeedPage> {
 
                 Divider(
                   height: 1,
-                  color: const Color(0xFF315CAC).withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.08),
                 ),
                 const SizedBox(height: 8),
                 _sidebarItem(
@@ -1926,24 +3077,32 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _sidebarSectionLabel(String label) {
-    if (!sidebarHovered) {
-      return const SizedBox(height: 6);
-    }
+    return SizedBox(
+      height: 30,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showText = constraints.maxWidth >= 130;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 160),
-        opacity: sidebarHovered ? 1 : 0,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: mutedColor.withOpacity(0.78),
-            fontSize: 9.5,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.25,
-          ),
-        ),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: showText
+                  ? Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      style: const TextStyle(
+                        color: Color(0xFF8FA5C0),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
+        },
       ),
     );
   }
@@ -1965,9 +3124,7 @@ class _FeedPageState extends State<FeedPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: isHovered
-                ? darkMode
-                      ? Colors.white.withOpacity(0.06)
-                      : const Color(0xFFEAF1F7)
+                ? Colors.white.withOpacity(0.07)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -1982,22 +3139,42 @@ class _FeedPageState extends State<FeedPage> {
                     backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
                   ),
                   if (showText) ...[
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 160),
                         opacity: showText ? 1 : 0,
-                        child: Text(
-                          'Perfil',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Meu perfil',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Ver perfil',
+                              style: TextStyle(
+                                color: Color(0xFF8FA5C0),
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF8FA5C0),
+                      size: 18,
                     ),
                   ],
                 ],
@@ -2030,18 +3207,16 @@ class _FeedPageState extends State<FeedPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: highlighted
-                ? darkMode
-                      ? Colors.white.withOpacity(0.06)
-                      : const Color(0xFFEAF1F7)
+                ? (active
+                    ? const Color(0xFF174A9B)
+                    : Colors.white.withOpacity(0.07))
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: highlighted
                 ? Border.all(
-                    color: darkMode
-                        ? Colors.white.withOpacity(0.08)
-                        : active
-                        ? const Color(0xFFB8CCEA)
-                        : const Color(0xFFC8D8F0),
+                    color: active
+                        ? const Color(0xFF1769E8).withOpacity(0.55)
+                        : Colors.white.withOpacity(0.08),
                   )
                 : null,
           ),
@@ -2051,15 +3226,33 @@ class _FeedPageState extends State<FeedPage> {
 
               return Row(
                 children: [
-                  SizedBox(
-                    width: 24,
-                    child: Icon(
-                      icon,
-                      color: highlighted
-                          ? const Color(0xFF3059AA)
-                          : sidebarTextColor,
-                      size: 24,
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      if (active)
+                        Positioned(
+                          left: -12,
+                          top: 1,
+                          bottom: 1,
+                          child: Container(
+                            width: 3,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFC928),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        width: 24,
+                        child: Icon(
+                          icon,
+                          color: highlighted
+                              ? Colors.white
+                              : const Color(0xFFC7D5E8),
+                          size: 24,
+                        ),
+                      ),
+                    ],
                   ),
                   if (showText) ...[
                     const SizedBox(width: 16),
@@ -2073,8 +3266,8 @@ class _FeedPageState extends State<FeedPage> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: highlighted
-                                ? const Color(0xFF3059AA)
-                                : sidebarTextColor,
+                                ? Colors.white
+                                : const Color(0xFFC7D5E8),
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
                           ),
@@ -2085,6 +3278,118 @@ class _FeedPageState extends State<FeedPage> {
                 ],
               );
             },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FeedFilterButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+  final bool compact;
+
+  const _FeedFilterButton({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active ? const Color(0xFF0A2245) : const Color(0xFFF5FAFF),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 7 : 13,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: active
+                  ? const Color(0xFF1769E8).withOpacity(0.24)
+                  : const Color(0xFF06152D).withOpacity(0.07),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 17,
+                color: active ? Colors.white : const Color(0xFF06152D),
+              ),
+              SizedBox(width: compact ? 4 : 7),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: active ? Colors.white : const Color(0xFF06152D),
+                    fontSize: compact ? 10.5 : 12.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CommunityFilterButton extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _CommunityFilterButton({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active
+          ? const Color(0xFFE8F3FF)
+          : Colors.white.withOpacity(0.78),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: active
+                  ? const Color(0xFF1769E8).withOpacity(0.30)
+                  : const Color(0xFF06152D).withOpacity(0.08),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: active
+                  ? const Color(0xFF0B3D91)
+                  : const Color(0xFF61758F),
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -2115,6 +3420,174 @@ class _OnlineDot extends StatelessWidget {
   }
 }
 
+
+class _SectionEyebrow extends StatelessWidget {
+  final String text;
+  final IconData? icon;
+  final Color color;
+  final bool showLine;
+
+  const _SectionEyebrow({
+    required this.text,
+    this.icon,
+    this.color = const Color(0xFF1769E8),
+    this.showLine = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showLine) ...[
+          Container(
+            width: 18,
+            height: 3,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFC928),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: 9),
+        ],
+        if (icon != null) ...[
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 7),
+        ],
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.05,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProgressMetricCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBackground;
+  final String label;
+  final String value;
+  final String caption;
+  final bool darkMode;
+
+  const _ProgressMetricCard({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBackground,
+    required this.label,
+    required this.value,
+    required this.caption,
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 118,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? Colors.white.withOpacity(0.035)
+            : const Color(0xFFF4F8FC),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.06)
+              : const Color(0xFFD7E8F7),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: darkMode
+                  ? iconColor.withOpacity(0.12)
+                  : iconBackground,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 17),
+          ),
+          const Spacer(),
+          Text(
+            label,
+            style: TextStyle(
+              color: darkMode
+                  ? const Color(0xFF8FA5C0)
+                  : const Color(0xFF61758F),
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: darkMode
+                  ? const Color(0xFFF7FAFF)
+                  : const Color(0xFF06152D),
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            caption,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: darkMode
+                  ? const Color(0xFF8FA5C0)
+                  : const Color(0xFF61758F),
+              fontSize: 8.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeedGridPainter extends CustomPainter {
+  final bool darkMode;
+
+  const _FeedGridPainter({required this.darkMode});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = (darkMode ? Colors.white : const Color(0xFF06152D))
+          .withOpacity(darkMode ? 0.018 : 0.025)
+      ..strokeWidth = 1;
+
+    const spacing = 34.0;
+
+    for (double x = 0; x <= size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y <= size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _FeedGridPainter oldDelegate) {
+    return oldDelegate.darkMode != darkMode;
+  }
+}
+
 class _BackgroundDecor extends StatelessWidget {
   final bool darkMode;
 
@@ -2126,35 +3599,21 @@ class _BackgroundDecor extends StatelessWidget {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
+            color: darkMode
+                ? const Color(0xFF041126)
+                : const Color(0xFFEAF3FB),
           ),
           child: const SizedBox.expand(),
         ),
+        // Grade extremamente sutil para repetir a linguagem visual do index.
         Positioned(
-          top: -120,
-          left: 40,
-          child: _SoftOrb(
-            size: 420,
-            color: darkMode ? const Color(0x1C3059AA) : const Color(0x225EB1BF),
-            blur: 120,
-          ),
-        ),
-        Positioned(
-          bottom: -120,
-          left: -120,
-          child: _SoftOrb(
-            size: 420,
-            color: darkMode ? const Color(0x145EB1BF) : const Color(0x185EB1BF),
-            blur: 130,
-          ),
-        ),
-        Positioned(
-          top: -140,
-          right: -80,
-          child: _SoftOrb(
-            size: 360,
-            color: darkMode ? const Color(0x1C5EB1BF) : const Color(0x143059AA),
-            blur: 130,
+          top: 0,
+          left: 0,
+          child: IgnorePointer(
+            child: CustomPaint(
+              size: const Size(360, 360),
+              painter: _FeedGridPainter(darkMode: darkMode),
+            ),
           ),
         ),
       ],
@@ -2197,17 +3656,17 @@ class _GlassCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.10),
+            color: const Color(0xFF06152D).withOpacity(darkMode ? 0.30 : 0.08),
             blurRadius: 40,
             offset: const Offset(0, 12),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: Container(
@@ -2215,13 +3674,13 @@ class _GlassCard extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               color: darkMode
-                  ? const Color(0xE00D0D10)
-                  : Colors.white.withOpacity(0.84),
-              borderRadius: BorderRadius.circular(24),
+                  ? const Color(0xF00A2245)
+                  : const Color(0xFFF9FBFE),
+              borderRadius: BorderRadius.circular(22),
               border: Border.all(
                 color: darkMode
                     ? Colors.white.withOpacity(0.05)
-                    : Colors.white.withOpacity(0.65),
+                    : const Color(0xFFD7E8F7),
               ),
             ),
             child: child,
@@ -2261,9 +3720,9 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF315CAC).withOpacity(0.08),
+        color: const Color(0xFF1769E8).withOpacity(0.07),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFF315CAC).withOpacity(0.08)),
+        border: Border.all(color: const Color(0xFF1769E8).withOpacity(0.16)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -2272,11 +3731,11 @@ class _Badge extends StatelessWidget {
             width: 7,
             height: 7,
             decoration: BoxDecoration(
-              color: const Color(0xFF69C5D0),
+              color: const Color(0xFFFFC928),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF69C5D0).withOpacity(0.16),
+                  color: const Color(0xFFFFC928).withOpacity(0.16),
                   blurRadius: 0,
                   spreadRadius: 5,
                 ),
@@ -2287,7 +3746,7 @@ class _Badge extends StatelessWidget {
           Text(
             text,
             style: const TextStyle(
-              color: Color(0xFF315CAC),
+              color: Color(0xFF0B3D91),
               fontSize: 12.5,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.2,
@@ -2303,22 +3762,28 @@ class _PrimaryButton extends StatelessWidget {
   final String text;
   final IconData icon;
   final VoidCallback onTap;
+  final bool dark;
 
   const _PrimaryButton({
     required this.text,
     required this.icon,
     required this.onTap,
+    this.dark = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF416BC2),
+        color: dark
+            ? const Color(0xFF06152D)
+            : const Color(0xFF1769E8),
         borderRadius: BorderRadius.circular(13),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3059AA).withOpacity(0.24),
+            color: dark
+                ? const Color(0xFF06152D).withOpacity(0.22)
+                : const Color(0xFF1769E8).withOpacity(0.24),
             blurRadius: 28,
             offset: const Offset(0, 14),
           ),
@@ -2407,7 +3872,7 @@ class _CircleIconButton extends StatelessWidget {
     return Material(
       color: danger
           ? const Color(0xFFE55353).withOpacity(0.10)
-          : const Color(0xFF3059AA).withOpacity(0.08),
+          : const Color(0xFF1769E8).withOpacity(0.08),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -2418,7 +3883,7 @@ class _CircleIconButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 20,
-            color: danger ? const Color(0xFFE55353) : const Color(0xFF3059AA),
+            color: danger ? const Color(0xFFE55353) : const Color(0xFF1769E8),
           ),
         ),
       ),
@@ -2442,7 +3907,7 @@ class _TinyIconButton extends StatelessWidget {
     return Material(
       color: danger
           ? const Color(0xFFE55353).withOpacity(0.10)
-          : const Color(0xFF3059AA).withOpacity(0.08),
+          : const Color(0xFF1769E8).withOpacity(0.08),
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -2453,7 +3918,7 @@ class _TinyIconButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 16,
-            color: danger ? const Color(0xFFE55353) : const Color(0xFF3059AA),
+            color: danger ? const Color(0xFFE55353) : const Color(0xFF1769E8),
           ),
         ),
       ),
@@ -2580,13 +4045,13 @@ class AppInput {
         borderSide: BorderSide(
           color: darkMode
               ? Colors.white.withOpacity(0.08)
-              : const Color(0xFF3059AA).withOpacity(0.14),
+              : const Color(0xFF1769E8).withOpacity(0.14),
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(
-          color: const Color(0xFF3059AA).withOpacity(0.35),
+          color: const Color(0xFF1769E8).withOpacity(0.35),
         ),
       ),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),

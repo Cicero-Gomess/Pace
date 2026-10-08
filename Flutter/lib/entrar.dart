@@ -373,17 +373,41 @@ class _EntrarPageState extends State<EntrarPage> {
                                 false,
                           );
                         },
-                        child:
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Image.asset(
-                          'assets/images/pace_icon.png',
-                          width: mobile
-                              ? 46
-                              : 52,
-                          height: mobile
-                              ? 46
-                              : 52,
-                          fit:
-                              BoxFit.contain,
+                              'assets/images/pace_icon.png',
+                              width: mobile ? 46 : 52,
+                              height: mobile ? 46 : 52,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 10),
+                            const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Pace',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.4,
+                                  ),
+                                ),
+                                SizedBox(height: 1),
+                                Text(
+                                  'Evolução contínua',
+                                  style: TextStyle(
+                                    color: textMuted,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -457,82 +481,23 @@ class _EntrarPageState extends State<EntrarPage> {
         return Stack(
           fit: StackFit.expand,
           children: [
-            // Fundo base
+            // Fundo igual ao index
             const DecoratedBox(
-              decoration:
-                  BoxDecoration(
-                gradient:
-                    LinearGradient(
-                  begin:
-                      Alignment.topLeft,
-                  end: Alignment
-                      .bottomRight,
-                  colors: [
-                    Color(
-                      0xFF1D55A5,
-                    ),
-                    Color(
-                      0xFF123E80,
-                    ),
-                    Color(
-                      0xFF092653,
-                    ),
-                    Color(
-                      0xFF05152F,
-                    ),
-                  ],
-                  stops: [
-                    0,
-                    0.34,
-                    0.68,
-                    1,
-                  ],
-                ),
+              decoration: BoxDecoration(
+                color: navy,
               ),
             ),
 
-            // Glow
+            // Linha amarela abaixo da navbar, igual ao index
             Positioned(
-              top: -200,
-              left: -180,
-              child: _Glow(
-                size:
-                    desktop ? 560 : 430,
-                color:
-                    const Color(
-                  0xFF397DE4,
-                ).withOpacity(
-                  0.22,
-                ),
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 4,
+                color: yellow,
               ),
             ),
-
-            Positioned(
-              right: -180,
-              bottom: -190,
-              child: _Glow(
-                size:
-                    desktop ? 570 : 430,
-                color: cyan
-                    .withOpacity(
-                      0.10,
-                    ),
-              ),
-            ),
-
-            // Pontos decorativos
-            const Positioned(
-              left: 70,
-              bottom: 100,
-              child: _TinyGlow(),
-            ),
-
-            if (desktop)
-              const Positioned(
-                right: 100,
-                top: 120,
-                child: _TinyGlow(),
-              ),
 
             // Conteúdo
             SingleChildScrollView(

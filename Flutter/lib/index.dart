@@ -60,12 +60,12 @@ class HomePage extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: 1380,
+                maxWidth: 1200,
               ),
               child: Container(
                 height: mobile ? 68 : 78,
                 padding: EdgeInsets.symmetric(
-                  horizontal: mobile ? 18 : 42,
+                  horizontal: mobile ? 18 : 24,
                 ),
                 decoration: BoxDecoration(
                   border: Border(
@@ -232,19 +232,19 @@ class HomePage extends StatelessWidget {
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: 1380,
+                    maxWidth: 1200,
                     minHeight: height,
                   ),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: desktop
-                          ? 48
+                          ? 24
                           : tablet
                               ? 38
                               : smallMobile
                                   ? 18
                                   : 24,
-                      vertical: desktop ? 52 : 38,
+                      vertical: desktop ? 30 : 38,
                     ),
                     child: desktop
                         ? _buildDesktopHero(context)
@@ -267,141 +267,132 @@ class HomePage extends StatelessWidget {
   // ============================================================
 
   Widget _buildDesktopHero(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 10,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 620,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 760,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _HeroBadge(),
+
+            const SizedBox(height: 28),
+
+            const Text(
+              'Transforme objetivos',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 54,
+                height: 1,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -2.4,
+              ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+
+            const SizedBox(height: 9),
+
+            const Text(
+              'em progresso real.',
+              style: TextStyle(
+                color: blueSoft,
+                fontSize: 54,
+                height: 1.02,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -2.4,
+              ),
+            ),
+
+            const SizedBox(height: 26),
+
+            Container(
+              width: 72,
+              height: 4,
+              decoration: BoxDecoration(
+                color: yellow,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+             ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 620),
+              child: Text(
+                'Metas, foco, evolução e comunidade reunidos '
+                'em um só lugar para ajudar você a continuar avançando.',
+                style: TextStyle(
+                  color: textSoft,
+                  fontSize: 17,
+                  height: 1.65,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const _HeroBadge(),
-
-                const SizedBox(height: 28),
-
-                const Text(
-                  'Transforme objetivos',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 58,
-                    height: 1,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -2.7,
+                SizedBox(
+                  width: 210,
+                  child: _MainButton(
+                    text: 'Começar agora',
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/cadastro',
+                      );
+                    },
                   ),
                 ),
 
-                const SizedBox(height: 9),
+                const SizedBox(width: 14),
 
-                const Text(
-                  'em progresso real.',
-                  style: TextStyle(
-                    color: blueSoft,
-                    fontSize: 58,
-                    height: 1.02,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -2.7,
+                SizedBox(
+                  width: 205,
+                  child: _SecondaryButton(
+                    text: 'Já tenho uma conta',
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/entrar',
+                      );
+                    },
                   ),
-                ),
-
-                const SizedBox(height: 26),
-
-                Container(
-                  width: 72,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: yellow,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                const Text(
-                  'Metas, foco, evolução e comunidade reunidos '
-                  'em um só lugar para ajudar você a continuar avançando.',
-                  style: TextStyle(
-                    color: textSoft,
-                    fontSize: 17,
-                    height: 1.65,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 210,
-                      child: _MainButton(
-                        text: 'Começar agora',
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/cadastro',
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(width: 14),
-
-                    SizedBox(
-                      width: 205,
-                      child: _SecondaryButton(
-                        text: 'Já tenho uma conta',
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/entrar',
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 38),
-
-                const Wrap(
-                  spacing: 26,
-                  runSpacing: 16,
-                  children: [
-                    _DesktopBenefit(
-                      icon: Icons.flag_rounded,
-                      text: 'Metas',
-                    ),
-                    _DesktopBenefit(
-                      icon: Icons.timer_rounded,
-                      text: 'Foco',
-                    ),
-                    _DesktopBenefit(
-                      icon: Icons.show_chart_rounded,
-                      text: 'Evolução',
-                    ),
-                    _DesktopBenefit(
-                      icon: Icons.groups_rounded,
-                      text: 'Comunidade',
-                    ),
-                  ],
                 ),
               ],
             ),
-          ),
-        ),
 
-        const SizedBox(width: 70),
+            const SizedBox(height: 38),
 
-        const Expanded(
-          flex: 9,
-          child: _ProductPreview(),
+            const Wrap(
+              spacing: 26,
+              runSpacing: 16,
+              children: [
+                _DesktopBenefit(
+                  icon: Icons.flag_rounded,
+                  text: 'Metas',
+                ),
+                _DesktopBenefit(
+                  icon: Icons.timer_rounded,
+                  text: 'Foco',
+                ),
+                _DesktopBenefit(
+                  icon: Icons.show_chart_rounded,
+                  text: 'Evolução',
+                ),
+                _DesktopBenefit(
+                  icon: Icons.groups_rounded,
+                  text: 'Comunidade',
+                ),
+              ],
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -532,10 +523,6 @@ class HomePage extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 30),
-
-            const _MobileProductPreview(),
-
             const SizedBox(height: 40),
           ],
         ),
@@ -554,14 +541,14 @@ class _ProductPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 570,
+      height: 530,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
           Container(
-            width: 500,
-            height: 500,
+            width: 460,
+            height: 460,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(38),
               border: Border.all(
@@ -571,10 +558,10 @@ class _ProductPreview extends StatelessWidget {
           ),
 
           Positioned(
-            top: 25,
+            top: 35,
             right: 0,
             child: Container(
-              width: 455,
+              width: 430,
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FBFF),
                 borderRadius: BorderRadius.circular(28),
@@ -599,20 +586,20 @@ class _ProductPreview extends StatelessWidget {
           ),
 
           const Positioned(
-            top: 8,
-            left: 0,
+            top: 18,
+            left: 6,
             child: _FloatingGoalCard(),
           ),
 
           const Positioned(
-            bottom: 54,
-            left: -10,
+            bottom: 58,
+            left: 0,
             child: _FloatingFocusCard(),
           ),
 
           const Positioned(
-            right: -16,
-            bottom: 6,
+            right: -4,
+            bottom: 16,
             child: _FloatingCommunityCard(),
           ),
         ],
