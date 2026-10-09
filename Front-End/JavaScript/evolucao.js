@@ -2527,7 +2527,7 @@ function renderizarTrilhaDeConstancia() {
             semana.totalSegundos >
             0
               ? Math.max(
-                  6,
+                  7,
                   Math.round(
                     (
                       semana.totalSegundos /
@@ -2545,81 +2545,63 @@ function renderizarTrilhaDeConstancia() {
             1;
 
 
+          const periodo =
+            `${formatarDataCurta(
+              semana.inicio
+            )} — ${formatarDataCurta(
+              semana.fim
+            )}`;
+
+
+          const detalhes =
+            `${semana.totalSessoes} ${
+              semana.totalSessoes === 1
+                ? "sessão"
+                : "sessões"
+            } · ${semana.diasAtivos} ${
+              semana.diasAtivos === 1
+                ? "dia ativo"
+                : "dias ativos"
+            }`;
+
+
           return `
 
             <article
-              class="consistency-row ${
+              class="consistency-bar-item ${
                 atual
                   ? "current"
                   : ""
               }"
+              title="${periodo} · ${detalhes}"
             >
 
-              <div class="consistency-row-title">
+              <div class="consistency-bar-value">
 
-                <small>
-                  Semana ${semana.numero}
-                </small>
-
-                <strong>
-
-                  ${formatarDataCurta(
-                    semana.inicio
-                  )}
-
-                  —
-
-                  ${formatarDataCurta(
-                    semana.fim
-                  )}
-
-                </strong>
+                ${formatarDuracao(
+                  semana.totalSegundos
+                )}
 
               </div>
 
 
-              <div class="consistency-row-bar">
+              <div class="consistency-bar-area">
 
                 <span
-                  style="width:${porcentagem}%"
+                  class="consistency-bar ${
+                    semana.totalSegundos === 0
+                      ? "zero"
+                      : ""
+                  }"
+                  style="height:${porcentagem}%"
                 ></span>
 
               </div>
 
 
-              <div class="consistency-row-metrics">
+              <div class="consistency-bar-week">
 
-                <strong>
-
-                  ${formatarDuracao(
-                    semana.totalSegundos
-                  )}
-
-                </strong>
-
-                <span>
-
-                  ${semana.totalSessoes}
-
-                  ${
-                    semana.totalSessoes ===
-                    1
-                      ? "sessão"
-                      : "sessões"
-                  }
-
-                  •
-
-                  ${semana.diasAtivos}
-
-                  ${
-                    semana.diasAtivos ===
-                    1
-                      ? "dia ativo"
-                      : "dias ativos"
-                  }
-
-                </span>
+                S${semana.numero}
 
               </div>
 
