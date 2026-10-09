@@ -1,161 +1,190 @@
--- =========================================
--- USUÁRIOS
--- =========================================
+USE cl204219;
 
-CREATE TABLE Usuarios (
+-- =========================================================
+-- PADRONIZAÇÃO DOS NOMES
+-- =========================================================
+
+RENAME TABLE Usuarios TO usuarios;
+RENAME TABLE Posts TO posts;
+RENAME TABLE Metas TO metas;
+RENAME TABLE Sessoes TO sessoes;
+
+
+-- =========================================================
+-- PADRONIZAÇÃO DAS COLUNAS
+-- =========================================================
+
+ALTER TABLE usuarios
+CHANGE COLUMN username nome_usuario VARCHAR(50) NOT NULL;
+
+ALTER TABLE metas
+CHANGE COLUMN id_usuario usuario_id INT NOT NULL;
+
+ALTER TABLE sessoes
+CHANGE COLUMN id_meta meta_id INT NOT NULL;
+
+ALTER TABLE seguidores
+CHANGE COLUMN data_follow data_seguimento DATETIME
+DEFAULT CURRENT_TIMESTAMP;
+
+
+-- =========================================================
+-- AJUSTE DAS FOREIGN KEYS DE COMENTÁRIOS
+-- =========================================================
+
+-- A FK original criada automaticamente pelo MySQL
+-- era comentarios_ibfk_2.
+
+ALTER TABLE comentarios
+DROP FOREIGN KEY comentarios_ibfk_2;
+
+ALTER TABLE comentarios
+ADD CONSTRAINT fk_comentarios_post
+FOREIGN KEY (post_id)
+REFERENCES posts(id)
+ON DELETE CASCADE;
+
+
+-- =========================================================
+-- AJUSTE DAS FOREIGN KEYS DE CURTIDAS
+-- =========================================================
+
+-- A FK original criada automaticamente pelo MySQL
+-- era curtidas_ibfk_2.
+
+ALTER TABLE curtidas
+DROP FOREIGN KEY curtidas_ibfk_2;
+
+ALTER TABLE curtidas
+ADD CONSTRAINT fk_curtidas_post
+FOREIGN KEY (post_id)
+REFERENCES posts(id)
+ON DELETE CASCADE;
+
+
+-- =========================================================
+-- COMUNIDADES
+-- =========================================================
+
+CREATE TABLE comunidades (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    senha_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    status_conta BOOLEAN DEFAULT TRUE,
-    foto_perfil VARCHAR(500),
-    admin BOOLEAN NOT NULL DEFAULT FALSE
-);
 
+    criador_id INT NOT NULL,
 
--- =========================================
--- POSTS
--- =========================================
+    nome VARCHAR(100) NOT NULL,
 
-CREATE TABLE Posts (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    conteudo TEXT NOT NULL,
-    imagem TEXT,
-    data_postagem DATETIME DEFAULT CURRENT_TIMESTAMP,
+    descricao VARCHAR(500),
 
-    CONSTRAINT fk_posts_usuario
-        FOREIGN KEY (usuario_id)
-        REFERENCES Usuarios(id)
+    imagem VARCHAR(500),
+
+    data_criacao DATETIME NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    ativa BOOLEAN NOT NULL
+        DEFAULT TRUE,
+
+    CONSTRAINT uq_comunidades_nome
+        UNIQUE (nome),
+
+    CONSTRAINT fk_comunidades_criador
+        FOREIGN KEY (criador_id)
+        REFERENCES usuarios(id)
         ON DELETE CASCADE
 );
 
 
--- =========================================
--- COMENTÁRIOS
--- =========================================
+-- =========================================================
+-- MEMBROS DAS COMUNIDADES
+-- =========================================================
 
-CREATE TABLE comentarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE membros_comunidade (
+    comunidade_id INT NOT NULL,
+
     usuario_id INT NOT NULL,
-    post_id INT NOT NULL,
-    comentario TEXT NOT NULL,
-    data_comentario DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_comentarios_usuario
+    cargo ENUM(
+        'membro',
+        'moderador',
+        'admin'
+    ) NOT NULL DEFAULT 'membro',
+
+    data_entrada DATETIME NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (
+        comunidade_id,
+        usuario_id
+    ),
+
+    CONSTRAINT fk_membros_comunidade
+        FOREIGN KEY (comunidade_id)
+        REFERENCES comunidades(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_membros_usuario
         FOREIGN KEY (usuario_id)
-        REFERENCES Usuarios(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_comentarios_post
-        FOREIGN KEY (post_id)
-        REFERENCES Posts(id)
-);
-
-
--- =========================================
--- CURTIDAS
--- =========================================
-
-CREATE TABLE curtidas (
-    usuario_id INT NOT NULL,
-    post_id INT NOT NULL,
-    data_curtida DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (usuario_id, post_id),
-
-    CONSTRAINT fk_curtidas_usuario
-        FOREIGN KEY (usuario_id)
-        REFERENCES Usuarios(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_curtidas_post
-        FOREIGN KEY (post_id)
-        REFERENCES Posts(id)
-);
-
-
--- =========================================
--- SEGUIDORES
--- =========================================
-
-CREATE TABLE seguidores (
-    seguidor_id INT NOT NULL,
-    seguindo_id INT NOT NULL,
-    data_follow DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (seguidor_id, seguindo_id),
-
-    CONSTRAINT fk_seguidores_seguidor
-        FOREIGN KEY (seguidor_id)
-        REFERENCES Usuarios(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_seguidores_seguindo
-        FOREIGN KEY (seguindo_id)
-        REFERENCES Usuarios(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT check_self_follow
-        CHECK (seguidor_id <> seguindo_id)
-);
-
-
--- =========================================
--- METAS
--- =========================================
-
-CREATE TABLE Metas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-
-    id_usuario INT NOT NULL,
-
-    titulo VARCHAR(100) NOT NULL,
-
-    prazo DATE,
-
-    categoria ENUM(
-        'Pessoal',
-        'Estudos',
-        'Trabalho',
-        'Saúde',
-        'Projeto',
-        'Outro'
-    ) NOT NULL,
-
-    descricao VARCHAR(200),
-
-    status ENUM(
-        'concluida',
-        'em andamento'
-    ) NOT NULL DEFAULT 'em andamento',
-
-    CONSTRAINT fk_metas_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES Usuarios(id)
+        REFERENCES usuarios(id)
         ON DELETE CASCADE
 );
 
 
--- =========================================
--- SESSÕES
--- =========================================
+-- =========================================================
+-- POSTS EM COMUNIDADES
+-- =========================================================
 
-CREATE TABLE Sessoes (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+ALTER TABLE posts
+ADD COLUMN comunidade_id INT NULL;
 
-    id_meta INT NOT NULL,
+ALTER TABLE posts
+ADD CONSTRAINT fk_posts_comunidade
+FOREIGN KEY (comunidade_id)
+REFERENCES comunidades(id)
+ON DELETE CASCADE;
 
-    inicio DATETIME NOT NULL,
 
-    -- Duração armazenada em segundos
-    duracao INT NOT NULL,
+-- comunidade_id NULL
+--     -> publicação no Feed Geral
+--
+-- comunidade_id preenchido
+--     -> publicação dentro de uma comunidade
 
-    CONSTRAINT fk_sessoes_meta
-        FOREIGN KEY (id_meta)
-        REFERENCES Metas(id)
-        ON DELETE CASCADE,
 
-    CONSTRAINT check_duracao_positiva
-        CHECK (duracao > 0)
-);
+-- =========================================================
+-- ÍNDICES
+-- =========================================================
+
+CREATE INDEX idx_posts_usuario
+ON posts(usuario_id);
+
+CREATE INDEX idx_posts_comunidade
+ON posts(comunidade_id);
+
+CREATE INDEX idx_comunidades_criador
+ON comunidades(criador_id);
+
+CREATE INDEX idx_membros_usuario
+ON membros_comunidade(usuario_id);
+
+
+-- Não criamos novamente:
+--
+-- idx_comentarios_post
+-- idx_curtidas_post
+--
+-- porque o MySQL já possuía índices equivalentes
+-- para essas foreign keys.
+
+
+-- =========================================================
+-- ESTRUTURA RESULTANTE PRINCIPAL
+-- =========================================================
+
+-- usuarios
+-- posts
+-- comentarios
+-- curtidas
+-- seguidores
+-- metas
+-- sessoes
+-- comunidades
+-- membros_comunidade
