@@ -65,7 +65,7 @@ async def obter_feed(
                 liked=usuario_curtiu,
                 usuario={
                     "id": post.usuario.id,
-                    "username": post.usuario.username,
+                    "username": post.usuario.nome_usuario,
                     "email": post.usuario.email,
                     "foto_perfil": post.usuario.foto_perfil
                 }
@@ -221,7 +221,7 @@ async def obter_post_por_id(
             liked=usuario_curtiu,
             usuario={
                 "id": post.usuario.id,
-                "username": post.usuario.username,
+                "username": post.usuario.nome_usuario,
                 "email": post.usuario.email,
                 "foto_perfil": post.usuario.foto_perfil
             }
@@ -309,7 +309,7 @@ async def buscar_post_conteudo(
                 liked=usuario_curtiu,
                 usuario={
                     "id": post.usuario.id,
-                    "username": post.usuario.username,
+                    "username": post.usuario.nome_usuario,
                     "email": post.usuario.email,
                     "foto_perfil": post.usuario.foto_perfil
                 }

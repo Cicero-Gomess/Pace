@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from datetime import date
 
 class UsuarioSchema(BaseModel):
-    username: str
+    nome_usuario: str
     email: str
     senha: str
 
@@ -71,7 +71,7 @@ class ComentarioSchema(BaseModel):
 
 class UsuarioComentarioSchema(BaseModel):
     id: int
-    username: str
+    username: str = Field(validation_alias="nome_usuario")
     foto_perfil: Optional[str] = None
 
     class Config:

@@ -27,7 +27,7 @@ def criar_sessao(
         session.query(Meta)
         .filter(
             Meta.id == dados.id_meta,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )
@@ -45,7 +45,7 @@ def criar_sessao(
         )
 
     nova_sessao = Sessao(
-        id_meta=dados.id_meta,
+        meta_id=dados.id_meta,
         inicio=dados.inicio,
         duracao=dados.duracao
     )
@@ -85,7 +85,7 @@ def listar_sessoes_meta(
 
     sessoes = (
         session.query(Sessao)
-        .filter(Sessao.id_meta == meta_id)
+        .filter(Sessao.meta_id == meta_id)
         .order_by(Sessao.inicio.desc())
         .all()
     )
@@ -108,7 +108,7 @@ def buscar_sessao(
         .join(Meta)
         .filter(
             Sessao.id == sessao_id,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )
@@ -137,7 +137,7 @@ def deletar_sessao(
         .join(Meta)
         .filter(
             Sessao.id == sessao_id,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )

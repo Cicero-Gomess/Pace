@@ -64,7 +64,7 @@ def _remover_cookie_token(response: Response) -> None:
 def criar_usuario(usuario_schema: UsuarioSchema, session: Session = Depends(pegar_sessao)):
     try:
         usuario_existente = session.query(User).filter(
-            (User.username == usuario_schema.username) | (User.email == usuario_schema.email)
+            (User.nome_usuario == usuario_schema.nome_usuario) | (User.email == usuario_schema.email)
         ).first()
 
         if usuario_existente:
@@ -73,7 +73,7 @@ def criar_usuario(usuario_schema: UsuarioSchema, session: Session = Depends(pega
         senha_hash = fazer_hash(usuario_schema.senha)
 
         novo_usuario = User(
-            username=usuario_schema.username,
+            nome_usuario=usuario_schema.nome_usuario,
             email=usuario_schema.email,
             senha_hash=senha_hash,
         )
@@ -100,7 +100,7 @@ def login(
     session: Session = Depends(pegar_sessao),
 ):
     usuario = session.query(User).filter(
-        (User.email == form_data.username) | (User.username == form_data.username)
+        (User.email == form_data.username) | (User.nome_usuario == form_data.username)
     ).first()
 
     if not usuario or not verificar_senha(form_data.password, usuario.senha_hash):
@@ -127,7 +127,7 @@ def logout(response: Response):
 def me(usuario: User = Depends(pegar_usuario_atual)):
     return {
         "id": usuario.id,
-        "username": usuario.username,
+        "username": usuario.nome_usuario,
         "email": usuario.email,
         "foto_perfil": usuario.foto_perfil,
     }

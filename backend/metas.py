@@ -22,7 +22,7 @@ def criar_meta(
     usuario: User = Depends(pegar_usuario_atual)
 ):
     nova_meta = Meta(
-        id_usuario=usuario.id,
+        usuario_id=usuario.id,
         titulo=dados.titulo,
         prazo=dados.prazo,
         categoria=dados.categoria,
@@ -48,7 +48,7 @@ def listar_metas(
 ):
     metas = (
         session.query(Meta)
-        .filter(Meta.id_usuario == usuario.id)
+        .filter(metas.usuario_id == usuario.id)
         .all()
     )
 
@@ -68,8 +68,8 @@ def buscar_meta(
     meta = (
         session.query(Meta)
         .filter(
-            Meta.id == meta_id,
-            Meta.id_usuario == usuario.id
+            metas.id == meta_id,
+            metas.usuario_id == usuario.id
         )
         .first()
     )
@@ -98,7 +98,7 @@ def atualizar_meta(
         session.query(Meta)
         .filter(
             Meta.id == meta_id,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )
@@ -150,7 +150,7 @@ def deletar_meta(
         session.query(Meta)
         .filter(
             Meta.id == meta_id,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )

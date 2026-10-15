@@ -1,3 +1,4 @@
+
 from sqlalchemy import (
     Column,
     Integer,
@@ -8,21 +9,24 @@ from sqlalchemy import (
     Date,
     ForeignKey,
     CheckConstraint,
-    Enum
+    Enum,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from database import Base
 
 
 # =========================
 # USUÁRIOS
 # =========================
+
 class User(Base):
-    __tablename__ = "Usuarios"
+    __tablename__ = "usuarios"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String(50), unique=True, nullable=False)
+    nome_usuario = Column(String(50), unique=True, nullable=False)
     senha_hash = Column(String(255), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     status_conta = Column(Boolean, default=True)
@@ -30,77 +34,132 @@ class User(Base):
     admin = Column(Boolean, default=False, nullable=False)
 
     # Relacionamentos
-    posts = relationship("Post", back_populates="usuario", cascade="all, delete")
-    comentarios = relationship("Comentario", back_populates="usuario", cascade="all, delete")
-    curtidas = relationship("Curtida", back_populates="usuario", cascade="all, delete")
+    posts = relationship(
+        "Post",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
 
+    comentarios = relationship(
+        "Comentario",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
+
+    curtidas = relationship(
+        "Curtida",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
+
+    # Usuários que seguem este usuário
     seguidores = relationship(
         "Seguidor",
         foreign_keys="Seguidor.seguindo_id",
         back_populates="seguindo",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
     )
 
+    # Usuários que este usuário segue
     seguindo = relationship(
         "Seguidor",
         foreign_keys="Seguidor.seguidor_id",
         back_populates="seguidor",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
     )
 
     metas = relationship(
         "Meta",
         back_populates="usuario",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
+    )
+
+    # Comunidades criadas pelo usuário
+    comunidades_criadas = relationship(
+        "Comunidade",
+        back_populates="criador",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    # Comunidades das quais o usuário participa
+    membros_comunidade = relationship(
+        "MembroComunidade",
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
 # =========================
 # POSTS
 # =========================
+
 class Post(Base):
-    __tablename__ = "Posts"
+    __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, index=True)
+
     usuario_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
     )
+
+    # NULL = feed geral; preenchido = post de comunidade
+    comunidade_id = Column(
+        Integer,
+        ForeignKey("comunidades.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+
     conteudo = Column(Text, nullable=False)
     imagem = Column(Text)
     data_postagem = Column(DateTime, server_default=func.now())
 
     usuario = relationship("User", back_populates="posts")
+
+    comunidade = relationship(
+        "Comunidade",
+        back_populates="posts",
+    )
+
     comentarios = relationship(
         "Comentario",
         back_populates="post",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
+
     curtidas = relationship(
         "Curtida",
         back_populates="post",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
 # =========================
 # COMENTÁRIOS
 # =========================
+
 class Comentario(Base):
     __tablename__ = "comentarios"
 
     id = Column(Integer, primary_key=True, index=True)
+
     usuario_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
     )
+
     post_id = Column(
         Integer,
-        ForeignKey("Posts.id"),
-        nullable=False
+        ForeignKey("posts.id", ondelete="CASCADE"),
+        nullable=False,
     )
+
     comentario = Column(Text, nullable=False)
     data_comentario = Column(DateTime, server_default=func.now())
 
@@ -111,19 +170,22 @@ class Comentario(Base):
 # =========================
 # CURTIDAS
 # =========================
+
 class Curtida(Base):
     __tablename__ = "curtidas"
 
     usuario_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        primary_key=True
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        primary_key=True,
     )
+
     post_id = Column(
         Integer,
-        ForeignKey("Posts.id"),
-        primary_key=True
+        ForeignKey("posts.id", ondelete="CASCADE"),
+        primary_key=True,
     )
+
     data_curtida = Column(DateTime, server_default=func.now())
 
     usuario = relationship("User", back_populates="curtidas")
@@ -133,57 +195,65 @@ class Curtida(Base):
 # =========================
 # SEGUIDORES
 # =========================
+
 class Seguidor(Base):
     __tablename__ = "seguidores"
 
     seguidor_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        primary_key=True
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        primary_key=True,
     )
+
     seguindo_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        primary_key=True
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        primary_key=True,
     )
-    data_follow = Column(DateTime, server_default=func.now())
+
+    data_seguimento = Column(
+        DateTime,
+        server_default=func.now(),
+    )
 
     __table_args__ = (
         CheckConstraint(
             "seguidor_id <> seguindo_id",
-            name="check_self_follow"
+            name="check_self_follow",
         ),
     )
 
+    # Quem iniciou o seguimento
     seguidor = relationship(
         "User",
         foreign_keys=[seguidor_id],
-        back_populates="seguindo"
+        back_populates="seguindo",
     )
 
+    # Quem está sendo seguido
     seguindo = relationship(
         "User",
         foreign_keys=[seguindo_id],
-        back_populates="seguidores"
+        back_populates="seguidores",
     )
 
 
 # =========================
 # METAS
 # =========================
+
 class Meta(Base):
-    __tablename__ = "Metas"
+    __tablename__ = "metas"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
-    id_usuario = Column(
+    usuario_id = Column(
         Integer,
-        ForeignKey("Usuarios.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     titulo = Column(String(100), nullable=False)
-
     prazo = Column(Date)
 
     categoria = Column(
@@ -193,9 +263,9 @@ class Meta(Base):
             "Trabalho",
             "Saúde",
             "Projeto",
-            "Outro"
+            "Outro",
         ),
-        nullable=False
+        nullable=False,
     )
 
     descricao = Column(String(200))
@@ -203,34 +273,35 @@ class Meta(Base):
     status = Column(
         Enum("concluida", "em andamento"),
         nullable=False,
-        default="em andamento"
+        default="em andamento",
     )
 
-    # Relacionamentos
     usuario = relationship(
         "User",
-        back_populates="metas"
+        back_populates="metas",
     )
 
     sessoes = relationship(
         "Sessao",
         back_populates="meta",
-        cascade="all, delete"
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
 # =========================
 # SESSÕES
 # =========================
+
 class Sessao(Base):
-    __tablename__ = "Sessoes"
+    __tablename__ = "sessoes"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
-    id_meta = Column(
+    meta_id = Column(
         Integer,
-        ForeignKey("Metas.id", ondelete="CASCADE"),
-        nullable=False
+        ForeignKey("metas.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     inicio = Column(DateTime, nullable=False)
@@ -241,12 +312,114 @@ class Sessao(Base):
     __table_args__ = (
         CheckConstraint(
             "duracao > 0",
-            name="check_duracao_positiva"
+            name="check_duracao_positiva",
         ),
     )
 
-    # Relacionamento
     meta = relationship(
         "Meta",
-        back_populates="sessoes"
+        back_populates="sessoes",
+    )
+
+
+# =========================
+# COMUNIDADES
+# =========================
+
+class Comunidade(Base):
+    __tablename__ = "comunidades"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    criador_id = Column(
+        Integer,
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    nome = Column(String(100), nullable=False, unique=True)
+    descricao = Column(String(500))
+    imagem = Column(String(500))
+
+    data_criacao = Column(
+        DateTime,
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    ativa = Column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="1",
+    )
+
+    # Relacionamentos
+    criador = relationship(
+        "User",
+        back_populates="comunidades_criadas",
+    )
+
+    membros = relationship(
+        "MembroComunidade",
+        back_populates="comunidade",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    posts = relationship(
+    "Post",
+    back_populates="comunidade",
+    cascade="all, delete-orphan",
+    passive_deletes=True,
+)
+
+
+# =========================
+# MEMBROS DAS COMUNIDADES
+# =========================
+
+class MembroComunidade(Base):
+    __tablename__ = "membros_comunidade"
+
+    comunidade_id = Column(
+        Integer,
+        ForeignKey("comunidades.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    usuario_id = Column(
+        Integer,
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    cargo = Column(
+        Enum("membro", "moderador", "admin"),
+        nullable=False,
+        default="membro",
+    )
+
+    data_entrada = Column(
+        DateTime,
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "comunidade_id",
+            "usuario_id",
+            name="uq_membro_comunidade",
+        ),
+    )
+
+    comunidade = relationship(
+        "Comunidade",
+        back_populates="membros",
+    )
+
+    usuario = relationship(
+        "User",
+        back_populates="membros_comunidade",
     )
