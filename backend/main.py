@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from auth import auth_router
 from comments import comments_router
+from comunidades import comunidades_router
 from post import post_router
 from profile import profile_router
 from metas import metas_router
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(post_router)
 app.include_router(comments_router)
+app.include_router(comunidades_router)
 app.include_router(profile_router)
 app.include_router(metas_router)
 app.include_router(sessao_router)

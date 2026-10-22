@@ -75,6 +75,11 @@ CREATE TABLE comunidades (
 
     descricao VARCHAR(500),
 
+    topicos JSON NOT NULL,
+
+    privacidade VARCHAR(10) NOT NULL
+        DEFAULT 'publica',
+
     imagem VARCHAR(500),
 
     data_criacao DATETIME NOT NULL
@@ -89,7 +94,10 @@ CREATE TABLE comunidades (
     CONSTRAINT fk_comunidades_criador
         FOREIGN KEY (criador_id)
         REFERENCES usuarios(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT check_comunidade_privacidade
+        CHECK (privacidade IN ('publica', 'privada'))
 );
 
 

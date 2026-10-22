@@ -5,6 +5,7 @@ from sqlalchemy import (
     String,
     Boolean,
     Text,
+    JSON,
     DateTime,
     Date,
     ForeignKey,
@@ -328,6 +329,12 @@ class Sessao(Base):
 
 class Comunidade(Base):
     __tablename__ = "comunidades"
+    __table_args__ = (
+        CheckConstraint(
+            "privacidade IN ('publica', 'privada')",
+            name="check_comunidade_privacidade",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -339,6 +346,13 @@ class Comunidade(Base):
 
     nome = Column(String(100), nullable=False, unique=True)
     descricao = Column(String(500))
+    topicos = Column(JSON, nullable=False, default=list)
+    privacidade = Column(
+        String(10),
+        nullable=False,
+        default="publica",
+        server_default="publica",
+    )
     imagem = Column(String(500))
 
     data_criacao = Column(
@@ -368,11 +382,11 @@ class Comunidade(Base):
     )
 
     posts = relationship(
-    "Post",
-    back_populates="comunidade",
-    cascade="all, delete-orphan",
-    passive_deletes=True,
-)
+        "Post",
+        back_populates="comunidade",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 # =========================
