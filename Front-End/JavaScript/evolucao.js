@@ -138,26 +138,6 @@ const elementos = {
       "weekChartHelper"
     ),
 
-  weekChartYAxis:
-    document.getElementById(
-      "weekChartYAxis"
-    ),
-
-  weekTotalMinutes:
-    document.getElementById(
-      "weekTotalMinutes"
-    ),
-
-  weekAverageMinutes:
-    document.getElementById(
-      "weekAverageMinutes"
-    ),
-
-  bestFocusDay:
-    document.getElementById(
-      "bestFocusDay"
-    ),
-
   evolutionTimeline:
     document.getElementById(
       "evolutionTimeline"
@@ -253,6 +233,12 @@ let periodoAtual =
 let metas = [];
 
 let sessoes = [];
+
+let ultimaCargaDados =
+  0;
+
+const INTERVALO_RECARREGAMENTO_MS =
+  30000;
 
 
 /* =========================================================
@@ -420,6 +406,15 @@ function listarSessoesApi(
 
   return api(
     `/sessoes/meta/${idMeta}`
+  );
+
+}
+
+
+function listarMinhasSessoesApi() {
+
+  return api(
+    "/sessoes/minhas"
   );
 
 }
@@ -696,6 +691,7 @@ function normalizarMeta(
 
 /*
   API = MINUTOS
+
   FRONT = SEGUNDOS
 */
 
@@ -733,6 +729,7 @@ function normalizarSessao(
 
     goalId:
       String(
+        sessao.meta_id ||
         sessao.id_meta ||
         meta.id
       ),
@@ -772,8 +769,14 @@ async function carregarDados() {
 
   try {
 
-    const dadosMetas =
-      await listarMetasApi();
+    const [
+      dadosMetas,
+      dadosSessoes,
+    ] =
+      await Promise.all([
+        listarMetasApi(),
+        listarMinhasSessoesApi(),
+      ]);
 
 
     metas =
@@ -786,49 +789,55 @@ async function carregarDados() {
         : [];
 
 
-    const blocos =
-      await Promise.all(
+    const metasPorId =
+      new Map(
         metas.map(
-          async (
-            meta
-          ) => {
-
-            try {
-
-              const dados =
-                await listarSessoesApi(
-                  meta.id
-                );
-
-
-              return Array.isArray(
-                dados
-              )
-                ? dados.map(
-                    (
-                      sessao
-                    ) =>
-                      normalizarSessao(
-                        sessao,
-                        meta
-                      )
-                  )
-                : [];
-
-            } catch {
-
-              return [];
-
-            }
-
-          }
+          (meta) => [
+            String(meta.id),
+            meta,
+          ]
         )
       );
 
 
     sessoes =
-      blocos
-        .flat()
+      (
+        Array.isArray(
+          dadosSessoes
+        )
+          ? dadosSessoes
+          : []
+      )
+        .map(
+          (sessao) => {
+
+            const metaId =
+              String(
+                sessao.meta_id ||
+                sessao.id_meta ||
+                ""
+              );
+
+
+            const meta =
+              metasPorId.get(
+                metaId
+              );
+
+
+            if (!meta) {
+              return null;
+            }
+
+
+            return normalizarSessao(
+              sessao,
+              meta
+            );
+
+          }
+        )
+        .filter(Boolean)
         .sort(
           (
             a,
@@ -844,11 +853,14 @@ async function carregarDados() {
               a.startedAt ||
               0
             )
-
         );
 
 
     renderizarPagina();
+
+    ultimaCargaDados =
+      Date.now();
+
 
   } catch (
     erro
@@ -1262,6 +1274,19 @@ function calcularScore(
   }
 
 
+  /*
+    Não existe mais porcentagem manual de meta.
+
+    A única razão percentual aqui é:
+
+    metas concluídas
+        ÷
+    total de metas
+
+    Isso representa resultado global,
+    não progresso digitado pelo usuário.
+  */
+
   const taxaMetas =
     resumo.totalMetas >
     0
@@ -1364,8 +1389,10 @@ function atualizarIndice(
     label =
       "Ritmo em construção";
 
+
     titulo =
       "Seu progresso está ganhando forma.";
+
 
     descricao =
       "Continue repetindo as ações que estão funcionando.";
@@ -1381,8 +1408,10 @@ function atualizarIndice(
     label =
       "Constância sólida";
 
+
     titulo =
       "Sua consistência já está aparecendo.";
+
 
     descricao =
       "Metas e foco estão trabalhando juntos.";
@@ -1398,8 +1427,10 @@ function atualizarIndice(
     label =
       "Alta evolução";
 
+
     titulo =
       "Você está vivendo um ótimo momento.";
+
 
     descricao =
       "Continue protegendo sua rotina e concluindo seus objetivos.";
@@ -1806,7 +1837,8 @@ function renderizarGrafico() {
 
 
     data.setDate(
-      data.getDate() - i
+      data.getDate() -
+      i
     );
 
 
@@ -1826,6 +1858,7 @@ function renderizarGrafico() {
 
     const segundos =
       sessoes
+
         .filter(
           (
             sessao
@@ -1833,6 +1866,7 @@ function renderizarGrafico() {
             sessao.date ===
             chave
         )
+
         .reduce(
           (
             total,
@@ -1844,192 +1878,41 @@ function renderizarGrafico() {
         );
 
 
-    dias.push({
+    dias.push(
+      {
 
-      data,
+        data,
 
-      segundos,
+        segundos,
 
-      minutos:
-        Math.round(
-          segundos /
-          60
-        ),
-
-    });
+      }
+    );
 
   }
 
 
-  const totalMinutos =
-    dias.reduce(
-      (
-        total,
-        item
-      ) =>
-        total +
-        item.minutos,
-      0
-    );
-
-
-  const mediaMinutos =
-    Math.round(
-      totalMinutos /
-      dias.length
-    );
-
-
-  const melhorDia =
-    dias.reduce(
-      (
-        melhor,
-        item
-      ) =>
-        item.segundos >
-        melhor.segundos
-          ? item
-          : melhor,
-      dias[0] || {
-        data:
-          new Date(),
-        segundos:
-          0,
-        minutos:
-          0,
-      }
-    );
-
-
-  const maiorMinutos =
+  const maior =
     Math.max(
       ...dias.map(
         (
           item
         ) =>
-          item.minutos
+          item.segundos
       ),
-      0
+      1
     );
 
 
-  const escalaTopo =
-    maiorMinutos <=
-    10
-      ? 10
-      : maiorMinutos <=
-        30
-        ? Math.ceil(
-            maiorMinutos /
-            5
-          ) *
-          5
-        : Math.ceil(
-            maiorMinutos /
-            10
-          ) *
-          10;
-
-
-  const ticks = [
-
-    escalaTopo,
-
-    Math.round(
-      escalaTopo *
-      0.75
-    ),
-
-    Math.round(
-      escalaTopo *
-      0.5
-    ),
-
-    Math.round(
-      escalaTopo *
-      0.25
-    ),
-
-    0,
-
-  ];
-
-
-  const formatadorCurto =
+  const formatador =
     new Intl.DateTimeFormat(
       "pt-BR",
       {
+
         weekday:
           "short",
+
       }
     );
-
-
-  const formatadorLongo =
-    new Intl.DateTimeFormat(
-      "pt-BR",
-      {
-        weekday:
-          "long",
-      }
-    );
-
-
-  if (
-    elementos.weekChartYAxis
-  ) {
-
-    elementos.weekChartYAxis.innerHTML =
-      ticks
-        .map(
-          (
-            valor
-          ) =>
-            `<span>${valor}m</span>`
-        )
-        .join("");
-
-  }
-
-
-  if (
-    elementos.weekTotalMinutes
-  ) {
-
-    elementos.weekTotalMinutes.textContent =
-      `${totalMinutos} min`;
-
-  }
-
-
-  if (
-    elementos.weekAverageMinutes
-  ) {
-
-    elementos.weekAverageMinutes.textContent =
-      `${mediaMinutos} min`;
-
-  }
-
-
-  if (
-    elementos.bestFocusDay
-  ) {
-
-    elementos.bestFocusDay.textContent =
-      melhorDia.minutos >
-      0
-        ? `${formatadorLongo
-            .format(
-              melhorDia.data
-            )
-            .replace(
-              "-feira",
-              ""
-            )} · ${melhorDia.minutos} min`
-        : "Sem atividade";
-
-  }
 
 
   elementos.weekChart.innerHTML =
@@ -2040,76 +1923,66 @@ function renderizarGrafico() {
         ) => {
 
           const altura =
-            item.minutos >
-            0
+            item.segundos
               ? Math.max(
                   8,
                   (
-                    item.minutos /
-                    escalaTopo
+                    item.segundos /
+                    maior
                   ) *
-                  100
+                    100
                 )
-              : 4;
-
-
-          const labelCurta =
-            formatadorCurto
-              .format(
-                item.data
-              )
-              .replace(
-                ".",
-                ""
-              )
-              .slice(
-                0,
-                3
-              );
-
-
-          const labelLonga =
-            formatadorLongo
-              .format(
-                item.data
-              )
-              .replace(
-                "-feira",
-                ""
-              );
+              : 2;
 
 
           return `
 
-            <div class="chart-column">
+            <div class="day-column">
 
-              <div class="chart-bar-wrap">
+              <span class="day-value">
+
+                ${
+                  item.segundos
+                    ? `${Math.round(
+                        item.segundos /
+                        60
+                      )}m`
+                    : "0"
+                }
+
+              </span>
+
+
+              <div class="bar-shell">
 
                 <span
-                  class="chart-bar ${
-                    item.minutos ===
-                    0
+                  class="day-bar ${
+                    !item.segundos
                       ? "zero"
                       : ""
                   }"
                   style="height:${altura}%"
-                  title="${item.minutos} min em ${labelLonga}"
                 ></span>
 
               </div>
 
 
-              <div class="chart-column-footer">
+              <span class="day-label">
 
-                <strong>
-                  ${item.minutos}m
-                </strong>
+                ${formatador
+                  .format(
+                    item.data
+                  )
+                  .replace(
+                    ".",
+                    ""
+                  )
+                  .slice(
+                    0,
+                    3
+                  )}
 
-                <span>
-                  ${labelCurta}
-                </span>
-
-              </div>
+              </span>
 
             </div>
 
@@ -2447,15 +2320,13 @@ function renderizarTrilhaDeConstancia() {
   if (
     !elementos.consistencyTrack
   ) {
-
     return;
-
   }
 
 
   const semanas =
     obterUltimasSemanas(
-      8
+      6
     );
 
 
@@ -2464,41 +2335,74 @@ function renderizarTrilhaDeConstancia() {
       (
         semana,
         indice
-      ) => {
+      ) => ({
+        ...semana,
 
-        const resumo =
-          calcularDadosDaSemana(
-            semana.inicio,
-            semana.fim
-          );
+        numero:
+          indice + 1,
 
+        totalSegundos:
+          0,
 
-        return {
+        dias:
+          new Set(),
 
-          ...semana,
-
-          ...resumo,
-
-          numero:
-            indice +
-            1,
-
-        };
-
-      }
+        totalSessoes:
+          0,
+      })
     );
 
 
-  const maiorTempo =
-    Math.max(
-      ...dados.map(
-        (
-          semana
-        ) =>
-          semana.totalSegundos
-      ),
-      1
-    );
+  for (
+    const sessao of sessoes
+  ) {
+
+    const data =
+      obterDataSessao(
+        sessao
+      );
+
+
+    if (!data) {
+      continue;
+    }
+
+
+    const semana =
+      dados.find(
+        (item) =>
+          data >= item.inicio &&
+          data <= item.fim
+      );
+
+
+    if (!semana) {
+      continue;
+    }
+
+
+    semana.totalSegundos +=
+      sessao.durationSeconds;
+
+    semana.totalSessoes +=
+      1;
+
+
+    if (sessao.date) {
+      semana.dias.add(
+        sessao.date
+      );
+    }
+
+  }
+
+
+  dados.forEach(
+    (semana) => {
+      semana.diasAtivos =
+        semana.dias.size;
+    }
+  );
 
 
   const melhorSemana =
@@ -2515,6 +2419,50 @@ function renderizarTrilhaDeConstancia() {
     );
 
 
+  if (
+    elementos.bestWeekValue
+  ) {
+
+    elementos.bestWeekValue.textContent =
+      melhorSemana.totalSegundos > 0
+        ? formatarDuracao(
+            melhorSemana.totalSegundos
+          )
+        : "—";
+
+  }
+
+
+  if (
+    elementos.bestWeekDescription
+  ) {
+
+    elementos.bestWeekDescription.textContent =
+      melhorSemana.totalSegundos > 0
+        ? `${melhorSemana.totalSessoes} ${
+            melhorSemana.totalSessoes === 1
+              ? "sessão"
+              : "sessões"
+          } em ${melhorSemana.diasAtivos} ${
+            melhorSemana.diasAtivos === 1
+              ? "dia ativo"
+              : "dias ativos"
+          }.`
+        : "Continue registrando sessões para revelar seu melhor período.";
+
+  }
+
+
+  if (
+    elementos.consistencyPeriod
+  ) {
+
+    elementos.consistencyPeriod.textContent =
+      "Últimas 6 semanas";
+
+  }
+
+
   elementos.consistencyTrack.innerHTML =
     dados
       .map(
@@ -2523,85 +2471,77 @@ function renderizarTrilhaDeConstancia() {
           indice
         ) => {
 
-          const porcentagem =
-            semana.totalSegundos >
-            0
-              ? Math.max(
-                  7,
-                  Math.round(
-                    (
-                      semana.totalSegundos /
-                      maiorTempo
-                    ) *
-                    100
-                  )
-                )
-              : 0;
-
-
           const atual =
             indice ===
-            dados.length -
-            1;
-
-
-          const periodo =
-            `${formatarDataCurta(
-              semana.inicio
-            )} — ${formatarDataCurta(
-              semana.fim
-            )}`;
-
-
-          const detalhes =
-            `${semana.totalSessoes} ${
-              semana.totalSessoes === 1
-                ? "sessão"
-                : "sessões"
-            } · ${semana.diasAtivos} ${
-              semana.diasAtivos === 1
-                ? "dia ativo"
-                : "dias ativos"
-            }`;
+            dados.length - 1;
 
 
           return `
 
             <article
-              class="consistency-bar-item ${
+              class="consistency-week-card ${
                 atual
                   ? "current"
                   : ""
               }"
-              title="${periodo} · ${detalhes}"
             >
 
-              <div class="consistency-bar-value">
+              <div class="consistency-week-top">
 
-                ${formatarDuracao(
-                  semana.totalSegundos
+                <span class="consistency-week-label">
+                  ${
+                    atual
+                      ? "Semana atual"
+                      : `Semana ${semana.numero}`
+                  }
+                </span>
+
+                <strong>
+                  ${formatarDuracao(
+                    semana.totalSegundos
+                  )}
+                </strong>
+
+              </div>
+
+
+              <span class="consistency-week-period">
+                ${formatarDataCurta(
+                  semana.inicio
                 )}
-
-              </div>
-
-
-              <div class="consistency-bar-area">
-
-                <span
-                  class="consistency-bar ${
-                    semana.totalSegundos === 0
-                      ? "zero"
-                      : ""
-                  }"
-                  style="height:${porcentagem}%"
-                ></span>
-
-              </div>
+                —
+                ${formatarDataCurta(
+                  semana.fim
+                )}
+              </span>
 
 
-              <div class="consistency-bar-week">
+              <div class="consistency-week-stats">
 
-                S${semana.numero}
+                <span>
+                  <i data-lucide="brain"></i>
+
+                  ${semana.totalSessoes}
+
+                  ${
+                    semana.totalSessoes === 1
+                      ? "sessão"
+                      : "sessões"
+                  }
+                </span>
+
+
+                <span>
+                  <i data-lucide="calendar-check-2"></i>
+
+                  ${semana.diasAtivos}
+
+                  ${
+                    semana.diasAtivos === 1
+                      ? "dia"
+                      : "dias"
+                  }
+                </span>
 
               </div>
 
@@ -2612,47 +2552,6 @@ function renderizarTrilhaDeConstancia() {
         }
       )
       .join("");
-
-
-  if (
-    melhorSemana &&
-    melhorSemana.totalSegundos >
-    0
-  ) {
-
-    elementos.bestWeekValue.textContent =
-      formatarDuracao(
-        melhorSemana.totalSegundos
-      );
-
-
-    elementos.bestWeekDescription.textContent =
-      `${melhorSemana.totalSessoes} ${
-        melhorSemana.totalSessoes ===
-        1
-          ? "sessão"
-          : "sessões"
-      } em ${melhorSemana.diasAtivos} ${
-        melhorSemana.diasAtivos ===
-        1
-          ? "dia ativo"
-          : "dias ativos"
-      }.`;
-
-  } else {
-
-    elementos.bestWeekValue.textContent =
-      "—";
-
-
-    elementos.bestWeekDescription.textContent =
-      "Continue registrando sessões para revelar seu melhor período.";
-
-  }
-
-
-  elementos.consistencyPeriod.textContent =
-    "Últimas 8 semanas";
 
 }
 
@@ -2751,6 +2650,16 @@ function renderizarCategorias() {
           nome,
           dados,
         ]) => {
+
+          /*
+            Esta barra NÃO é progresso manual.
+
+            Ela representa:
+
+            metas concluídas
+                  /
+            metas da categoria
+          */
 
           const porcentagem =
             dados.total >
@@ -3382,7 +3291,20 @@ document.addEventListener(
   async () => {
 
     if (
-      !document.hidden
+      document.hidden
+    ) {
+      return;
+    }
+
+
+    const passouIntervalo =
+      Date.now() -
+      ultimaCargaDados >=
+      INTERVALO_RECARREGAMENTO_MS;
+
+
+    if (
+      passouIntervalo
     ) {
 
       await carregarDados();

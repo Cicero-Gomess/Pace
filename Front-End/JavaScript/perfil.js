@@ -1,73 +1,216 @@
 import { initAppShell } from "./shared/app-shell.js";
+
 import {
   getCurrentUser,
   saveCurrentUser,
   handleAuthError,
 } from "./shared/auth.js";
-import { showToast, initLucide } from "./shared/ui.js";
-import { escaparHTML, formatarDataCurta, compactarImagem } from "./shared/utils.js";
-import { STORAGE_KEYS } from "./shared/config.js";
-import { getUsersCache, upsertUserCache, resolveUserPhoto } from "./shared/users-cache.js";
+
+import {
+  showToast,
+  initLucide,
+} from "./shared/ui.js";
+
+import {
+  escaparHTML,
+  formatarDataCurta,
+  compactarImagem,
+} from "./shared/utils.js";
+
+import {
+  STORAGE_KEYS,
+} from "./shared/config.js";
+
+import {
+  getUsersCache,
+  upsertUserCache,
+  resolveUserPhoto,
+} from "./shared/users-cache.js";
+
 import {
   fetchCurrentProfile,
   updateProfilePhoto,
   fetchFollowers,
   fetchFollowing,
 } from "./shared/services/profile-service.js";
-import { fetchFeed } from "./shared/services/post-service.js";
-import { fetchComments } from "./shared/services/comment-service.js";
 
-const shellOk = await initAppShell();
+import {
+  fetchPostsUsuario,
+} from "./shared/services/post-service.js";
+
+import {
+  fetchComments,
+} from "./shared/services/comment-service.js";
+
+
+const shellOk =
+  await initAppShell();
+
 
 if (shellOk) {
-  let usuario = getCurrentUser();
 
-  const nomeEl = document.getElementById("nomeUsuario");
-  const emailEl = document.getElementById("emailUsuario");
-  const fotoEl = document.getElementById("fotoPerfil");
-  const inputFoto = document.getElementById("inputFoto");
-  const bioInput = document.getElementById("bioUsuario");
-  const btnSalvarBio = document.getElementById("salvarBio");
-  const modal = document.getElementById("modalPost");
-  const modalImg = document.getElementById("modalImg");
-  const modalTexto = document.getElementById("modalTexto");
-  const modalLikes = document.getElementById("modalLikes");
-  const modalComentarios = document.getElementById("modalComentarios");
-  const fecharModalBtn = document.getElementById("fecharModal");
+  let usuario =
+    getCurrentUser();
 
-  async function completarStatsUsuario(userAPI) {
+
+  const nomeEl =
+    document.getElementById(
+      "nomeUsuario"
+    );
+
+  const emailEl =
+    document.getElementById(
+      "emailUsuario"
+    );
+
+  const fotoEl =
+    document.getElementById(
+      "fotoPerfil"
+    );
+
+  const inputFoto =
+    document.getElementById(
+      "inputFoto"
+    );
+
+  const bioInput =
+    document.getElementById(
+      "bioUsuario"
+    );
+
+  const btnSalvarBio =
+    document.getElementById(
+      "salvarBio"
+    );
+
+  const modal =
+    document.getElementById(
+      "modalPost"
+    );
+
+  const modalImg =
+    document.getElementById(
+      "modalImg"
+    );
+
+  const modalTexto =
+    document.getElementById(
+      "modalTexto"
+    );
+
+  const modalLikes =
+    document.getElementById(
+      "modalLikes"
+    );
+
+  const modalComentarios =
+    document.getElementById(
+      "modalComentarios"
+    );
+
+  const fecharModalBtn =
+    document.getElementById(
+      "fecharModal"
+    );
+
+
+  /* =========================================================
+     ESTATÍSTICAS
+  ========================================================= */
+
+  async function completarStatsUsuario(
+    userAPI
+  ) {
+
     try {
-      const [seguidores, seguindo] = await Promise.all([
-        fetchFollowers(userAPI.id),
-        fetchFollowing(userAPI.id),
+
+      const [
+        seguidores,
+        seguindo,
+      ] = await Promise.all([
+        fetchFollowers(
+          userAPI.id
+        ),
+
+        fetchFollowing(
+          userAPI.id
+        ),
       ]);
 
-      const totalSeguidores = seguidores?.total ?? 0;
-      const totalSeguindo = seguindo?.total ?? 0;
+
+      const totalSeguidores =
+        seguidores?.total ??
+        0;
+
+
+      const totalSeguindo =
+        seguindo?.total ??
+        0;
+
 
       return {
         ...userAPI,
-        total_seguidores: totalSeguidores,
-        total_seguindo: totalSeguindo,
-        seguidores_count: totalSeguidores,
-        seguindo_count: totalSeguindo,
-        followers_count: totalSeguidores,
-        following_count: totalSeguindo,
+
+        total_seguidores:
+          totalSeguidores,
+
+        total_seguindo:
+          totalSeguindo,
+
+        seguidores_count:
+          totalSeguidores,
+
+        seguindo_count:
+          totalSeguindo,
+
+        followers_count:
+          totalSeguidores,
+
+        following_count:
+          totalSeguindo,
       };
-    } catch (error) {
+
+    }
+
+    catch (
+      error
+    ) {
+
       return {
         ...userAPI,
-        total_seguidores: userAPI.total_seguidores ?? 0,
-        total_seguindo: userAPI.total_seguindo ?? 0,
-        seguidores_count: userAPI.seguidores_count ?? 0,
-        seguindo_count: userAPI.seguindo_count ?? 0,
-        followers_count: userAPI.followers_count ?? 0,
-        following_count: userAPI.following_count ?? 0,
+
+        total_seguidores:
+          userAPI.total_seguidores ??
+          0,
+
+        total_seguindo:
+          userAPI.total_seguindo ??
+          0,
+
+        seguidores_count:
+          userAPI.seguidores_count ??
+          0,
+
+        seguindo_count:
+          userAPI.seguindo_count ??
+          0,
+
+        followers_count:
+          userAPI.followers_count ??
+          0,
+
+        following_count:
+          userAPI.following_count ??
+          0,
       };
+
     }
+
   }
 
+
   function totalSeguidoresUsuario() {
+
     return (
       usuario?.seguidores_count ??
       usuario?.total_seguidores ??
@@ -76,9 +219,12 @@ if (shellOk) {
       usuario?.followers ??
       0
     );
+
   }
 
+
   function totalSeguindoUsuario() {
+
     return (
       usuario?.seguindo_count ??
       usuario?.total_seguindo ??
@@ -87,226 +233,921 @@ if (shellOk) {
       usuario?.following ??
       0
     );
+
   }
+
+
+  /* =========================================================
+     FOTO / PERFIL
+  ========================================================= */
 
   function atualizarFotoGlobal() {
-    const user = getCurrentUser();
-    if (!user) return;
 
-    const foto = resolveUserPhoto(user);
+    const user =
+      getCurrentUser();
 
-    document.querySelectorAll(".foto-perfil").forEach((img) => {
-      img.src = foto;
-    });
 
-    if (fotoEl) fotoEl.src = foto;
+    if (
+      !user
+    ) {
+
+      return;
+
+    }
+
+
+    const foto =
+      resolveUserPhoto(
+        user
+      );
+
+
+    document
+      .querySelectorAll(
+        ".foto-perfil"
+      )
+      .forEach(
+        (
+          img
+        ) => {
+
+          img.src =
+            foto;
+
+        }
+      );
+
+
+    if (
+      fotoEl
+    ) {
+
+      fotoEl.src =
+        foto;
+
+    }
+
   }
+
 
   function preencherDadosPerfil() {
-    if (!usuario) return;
 
-    if (nomeEl) nomeEl.innerText = usuario.username || "";
-    if (emailEl) emailEl.innerText = usuario.email || "";
+    if (
+      !usuario
+    ) {
 
-    const cache = getUsersCache();
-    if (bioInput) bioInput.value = cache[usuario.username]?.bio || "";
+      return;
+
+    }
+
+
+    if (
+      nomeEl
+    ) {
+
+      nomeEl.innerText =
+        usuario.username ||
+        "";
+
+    }
+
+
+    if (
+      emailEl
+    ) {
+
+      emailEl.innerText =
+        usuario.email ||
+        "";
+
+    }
+
+
+    const cache =
+      getUsersCache();
+
+
+    if (
+      bioInput
+    ) {
+
+      bioInput.value =
+        cache[
+          usuario.username
+        ]?.bio ||
+        "";
+
+    }
+
 
     atualizarFotoGlobal();
+
   }
 
-  btnSalvarBio?.addEventListener("click", () => {
-    if (!usuario) return;
 
-    upsertUserCache(usuario.username, {
-      bio: bioInput.value,
-      foto: resolveUserPhoto(usuario),
-    });
+  /* =========================================================
+     BIO
+  ========================================================= */
 
-    showToast("Bio salva com sucesso!", "success");
-  });
+  btnSalvarBio
+    ?.addEventListener(
+      "click",
+      () => {
 
-  inputFoto?.addEventListener("change", async () => {
-    const file = inputFoto.files?.[0];
-    if (!file || !usuario) return;
+        if (
+          !usuario
+        ) {
 
-    const fotoAnterior = resolveUserPhoto(usuario);
+          return;
 
-    try {
-      const novaFoto = await compactarImagem(file, 300, 0.8);
-      const resposta = await updateProfilePhoto(novaFoto);
+        }
 
-      usuario.foto = resposta.foto_perfil || novaFoto;
-      usuario.foto_perfil = resposta.foto_perfil || novaFoto;
 
-      saveCurrentUser(usuario);
-      upsertUserCache(usuario.username, { foto: usuario.foto_perfil });
+        upsertUserCache(
+          usuario.username,
+          {
+            bio:
+              bioInput.value,
 
-      atualizarFotoGlobal();
-      showToast("Foto atualizada com sucesso!", "success");
-    } catch (error) {
-      if (fotoEl) fotoEl.src = fotoAnterior;
+            foto:
+              resolveUserPhoto(
+                usuario
+              ),
+          }
+        );
 
-      if (!handleAuthError(error, showToast)) {
-        showToast(error.message || "Erro ao atualizar foto.", "error");
+
+        showToast(
+          "Bio salva com sucesso!",
+          "success"
+        );
+
       }
-    } finally {
-      inputFoto.value = "";
-    }
-  });
+    );
+
+
+  /* =========================================================
+     TROCAR FOTO
+  ========================================================= */
+
+  inputFoto
+    ?.addEventListener(
+      "change",
+      async () => {
+
+        const file =
+          inputFoto.files?.[0];
+
+
+        if (
+          !file ||
+          !usuario
+        ) {
+
+          return;
+
+        }
+
+
+        const fotoAnterior =
+          resolveUserPhoto(
+            usuario
+          );
+
+
+        try {
+
+          const novaFoto =
+            await compactarImagem(
+              file,
+              300,
+              0.8
+            );
+
+
+          const resposta =
+            await updateProfilePhoto(
+              novaFoto
+            );
+
+
+          usuario.foto =
+            resposta.foto_perfil ||
+            novaFoto;
+
+
+          usuario.foto_perfil =
+            resposta.foto_perfil ||
+            novaFoto;
+
+
+          saveCurrentUser(
+            usuario
+          );
+
+
+          upsertUserCache(
+            usuario.username,
+            {
+              foto:
+                usuario.foto_perfil,
+            }
+          );
+
+
+          atualizarFotoGlobal();
+
+
+          showToast(
+            "Foto atualizada com sucesso!",
+            "success"
+          );
+
+        }
+
+        catch (
+          error
+        ) {
+
+          if (
+            fotoEl
+          ) {
+
+            fotoEl.src =
+              fotoAnterior;
+
+          }
+
+
+          if (
+            !handleAuthError(
+              error,
+              showToast
+            )
+          ) {
+
+            showToast(
+              error.message ||
+              "Erro ao atualizar foto.",
+              "error"
+            );
+
+          }
+
+        }
+
+        finally {
+
+          inputFoto.value =
+            "";
+
+        }
+
+      }
+    );
+
+
+  /* =========================================================
+     CACHE DAS ESTATÍSTICAS
+  ========================================================= */
 
   function carregarStatsCache() {
-    if (!usuario) return;
 
-    const cache = JSON.parse(localStorage.getItem(STORAGE_KEYS.perfilStats));
-    if (!cache || cache.userId !== usuario.id) return;
+    if (
+      !usuario
+    ) {
 
-    const totalPostsEl = document.getElementById("totalPosts");
-    const totalSeguidoresEl = document.getElementById("totalSeguidores");
-    const totalSeguindoEl = document.getElementById("totalSeguindo");
+      return;
 
-    if (totalPostsEl) totalPostsEl.innerText = cache.totalPosts ?? 0;
-    if (totalSeguidoresEl) totalSeguidoresEl.innerText = cache.totalSeguidores ?? 0;
-    if (totalSeguindoEl) totalSeguindoEl.innerText = cache.totalSeguindo ?? 0;
+    }
+
+
+    const cache =
+      JSON.parse(
+        localStorage.getItem(
+          STORAGE_KEYS.perfilStats
+        )
+      );
+
+
+    if (
+      !cache ||
+      cache.userId !== usuario.id
+    ) {
+
+      return;
+
+    }
+
+
+    const totalPostsEl =
+      document.getElementById(
+        "totalPosts"
+      );
+
+    const totalSeguidoresEl =
+      document.getElementById(
+        "totalSeguidores"
+      );
+
+    const totalSeguindoEl =
+      document.getElementById(
+        "totalSeguindo"
+      );
+
+
+    if (
+      totalPostsEl
+    ) {
+
+      totalPostsEl.innerText =
+        cache.totalPosts ??
+        0;
+
+    }
+
+
+    if (
+      totalSeguidoresEl
+    ) {
+
+      totalSeguidoresEl.innerText =
+        cache.totalSeguidores ??
+        0;
+
+    }
+
+
+    if (
+      totalSeguindoEl
+    ) {
+
+      totalSeguindoEl.innerText =
+        cache.totalSeguindo ??
+        0;
+
+    }
+
   }
 
-  function salvarStatsCache(stats) {
-    if (!usuario) return;
+
+  function salvarStatsCache(
+    stats
+  ) {
+
+    if (
+      !usuario
+    ) {
+
+      return;
+
+    }
+
 
     localStorage.setItem(
       STORAGE_KEYS.perfilStats,
-      JSON.stringify({ userId: usuario.id, ...stats })
-    );
-  }
+      JSON.stringify({
+        userId:
+          usuario.id,
 
-  function carregarStatsUsuario(posts) {
-    const stats = {
-      totalPosts: posts.length,
-      totalSeguidores: totalSeguidoresUsuario(),
-      totalSeguindo: totalSeguindoUsuario(),
-    };
-
-    const totalPostsEl = document.getElementById("totalPosts");
-    const totalSeguidoresEl = document.getElementById("totalSeguidores");
-    const totalSeguindoEl = document.getElementById("totalSeguindo");
-
-    if (totalPostsEl) totalPostsEl.innerText = stats.totalPosts;
-    if (totalSeguidoresEl) totalSeguidoresEl.innerText = stats.totalSeguidores;
-    if (totalSeguindoEl) totalSeguindoEl.innerText = stats.totalSeguindo;
-
-    salvarStatsCache(stats);
-  }
-
-  function abrirModal(post) {
-    if (!modal) return;
-
-    if (modalImg) {
-      modalImg.src = post.imagem || "";
-      modalImg.style.display = post.imagem ? "block" : "none";
-    }
-
-    if (modalTexto) modalTexto.innerText = post.texto || "";
-    if (modalLikes) modalLikes.innerText = post.likes || 0;
-    if (modalComentarios) {
-      modalComentarios.innerText = (post.comentarios || []).length;
-    }
-
-    modal.classList.remove("hidden");
-  }
-
-  async function carregarPostsUsuario() {
-    const imagensContainer = document.getElementById("postsImagem");
-    const textoContainer = document.getElementById("postsTexto");
-
-    if (!imagensContainer || !textoContainer || !usuario) return [];
-
-    imagensContainer.innerHTML = "";
-    textoContainer.innerHTML = "";
-
-    const posts = await fetchFeed();
-    const meusPostsBase = posts.filter((p) => p.userId === usuario.id);
-
-    const meusPosts = await Promise.all(
-      meusPostsBase.map(async (post) => {
-        try {
-          const comentarios = await fetchComments(post.id);
-          return { ...post, comentarios };
-        } catch (error) {
-          if (handleAuthError(error, showToast)) throw error;
-          return { ...post, comentarios: [] };
-        }
+        ...stats,
       })
     );
 
-    meusPosts.forEach((post) => {
-      if (post.imagem) {
-        const div = document.createElement("div");
-        div.classList.add("post-item");
+  }
 
-        div.innerHTML = `
-          <img src="${escaparHTML(post.imagem)}" alt="">
-          <div class="post-overlay">❤️ ${post.likes || 0} • 💬 ${(post.comentarios || []).length}</div>
-        `;
 
-        div.onclick = () => abrirModal(post);
-        imagensContainer.appendChild(div);
+  function carregarStatsUsuario(
+    posts
+  ) {
+
+    const stats = {
+
+      totalPosts:
+        posts.length,
+
+      totalSeguidores:
+        totalSeguidoresUsuario(),
+
+      totalSeguindo:
+        totalSeguindoUsuario(),
+
+    };
+
+
+    const totalPostsEl =
+      document.getElementById(
+        "totalPosts"
+      );
+
+    const totalSeguidoresEl =
+      document.getElementById(
+        "totalSeguidores"
+      );
+
+    const totalSeguindoEl =
+      document.getElementById(
+        "totalSeguindo"
+      );
+
+
+    if (
+      totalPostsEl
+    ) {
+
+      totalPostsEl.innerText =
+        stats.totalPosts;
+
+    }
+
+
+    if (
+      totalSeguidoresEl
+    ) {
+
+      totalSeguidoresEl.innerText =
+        stats.totalSeguidores;
+
+    }
+
+
+    if (
+      totalSeguindoEl
+    ) {
+
+      totalSeguindoEl.innerText =
+        stats.totalSeguindo;
+
+    }
+
+
+    salvarStatsCache(
+      stats
+    );
+
+  }
+
+
+  /* =========================================================
+     MODAL DO POST
+  ========================================================= */
+
+  async function abrirModal(
+    post
+  ) {
+
+    if (
+      !modal
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      modalImg
+    ) {
+
+      modalImg.src =
+        post.imagem ||
+        "";
+
+
+      modalImg.style.display =
+        post.imagem
+          ? "block"
+          : "none";
+
+    }
+
+
+    if (
+      modalTexto
+    ) {
+
+      modalTexto.innerText =
+        post.texto ||
+        "";
+
+    }
+
+
+    if (
+      modalLikes
+    ) {
+
+      modalLikes.innerText =
+        post.likes ||
+        0;
+
+    }
+
+
+    /*
+      Enquanto os comentários são buscados,
+      mostra zero.
+
+      Eles só são consultados depois
+      que o usuário clica no post.
+    */
+
+    if (
+      modalComentarios
+    ) {
+
+      modalComentarios.innerText =
+        "0";
+
+    }
+
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+
+    try {
+
+      const comentarios =
+        await fetchComments(
+          post.id
+        );
+
+
+      post.comentarios =
+        comentarios;
+
+
+      post.totalComentarios =
+        comentarios.length;
+
+
+      if (
+        modalComentarios
+      ) {
+
+        modalComentarios.innerText =
+          comentarios.length;
+
       }
 
-      if (post.texto) {
-        const div = document.createElement("div");
-        div.classList.add("post-texto-card");
+    }
 
-        div.innerHTML = `
-          <p>${escaparHTML(post.texto)}</p>
-          <small>${escaparHTML(formatarDataCurta(post.data))} • ❤️ ${post.likes || 0} • 💬 ${(post.comentarios || []).length}</small>
-        `;
+    catch (
+      error
+    ) {
 
-        div.onclick = () => abrirModal(post);
-        textoContainer.appendChild(div);
+      if (
+        handleAuthError(
+          error,
+          showToast
+        )
+      ) {
+
+        return;
+
       }
-    });
+
+
+      console.error(
+        "Erro ao carregar comentários:",
+        error
+      );
+
+
+      if (
+        modalComentarios
+      ) {
+
+        modalComentarios.innerText =
+          "0";
+
+      }
+
+    }
+
+  }
+
+
+  /* =========================================================
+     POSTS DO USUÁRIO
+  ========================================================= */
+
+  async function carregarPostsUsuario() {
+
+    const imagensContainer =
+      document.getElementById(
+        "postsImagem"
+      );
+
+    const textoContainer =
+      document.getElementById(
+        "postsTexto"
+      );
+
+
+    if (
+      !imagensContainer ||
+      !textoContainer ||
+      !usuario
+    ) {
+
+      return [];
+
+    }
+
+
+    imagensContainer.innerHTML =
+      "";
+
+
+    textoContainer.innerHTML =
+      "";
+
+
+    /*
+      Agora buscamos somente os posts
+      deste usuário diretamente na API.
+
+      Não baixa mais o feed geral
+      para depois filtrar no navegador.
+    */
+
+    const meusPosts =
+      await fetchPostsUsuario(
+        usuario.id,
+        0,
+        50
+      );
+
+
+    meusPosts.forEach(
+      (
+        post
+      ) => {
+
+        /*
+          Os comentários NÃO são carregados aqui.
+
+          Portanto o contador começa em zero
+          e só é atualizado quando o post
+          for aberto.
+        */
+
+        const totalComentarios =
+          post.totalComentarios ??
+          0;
+
+
+        if (
+          post.imagem
+        ) {
+
+          const div =
+            document.createElement(
+              "div"
+            );
+
+
+          div.classList.add(
+            "post-item"
+          );
+
+
+          div.innerHTML = `
+            <img
+              src="${escaparHTML(
+                post.imagem
+              )}"
+              alt=""
+            >
+
+            <div class="post-overlay">
+              ❤️ ${post.likes || 0}
+              •
+              💬 ${totalComentarios}
+            </div>
+          `;
+
+
+          div.onclick =
+            () =>
+              abrirModal(
+                post
+              );
+
+
+          imagensContainer.appendChild(
+            div
+          );
+
+        }
+
+
+        if (
+          post.texto
+        ) {
+
+          const div =
+            document.createElement(
+              "div"
+            );
+
+
+          div.classList.add(
+            "post-texto-card"
+          );
+
+
+          div.innerHTML = `
+            <p>
+              ${escaparHTML(
+                post.texto
+              )}
+            </p>
+
+            <small>
+              ${escaparHTML(
+                formatarDataCurta(
+                  post.data
+                )
+              )}
+              •
+              ❤️ ${post.likes || 0}
+              •
+              💬 ${totalComentarios}
+            </small>
+          `;
+
+
+          div.onclick =
+            () =>
+              abrirModal(
+                post
+              );
+
+
+          textoContainer.appendChild(
+            div
+          );
+
+        }
+
+      }
+    );
+
 
     return meusPosts;
+
   }
 
-  fecharModalBtn?.addEventListener("click", () => {
-    modal?.classList.add("hidden");
-  });
 
-  modal?.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.classList.add("hidden");
-    }
-  });
+  /* =========================================================
+     FECHAR MODAL
+  ========================================================= */
+
+  fecharModalBtn
+    ?.addEventListener(
+      "click",
+      () => {
+
+        modal
+          ?.classList
+          .add(
+            "hidden"
+          );
+
+      }
+    );
+
+
+  modal
+    ?.addEventListener(
+      "click",
+      (
+        event
+      ) => {
+
+        if (
+          event.target === modal
+        ) {
+
+          modal.classList.add(
+            "hidden"
+          );
+
+        }
+
+      }
+    );
+
+
+  /* =========================================================
+     INICIALIZAÇÃO
+  ========================================================= */
 
   async function initPerfil() {
+
     try {
-      const userAPI = await fetchCurrentProfile();
-      usuario = await completarStatsUsuario(userAPI);
 
-      saveCurrentUser(usuario);
+      const userAPI =
+        await fetchCurrentProfile();
 
-      upsertUserCache(usuario.username, {
-        foto: usuario.foto_perfil || "",
-        bio: getUsersCache()[usuario.username]?.bio || "",
-      });
+
+      usuario =
+        await completarStatsUsuario(
+          userAPI
+        );
+
+
+      saveCurrentUser(
+        usuario
+      );
+
+
+      upsertUserCache(
+        usuario.username,
+        {
+          foto:
+            usuario.foto_perfil ||
+            "",
+
+          bio:
+            getUsersCache()[
+              usuario.username
+            ]?.bio ||
+            "",
+        }
+      );
+
 
       preencherDadosPerfil();
+
+
       carregarStatsCache();
-    } catch (error) {
-      if (handleAuthError(error, showToast)) return;
-      preencherDadosPerfil();
+
     }
 
-    try {
-      const meusPosts = await carregarPostsUsuario();
-      carregarStatsUsuario(meusPosts);
-    } catch (error) {
-      if (!handleAuthError(error, showToast)) {
-        showToast(error.message || "Erro ao carregar perfil.", "error");
+    catch (
+      error
+    ) {
+
+      if (
+        handleAuthError(
+          error,
+          showToast
+        )
+      ) {
+
+        return;
+
       }
+
+
+      preencherDadosPerfil();
+
     }
+
+
+    try {
+
+      const meusPosts =
+        await carregarPostsUsuario();
+
+
+      carregarStatsUsuario(
+        meusPosts
+      );
+
+    }
+
+    catch (
+      error
+    ) {
+
+      if (
+        !handleAuthError(
+          error,
+          showToast
+        )
+      ) {
+
+        showToast(
+          error.message ||
+          "Erro ao carregar perfil.",
+          "error"
+        );
+
+      }
+
+    }
+
   }
 
+
   initPerfil();
+
   initLucide();
+
 }

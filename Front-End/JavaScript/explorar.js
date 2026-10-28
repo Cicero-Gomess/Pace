@@ -53,28 +53,6 @@ const COMMUNITY_POSTS_STORAGE_KEY =
   "paceCommunityPosts";
 
 
-const fallbackProfiles = [
-  {
-    nome:
-      "Lara Mendes",
-
-    username:
-      "@laradisciplina",
-
-    bio:
-      "Transformando rotina em resultado com constância.",
-
-    avatar:
-      AVATAR_PLACEHOLDER,
-
-    tags: [
-      "Disciplina",
-      "Mindset",
-    ],
-  },
-];
-
-
 let profilesData = [];
 
 let modalPostsCache = [];
@@ -283,91 +261,40 @@ function buildProfileFromAPI(
 }
 
 
-function loadSavedProfiles() {
-
-  const savedUsers =
-    getUsersCache();
-
-
-  return Object.entries(
-    savedUsers
-  ).map(
-    ([username, data]) => {
-
-      const clean =
-        username.replace(
-          /^@/,
-          ""
-        );
-
-
-      return {
-
-        nome:
-          clean,
-
-        username:
-          `@${clean}`,
-
-        bio:
-          data.bio ||
-          data.email ||
-          "Perfil salvo localmente",
-
-        avatar:
-          data.foto ||
-          data.foto_perfil ||
-          AVATAR_PLACEHOLDER,
-
-        tags: [],
-
-      };
-
-    }
-  );
-
-}
-
-
 async function fetchProfiles(
   query = ""
 ) {
+
+  const termo =
+    String(query)
+      .trim();
+
+
+  if (
+    termo.length < 2
+  ) {
+
+    profilesData = [];
+
+    return;
+
+  }
+
 
   try {
 
     const data =
       await searchProfiles({
-        username: query,
+        username: termo,
       });
 
 
-    if (
-      Array.isArray(data) &&
-      data.length
-    ) {
-
-      profilesData =
-        data.map(
-          buildProfileFromAPI
-        );
-
-      return;
-
-    }
-
-
     profilesData =
-      loadSavedProfiles();
-
-
-    if (
-      !profilesData.length
-    ) {
-
-      profilesData =
-        fallbackProfiles;
-
-    }
+      Array.isArray(data)
+        ? data.map(
+            buildProfileFromAPI
+          )
+        : [];
 
   } catch (error) {
 
@@ -377,18 +304,7 @@ async function fetchProfiles(
     );
 
 
-    profilesData =
-      loadSavedProfiles();
-
-
-    if (
-      !profilesData.length
-    ) {
-
-      profilesData =
-        fallbackProfiles;
-
-    }
+    profilesData = [];
 
   }
 
@@ -525,11 +441,29 @@ async function fetchUserPosts(
   }
 
 
+  const userId =
+    Number(
+      profile?.id
+    );
+
+
+  if (
+    !Number.isFinite(
+      userId
+    ) ||
+    userId <= 0
+  ) {
+
+    return [];
+
+  }
+
+
   try {
 
     const data =
       await apiFetch(
-        "/post/feed",
+        `/post/usuario/${userId}?offset=0&limit=20`,
         {
           auth: true,
 
@@ -539,60 +473,11 @@ async function fetchUserPosts(
       );
 
 
-    if (
-      !Array.isArray(data)
-    ) {
-
-      return [];
-
-    }
-
-
-    const requestedUsername =
-      String(
-        profile.username
-      )
-        .replace(
-          /^@/,
-          ""
-        )
-        .toLowerCase();
-
-
-    return data.filter(
-      (post) => {
-
-        const postUserId =
-          String(
-            post.usuario?.id ??
-            ""
-          );
-
-
-        const postUsername =
-          String(
-            post.usuario
-              ?.username ??
-            ""
-          ).toLowerCase();
-
-
-        return (
-
-          postUserId ===
-            String(
-              profile.id
-            )
-
-          ||
-
-          postUsername ===
-            requestedUsername
-
-        );
-
-      }
-    );
+    return Array.isArray(
+      data
+    )
+      ? data
+      : [];
 
   } catch {
 
@@ -618,11 +503,23 @@ function normalizarPostModal(
 
     likes:
       Number(
-        post.likes ?? 0
+        post.likes ??
+        post.total_curtidas ??
+        0
       ),
 
     liked:
       post.liked === true,
+
+    commentsCount:
+      Number(
+        post.total_comentarios ??
+        post.commentsCount ??
+        post.comentariosCount ??
+        post.commentCount ??
+        post.totalComentarios ??
+        0
+      ),
 
   };
 
@@ -1003,26 +900,7 @@ async function openProfileModal(
 
             <article class="modal-post-card">
 
-              <h4>
-
-                ${escaparHTML(
-                  content.substring(
-                    0,
-                    120
-                  )
-                )}
-
-                ${
-                  content.length >
-                  120
-                    ? "..."
-                    : ""
-                }
-
-              </h4>
-
-
-              <p>
+              <p class="modal-post-content">
                 ${escaparHTML(
                   content
                 )}
@@ -1075,6 +953,17 @@ async function openProfileModal(
 
                 </button>
 
+
+                <span class="modal-comments-count">
+
+                  <i data-lucide="message-circle"></i>
+
+                  <span>
+                    ${post.commentsCount}
+                  </span>
+
+                </span>
+
               </div>
 
             </article>
@@ -1101,6 +990,29 @@ async function renderProfiles() {
 
   if (!profilesGrid) {
     return;
+  }
+
+
+  const termo =
+    String(
+      termoAtual || ""
+    ).trim();
+
+
+  if (
+    termo.length < 2
+  ) {
+
+    profilesData = [];
+
+    renderEmpty(
+      profilesGrid,
+      "Pesquise por perfis",
+      "Digite um nome ou usuário para encontrar pessoas no Pace."
+    );
+
+    return;
+
   }
 
 

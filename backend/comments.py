@@ -1,28 +1,44 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
+
 from dependencies import pegar_sessao, pegar_usuario_atual
 from models import Comentario, Post
 from schemas import ComentarioSchema, ComentarioResponseSchema
 
-comments_router = APIRouter(prefix="/comments", tags=["comments"])
 
-@comments_router.post("/adicionar_comentario/{post_id}", response_model=ComentarioResponseSchema)
+comments_router = APIRouter(
+    prefix="/comments",
+    tags=["comments"],
+)
+
+
+@comments_router.post(
+    "/adicionar_comentario/{post_id}",
+    response_model=ComentarioResponseSchema,
+)
 async def adicionar_comentario(
     post_id: int,
     comentario_schema: ComentarioSchema,
     usuario=Depends(pegar_usuario_atual),
-    session: Session = Depends(pegar_sessao)
+    session: Session = Depends(pegar_sessao),
 ):
     try:
-        post = session.query(Post).filter(Post.id == post_id).first()
+        post = (
+            session.query(Post)
+            .filter(Post.id == post_id)
+            .first()
+        )
 
         if not post:
-            raise HTTPException(status_code=404, detail="Post não encontrado")
+            raise HTTPException(
+                status_code=404,
+                detail="Post não encontrado",
+            )
 
         novo_comentario = Comentario(
             usuario_id=usuario.id,
             post_id=post_id,
-            comentario=comentario_schema.conteudo
+            comentario=comentario_schema.conteudo,
         )
 
         session.add(novo_comentario)
@@ -31,8 +47,15 @@ async def adicionar_comentario(
 
         comentario_com_usuario = (
             session.query(Comentario)
-            .options(joinedload(Comentario.usuario))
-            .filter(Comentario.id == novo_comentario.id)
+            .options(
+                joinedload(
+                    Comentario.usuario
+                )
+            )
+            .filter(
+                Comentario.id ==
+                novo_comentario.id
+            )
             .first()
         )
 
@@ -40,38 +63,72 @@ async def adicionar_comentario(
 
     except HTTPException:
         raise
+
     except Exception as e:
         session.rollback()
+
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao adicionar comentário: {str(e)}"
+            detail=(
+                "Erro ao adicionar comentário: "
+                f"{str(e)}"
+            ),
         )
 
-@comments_router.put("/atualizar_comentario/{comentario_id}", response_model=ComentarioResponseSchema)
+
+@comments_router.put(
+    "/atualizar_comentario/{comentario_id}",
+    response_model=ComentarioResponseSchema,
+)
 async def atualizar_comentario(
     comentario_id: int,
     comentario_schema: ComentarioSchema,
     usuario=Depends(pegar_usuario_atual),
-    session: Session = Depends(pegar_sessao)
+    session: Session = Depends(pegar_sessao),
 ):
     try:
-        comentario = session.query(Comentario).filter(Comentario.id == comentario_id).first()
+        comentario = (
+            session.query(Comentario)
+            .filter(
+                Comentario.id ==
+                comentario_id
+            )
+            .first()
+        )
 
         if not comentario:
-            raise HTTPException(status_code=404, detail="Comentário não encontrado")
+            raise HTTPException(
+                status_code=404,
+                detail="Comentário não encontrado",
+            )
 
-        if comentario.usuario_id != usuario.id:
-            raise HTTPException(status_code=403, detail="Sem permissão")
+        if (
+            comentario.usuario_id !=
+            usuario.id
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Sem permissão",
+            )
 
-        comentario.comentario = comentario_schema.conteudo
+        comentario.comentario = (
+            comentario_schema.conteudo
+        )
 
         session.commit()
         session.refresh(comentario)
 
         comentario_com_usuario = (
             session.query(Comentario)
-            .options(joinedload(Comentario.usuario))
-            .filter(Comentario.id == comentario.id)
+            .options(
+                joinedload(
+                    Comentario.usuario
+                )
+            )
+            .filter(
+                Comentario.id ==
+                comentario.id
+            )
             .first()
         )
 
@@ -79,57 +136,106 @@ async def atualizar_comentario(
 
     except HTTPException:
         raise
+
     except Exception as e:
         session.rollback()
+
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao atualizar comentário: {str(e)}"
+            detail=(
+                "Erro ao atualizar comentário: "
+                f"{str(e)}"
+            ),
         )
 
 
-@comments_router.delete("/deletar_comentario/{comentario_id}")
+@comments_router.delete(
+    "/deletar_comentario/{comentario_id}"
+)
 async def deletar_comentario(
     comentario_id: int,
     usuario=Depends(pegar_usuario_atual),
-    session: Session = Depends(pegar_sessao)
+    session: Session = Depends(pegar_sessao),
 ):
     try:
-        comentario = session.query(Comentario).filter(Comentario.id == comentario_id).first()
+        comentario = (
+            session.query(Comentario)
+            .filter(
+                Comentario.id ==
+                comentario_id
+            )
+            .first()
+        )
 
         if not comentario:
-            raise HTTPException(status_code=404, detail="Comentário não encontrado")
+            raise HTTPException(
+                status_code=404,
+                detail="Comentário não encontrado",
+            )
 
-        if comentario.usuario_id != usuario.id and not usuario.admin:
-            raise HTTPException(status_code=403, detail="Sem permissão")
+        if (
+            comentario.usuario_id !=
+            usuario.id
+            and not usuario.admin
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Sem permissão",
+            )
 
         session.delete(comentario)
         session.commit()
 
         return {
-            "message": "Comentário deletado com sucesso",
-            "comentario_id": comentario_id
+            "message":
+                "Comentário deletado com sucesso",
+
+            "comentario_id":
+                comentario_id,
         }
 
     except HTTPException:
         raise
+
     except Exception as e:
         session.rollback()
+
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao deletar comentário: {str(e)}"
+            detail=(
+                "Erro ao deletar comentário: "
+                f"{str(e)}"
+            ),
         )
 
-@comments_router.get("/comentarios/{post_id}", response_model=list[ComentarioResponseSchema])
+
+@comments_router.get(
+    "/comentarios/{post_id}",
+    response_model=list[
+        ComentarioResponseSchema
+    ],
+)
 async def obter_comentarios(
     post_id: int,
-    session: Session = Depends(pegar_sessao)
+    session: Session = Depends(
+        pegar_sessao
+    ),
 ):
     try:
         comentarios = (
             session.query(Comentario)
-            .options(joinedload(Comentario.usuario))
-            .filter(Comentario.post_id == post_id)
-            .order_by(Comentario.data_comentario.desc())
+            .options(
+                joinedload(
+                    Comentario.usuario
+                )
+            )
+            .filter(
+                Comentario.post_id ==
+                post_id
+            )
+            .order_by(
+                Comentario.data_comentario.desc()
+            )
             .limit(20)
             .all()
         )
@@ -139,5 +245,8 @@ async def obter_comentarios(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao obter comentários: {str(e)}"
+            detail=(
+                "Erro ao obter comentários: "
+                f"{str(e)}"
+            ),
         )

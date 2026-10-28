@@ -78,6 +78,89 @@ Future<Uint8List?> _decodeAvatarSerially(String source) {
   return completer.future;
 }
 
+String _explorarResolveMediaUrl(dynamic value) {
+  final raw = value?.toString().trim() ?? '';
+
+  if (raw.isEmpty || raw.startsWith('data:image')) {
+    return raw;
+  }
+
+  final parsed = Uri.tryParse(raw);
+  final baseUri = Uri.parse(ApiConfig.baseUrl);
+
+  if (parsed != null &&
+      (parsed.scheme == 'http' || parsed.scheme == 'https')) {
+    const localHosts = {
+      '127.0.0.1',
+      'localhost',
+      '10.0.2.2',
+    };
+
+    if (!localHosts.contains(parsed.host)) {
+      return raw;
+    }
+
+    // No desktop, localhost já aponta para o próprio notebook.
+    // Preservamos inclusive a porta original, pois a mídia pode
+    // estar vindo do Live Server (5500) e não do FastAPI (8000).
+    if (!kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.android) {
+      return raw;
+    }
+
+    // No Android físico, apenas trocamos o host pelo IP usado
+    // pela API, mantendo a porta original da mídia.
+    return parsed
+        .replace(
+          scheme: baseUri.scheme,
+          host: baseUri.host,
+          port: parsed.hasPort ? parsed.port : baseUri.port,
+        )
+        .toString();
+  }
+
+  // URLs relativas continuam sendo resolvidas contra o backend.
+  return ApiConfig.resolveMediaUrl(raw);
+}
+
+ImageProvider _explorarImageProvider(
+  dynamic value, {
+  String fallbackAsset = 'assets/user.png',
+}) {
+  final raw = value?.toString().trim() ?? '';
+
+  if (raw.isEmpty) {
+    return AssetImage(fallbackAsset);
+  }
+
+  if (raw.startsWith('data:image')) {
+    try {
+      final commaIndex = raw.indexOf(',');
+
+      if (commaIndex == -1 || commaIndex == raw.length - 1) {
+        return AssetImage(fallbackAsset);
+      }
+
+      return MemoryImage(
+        base64Decode(
+          raw.substring(commaIndex + 1),
+        ),
+      );
+    } catch (_) {
+      return AssetImage(fallbackAsset);
+    }
+  }
+
+  final resolved = _explorarResolveMediaUrl(raw);
+
+  if (resolved.startsWith('http://') ||
+      resolved.startsWith('https://')) {
+    return NetworkImage(resolved);
+  }
+
+  return AssetImage(fallbackAsset);
+}
+
 ImageProvider _cachedImageProvider(dynamic value) {
   final key = value?.toString().trim() ?? '';
 
@@ -87,7 +170,7 @@ ImageProvider _cachedImageProvider(dynamic value) {
 
   return _explorarImageCache.putIfAbsent(
     key,
-    () => ApiConfig.imageProvider(key),
+    () => _explorarImageProvider(key),
   );
 }
 
@@ -543,7 +626,12 @@ class _ExplorarPageState extends State<ExplorarPage> {
     } catch (_) {}
 
     final postsResponse = await http.get(
-      ApiConfig.uri('/post/feed'),
+      ApiConfig.uri('/post/usuario/$userId').replace(
+        queryParameters: const {
+          'offset': '0',
+          'limit': '20',
+        },
+      ),
       headers: _authHeaders(token),
     );
 
@@ -568,16 +656,6 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
                 return post;
               })
-              .where(
-                (post) {
-                  final usuario = post['usuario'];
-                  if (usuario is Map) {
-                    return usuario['id']?.toString() == userId.toString();
-                  }
-                  return post['usuario_id']?.toString() == userId.toString();
-                },
-              )
-              .take(6)
               .toList()
         : <Map<String, dynamic>>[];
 
@@ -1249,23 +1327,6 @@ class _ExplorarPageState extends State<ExplorarPage> {
                 ],
               ),
             ),
-            Material(
-              color: const Color(0xFF0A2245),
-              borderRadius: BorderRadius.circular(13),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(13),
-                onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
-                child: const SizedBox(
-                  width: 42,
-                  height: 42,
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    color: Colors.white,
-                    size: 21,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -1388,11 +1449,6 @@ class _ExplorarPageState extends State<ExplorarPage> {
                 color: Colors.white.withOpacity(0.08),
               ),
               const SizedBox(height: 12),
-              _mobileDrawerItem(
-                Icons.notifications_none_rounded,
-                'Notificações',
-                '/notificacoes',
-              ),
               _mobileDrawerItem(
                 Icons.settings_outlined,
                 'Configurações',
@@ -1711,12 +1767,6 @@ class _ExplorarPageState extends State<ExplorarPage> {
                   color: Colors.white.withOpacity(0.08),
                 ),
                 const SizedBox(height: 8),
-                _sidebarItem(
-                  Icons.notifications_none_rounded,
-                  'Notificações',
-                  '/notificacoes',
-                  false,
-                ),
                 _sidebarItem(
                   Icons.settings_outlined,
                   'Configurações',
@@ -2340,7 +2390,7 @@ class _HighlightCardState extends State<_HighlightCard> {
         ),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          gradient: widget.main
+          gradient: widget.main && !widget.darkMode
               ? const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -2364,7 +2414,7 @@ class _HighlightCardState extends State<_HighlightCard> {
                 ),
           borderRadius: BorderRadius.circular(26),
           border: Border.all(
-            color: widget.main
+            color: widget.main && !widget.darkMode
                 ? Colors.white.withOpacity(0.10)
                 : widget.darkMode
                 ? Colors.white.withOpacity(0.055)
@@ -2372,7 +2422,7 @@ class _HighlightCardState extends State<_HighlightCard> {
           ),
           boxShadow: [
             BoxShadow(
-              color: widget.main
+              color: widget.main && !widget.darkMode
                   ? primary.withOpacity(0.20)
                   : widget.darkMode
                   ? Colors.black.withOpacity(0.24)
@@ -2569,7 +2619,7 @@ class _DeferredAvatarState extends State<_DeferredAvatar> {
     } else if (!_isBase64 && value.isNotEmpty) {
       child = Image(
         image: ResizeImage(
-          ApiConfig.imageProvider(value),
+          _explorarImageProvider(value),
           width: 180,
           height: 180,
         ),
@@ -2620,14 +2670,16 @@ class _SearchStartState extends StatelessWidget {
     final muted =
         darkMode ? const Color(0xFF98A8BF) : const Color(0xFF6F7F96);
 
-    return _GlassPanel(
-      darkMode: darkMode,
-      radius: 26,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 26,
-        vertical: 34,
-      ),
-      child: Column(
+    return SizedBox(
+      width: double.infinity,
+      child: _GlassPanel(
+        darkMode: darkMode,
+        radius: 26,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 26,
+          vertical: 34,
+        ),
+        child: Column(
         children: [
           Container(
             width: 64,
@@ -2665,7 +2717,8 @@ class _SearchStartState extends StatelessWidget {
               height: 1.6,
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2759,17 +2812,12 @@ class _SearchProfileCardState extends State<_SearchProfileCard> {
                 Container(
                   width: 58,
                   height: 58,
-                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        primary.withOpacity(0.16),
-                        accent.withOpacity(0.16),
-                      ],
-                    ),
+                    color: widget.darkMode
+                        ? const Color(0xFF0E203A)
+                        : Colors.white,
                     border: Border.all(
                       color: primary.withOpacity(0.10),
                     ),
@@ -2781,15 +2829,16 @@ class _SearchProfileCardState extends State<_SearchProfileCard> {
                       ),
                     ],
                   ),
-                  child: Text(
-                    username.isNotEmpty
-                        ? username.characters.first.toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: primary,
-                      fontSize: 23,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  child: _DeferredAvatar(
+                    value: (
+                      widget.profile['foto_perfil'] ??
+                      widget.profile['foto'] ??
+                      widget.profile['avatar'] ??
+                      ''
+                    ).toString(),
+                    width: 54,
+                    height: 54,
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -3337,14 +3386,17 @@ class _EmptyStateShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GlassPanel(
-      darkMode: darkMode,
-      radius: 26,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 26,
-        vertical: 40,
+    return SizedBox(
+      width: double.infinity,
+      child: _GlassPanel(
+        darkMode: darkMode,
+        radius: 26,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 26,
+          vertical: 40,
+        ),
+        child: Center(child: child),
       ),
-      child: Center(child: child),
     );
   }
 }
@@ -3511,8 +3563,11 @@ class _ModalPostCardState extends State<_ModalPostCard> {
   bool _commentsOpen = false;
   bool _commentsLoading = false;
   bool _commentsLoaded = false;
+  bool _likeLoading = false;
   List<Map<String, dynamic>> _comments = [];
   late int _commentsCount;
+  late int _likes;
+  late bool _liked;
 
   @override
   void initState() {
@@ -3524,6 +3579,13 @@ class _ModalPostCardState extends State<_ModalPostCard> {
           widget.post['totalComentarios'] ??
           widget.post['total_comentarios'],
     );
+
+    _likes = _toInt(
+      widget.post['likes'] ??
+          widget.post['total_curtidas'],
+    );
+
+    _liked = widget.post['liked'] == true;
   }
 
   int _toInt(dynamic value) {
@@ -3535,6 +3597,77 @@ class _ModalPostCardState extends State<_ModalPostCard> {
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token') ?? prefs.getString('access_token');
+  }
+
+  Future<void> _toggleLike() async {
+    if (_likeLoading) return;
+
+    final postId = _toInt(widget.post['id']);
+    if (postId <= 0) return;
+
+    final token = await _getToken();
+    if (token == null || token.isEmpty || !mounted) return;
+
+    final likedAntes = _liked;
+    final likesAntes = _likes;
+
+    setState(() {
+      _likeLoading = true;
+      _liked = !likedAntes;
+      _likes = likedAntes
+          ? (_likes > 0 ? _likes - 1 : 0)
+          : _likes + 1;
+    });
+
+    try {
+      final uri = ApiConfig.uri(
+        likedAntes
+            ? '/post/remover_curtida/$postId'
+            : '/post/curtir/$postId',
+      );
+
+      final response = likedAntes
+          ? await http.delete(
+              uri,
+              headers: {
+                'Authorization': 'Bearer $token',
+              },
+            )
+          : await http.post(
+              uri,
+              headers: {
+                'Authorization': 'Bearer $token',
+              },
+            );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Erro ao atualizar curtida.');
+      }
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _liked = likedAntes;
+        _likes = likesAntes;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Não foi possível atualizar a curtida.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _likeLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _toggleComments() async {
@@ -3687,22 +3820,38 @@ class _ModalPostCardState extends State<_ModalPostCard> {
 
           Row(
             children: [
-              Icon(
-                post['liked'] == true
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                color: post['liked'] == true
-                    ? const Color(0xFFD8425C)
-                    : muted,
-                size: 17,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${_toInt(post['likes'])}',
-                style: TextStyle(
-                  color: muted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+              InkWell(
+                onTap: _likeLoading ? null : _toggleLike,
+                borderRadius: BorderRadius.circular(999),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _liked
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: _liked
+                            ? const Color(0xFFD8425C)
+                            : muted,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$_likes',
+                        style: TextStyle(
+                          color: _liked
+                              ? const Color(0xFFD8425C)
+                              : muted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 18),

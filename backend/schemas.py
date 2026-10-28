@@ -1,10 +1,15 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 from typing import Literal, Optional
 from datetime import datetime
 from datetime import date
 
 class UsuarioSchema(BaseModel):
-    nome_usuario: str
+    nome_usuario: str = Field(
+        validation_alias=AliasChoices(
+            "nome_usuario",
+            "username",
+        )
+    )
     email: str
     senha: str
 
@@ -16,6 +21,15 @@ class PostSchema(BaseModel):
     conteudo: str
     imagem: Optional[str] = None
     comunidade_id: Optional[int] = None
+
+    tipo: Literal[
+        "geral",
+        "conquista",
+        "foco",
+    ] = "geral"
+
+    meta_id: Optional[int] = None
+    sessao_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -29,14 +43,53 @@ class ComunidadeResumoSchema(BaseModel):
         from_attributes = True
 
 
+class MetaResumoSchema(BaseModel):
+    id: int
+    titulo: str
+    categoria: str
+    status: str
+
+    class Config:
+        from_attributes = True
+
+
+class SessaoResumoSchema(BaseModel):
+    id: int
+    meta_id: int
+    inicio: datetime
+    duracao: int
+
+    class Config:
+        from_attributes = True
+
+
 class PostResponseSchema(BaseModel):
     id: int
     usuario_id: int
     conteudo: str
     imagem: Optional[str]
     data_postagem: datetime
+
     comunidade_id: Optional[int] = None
-    comunidade: Optional[ComunidadeResumoSchema] = None
+    comunidade: Optional[
+        ComunidadeResumoSchema
+    ] = None
+
+    tipo: Literal[
+        "geral",
+        "conquista",
+        "foco",
+    ] = "geral"
+
+    meta_id: Optional[int] = None
+    meta: Optional[
+        MetaResumoSchema
+    ] = None
+
+    sessao_id: Optional[int] = None
+    sessao: Optional[
+        SessaoResumoSchema
+    ] = None
 
     class Config:
         from_attributes = True
@@ -57,11 +110,33 @@ class FeedPostSchema(BaseModel):
     conteudo: str
     imagem: Optional[str]
     data_postagem: datetime
+
     likes: int
     liked: bool
+
     usuario: UsuarioFeedSchema
+
     total_comentarios: int = 0
-    comunidade: Optional[ComunidadeResumoSchema] = None
+
+    comunidade: Optional[
+        ComunidadeResumoSchema
+    ] = None
+
+    tipo: Literal[
+        "geral",
+        "conquista",
+        "foco",
+    ] = "geral"
+
+    meta_id: Optional[int] = None
+    meta: Optional[
+        MetaResumoSchema
+    ] = None
+
+    sessao_id: Optional[int] = None
+    sessao: Optional[
+        SessaoResumoSchema
+    ] = None
 
     class Config:
         from_attributes = True

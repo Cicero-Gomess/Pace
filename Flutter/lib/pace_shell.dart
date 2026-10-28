@@ -140,7 +140,7 @@ class _MobilePaceShellState extends State<_MobilePaceShell> {
                       child: Padding(
                         padding: const EdgeInsets.all(7),
                         child: Image.asset(
-                          'assets/images/pace_icon.png',
+                          'assets/images/Ícone_Pace.png',
                           width: 42,
                           height: 42,
                           fit: BoxFit.contain,
@@ -179,10 +179,6 @@ class _MobilePaceShellState extends State<_MobilePaceShell> {
                         ),
                       ],
                     ),
-                  ),
-                  _MiniAction(
-                    icon: Icons.notifications_none_rounded,
-                    onTap: () => _go(context, '/notificacoes', widget.currentRoute),
                   ),
                 ],
               ),
@@ -336,7 +332,7 @@ class _SidebarSurface extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 9),
                   child: Image.asset(
-                    'assets/images/pace_icon.png',
+                    'assets/images/Ícone_Pace.png',
                     width: 46,
                     height: 46,
                     fit: BoxFit.contain,
@@ -415,13 +411,6 @@ class _SidebarSurface extends StatelessWidget {
           ),
           Divider(height: 1, color: pacePrimary.withOpacity(0.08)),
           const SizedBox(height: 8),
-          _item(
-            context,
-            Icons.notifications_none_rounded,
-            'Notificações',
-            '/notificacoes',
-            text,
-          ),
           _item(
             context,
             Icons.settings_outlined,

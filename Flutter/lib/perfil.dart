@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
-import 'pace_shell.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -18,9 +17,9 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-  static const Color azulPrincipal = Color(0xFF3059AA);
-  static const Color azulPrincipal2 = Color(0xFF4C71C7);
-  static const Color azulClaro = Color(0xFF5EB1BF);
+  static const Color azulPrincipal = Color(0xFF1769E8);
+  static const Color azulPrincipal2 = Color(0xFF0B3D91);
+  static const Color azulClaro = Color(0xFF69C5D0);
   static const Color texto = Color(0xFF1B2233);
   static const Color textoSuave = Color(0xFF6F7B91);
 
@@ -45,7 +44,7 @@ class _PerfilPageState extends State<PerfilPage> {
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get bgColor =>
-      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+      darkMode ? const Color(0xFF06101F) : const Color(0xFFEAF3FB);
 
   Color get textColor =>
       darkMode ? const Color(0xFFF3F6FF) : texto;
@@ -239,29 +238,31 @@ class _PerfilPageState extends State<PerfilPage> {
       final resultados = await Future.wait([
         _get('/profile/$userId/followers'),
         _get('/profile/$userId/following'),
-        _get('/post/feed'),
+        _get('/post/usuario/$userId?offset=0&limit=50'),
       ]);
 
       final seguidores = Map<String, dynamic>.from(resultados[0]);
       final seguindo = Map<String, dynamic>.from(resultados[1]);
-      final feedRaw = resultados[2];
+      final postsRaw = resultados[2];
 
-      final feed = feedRaw is List
-          ? feedRaw
+      final meusPostsBase = postsRaw is List
+          ? postsRaw
               .whereType<Map>()
               .map((post) => _normalizarPost(Map<String, dynamic>.from(post)))
               .toList()
           : <Map<String, dynamic>>[];
 
-      final meusPostsBase = feed
-          .where((post) => post['userId']?.toString() == userId.toString())
-          .toList();
-
-      final meusPosts = <Map<String, dynamic>>[];
-      for (final post in meusPostsBase) {
-        final comentarios = await _buscarComentarios(_toInt(post['id']));
-        meusPosts.add({...post, 'comentarios': comentarios});
-      }
+      final meusPosts = await Future.wait(
+        meusPostsBase.map((post) async {
+          try {
+            final comentarios =
+                await _buscarComentarios(_toInt(post['id']));
+            return {...post, 'comentarios': comentarios};
+          } catch (_) {
+            return {...post, 'comentarios': <Map<String, dynamic>>[]};
+          }
+        }),
+      );
 
       final prefs = await SharedPreferences.getInstance();
       final bio = prefs.getString('bio_${user['username']}') ?? '';
@@ -483,7 +484,7 @@ class _PerfilPageState extends State<PerfilPage> {
                           children: [
                             if (imagem.isNotEmpty)
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(14),
                                 child: ConstrainedBox(
                                   constraints: const BoxConstraints(maxHeight: 380),
                                   child: Image(
@@ -526,42 +527,40 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = _usuario ?? <String, dynamic>{};
-    final avatar =
-        user['foto_perfil'] ??
-        user['foto'] ??
-        user['avatar'];
-
-    return PaceShell(
-      currentRoute: '/perfil',
-      username: user['username']?.toString() ?? 'Meu perfil',
-      avatarValue: avatar?.toString(),
+    return Scaffold(
       backgroundColor: bgColor,
-      child: Stack(
-        children: [
-          _BackgroundDecor(darkMode: darkMode),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 760;
-              final medium = constraints.maxWidth < 980;
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompact = constraints.maxWidth < 760;
+          final isMedium = constraints.maxWidth < 1080;
 
-              if (_carregando && _usuario == null) {
-                return const Center(
-                  child: CircularProgressIndicator(color: azulPrincipal),
-                );
-              }
-
-              return _buildContent(compact, medium);
-            },
-          ),
-        ],
+          return Stack(
+            children: [
+              _BackgroundDecor(darkMode: darkMode),
+              Row(
+                children: [
+                  if (!isCompact) _buildSidebar(),
+                  Expanded(
+                    child: _carregando && _usuario == null
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: azulPrincipal,
+                            ),
+                          )
+                        : _buildContent(isCompact, isMedium),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildSidebar() {
-    const collapsed = 84.0;
-    const expanded = 230.0;
+    const collapsed = 88.0;
+    const expanded = 244.0;
     final width = _sidebarHovered ? expanded : collapsed;
 
     return MouseRegion(
@@ -573,72 +572,166 @@ class _PerfilPageState extends State<PerfilPage> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
         width: width,
         height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xC8080A0E)
-              : Colors.white.withOpacity(0.78),
+          color: const Color(0xFF06152D),
           border: Border(
             right: BorderSide(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.white.withOpacity(0.55),
+              color: azulPrincipal.withOpacity(0.09),
             ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
-              blurRadius: 30,
-              offset: const Offset(8, 0),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 70,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final showBrand =
+                      constraints.maxWidth >= 150;
+
+                  return Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 9),
+                        child: Image.asset(
+                          'assets/images/pace_icon.png',
+                          width: 46,
+                          height: 46,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      if (showBrand) ...[
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Column(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pace',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                'Evolução contínua',
+                                style: TextStyle(
+                                  color: Color(0xFF8FA5C0),
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
             ),
+            Divider(color: azulPrincipal.withOpacity(0.10)),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _sectionLabel('COMUNIDADE'),
+                  _sidebarItem(
+                    Icons.home_rounded,
+                    'Feed',
+                    '/feed',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.explore_outlined,
+                    'Explorar',
+                    '/explorar',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.edit_square,
+                    'Postar',
+                    '/postar',
+                    false,
+                  ),
+                  const SizedBox(height: 8),
+                  _sectionLabel('DESENVOLVIMENTO'),
+                  _sidebarItem(
+                    Icons.track_changes_rounded,
+                    'Metas',
+                    '/metas',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.psychology_outlined,
+                    'Sala de foco',
+                    '/foco',
+                    false,
+                  ),
+                  _sidebarItem(
+                    Icons.trending_up_rounded,
+                    'Evolução',
+                    '/evolucao',
+                    false,
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: Colors.white.withOpacity(0.08)),
+            _sidebarItem(
+              Icons.notifications_none_rounded,
+              'Notificações',
+              '/notificacoes',
+              false,
+            ),
+            _sidebarItem(
+              Icons.settings_outlined,
+              'Configurações',
+              '/config',
+              false,
+            ),
+            _sidebarProfileItem(),
           ],
         ),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 104,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 4),
-                      child: Image.asset(
-                        'assets/images/pace_icon.png',
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String label) {
+    return SizedBox(
+      height: 30,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final show =
+              _sidebarHovered && constraints.maxWidth > 90;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: show
+                  ? Text(
+                      label,
+                      style: const TextStyle(
+                        color: Color(0xFF8FA5C0),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
                       ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', false),
-                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
-                      const SizedBox(height: 18),
-                      Divider(color: azulPrincipal.withOpacity(0.10)),
-                      const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', false),
-                      _sidebarProfileItem(),
-                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
-                    ],
-                  ),
-                ),
-              ],
+                    )
+                  : const SizedBox.shrink(),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -649,39 +742,41 @@ class _PerfilPageState extends State<PerfilPage> {
     String route,
     bool active,
   ) {
-    final isHovered = _sidebarItemHovered == route;
-    final highlighted = active || isHovered;
+    final hovered = _sidebarItemHovered == route;
+    final highlighted = active || hovered;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _sidebarItemHovered = route),
+      onEnter: (_) =>
+          setState(() => _sidebarItemHovered = route),
+      onExit: (_) {
+        if (_sidebarItemHovered == route) {
+          setState(() => _sidebarItemHovered = null);
+        }
+      },
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pushReplacementNamed(route),
+        onTap: () =>
+            Navigator.of(context).pushNamed(route),
         child: AnimatedContainer(
-          key: ValueKey(route),
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
+          duration: const Duration(milliseconds: 220),
           height: 50,
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: highlighted
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
+                ? Colors.white.withOpacity(0.07)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: highlighted
                 ? Border.all(
-                    color: darkMode
-                        ? Colors.white.withOpacity(0.08)
-                        : const Color(0xFFC8D8F0),
+                    color: Colors.white.withOpacity(0.08),
                   )
                 : null,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final showText = _sidebarHovered && constraints.maxWidth > 90;
+              final show =
+                  _sidebarHovered && constraints.maxWidth > 90;
 
               return Row(
                 children: [
@@ -689,25 +784,25 @@ class _PerfilPageState extends State<PerfilPage> {
                     width: 24,
                     child: Icon(
                       icon,
-                      color: highlighted ? azulPrincipal : sidebarTextColor,
-                      size: 24,
+                      color: highlighted
+                          ? Colors.white
+                          : const Color(0xFFC7D5E8),
+                      size: 23,
                     ),
                   ),
-                  if (showText) ...[
+                  if (show) ...[
                     const SizedBox(width: 16),
                     Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: highlighted ? azulPrincipal : sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: highlighted
+                              ? Colors.white
+                              : const Color(0xFFC7D5E8),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
@@ -722,97 +817,134 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _sidebarProfileItem() {
-    const route = '/perfil';
     final foto = _fotoPerfil();
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _sidebarItemHovered = route),
-      child: InkWell(
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF174A9B),
         borderRadius: BorderRadius.circular(12),
-        onTap: () {},
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: darkMode
-                  ? [
-                      azulPrincipal.withOpacity(0.22),
-                      azulClaro.withOpacity(0.10),
-                    ]
-                  : [
-                      azulPrincipal.withOpacity(0.12),
-                      azulClaro.withOpacity(0.08),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: azulPrincipal.withOpacity(0.08)),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = _sidebarHovered && constraints.maxWidth > 90;
+        border: Border.all(
+          color: azulPrincipal.withOpacity(0.55),
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final show =
+              _sidebarHovered && constraints.maxWidth > 90;
 
-              return Row(
+          return Row(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  KeyedSubtree(
-                    key: ValueKey(foto),
-                    child: CircleAvatar(
-                      radius: 14,
-                      backgroundColor: const Color(0xFFE4E9F2),
-                      backgroundImage: _avatarProvider(foto),
-                      child: foto.isEmpty
-                          ? Icon(Icons.person, size: 16, color: sidebarTextColor)
-                          : null,
-                    ),
-                  ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          'Perfil',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: azulPrincipal,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ),
+                  Positioned(
+                    left: -12,
+                    top: 1,
+                    bottom: 1,
+                    child: Container(
+                      width: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFC928),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
-                  ],
+                  ),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: const Color(0xFF173154),
+                    backgroundImage: _avatarProvider(foto),
+                    child: foto.isEmpty
+                        ? const Icon(
+                            Icons.person_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          )
+                        : null,
+                  ),
                 ],
-              );
-            },
-          ),
-        ),
+              ),
+              if (show) ...[
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (_usuario?['username'] ??
+                                _usuario?['nome_usuario'] ??
+                                'Meu perfil')
+                            .toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const Text(
+                        'Ver perfil',
+                        style: TextStyle(
+                          color: Color(0xFF9FB3CE),
+                          fontSize: 9.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildContent(bool isCompact, bool isMedium) {
-    final horizontal = isCompact ? 18.0 : 42.0;
+    final horizontal = isCompact ? 18.0 : (isMedium ? 28.0 : 38.0);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(horizontal, 42, horizontal, 70),
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        horizontal,
+        isCompact ? 24 : 34,
+        horizontal,
+        80,
+      ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
+          constraints: const BoxConstraints(maxWidth: 1180),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHero(isCompact),
-              const SizedBox(height: 22),
+              const SizedBox(height: 18),
               _buildProfileCard(isCompact, isMedium),
-              const SizedBox(height: 34),
-              _buildImagesSection(isCompact, isMedium),
-              const SizedBox(height: 34),
-              _buildTextPostsSection(),
+              const SizedBox(height: 16),
+              if (!isCompact && !isMedium)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 11,
+                      child: _buildImagesSection(isCompact, isMedium),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 10,
+                      child: _buildTextPostsSection(),
+                    ),
+                  ],
+                )
+              else ...[
+                _buildImagesSection(isCompact, isMedium),
+                const SizedBox(height: 14),
+                _buildTextPostsSection(),
+              ],
             ],
           ),
         ),
@@ -821,44 +953,91 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildHero(bool isCompact) {
-    return Column(
+    final copy = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: azulPrincipal.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: const Text(
-            'Seu espaço no Pace',
-            style: TextStyle(
-              color: azulPrincipal,
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
+        const Row(
+          children: [
+            SizedBox(
+              width: 18,
+              child: Divider(
+                thickness: 3,
+                color: Color(0xFFFFC928),
+              ),
             ),
-          ),
+            SizedBox(width: 8),
+            Text(
+              'COMUNIDADE',
+              style: TextStyle(
+                color: azulPrincipal,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 7),
         Text(
-          'Meu Perfil',
+          'Meu perfil',
           style: TextStyle(
-            fontSize: isCompact ? 30 : 40,
-            height: 1.05,
-            fontWeight: FontWeight.w800,
+            fontSize: isCompact ? 34 : 42,
+            height: 1,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.2,
             color: textColor,
           ),
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: 680,
-          child: Text(
-            'Acompanhe sua presença na comunidade, organize sua identidade e veja o impacto dos seus posts.',
-            style: TextStyle(
-              color: mutedColor,
-              fontSize: 16,
-              height: 1.7,
+        const SizedBox(height: 8),
+        Text(
+          'Sua identidade e suas publicações no Pace.',
+          style: TextStyle(
+            color: mutedColor,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+
+    if (isCompact) return copy;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(child: copy),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 11,
+          ),
+          decoration: BoxDecoration(
+            color: darkMode
+                ? const Color(0xFF0F1B2F)
+                : Colors.white.withOpacity(0.92),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.06)
+                  : const Color(0xFF06152D).withOpacity(0.08),
             ),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.person_outline_rounded,
+                color: azulPrincipal,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Perfil pessoal',
+                style: TextStyle(
+                  color: mutedColor,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -866,41 +1045,325 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildProfileCard(bool isCompact, bool isMedium) {
+    final user = _usuario ?? {};
+    final nome = (user['username'] ?? user['nome_usuario'] ?? '').toString();
+    final email = (user['email'] ?? '').toString();
+
     return Container(
-      padding: EdgeInsets.all(isCompact ? 20 : 28),
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(isCompact ? 22 : 28),
+        color: darkMode
+            ? const Color(0xFF0A1C36)
+            : Colors.white.withOpacity(0.97),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: darkMode
-              ? Colors.white.withOpacity(0.04)
-              : Colors.white.withOpacity(0.60),
+              ? Colors.white.withOpacity(0.07)
+              : const Color(0xFF06152D).withOpacity(0.07),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.35 : 0.16),
-            blurRadius: 60,
-            offset: const Offset(0, 24),
+            color: Colors.black.withOpacity(darkMode ? 0.14 : 0.06),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: isMedium
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            height: isCompact ? 96 : 138,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: darkMode
+                    ? const [
+                        Color(0xFF0B3D91),
+                        Color(0xFF123E80),
+                        Color(0xFF174A9B),
+                      ]
+                    : const [
+                        Color(0xFF1769E8),
+                        Color(0xFF2A78EC),
+                        Color(0xFF4B8CF0),
+                      ],
+              ),
+            ),
+            child: Stack(
               children: [
-                _buildPhotoArea(),
-                const SizedBox(height: 26),
-                _buildProfileInfo(isCompact, isMedium),
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(width: 170, child: _buildPhotoArea()),
-                const SizedBox(width: 28),
-                Expanded(child: _buildProfileInfo(isCompact, isMedium)),
+                Positioned(
+                  right: 56,
+                  top: -52,
+                  child: Transform.rotate(
+                    angle: 0.28,
+                    child: Container(
+                      width: 180,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.08),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 24,
+                  bottom: 18,
+                  child: Container(
+                    width: 88,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFC928),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
               ],
             ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              isCompact ? 18 : 20,
+              0,
+              isCompact ? 18 : 20,
+              isCompact ? 18 : 20,
+            ),
+            child: isCompact
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, -46),
+                        child: _buildPhotoArea(),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -32),
+                        child: _buildProfileBodyCompact(nome, email),
+                      ),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 170,
+                        child: Transform.translate(
+                          offset: const Offset(0, -54),
+                          child: _buildPhotoArea(),
+                        ),
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: _buildProfileBodyDesktop(nome, email),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileBodyDesktop(String nome, String email) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nome,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 27,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    email,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 7,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFE7A3),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 14,
+                    color: Color(0xFFB97A00),
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    'Em evolução',
+                    style: TextStyle(
+                      color: Color(0xFF9B6800),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        _buildStatsRow(false),
+        const SizedBox(height: 14),
+        Divider(
+          height: 1,
+          color: darkMode
+              ? Colors.white.withOpacity(0.08)
+              : const Color(0xFF06152D).withOpacity(0.08),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            const Icon(
+              Icons.edit_note_rounded,
+              color: azulPrincipal,
+              size: 18,
+            ),
+            const SizedBox(width: 7),
+            Expanded(
+              child: Text(
+                'Sobre você',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            _buildSalvarBioButton(fullWidth: false),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildBioField(),
+      ],
+    );
+  }
+
+  Widget _buildProfileBodyCompact(String nome, String email) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          nome,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          email,
+          style: TextStyle(
+            color: mutedColor,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 14),
+        _buildStatsRow(true),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Sobre você',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            _buildSalvarBioButton(fullWidth: false),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildBioField(),
+      ],
+    );
+  }
+
+  Widget _buildBioField() {
+    return TextField(
+      controller: _bioController,
+      minLines: 3,
+      maxLines: 4,
+      maxLength: 300,
+      style: TextStyle(
+        color: textColor,
+        fontSize: 12.5,
+      ),
+      decoration: InputDecoration(
+        hintText: 'Escreva algo sobre você...',
+        hintStyle: TextStyle(
+          color: mutedColor.withOpacity(0.84),
+          fontSize: 12,
+        ),
+        counterStyle: TextStyle(
+          color: mutedColor,
+          fontSize: 9.5,
+        ),
+        filled: true,
+        fillColor: darkMode
+            ? const Color(0xFF0D2341)
+            : const Color(0xFFF8FBFE),
+        contentPadding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: darkMode
+                ? Colors.white.withOpacity(0.06)
+                : const Color(0xFF06152D).withOpacity(0.07),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: darkMode
+                ? Colors.white.withOpacity(0.06)
+                : const Color(0xFF06152D).withOpacity(0.07),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: azulPrincipal.withOpacity(0.42),
+          ),
+        ),
+      ),
     );
   }
 
@@ -910,33 +1373,48 @@ class _PerfilPageState extends State<PerfilPage> {
     return Column(
       children: [
         Container(
-          width: 136,
-          height: 136,
-          padding: const EdgeInsets.all(5),
+          width: 112,
+          height: 112,
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [azulPrincipal, azulClaro],
+              colors: [
+                Color(0xFF1769E8),
+                Color(0xFF66C5D0),
+                Color(0xFFFFC928),
+              ],
             ),
+            borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: azulPrincipal.withOpacity(0.18),
-                blurRadius: 35,
-                offset: const Offset(0, 18),
+                color: Colors.black.withOpacity(0.22),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: Container(
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-              color: const Color(0xFFDCE5F5),
+              color: darkMode
+                  ? const Color(0xFF0A1C36)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(19),
             ),
-            child: ClipOval(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
               child: foto.isEmpty
-                  ? Icon(Icons.person, size: 64, color: mutedColor)
+                  ? Container(
+                      color: const Color(0xFF102846),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: 52,
+                        color: mutedColor,
+                      ),
+                    )
                   : Image(
                       key: ValueKey(foto),
                       image: _imageProvider(foto),
@@ -947,133 +1425,50 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: _salvandoFoto ? null : _trocarFoto,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
               decoration: BoxDecoration(
-                color: azulPrincipal.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(999),
+                color: azulPrincipal.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: azulPrincipal.withOpacity(0.10),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _salvandoFoto
                       ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
                         )
-                      : const Icon(Icons.camera_alt_outlined, size: 18, color: azulPrincipal),
-                  const SizedBox(width: 8),
+                      : const Icon(
+                          Icons.camera_alt_outlined,
+                          size: 15,
+                          color: azulPrincipal,
+                        ),
+                  const SizedBox(width: 6),
                   const Text(
                     'Trocar foto',
                     style: TextStyle(
                       color: azulPrincipal,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileInfo(bool isCompact, bool isMedium) {
-    final user = _usuario ?? {};
-    final nome = (user['username'] ?? '').toString();
-    final email = (user['email'] ?? '').toString();
-    final crossAlign = isMedium ? CrossAxisAlignment.center : CrossAxisAlignment.start;
-
-    return Column(
-      crossAxisAlignment: crossAlign,
-      children: [
-        Text(
-          nome,
-          textAlign: isMedium ? TextAlign.center : TextAlign.start,
-          style: TextStyle(
-            fontSize: 30,
-            height: 1,
-            fontWeight: FontWeight.w800,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          email,
-          textAlign: isMedium ? TextAlign.center : TextAlign.start,
-          style: TextStyle(color: mutedColor, fontSize: 15),
-        ),
-        const SizedBox(height: 22),
-        _buildStatsRow(isCompact),
-        const SizedBox(height: 26),
-        Container(height: 1, color: azulPrincipal.withOpacity(0.12)),
-        const SizedBox(height: 24),
-        isCompact
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Sua bio',
-                    style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 10.5,
                       fontWeight: FontWeight.w800,
-                      color: textColor,
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  _buildSalvarBioButton(fullWidth: true),
-                ],
-              )
-            : Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Sua bio',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
-                  _buildSalvarBioButton(fullWidth: false),
                 ],
               ),
-        const SizedBox(height: 14),
-        TextField(
-          controller: _bioController,
-          minLines: 4,
-          maxLines: 5,
-          style: TextStyle(color: textColor),
-          decoration: InputDecoration(
-            hintText: 'Escreva algo sobre você, seus objetivos e sua jornada...',
-            hintStyle: TextStyle(color: mutedColor.withOpacity(0.8)),
-            filled: true,
-            fillColor: inputFillColor,
-            contentPadding: const EdgeInsets.all(18),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: azulPrincipal.withOpacity(0.12)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(
-                color: darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : azulPrincipal.withOpacity(0.12),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: azulPrincipal.withOpacity(0.30)),
             ),
           ),
         ),
@@ -1118,81 +1513,109 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildStatsRow(bool isCompact) {
+    final cards = [
+      _statCard(
+        _totalPosts,
+        'Posts',
+        Icons.grid_view_rounded,
+      ),
+      _statCard(
+        _totalSeguidores,
+        'Seguidores',
+        Icons.group_outlined,
+      ),
+      _statCard(
+        _totalSeguindo,
+        'Seguindo',
+        Icons.person_add_alt_1_outlined,
+      ),
+    ];
+
     if (isCompact) {
       return Column(
         children: [
-          _statCard(_totalPosts, 'Posts'),
-          const SizedBox(height: 14),
-          _statCard(_totalSeguidores, 'Seguidores'),
-          const SizedBox(height: 14),
-          _statCard(_totalSeguindo, 'Seguindo'),
+          for (int i = 0; i < cards.length; i++) ...[
+            cards[i],
+            if (i != cards.length - 1)
+              const SizedBox(height: 10),
+          ],
         ],
       );
     }
 
     return Row(
       children: [
-        Expanded(child: _statCard(_totalPosts, 'Posts')),
-        const SizedBox(width: 14),
-        Expanded(child: _statCard(_totalSeguidores, 'Seguidores')),
-        const SizedBox(width: 14),
-        Expanded(child: _statCard(_totalSeguindo, 'Seguindo')),
+        Expanded(child: cards[0]),
+        const SizedBox(width: 10),
+        Expanded(child: cards[1]),
+        const SizedBox(width: 10),
+        Expanded(child: cards[2]),
       ],
     );
   }
 
-  Widget _statCard(int valor, String label) {
+  Widget _statCard(
+    int valor,
+    String label,
+    IconData icon,
+  ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 12,
+      ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: darkMode
-              ? [
-                  const Color(0xF214141A),
-                  const Color(0xF20D0D10),
-                ]
-              : [
-                  Colors.white.withOpacity(0.95),
-                  const Color(0xFFF5F8FF).withOpacity(0.9),
-                ],
-        ),
-        borderRadius: BorderRadius.circular(18),
+        color: darkMode
+            ? const Color(0xFF0D2341)
+            : const Color(0xFFF8FBFE),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: darkMode
-              ? Colors.white.withOpacity(0.04)
-              : azulPrincipal.withOpacity(0.08),
+              ? Colors.white.withOpacity(0.06)
+              : const Color(0xFF06152D).withOpacity(0.06),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.35 : 0.10),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
-          ),
-        ],
       ),
-      child: Column(
+      child: Row(
         children: [
-          Text(
-            '$valor',
-            style: TextStyle(
-              color: darkMode ? const Color(0xFF82A7FF) : azulPrincipal,
-              fontSize: 28,
-              height: 1,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.03 * 28,
+          Container(
+            width: 34,
+            height: 34,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: azulPrincipal.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: azulPrincipal,
+              size: 17,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              color: mutedColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.06 * 13,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$valor',
+                  style: const TextStyle(
+                    color: azulPrincipal,
+                    fontSize: 18,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1200,29 +1623,73 @@ class _PerfilPageState extends State<PerfilPage> {
     );
   }
 
-  Widget _sectionTitle(String kicker, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _sectionTitle(
+    String kicker,
+    String title, {
+    String? badge,
+    IconData? badgeIcon,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          kicker.toUpperCase(),
-          style: const TextStyle(
-            color: azulClaro,
-            fontWeight: FontWeight.w800,
-            fontSize: 12,
-            letterSpacing: 1.2,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                kicker.toUpperCase(),
+                style: const TextStyle(
+                  color: azulClaro,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 9.5,
+                  letterSpacing: 1.1,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.02 * 26,
+        if (badge != null)
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 9,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              color: darkMode
+                  ? const Color(0xFF102846)
+                  : const Color(0xFFEAF3FB),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                if (badgeIcon != null) ...[
+                  Icon(
+                    badgeIcon,
+                    size: 13,
+                    color: mutedColor,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+                Text(
+                  badge,
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
@@ -1234,117 +1701,173 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildImagesSection(bool isCompact, bool isMedium) {
-    final imagens = _meusPosts.where((post) => _postImagem(post).isNotEmpty).toList();
+    final imagens =
+        _meusPosts.where((post) => _postImagem(post).isNotEmpty).toList();
     final columns = _gridColumns(isCompact, isMedium);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle('Galeria', 'Minhas Imagens'),
-        const SizedBox(height: 14),
-        if (imagens.isEmpty)
-          _emptyBox('Nenhuma imagem publicada ainda.')
-        else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: imagens.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              childAspectRatio: 1,
+    return _contentCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle('Publicações', 'Minhas imagens', badge: 'Galeria', badgeIcon: Icons.photo_library_outlined),
+          const SizedBox(height: 16),
+          if (imagens.isEmpty)
+            _emptyBox('Suas imagens publicadas aparecerão aqui.')
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: imagens.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                childAspectRatio: 1.18,
+              ),
+              itemBuilder: (_, index) {
+                final post = imagens[index];
+                final imagem = _postImagem(post);
+
+                return _PostImageTile(
+                  imagem: imagem,
+                  likes: _postLikes(post),
+                  comentarios: _postComentarios(post),
+                  imageProvider: _imageProvider(imagem),
+                  onTap: () => _abrirPost(post),
+                );
+              },
             ),
-            itemBuilder: (_, index) {
-              final post = imagens[index];
-              return _PostImageTile(
-                imagem: _postImagem(post),
-                likes: _postLikes(post),
-                comentarios: _postComentarios(post),
-                imageProvider: _imageProvider(_postImagem(post)),
-                onTap: () => _abrirPost(post),
-              );
-            },
-          ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildTextPostsSection() {
-    final textos = _meusPosts.where((post) => _postTexto(post).isNotEmpty).toList();
+    final textos =
+        _meusPosts.where((post) => _postTexto(post).isNotEmpty).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle('Conteúdo', 'Meus Posts'),
-        const SizedBox(height: 14),
-        if (textos.isEmpty)
-          _emptyBox('Nenhum post de texto publicado ainda.')
-        else
-          Column(
-            children: textos.map((post) {
-              final data = _formatDateCurta(post['data']);
-              final meta = [
-                if (data.isNotEmpty) data,
-                '❤️ ${_postLikes(post)}',
-                '💬 ${_postComentarios(post)}',
-              ].join(' • ');
+    return _contentCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle('Atividade', 'Meus posts', badge: 'Histórico', badgeIcon: Icons.forum_outlined),
+          const SizedBox(height: 16),
+          if (textos.isEmpty)
+            _emptyBox('Nenhum post de texto publicado ainda.')
+          else
+            Column(
+              children: textos.map((post) {
+                final data = _formatDateCurta(post['data']);
+                final likes = _postLikes(post);
+                final comentarios = _postComentarios(post);
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => _abrirPost(post),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 280),
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-                      decoration: BoxDecoration(
-                        color: darkMode
-                            ? const Color(0xD10D0D10)
-                            : Colors.white.withOpacity(0.86),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => _abrirPost(post),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
+                        decoration: BoxDecoration(
                           color: darkMode
-                              ? Colors.white.withOpacity(0.04)
-                              : Colors.white.withOpacity(0.70),
+                              ? const Color(0xFF0D2341)
+                              : const Color(0xFFF8FBFE),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: darkMode
+                                ? Colors.white.withOpacity(0.06)
+                                : const Color(0xFF06152D).withOpacity(0.06),
+                          ),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF14274D).withOpacity(0.10),
-                            blurRadius: 40,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _postTexto(post),
-                            style: TextStyle(
-                              color: bodyTextColor,
-                              height: 1.7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _postTexto(post),
+                              style: TextStyle(
+                                color: bodyTextColor,
+                                fontSize: 13,
+                                height: 1.5,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            meta,
-                            style: TextStyle(
-                              color: mutedColor,
-                              fontWeight: FontWeight.w700,
+                            const SizedBox(height: 12),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
+                              runSpacing: 8,
+                              children: [
+                                if (data.isNotEmpty)
+                                  _postMetaItem(
+                                    Icons.schedule_rounded,
+                                    data,
+                                  ),
+                                _postMetaItem(
+                                  Icons.favorite_border_rounded,
+                                  '$likes',
+                                ),
+                                _postMetaItem(
+                                  Icons.chat_bubble_outline_rounded,
+                                  '$comentarios',
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _postMetaItem(IconData icon, String value) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: mutedColor),
+        const SizedBox(width: 5),
+        Text(
+          value,
+          style: TextStyle(
+            color: mutedColor,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w700,
           ),
+        ),
       ],
+    );
+  }
+
+  Widget _contentCard({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0A1C36)
+            : Colors.white.withOpacity(0.97),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.07)
+              : const Color(0xFF06152D).withOpacity(0.07),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(darkMode ? 0.10 : 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: child,
     );
   }
 
@@ -1354,9 +1877,14 @@ class _PerfilPageState extends State<PerfilPage> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: darkMode
-            ? Colors.white.withOpacity(0.04)
-            : Colors.white.withOpacity(0.70),
-        borderRadius: BorderRadius.circular(22),
+            ? const Color(0xFF0D2341)
+            : const Color(0xFFF8FBFE),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.06)
+              : const Color(0xFF06152D).withOpacity(0.06),
+        ),
       ),
       child: Text(
         text,
@@ -1472,7 +2000,7 @@ class _BackgroundDecor extends StatelessWidget {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB),
+            color: darkMode ? const Color(0xFF06101F) : const Color(0xFFEAF3FB),
           ),
           child: const SizedBox.expand(),
         ),

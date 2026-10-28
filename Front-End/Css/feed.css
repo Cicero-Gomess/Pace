@@ -417,12 +417,22 @@ img {
   z-index: 1;
   min-height: 100svh;
   margin-left: var(--sidebar-collapsed);
-  transition: margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   padding: 34px 34px 90px;
 }
 
-.sidebar:hover~.conteudo {
-  margin-left: var(--sidebar-expanded);
+.sidebar:hover ~ .conteudo {
+  margin-left: var(--sidebar-collapsed);
+
+  transform:
+    translateX(
+      calc(
+        var(--sidebar-expanded) -
+        var(--sidebar-collapsed)
+      )
+    );
 }
 
 .page-shell {
@@ -3398,3 +3408,46 @@ body.dark .content-filter-option-check {
   color: var(--pace-yellow);
 }
     
+
+/* =========================================================
+   TRANSIÇÃO SUAVE ENTRE FILTROS DO FEED
+   Afeta apenas trocas completas. O infinite scroll não usa
+   estas classes e continua anexando os novos cards normalmente.
+========================================================= */
+
+#feed {
+  transition:
+    opacity 160ms ease,
+    transform 180ms ease;
+  will-change: opacity, transform;
+}
+
+#feed.feed-transition-out {
+  opacity: 0;
+  transform: translateY(5px);
+  pointer-events: none;
+}
+
+#feed.feed-transition-in {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #feed {
+    transition: none !important;
+  }
+
+  #feed.feed-transition-out,
+  #feed.feed-transition-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* Evita barra horizontal durante o deslocamento lateral da sidebar. */
+html,
+body {
+  overflow-x: clip;
+}

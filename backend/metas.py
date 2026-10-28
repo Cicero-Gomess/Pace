@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
 from schemas import MetaCreate, MetaUpdate
 from models import Meta, User
 from dependencies import pegar_usuario_atual, pegar_sessao
+
 
 metas_router = APIRouter(
     prefix="/metas",
@@ -10,12 +12,14 @@ metas_router = APIRouter(
 )
 
 
-
 # =========================
 # CRIAR META
 # =========================
 
-@metas_router.post("/criar_meta", status_code=status.HTTP_201_CREATED)
+@metas_router.post(
+    "/criar_meta",
+    status_code=status.HTTP_201_CREATED
+)
 def criar_meta(
     dados: MetaCreate,
     session: Session = Depends(pegar_sessao),
@@ -48,7 +52,9 @@ def listar_metas(
 ):
     metas = (
         session.query(Meta)
-        .filter(metas.usuario_id == usuario.id)
+        .filter(
+            Meta.usuario_id == usuario.id
+        )
         .all()
     )
 
@@ -59,7 +65,9 @@ def listar_metas(
 # BUSCAR META
 # =========================
 
-@metas_router.get("/buscar_meta_id/{meta_id}")
+@metas_router.get(
+    "/buscar_meta_id/{meta_id}"
+)
 def buscar_meta(
     meta_id: int,
     session: Session = Depends(pegar_sessao),
@@ -68,8 +76,8 @@ def buscar_meta(
     meta = (
         session.query(Meta)
         .filter(
-            metas.id == meta_id,
-            metas.usuario_id == usuario.id
+            Meta.id == meta_id,
+            Meta.usuario_id == usuario.id
         )
         .first()
     )
@@ -87,7 +95,9 @@ def buscar_meta(
 # ATUALIZAR META
 # =========================
 
-@metas_router.put("/atualizar_meta/{meta_id}")
+@metas_router.put(
+    "/atualizar_meta/{meta_id}"
+)
 def atualizar_meta(
     meta_id: int,
     dados: MetaUpdate,
@@ -122,7 +132,10 @@ def atualizar_meta(
         meta.descricao = dados.descricao
 
     if dados.status is not None:
-        if dados.status not in ["concluida", "em andamento"]:
+        if dados.status not in [
+            "concluida",
+            "em andamento"
+        ]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Status inválido"
@@ -140,7 +153,9 @@ def atualizar_meta(
 # DELETAR META
 # =========================
 
-@metas_router.delete("/deletar_meta/{meta_id}")
+@metas_router.delete(
+    "/deletar_meta/{meta_id}"
+)
 def deletar_meta(
     meta_id: int,
     session: Session = Depends(pegar_sessao),

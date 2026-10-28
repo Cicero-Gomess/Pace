@@ -23,6 +23,8 @@ import {
 
 import {
   fetchFeed,
+  fetchFeedSeguindo,
+  fetchFeedComunidades,
   fetchPostById,
   likePost,
   unlikePost,
@@ -37,6 +39,10 @@ import {
   updateComment,
   deleteComment,
 } from "./shared/services/comment-service.js";
+
+import {
+  fetchMinhasComunidades,
+} from "./shared/services/community-service.js";
 
 import { AVATAR_PLACEHOLDER } from "./shared/config.js";
 
@@ -78,17 +84,8 @@ if (shellOk) {
      COMUNIDADES / PAGINAÇÃO
   ========================================================= */
 
-  const COMMUNITY_STORAGE_KEY =
-    "paceCommunities";
-
-  const COMMUNITY_MEMBERS_STORAGE_KEY =
-    "paceCommunityMembers";
-
-  const COMMUNITY_POSTS_STORAGE_KEY =
-    "paceCommunityPosts";
-
   const POSTS_PER_PAGE =
-    10;
+    4;
 
   let filtroFeedAtivo =
     "general";
@@ -99,11 +96,23 @@ if (shellOk) {
   let comunidadeFiltroAtiva =
     "all";
 
-  let limitePostsVisiveis =
-    POSTS_PER_PAGE;
+  let minhasComunidades =
+    [];
+
+  let offsetFeed =
+    0;
+
+  let carregandoMaisPosts =
+    false;
+
+  let fimDoFeed =
+    false;
 
   let feedObserver =
     null;
+
+  let usuarioRolouFeed =
+    false;
 
 
   /* =========================================================
@@ -310,119 +319,6 @@ if (shellOk) {
 
 
   /* =========================================================
-     LOCAL STORAGE
-  ========================================================= */
-
-  function obterArrayLocalStorage(
-    chave
-  ) {
-
-    try {
-
-      const valor =
-        JSON.parse(
-          localStorage.getItem(
-            chave
-          )
-        );
-
-      return Array.isArray(
-        valor
-      )
-        ? valor
-        : [];
-
-    }
-
-    catch {
-
-      return [];
-
-    }
-
-  }
-
-
-  function obterIdUsuarioAtual() {
-
-    if (
-      usuario?.id !== undefined &&
-      usuario?.id !== null
-    ) {
-
-      return String(
-        usuario.id
-      );
-
-    }
-
-
-    const possibleKeys = [
-      "user",
-      "usuario",
-      "paceUser",
-      "currentUser",
-    ];
-
-
-    for (
-      const key of
-      possibleKeys
-    ) {
-
-      try {
-
-        const raw =
-          localStorage.getItem(
-            key
-          );
-
-
-        if (!raw) {
-          continue;
-        }
-
-
-        const parsed =
-          JSON.parse(
-            raw
-          );
-
-
-        const id =
-          parsed?.id ??
-          parsed?.usuario_id ??
-          parsed?.user_id;
-
-
-        if (
-          id !== undefined &&
-          id !== null
-        ) {
-
-          return String(
-            id
-          );
-
-        }
-
-      }
-
-      catch {
-
-        // Continua procurando.
-
-      }
-
-    }
-
-
-    return "";
-
-  }
-
-
-  /* =========================================================
      COMUNIDADES
   ========================================================= */
 
@@ -432,6 +328,7 @@ if (shellOk) {
 
     const id =
       post?.comunidadeId ??
+      post?.comunidade?.id ??
       post?.communityId ??
       post?.comunidade_id ??
       post?.community_id ??
@@ -453,63 +350,7 @@ if (shellOk) {
 
   function obterMinhasComunidades() {
 
-    const userId =
-      obterIdUsuarioAtual();
-
-
-    if (!userId) {
-
-      return [];
-
-    }
-
-
-    const comunidades =
-      obterArrayLocalStorage(
-        COMMUNITY_STORAGE_KEY
-      );
-
-
-    const membros =
-      obterArrayLocalStorage(
-        COMMUNITY_MEMBERS_STORAGE_KEY
-      );
-
-
-    const idsParticipando =
-      new Set(
-
-        membros
-
-          .filter(
-            (membro) =>
-
-              String(
-                membro.usuarioId
-              ) ===
-              userId
-          )
-
-          .map(
-            (membro) =>
-
-              String(
-                membro.comunidadeId
-              )
-          )
-
-      );
-
-
-    return comunidades.filter(
-      (comunidade) =>
-
-        idsParticipando.has(
-          String(
-            comunidade.id
-          )
-        )
-    );
+    return minhasComunidades;
 
   }
 
@@ -527,21 +368,17 @@ if (shellOk) {
 
     return (
 
-      obterArrayLocalStorage(
-        COMMUNITY_STORAGE_KEY
+      minhasComunidades.find(
+        (comunidade) =>
+
+          String(
+            comunidade.id
+          ) ===
+
+          String(
+            comunidadeId
+          )
       )
-
-        .find(
-          (comunidade) =>
-
-            String(
-              comunidade.id
-            ) ===
-
-            String(
-              comunidadeId
-            )
-        )
 
       ||
 
@@ -552,140 +389,76 @@ if (shellOk) {
   }
 
 
-  function aplicarVinculosComunidades(
-    posts
-  ) {
+  async function carregarMinhasComunidades() {
 
-    const vinculos =
-      obterArrayLocalStorage(
-        COMMUNITY_POSTS_STORAGE_KEY
-      );
+    try {
+
+      minhasComunidades =
+        await fetchMinhasComunidades();
 
 
-    const vinculosPorPost =
-      new Map(
+      if (
+        comunidadeFiltroAtiva !==
+        "all"
+      ) {
 
-        vinculos.map(
-          (vinculo) => [
+        const aindaParticipa =
+          minhasComunidades.some(
+            (comunidade) =>
 
-            String(
-              vinculo.postId
-            ),
+              String(
+                comunidade.id
+              ) ===
 
-            vinculo,
-
-          ]
-        )
-
-      );
-
-
-    return posts.map(
-      (post) => {
-
-        const vinculo =
-          vinculosPorPost.get(
-            String(
-              post.id
-            )
+              String(
+                comunidadeFiltroAtiva
+              )
           );
 
 
-        const comunidadeId =
+        if (!aindaParticipa) {
 
-          obterComunidadeIdDoPost(
-            post
-          )
-
-          ??
-
-          (
-            vinculo?.comunidadeId !== undefined &&
-            vinculo?.comunidadeId !== null &&
-            vinculo?.comunidadeId !== ""
-
-              ? String(
-                  vinculo.comunidadeId
-                )
-
-              : null
-          );
-
-
-        if (!comunidadeId) {
-
-          return {
-
-            ...post,
-
-            comunidadeId:
-              null,
-
-            comunidadeNome:
-              null,
-
-          };
+          comunidadeFiltroAtiva =
+            "all";
 
         }
 
-
-        const comunidade =
-          obterComunidadePorId(
-            comunidadeId
-          );
+      }
 
 
-        return {
+      return minhasComunidades;
 
-          ...post,
+    }
 
-          comunidadeId,
+    catch (
+      error
+    ) {
 
-          comunidadeNome:
-            comunidade?.nome ||
-            "Comunidade",
+      if (
+        handleAuthError(
+          error,
+          showToast
+        )
+      ) {
 
-        };
+        return [];
 
       }
-    );
-
-  }
 
 
-  function removerVinculoComunidadeDoPost(
-    postId
-  ) {
-
-    const vinculos =
-      obterArrayLocalStorage(
-        COMMUNITY_POSTS_STORAGE_KEY
+      console.error(
+        "Erro ao carregar comunidades:",
+        error
       );
 
 
-    const atualizados =
-      vinculos.filter(
-        (vinculo) =>
-
-          String(
-            vinculo.postId
-          ) !==
-
-          String(
-            postId
-          )
-      );
+      minhasComunidades =
+        [];
 
 
-    localStorage.setItem(
+      return [];
 
-      COMMUNITY_POSTS_STORAGE_KEY,
-
-      JSON.stringify(
-        atualizados
-      )
-
-    );
+    }
 
   }
 
@@ -801,94 +574,8 @@ if (shellOk) {
 
   function obterPostsFiltrados() {
 
-    let postsBase =
-      postsCarregados;
-
-
-    if (
-      filtroFeedAtivo ===
-      "following"
-    ) {
-
-      postsBase =
-        postsCarregados.filter(
-          (post) =>
-
-            seguindoIds.has(
-              String(
-                post.userId
-              )
-            )
-        );
-
-    }
-
-
-    else if (
-      filtroFeedAtivo ===
-      "communities"
-    ) {
-
-      const idsPermitidos =
-        new Set(
-
-          obterMinhasComunidades()
-
-            .map(
-              (comunidade) =>
-
-                String(
-                  comunidade.id
-                )
-            )
-
-        );
-
-
-      postsBase =
-        postsCarregados.filter(
-          (post) => {
-
-            const comunidadeId =
-              obterComunidadeIdDoPost(
-                post
-              );
-
-
-            if (
-              !comunidadeId ||
-              !idsPermitidos.has(
-                comunidadeId
-              )
-            ) {
-
-              return false;
-
-            }
-
-
-            return (
-
-              comunidadeFiltroAtiva ===
-              "all"
-
-              ||
-
-              comunidadeId ===
-              String(
-                comunidadeFiltroAtiva
-              )
-
-            );
-
-          }
-        );
-
-    }
-
-
     return filtrarPostsPorTipo(
-      postsBase
+      postsCarregados
     );
 
   }
@@ -1334,20 +1021,22 @@ if (shellOk) {
 
 
   /* =========================================================
-     PAGINAÇÃO VISUAL
+     PAGINAÇÃO DA API
   ========================================================= */
 
   function resetarPaginacaoFeed() {
 
-    limitePostsVisiveis =
-      POSTS_PER_PAGE;
+    offsetFeed =
+      0;
+
+
+    fimDoFeed =
+      false;
 
   }
 
 
-  function atualizarSentinelaFeed(
-    total
-  ) {
+  function atualizarSentinelaFeed() {
 
     if (!feedLoadMore) {
 
@@ -1357,8 +1046,7 @@ if (shellOk) {
 
 
     const temMais =
-      limitePostsVisiveis <
-      total;
+      !fimDoFeed;
 
 
     feedLoadMore.classList.toggle(
@@ -1389,6 +1077,332 @@ if (shellOk) {
   }
 
 
+  async function buscarLoteFeed(
+    offset = 0
+  ) {
+
+    const tipoBackend =
+
+      filtroConteudoAtivo ===
+      "achievement"
+
+        ? "conquista"
+
+        : filtroConteudoAtivo ===
+          "focus"
+
+          ? "foco"
+
+          : filtroConteudoAtivo ===
+            "normal"
+
+            ? "geral"
+
+            : null;
+
+
+    if (
+      filtroFeedAtivo ===
+      "following"
+    ) {
+
+      return fetchFeedSeguindo(
+        offset,
+        POSTS_PER_PAGE,
+        tipoBackend
+      );
+
+    }
+
+
+    if (
+      filtroFeedAtivo ===
+      "communities"
+    ) {
+
+      const comunidadeId =
+
+        comunidadeFiltroAtiva ===
+        "all"
+
+          ? null
+
+          : Number(
+              comunidadeFiltroAtiva
+            );
+
+
+      return fetchFeedComunidades(
+        comunidadeId,
+        offset,
+        POSTS_PER_PAGE,
+        tipoBackend
+      );
+
+    }
+
+
+    return fetchFeed(
+      offset,
+      POSTS_PER_PAGE,
+      tipoBackend
+    );
+
+  }
+
+
+  function prepararPostsRecebidos(
+    posts
+  ) {
+
+    return posts.map(
+      (post) => ({
+
+        ...post,
+
+        seguindo:
+
+          seguindoIds.has(
+            String(
+              post.userId
+            )
+          ),
+
+        comentarios:
+          [],
+
+        comentariosCarregados:
+          false,
+
+        comentariosAbertos:
+          false,
+
+      })
+    );
+
+  }
+
+
+  async function trocarFeedComTransicao(
+    renderizar
+  ) {
+
+    if (
+      !feedEl ||
+      typeof renderizar !==
+        "function"
+    ) {
+
+      renderizar?.();
+
+      return;
+
+    }
+
+
+    const reduzirMovimento =
+      window.matchMedia?.(
+        "(prefers-reduced-motion: reduce)"
+      )?.matches;
+
+
+    const temConteudoAtual =
+      feedEl.children.length >
+      0;
+
+
+    if (
+      reduzirMovimento ||
+      !temConteudoAtual
+    ) {
+
+      renderizar();
+
+      return;
+
+    }
+
+
+    feedEl.classList.add(
+      "feed-transition-out"
+    );
+
+
+    await new Promise(
+      (resolve) =>
+        window.setTimeout(
+          resolve,
+          120
+        )
+    );
+
+
+    renderizar();
+
+
+    feedEl.classList.remove(
+      "feed-transition-out"
+    );
+
+
+    feedEl.classList.add(
+      "feed-transition-in"
+    );
+
+
+    requestAnimationFrame(
+      () => {
+
+        requestAnimationFrame(
+          () => {
+
+            feedEl.classList.remove(
+              "feed-transition-in"
+            );
+
+          }
+        );
+
+      }
+    );
+
+  }
+
+
+  async function carregarFeedAtual(
+    resetar = false
+  ) {
+
+    if (
+      carregandoMaisPosts
+    ) {
+
+      return;
+
+    }
+
+
+    carregandoMaisPosts =
+      true;
+
+
+    try {
+
+      if (resetar) {
+
+        resetarPaginacaoFeed();
+
+      }
+
+
+      const lote =
+        await buscarLoteFeed(
+          offsetFeed
+        );
+
+
+      const preparados =
+        prepararPostsRecebidos(
+          lote
+        );
+
+
+      postsCarregados =
+
+        resetar
+
+          ? preparados
+
+          : [
+              ...postsCarregados,
+              ...preparados,
+            ];
+
+
+      offsetFeed +=
+        lote.length;
+
+
+      fimDoFeed =
+        lote.length <
+        POSTS_PER_PAGE;
+
+
+      if (
+        resetar
+      ) {
+
+        /*
+          Primeira carga ou troca de filtro:
+          mantém os cards atuais visíveis durante
+          a busca e faz uma troca curta e suave
+          somente quando o novo lote já chegou.
+        */
+
+        await trocarFeedComTransicao(
+          renderFeed
+        );
+
+      }
+
+      else {
+
+        /*
+          Infinite scroll:
+          anexa SOMENTE o lote novo.
+          Não toca nos cards anteriores.
+        */
+
+        anexarPostsAoFeed(
+          preparados
+        );
+
+      }
+
+
+      atualizarSentinelaFeed();
+
+
+    }
+
+    catch (
+      error
+    ) {
+
+      if (
+        !handleAuthError(
+          error,
+          showToast
+        )
+      ) {
+
+        showToast(
+
+          error.message ||
+          "Não foi possível carregar o feed.",
+
+          "error"
+
+        );
+
+      }
+
+
+
+
+    }
+
+
+    finally {
+
+      carregandoMaisPosts =
+        false;
+
+    }
+
+  }
+
+
   function configurarInfiniteScroll() {
 
     if (
@@ -1410,7 +1424,9 @@ if (shellOk) {
     feedObserver =
       new IntersectionObserver(
 
-        (entries) => {
+        async (
+          entries
+        ) => {
 
           const entrou =
             entries.some(
@@ -1419,21 +1435,11 @@ if (shellOk) {
             );
 
 
-          if (!entrou) {
-
-            return;
-
-          }
-
-
-          const total =
-            obterPostsFiltrados()
-              .length;
-
-
           if (
-            limitePostsVisiveis >=
-            total
+            !entrou ||
+            !usuarioRolouFeed ||
+            fimDoFeed ||
+            carregandoMaisPosts
           ) {
 
             return;
@@ -1441,17 +1447,15 @@ if (shellOk) {
           }
 
 
-          limitePostsVisiveis +=
-            POSTS_PER_PAGE;
-
-
-          renderFeed();
+          await carregarFeedAtual(
+            false
+          );
 
         },
 
         {
           rootMargin:
-            "320px 0px",
+            "120px 0px",
         }
 
       );
@@ -1460,6 +1464,64 @@ if (shellOk) {
     feedObserver.observe(
       feedLoadMore
     );
+
+
+    const liberarScroll =
+      async () => {
+
+        usuarioRolouFeed =
+          true;
+
+
+        window.removeEventListener(
+          "scroll",
+          liberarScroll
+        );
+
+
+        if (
+          fimDoFeed ||
+          carregandoMaisPosts ||
+          !feedLoadMore
+        ) {
+
+          return;
+
+        }
+
+
+        const rect =
+          feedLoadMore
+            .getBoundingClientRect();
+
+
+        if (
+          rect.top <=
+          window.innerHeight + 120
+        ) {
+
+          await carregarFeedAtual(
+            false
+          );
+
+        }
+
+      };
+
+
+    if (
+      !usuarioRolouFeed
+    ) {
+
+      window.addEventListener(
+        "scroll",
+        liberarScroll,
+        {
+          passive: true,
+        }
+      );
+
+    }
 
   }
 
@@ -2244,6 +2306,8 @@ if (shellOk) {
 
     const comunidadeNome =
 
+      post.comunidade?.nome ||
+
       post.comunidadeNome ||
 
       obterComunidadePorId(
@@ -2593,6 +2657,66 @@ if (shellOk) {
 
 
   /* =========================================================
+     ANEXAR NOVOS POSTS SEM RE-RENDERIZAR OS ANTERIORES
+  ========================================================= */
+
+  function anexarPostsAoFeed(
+    novosPosts
+  ) {
+
+    if (
+      !feedEl ||
+      !Array.isArray(
+        novosPosts
+      ) ||
+      !novosPosts.length
+    ) {
+
+      return;
+
+    }
+
+
+    const novosFiltrados =
+      filtrarPostsPorTipo(
+        novosPosts
+      );
+
+
+    if (
+      !novosFiltrados.length
+    ) {
+
+      return;
+
+    }
+
+
+    /*
+      Importante:
+      não usamos innerHTML no feed inteiro aqui.
+
+      Assim, os cards que já estão na tela permanecem
+      exatamente como estão e somente os novos entram no final.
+    */
+
+    feedEl.insertAdjacentHTML(
+      "beforeend",
+
+      novosFiltrados
+        .map(
+          criarPostHTML
+        )
+        .join("")
+    );
+
+
+    initLucide();
+
+  }
+
+
+  /* =========================================================
      RENDER FEED
   ========================================================= */
 
@@ -2738,9 +2862,7 @@ if (shellOk) {
       }
 
 
-      atualizarSentinelaFeed(
-        0
-      );
+      atualizarSentinelaFeed();
 
 
       initLucide();
@@ -2751,17 +2873,9 @@ if (shellOk) {
     }
 
 
-    const postsVisiveis =
-
-      postsFiltrados.slice(
-        0,
-        limitePostsVisiveis
-      );
-
-
     feedEl.innerHTML =
 
-      postsVisiveis
+      postsFiltrados
 
         .map(
           criarPostHTML
@@ -2770,9 +2884,7 @@ if (shellOk) {
         .join("");
 
 
-    atualizarSentinelaFeed(
-      postsFiltrados.length
-    );
+    atualizarSentinelaFeed();
 
 
     initLucide();
@@ -4098,11 +4210,6 @@ if (shellOk) {
         );
 
 
-      removerVinculoComunidadeDoPost(
-        postId
-      );
-
-
       postParaExcluir =
         null;
 
@@ -4315,10 +4422,9 @@ if (shellOk) {
         renderizarFiltrosComunidades();
 
 
-        resetarPaginacaoFeed();
-
-
-        renderFeed();
+        await carregarFeedAtual(
+          true
+        );
 
 
         document
@@ -4709,7 +4815,7 @@ if (shellOk) {
 
       button.addEventListener(
         "click",
-        () => {
+        async () => {
 
 
           feedFilterButtons.forEach(
@@ -4749,15 +4855,17 @@ if (shellOk) {
 
           if (comunidadesAtivas) {
 
+            await carregarMinhasComunidades();
+
+
             renderizarFiltrosComunidades();
 
           }
 
 
-          resetarPaginacaoFeed();
-
-
-          renderFeed();
+          await carregarFeedAtual(
+            true
+          );
 
         }
       );
@@ -4776,7 +4884,7 @@ if (shellOk) {
     )
     ?.addEventListener(
       "click",
-      (event) => {
+      async (event) => {
 
         const toggleButton =
           event.target.closest(
@@ -4848,10 +4956,9 @@ if (shellOk) {
         renderizarFiltrosConteudo();
 
 
-        resetarPaginacaoFeed();
-
-
-        renderFeed();
+        await carregarFeedAtual(
+          true
+        );
 
       }
     );
@@ -4912,7 +5019,7 @@ if (shellOk) {
   communityFilters
     ?.addEventListener(
       "click",
-      (
+      async (
         event
       ) => {
 
@@ -4939,10 +5046,9 @@ if (shellOk) {
         renderizarFiltrosComunidades();
 
 
-        resetarPaginacaoFeed();
-
-
-        renderFeed();
+        await carregarFeedAtual(
+          true
+        );
 
       }
     );
@@ -5680,39 +5786,7 @@ if (shellOk) {
       }
 
 
-      const feed =
-        await fetchFeed();
-
-
-      postsCarregados =
-        aplicarVinculosComunidades(
-
-          feed.map(
-            (post) => ({
-
-              ...post,
-
-              seguindo:
-
-                seguindoIds.has(
-                  String(
-                    post.userId
-                  )
-                ),
-
-              comentarios:
-                [],
-
-              comentariosCarregados:
-                false,
-
-              comentariosAbertos:
-                false,
-
-            })
-          )
-
-        );
+      await carregarMinhasComunidades();
 
 
       renderizarFiltrosConteudo();
@@ -5721,10 +5795,9 @@ if (shellOk) {
       renderizarFiltrosComunidades();
 
 
-      resetarPaginacaoFeed();
-
-
-      renderFeed();
+      await carregarFeedAtual(
+        true
+      );
 
 
       configurarInfiniteScroll();

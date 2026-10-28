@@ -9,10 +9,9 @@ import 'postar.dart';
 import 'explorar.dart';
 import 'configuracoes.dart';
 import 'perfil.dart';
-import 'metas.dart';
-import 'foco.dart';
-import 'notificacoes.dart';
 import 'evolucao.dart';
+import 'foco.dart';
+import 'metas.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +101,18 @@ class PaceApp extends StatelessWidget {
                 page = const ExplorarPage();
                 break;
 
+              case '/metas':
+                page = const MetasPage();
+                break;
+
+              case '/foco':
+                page = const FocoPage();
+                break;
+
+              case '/evolucao':
+                page = const EvolucaoPage();
+                break;
+
               case '/config':
                 page = ConfigPage(
                   themeController:
@@ -113,22 +124,6 @@ class PaceApp extends StatelessWidget {
                 page = const PerfilPage();
                 break;
 
-              case '/metas':
-                page = const MetasPage();
-                break;
-
-              case '/foco':
-                page = const FocoPage();
-                break;
-
-              case '/notificacoes':
-                page = const NotificacoesPage();
-                break;
-
-              case '/evolucao':
-                page = const EvolucaoPage();
-                break;
-
               default:
                 page = const HomePage();
             }
@@ -136,9 +131,15 @@ class PaceApp extends StatelessWidget {
             return PageRouteBuilder(
               settings: settings,
 
-              transitionDuration: const Duration(milliseconds: 240),
+              transitionDuration:
+                  const Duration(
+                milliseconds: 650,
+              ),
 
-              reverseTransitionDuration: const Duration(milliseconds: 200),
+              reverseTransitionDuration:
+                  const Duration(
+                milliseconds: 500,
+              ),
 
               pageBuilder: (
                 context,
@@ -183,7 +184,15 @@ class PaceApp extends StatelessWidget {
                   curved,
                 );
 
-                final scale = Tween<double>(begin: 1, end: 1).animate(curved);
+                final scale =
+                    Tween<double>(
+                  begin:
+                      0.985,
+                  end:
+                      1,
+                ).animate(
+                  curved,
+                );
 
                 return FadeTransition(
                   opacity: fade,

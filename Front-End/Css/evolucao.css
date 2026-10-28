@@ -1549,94 +1549,85 @@ body.dark .pace-index-factors span {
   line-height: 1.5;
 }
 
-/* Cabeçalho da tabela antiga não é mais necessário */
 .consistency-table-head {
-  display: none;
+  display: grid;
+  grid-template-columns: minmax(180px,.9fr) minmax(180px,1.2fr) minmax(180px,.95fr);
+  gap: 1rem;
+  margin: .15rem 0 .7rem;
+  padding: 0 .1rem;
+  color: var(--muted);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
-/* Gráfico */
 .consistency-track {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.consistency-row {
   display: grid;
-  grid-template-columns: repeat(8, minmax(58px, 1fr));
-  gap: .9rem;
-  align-items: end;
-  min-height: 270px;
-  padding: 1rem 1rem .9rem;
-  overflow-x: auto;
+  grid-template-columns: minmax(180px,.9fr) minmax(180px,1.2fr) minmax(180px,.95fr);
+  gap: 1rem;
+  align-items: center;
+  padding: .95rem 1rem;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent calc(33.333% - 1px),
-      rgba(23,105,232,.055) calc(33.333% - 1px),
-      rgba(23,105,232,.055) 33.333%
-    ),
-    #F8FBFE;
+  background: #F8FBFE;
 }
 
-.consistency-bar-item {
-  display: grid;
-  grid-template-rows: 24px 185px 22px;
-  align-items: end;
-  min-width: 58px;
+.consistency-row.current {
+  border-color: rgba(23,105,232,.18);
+  background: linear-gradient(135deg, rgba(23,105,232,.06), rgba(255,201,40,.05));
 }
 
-.consistency-bar-value {
-  align-self: end;
-  color: var(--text-soft);
-  font-size: .66rem;
-  font-weight: 800;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.consistency-bar-area {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 185px;
-}
-
-.consistency-bar {
+.consistency-row-title small {
   display: block;
-  width: 32px;
-  min-height: 4px;
-  border-radius: 8px 8px 3px 3px;
-  background: linear-gradient(180deg, #61A0FF 0%, var(--primary) 100%);
-  box-shadow: 0 7px 16px rgba(23,105,232,.13);
-  transition:
-    height .6s cubic-bezier(.22,1,.36,1),
-    transform 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.consistency-bar-item:hover .consistency-bar {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(23,105,232,.18);
-}
-
-.consistency-bar.zero {
-  height: 4px !important;
-  background: rgba(23,105,232,.10);
-  box-shadow: none;
-}
-
-.consistency-bar-week {
-  color: var(--muted);
-  font-size: .65rem;
-  font-weight: 850;
-  text-align: center;
-}
-
-.consistency-bar-item.current .consistency-bar-week {
+  margin-bottom: .22rem;
   color: var(--primary);
+  font-size: .6rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
-.consistency-bar-item.current .consistency-bar {
-  box-shadow: 0 8px 18px rgba(23,105,232,.18);
+.consistency-row-title strong {
+  color: var(--text-soft);
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.consistency-row-bar {
+  position: relative;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(23,105,232,.09);
+}
+
+.consistency-row-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), #63A1FF);
+  box-shadow: 0 6px 18px rgba(23,105,232,.18);
+}
+
+.consistency-row-metrics strong {
+  display: block;
+  color: var(--text);
+  font-size: .9rem;
+}
+
+.consistency-row-metrics span {
+  display: block;
+  margin-top: .24rem;
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.45;
 }
 
 body.dark .consistency-highlight-icon {
@@ -1644,21 +1635,8 @@ body.dark .consistency-highlight-icon {
   background: rgba(255,255,255,.06);
 }
 
-body.dark .consistency-track {
-  border-color: rgba(255,255,255,.07);
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent calc(33.333% - 1px),
-      rgba(255,255,255,.055) calc(33.333% - 1px),
-      rgba(255,255,255,.055) 33.333%
-    ),
-    rgba(255,255,255,.035);
-}
-
-body.dark .consistency-bar.zero {
-  background: rgba(255,255,255,.11);
+body.dark .consistency-row.current {
+  background: linear-gradient(135deg, rgba(23,105,232,.12), rgba(255,201,40,.04));
 }
 
 @media (max-width: 900px) {
@@ -1666,9 +1644,13 @@ body.dark .consistency-bar.zero {
     grid-template-columns: 1fr;
   }
 
-  .consistency-track {
-    grid-template-columns: repeat(8, minmax(62px, 1fr));
-    gap: .7rem;
+  .consistency-table-head {
+    display: none;
+  }
+
+  .consistency-row {
+    grid-template-columns: 1fr;
+    gap: .65rem;
   }
 }
 
@@ -1696,26 +1678,6 @@ body.dark .consistency-bar.zero {
 
   .chart-column-footer span {
     font-size: .6rem;
-  }
-
-  .consistency-track {
-    grid-template-columns: repeat(8, 54px);
-    gap: .65rem;
-    min-height: 235px;
-    padding: .9rem .8rem .75rem;
-  }
-
-  .consistency-bar-item {
-    grid-template-rows: 22px 150px 20px;
-    min-width: 54px;
-  }
-
-  .consistency-bar-area {
-    height: 150px;
-  }
-
-  .consistency-bar {
-    width: 27px;
   }
 }
 
@@ -2329,4 +2291,261 @@ body.dark
     scroll-behavior: auto !important;
     transition: none !important;
   }
+}
+
+/* =========================================================
+   EVOLUÇÃO — RESUMO SEMANAL REFEITO
+========================================================= */
+
+.consistency-table-head,
+.consistency-row,
+.consistency-week,
+.week-indicator,
+.week-content,
+.week-heading,
+.week-progress,
+.week-details {
+  display: none !important;
+}
+
+.consistency-track {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: .75rem;
+}
+
+.consistency-week-card {
+  min-width: 0;
+
+  padding: .9rem;
+
+  border: 1px solid var(--line);
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, .7);
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.consistency-week-card:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(23, 105, 232, .18);
+
+  box-shadow:
+    0 10px 24px
+    rgba(6, 21, 45, .06);
+}
+
+.consistency-week-card.current {
+  border-color:
+    rgba(23, 105, 232, .22);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(23, 105, 232, .07),
+      rgba(255, 255, 255, .82)
+    );
+}
+
+.consistency-week-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: .5rem;
+}
+
+.consistency-week-label {
+  color: var(--primary);
+
+  font-size: .58rem;
+  font-weight: 900;
+
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.consistency-week-top strong {
+  color: var(--text);
+
+  font-size: .9rem;
+  font-weight: 850;
+}
+
+.consistency-week-period {
+  display: block;
+
+  margin-top: .35rem;
+
+  color: var(--muted);
+
+  font-size: .65rem;
+  line-height: 1.4;
+}
+
+.consistency-week-stats {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: .42rem;
+
+  margin-top: .7rem;
+}
+
+.consistency-week-stats span {
+  display: inline-flex;
+  align-items: center;
+
+  gap: .28rem;
+
+  padding:
+    .32rem
+    .45rem;
+
+  border-radius: 9px;
+
+  color: var(--text-soft);
+
+  background:
+    rgba(23, 105, 232, .055);
+
+  font-size: .62rem;
+  font-weight: 750;
+}
+
+.consistency-week-stats svg {
+  width: 13px;
+  height: 13px;
+
+  color: var(--primary);
+}
+
+body.dark .consistency-week-card {
+  border-color:
+    rgba(255, 255, 255, .07);
+
+  background:
+    rgba(255, 255, 255, .025);
+}
+
+body.dark .consistency-week-card:hover {
+  border-color:
+    rgba(87, 153, 255, .16);
+
+  box-shadow: none;
+}
+
+body.dark .consistency-week-card.current {
+  border-color:
+    rgba(87, 153, 255, .18);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(23, 105, 232, .11),
+      rgba(255, 255, 255, .025)
+    );
+}
+
+body.dark .consistency-week-stats span {
+  background:
+    rgba(255, 255, 255, .045);
+}
+
+@media (max-width: 900px) {
+
+  .consistency-track {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+@media (max-width: 560px) {
+
+  .consistency-track {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+
+
+
+/* =========================================================
+   EVOLUÇÃO — SCROLL SUAVE / PERFORMANCE
+========================================================= */
+
+/*
+  No Firefox, background fixo + blur grande em vários cards
+  força repintura pesada durante o scroll.
+*/
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background-attachment: scroll;
+}
+
+/*
+  Os cards já usam fundos quase opacos.
+  Remover o backdrop-filter mantém o visual praticamente igual
+  e reduz bastante o custo de composição durante a rolagem.
+*/
+.evolution-spotlight,
+.dashboard-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/*
+  Desfaz a otimização anterior que criava renderização tardia
+  e podia causar pequenos travamentos conforme os blocos
+  entravam no viewport.
+*/
+.dashboard-card,
+.metric-card,
+.achievement-card,
+.timeline-item,
+.consistency-week-card {
+  content-visibility: visible;
+  contain-intrinsic-size: auto;
+}
+
+/*
+  Evita transições de propriedades grandes enquanto a página
+  está simplesmente sendo rolada.
+*/
+.dashboard-card,
+.metric-card,
+.timeline-item,
+.achievement-card,
+.consistency-week-card {
+  transition-property:
+    transform,
+    border-color,
+    box-shadow;
+}
+
+/*
+  A tooltip pode manter blur porque só existe quando aberta.
+*/
+.pace-index-tooltip {
+  will-change: auto;
 }

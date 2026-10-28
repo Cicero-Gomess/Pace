@@ -58,6 +58,26 @@ def criar_sessao(
 
 
 # =========================
+# LISTAR TODAS AS SESSÕES DO USUÁRIO
+# =========================
+
+@sessao_router.get("/minhas")
+def listar_minhas_sessoes(
+    session: Session = Depends(pegar_sessao),
+    usuario: User = Depends(pegar_usuario_atual)
+):
+    sessoes = (
+        session.query(Sessao)
+        .join(Meta, Meta.id == Sessao.meta_id)
+        .filter(Meta.usuario_id == usuario.id)
+        .order_by(Sessao.inicio.desc())
+        .all()
+    )
+
+    return sessoes
+
+
+# =========================
 # LISTAR SESSÕES DE UMA META
 # =========================
 
@@ -72,7 +92,7 @@ def listar_sessoes_meta(
         session.query(Meta)
         .filter(
             Meta.id == meta_id,
-            Meta.id_usuario == usuario.id
+            Meta.usuario_id == usuario.id
         )
         .first()
     )

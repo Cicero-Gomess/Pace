@@ -1,4 +1,7 @@
 import { initAppShell } from "./shared/app-shell.js";
+import {
+  createPost,
+} from "./shared/services/post-service.js";
 
 
 /* =========================================================
@@ -223,6 +226,51 @@ const elementos = {
       "fecharConclusao"
     ),
 
+  compartilharFoco:
+    document.getElementById(
+      "compartilharFoco"
+    ),
+
+  compartilharFocoModal:
+    document.getElementById(
+      "compartilharFocoModal"
+    ),
+
+  fecharCompartilharFoco:
+    document.getElementById(
+      "fecharCompartilharFoco"
+    ),
+
+  cancelarCompartilharFoco:
+    document.getElementById(
+      "cancelarCompartilharFoco"
+    ),
+
+  publicarFoco:
+    document.getElementById(
+      "publicarFoco"
+    ),
+
+  focoCompartilharMeta:
+    document.getElementById(
+      "focoCompartilharMeta"
+    ),
+
+  focoCompartilharTempo:
+    document.getElementById(
+      "focoCompartilharTempo"
+    ),
+
+  focoCompartilharTexto:
+    document.getElementById(
+      "focoCompartilharTexto"
+    ),
+
+  focoCompartilharContador:
+    document.getElementById(
+      "focoCompartilharContador"
+    ),
+
   confirmModal:
     document.getElementById(
       "confirmModal"
@@ -254,6 +302,19 @@ const elementos = {
     ),
 
 };
+
+
+const decreaseCustomTime =
+  document.getElementById(
+    "decreaseCustomTime"
+  );
+
+const increaseCustomTime =
+  document.getElementById(
+    "increaseCustomTime"
+  );
+
+
 
 
 const defaultSettings = {
@@ -288,6 +349,9 @@ let timerInterval = null;
 let pendingConfirmAction = null;
 
 let finalizando = false;
+
+let ultimaSessaoConcluida =
+  null;
 
 
 /* =========================================================
@@ -1052,6 +1116,7 @@ function normalizarSessao(
 
     goalId:
       String(
+        sessao.meta_id ||
         sessao.id_meta ||
         meta?.id ||
         ""
@@ -2749,6 +2814,11 @@ function abrirConclusao(
   sessao
 ) {
 
+  ultimaSessaoConcluida = {
+    ...sessao,
+  };
+
+
   if (
     !elementos.conclusaoModal
   ) {
@@ -2788,6 +2858,171 @@ function abrirConclusao(
 
   iniciarIcones();
 
+}
+
+
+/* =========================================================
+   COMPARTILHAR FOCO
+========================================================= */
+
+function criarTextoPadraoFoco(
+  sessao
+) {
+
+  return "";
+
+}
+
+
+function atualizarContadorFoco() {
+  const tamanho =
+    elementos.focoCompartilharTexto
+      ?.value
+      .length ||
+    0;
+
+  elementos.focoCompartilharContador.textContent =
+    `${tamanho}/500`;
+}
+
+
+function abrirCompartilharFoco() {
+  const sessao =
+    ultimaSessaoConcluida;
+
+  if (!sessao?.id) {
+    mostrarToast(
+      "Nenhuma sessão concluída disponível.",
+      "error"
+    );
+
+    return;
+  }
+
+  elementos.conclusaoModal
+    ?.classList.add(
+      "hidden"
+    );
+
+  elementos.focoCompartilharMeta.textContent =
+    sessao.goalTitle ||
+    "Sessão de foco";
+
+  elementos.focoCompartilharTempo.textContent =
+    formatarDuracao(
+      sessao.durationSeconds
+    );
+
+  elementos.focoCompartilharTexto.value =
+    criarTextoPadraoFoco(
+      sessao
+    );
+
+  elementos.focoCompartilharTexto.placeholder =
+    "Conte do seu jeito como foi essa sessão de foco...";
+
+  atualizarContadorFoco();
+
+  elementos.compartilharFocoModal
+    ?.classList.remove(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "hidden";
+
+  setTimeout(
+    () =>
+      elementos.focoCompartilharTexto
+        ?.focus(),
+    50
+  );
+
+  iniciarIcones();
+}
+
+
+function fecharCompartilharFoco(
+  voltar = false
+) {
+  elementos.compartilharFocoModal
+    ?.classList.add(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "";
+
+  if (
+    voltar &&
+    ultimaSessaoConcluida
+  ) {
+    elementos.conclusaoModal
+      ?.classList.remove(
+        "hidden"
+      );
+  }
+}
+
+
+async function publicarFoco() {
+  const sessao =
+    ultimaSessaoConcluida;
+
+  if (!sessao?.id) {
+    return;
+  }
+
+  const conteudo =
+    elementos.focoCompartilharTexto
+      ?.value
+      .trim() ||
+    "";
+
+  if (!conteudo) {
+    mostrarToast(
+      "Escreva algo para compartilhar.",
+      "error"
+    );
+
+    return;
+  }
+
+  elementos.publicarFoco.disabled =
+    true;
+
+  try {
+    await createPost(
+      conteudo,
+      null,
+      null,
+      "foco",
+      sessao.goalId
+        ? Number(sessao.goalId)
+        : null,
+      Number(sessao.id)
+    );
+
+    fecharCompartilharFoco();
+
+    mostrarToast(
+      "Sessão de foco compartilhada! ⚡"
+    );
+
+    ultimaSessaoConcluida =
+      null;
+
+  } catch (erro) {
+
+    tratarErro(
+      erro
+    );
+
+  } finally {
+
+    elementos.publicarFoco.disabled =
+      false;
+  }
 }
 
 
@@ -3988,6 +4223,50 @@ elementos.aceitarConfirmacao
   );
 
 
+elementos.compartilharFoco
+  ?.addEventListener(
+    "click",
+    abrirCompartilharFoco
+  );
+
+elementos.fecharCompartilharFoco
+  ?.addEventListener(
+    "click",
+    () => fecharCompartilharFoco(true)
+  );
+
+elementos.cancelarCompartilharFoco
+  ?.addEventListener(
+    "click",
+    () => fecharCompartilharFoco(true)
+  );
+
+elementos.publicarFoco
+  ?.addEventListener(
+    "click",
+    publicarFoco
+  );
+
+elementos.focoCompartilharTexto
+  ?.addEventListener(
+    "input",
+    atualizarContadorFoco
+  );
+
+elementos.compartilharFocoModal
+  ?.addEventListener(
+    "click",
+    (evento) => {
+      if (
+        evento.target ===
+        elementos.compartilharFocoModal
+      ) {
+        fecharCompartilharFoco(true);
+      }
+    }
+  );
+
+
 elementos.fecharConclusao
   ?.addEventListener(
     "click",
@@ -4288,3 +4567,84 @@ if (
   iniciarIcones();
 
 }
+
+
+function ajustarTempoPersonalizado(
+  delta
+) {
+
+  const input =
+    document.getElementById(
+      "duracaoPersonalizada"
+    );
+
+
+  if (!input) {
+    return;
+  }
+
+
+  const atual =
+    Number.parseInt(
+      input.value,
+      10
+    );
+
+
+  const base =
+    Number.isFinite(
+      atual
+    )
+      ? atual
+      : 1;
+
+
+  const proximo =
+    Math.min(
+      180,
+      Math.max(
+        1,
+        base + delta
+      )
+    );
+
+
+  input.value =
+    String(
+      proximo
+    );
+
+
+  input.dispatchEvent(
+    new Event(
+      "input",
+      {
+        bubbles:
+          true,
+      }
+    )
+  );
+
+}
+
+
+decreaseCustomTime
+  ?.addEventListener(
+    "click",
+    () => {
+      ajustarTempoPersonalizado(
+        -1
+      );
+    }
+  );
+
+
+increaseCustomTime
+  ?.addEventListener(
+    "click",
+    () => {
+      ajustarTempoPersonalizado(
+        1
+      );
+    }
+  );

@@ -1747,3 +1747,51 @@ body.dark .community-manage-members-empty {
     width: 100%
   }
 }
+
+/* =========================================================
+   EXPLORAR — INTERAÇÕES DO MODAL DE PERFIL
+========================================================= */
+
+.modal-like-btn {
+  cursor: pointer;
+  transition:
+    color .16s ease,
+    background .16s ease,
+    transform .16s ease;
+}
+
+.modal-like-btn:hover {
+  transform: translateY(-1px);
+}
+
+.modal-like-btn.liked {
+  color: #D8425C !important;
+  background: rgba(216, 66, 92, .13) !important;
+}
+
+.modal-like-btn.liked svg {
+  color: #D8425C !important;
+  stroke: #D8425C !important;
+  fill: #D8425C !important;
+}
+
+.modal-comments-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .7rem;
+  border-radius: 999px;
+  color: #516386;
+  background: var(--pace-blue-soft);
+  font-weight: 800;
+}
+
+.modal-comments-count svg {
+  width: 16px;
+  height: 16px;
+}
+
+body.dark .modal-comments-count {
+  color: #9EB4CF;
+  background: rgba(255, 255, 255, .055);
+}

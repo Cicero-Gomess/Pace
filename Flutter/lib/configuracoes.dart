@@ -1,13 +1,16 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'api_config.dart';
-import 'pace_shell.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'api_config.dart';
 import 'theme_controller.dart';
+
+const Color _primary = Color(0xFF1769E8);
+const Color _accent = Color(0xFFFFC928);
+const Color _danger = Color(0xFFD9534F);
+const String _apiUrl = 'http://127.0.0.1:8000';
 
 class ConfigPage extends StatefulWidget {
   final ThemeController themeController;
@@ -22,33 +25,34 @@ class ConfigPage extends StatefulWidget {
 }
 
 class _ConfigPageState extends State<ConfigPage> {
-  String get apiUrl => ApiConfig.baseUrl;
-
-  bool sidebarHovered = false;
-  String? sidebarItemHovered;
-  bool isLoadingUser = true;
-  bool isSavingPassword = false;
-
-  Map<String, dynamic> usuarioLogado = {};
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final TextEditingController senhaAtualController = TextEditingController();
   final TextEditingController novaSenhaController = TextEditingController();
   final TextEditingController confirmarSenhaController =
       TextEditingController();
 
+  bool isLoadingUser = true;
+  bool isSavingPassword = false;
+  bool sidebarHovered = false;
+  String? sidebarItemHovered;
+
+  bool showCurrentPassword = false;
+  bool showNewPassword = false;
+  bool showConfirmPassword = false;
+
+  Map<String, dynamic> usuarioLogado = {};
+
   bool get darkMode => widget.themeController.darkMode;
 
-  Color get bgColor =>
-      darkMode ? const Color(0xFF05070C) : const Color(0xFFF4F7FB);
+  Color get bg =>
+      darkMode ? const Color(0xFF06101F) : const Color(0xFFEAF3FB);
 
-  Color get textColor =>
-      darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
+  Color get text =>
+      darkMode ? const Color(0xFFF2F6FF) : const Color(0xFF06152D);
 
-  Color get mutedColor =>
-      darkMode ? const Color(0xFF9CA7BE) : const Color(0xFF6F7B91);
-
-  Color get sidebarTextColor =>
-      darkMode ? const Color(0xFFF1F5FF) : const Color(0xFF33415C);
+  Color get muted =>
+      darkMode ? const Color(0xFF98A8BF) : const Color(0xFF61758F);
 
   @override
   void initState() {
@@ -66,42 +70,58 @@ class _ConfigPageState extends State<ConfigPage> {
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('token') ?? prefs.getString('access_token');
   }
 
   Future<void> _initUser() async {
     final token = await _getToken();
 
-    if (!mounted) return;
-
-    if (token == null) {
-      Navigator.of(context).pushReplacementNamed('/entrar');
+    if (token == null || token.isEmpty) {
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/entrar');
+      }
       return;
     }
 
     try {
       final response = await http.get(
-        Uri.parse('$apiUrl/profile/me'),
+        Uri.parse('$_apiUrl/profile/me'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 401) {
-        if (mounted) Navigator.of(context).pushReplacementNamed('/entrar');
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
         return;
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = jsonDecode(response.body);
+
+        if (!mounted) return;
+
         setState(() {
-          usuarioLogado = Map<String, dynamic>.from(jsonDecode(response.body));
+          usuarioLogado = decoded is Map
+              ? Map<String, dynamic>.from(decoded)
+              : {};
           isLoadingUser = false;
         });
       } else {
+        if (!mounted) return;
         setState(() => isLoadingUser = false);
-        _showToast('Não foi possível carregar seu perfil.', Colors.red);
+        _showToast(
+          'Não foi possível carregar seu perfil.',
+          error: true,
+        );
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => isLoadingUser = false);
-      _showToast('Não foi possível carregar seu perfil.', Colors.red);
+      _showToast(
+        'Não foi possível carregar seu perfil.',
+        error: true,
+      );
     }
   }
 
@@ -113,12 +133,104 @@ class _ConfigPageState extends State<ConfigPage> {
   }
 
   Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.64),
+      builder: (context) {
+        final dark =
+            Theme.of(context).brightness == Brightness.dark;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 430),
+            child: Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: dark
+                    ? const Color(0xFF0F1B2F)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _danger.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.logout_rounded,
+                      color: _danger,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Sair da conta?',
+                    style: TextStyle(
+                      color: dark
+                          ? Colors.white
+                          : const Color(0xFF06152D),
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    'Você precisará entrar novamente para acessar o Pace.',
+                    style: TextStyle(
+                      color: dark
+                          ? const Color(0xFF98A8BF)
+                          : const Color(0xFF61758F),
+                      fontSize: 12,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pop(context, false),
+                        child: const Text('Cancelar'),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _danger,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () =>
+                            Navigator.pop(context, true),
+                        child: const Text('Sair da conta'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await prefs.remove('access_token');
     await prefs.remove('usuarioLogado');
 
     if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/entrar', (_) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/entrar', (_) => false);
   }
 
   Future<void> _alterarSenha() async {
@@ -127,24 +239,40 @@ class _ConfigPageState extends State<ConfigPage> {
     final confirmarSenha = confirmarSenhaController.text.trim();
     final token = await _getToken();
 
-    if (senhaAtual.isEmpty || novaSenha.isEmpty || confirmarSenha.isEmpty) {
-      _showToast('Preencha todos os campos antes de continuar.', Colors.red);
+    if (senhaAtual.isEmpty ||
+        novaSenha.isEmpty ||
+        confirmarSenha.isEmpty) {
+      _showToast(
+        'Preencha todos os campos antes de continuar.',
+        error: true,
+      );
       return;
     }
 
     if (novaSenha.length < 6) {
-      _showToast('A nova senha deve ter pelo menos 6 caracteres.', Colors.red);
+      _showToast(
+        'A nova senha deve ter pelo menos 6 caracteres.',
+        error: true,
+      );
       return;
     }
 
     if (novaSenha != confirmarSenha) {
-      _showToast('A confirmação da nova senha não confere.', Colors.red);
+      _showToast(
+        'A confirmação da nova senha não confere.',
+        error: true,
+      );
       return;
     }
 
-    if (token == null) {
-      _showToast('Sua sessão expirou. Faça login novamente.', Colors.red);
-      Navigator.of(context).pushReplacementNamed('/entrar');
+    if (token == null || token.isEmpty) {
+      _showToast(
+        'Sua sessão expirou. Faça login novamente.',
+        error: true,
+      );
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/entrar');
+      }
       return;
     }
 
@@ -152,7 +280,7 @@ class _ConfigPageState extends State<ConfigPage> {
 
     try {
       final response = await http.put(
-        Uri.parse('$apiUrl/auth/atualizar_senha'),
+        Uri.parse('$_apiUrl/auth/atualizar_senha'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -171,14 +299,19 @@ class _ConfigPageState extends State<ConfigPage> {
       }
 
       if (response.statusCode == 401) {
-        if (mounted) Navigator.of(context).pushReplacementNamed('/entrar');
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
         return;
       }
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        final message = data is Map && data['detail'] != null
-            ? data['detail'].toString()
-            : 'Erro ao atualizar a senha.';
+      if (response.statusCode < 200 ||
+          response.statusCode >= 300) {
+        final message =
+            data is Map && data['detail'] != null
+                ? data['detail'].toString()
+                : 'Erro ao atualizar a senha.';
+
         throw Exception(message);
       }
 
@@ -190,35 +323,64 @@ class _ConfigPageState extends State<ConfigPage> {
         data is Map && data['message'] != null
             ? data['message'].toString()
             : 'Senha atualizada com sucesso!',
-        Colors.green,
       );
-    } catch (e) {
-      _showToast(e.toString().replaceFirst('Exception: ', ''), Colors.red);
+    } catch (error) {
+      _showToast(
+        error.toString().replaceFirst('Exception: ', ''),
+        error: true,
+      );
     } finally {
-      if (mounted) setState(() => isSavingPassword = false);
+      if (mounted) {
+        setState(() => isSavingPassword = false);
+      }
     }
   }
 
-  ImageProvider _avatarProvider(String? value) {
-    return ApiConfig.imageProvider(value);
+  String get _username {
+    return (usuarioLogado['nome_usuario'] ??
+            usuarioLogado['username'] ??
+            usuarioLogado['nome'] ??
+            'Usuário')
+        .toString();
   }
 
-  String? _fotoUsuarioLogado() {
-    final foto = usuarioLogado['foto_perfil'] ?? usuarioLogado['foto'];
-    if (foto == null || foto.toString().trim().isEmpty) return null;
-    return foto.toString();
+  String get _email =>
+      (usuarioLogado['email'] ?? '—').toString();
+
+  String? get _photo {
+    final raw = usuarioLogado['foto_perfil'] ??
+        usuarioLogado['foto'] ??
+        usuarioLogado['avatar'];
+
+    if (raw == null || raw.toString().trim().isEmpty) {
+      return null;
+    }
+
+    return raw.toString().trim();
   }
 
-  void _showToast(String message, Color color) {
+  ImageProvider _avatarProvider() {
+    return ApiConfig.imageProvider(
+      _photo,
+      fallbackAsset: 'assets/user.png',
+    );
+  }
+
+  void _showToast(
+    String message, {
+    bool error = false,
+  }) {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        duration: const Duration(seconds: 2),
+        backgroundColor:
+            error ? _danger : const Color(0xFF21855F),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
       ),
     );
   }
@@ -227,609 +389,413 @@ class _ConfigPageState extends State<ConfigPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final mobile = width < 760;
+    final tablet = width >= 760 && width < 1080;
 
-    if (isLoadingUser) {
-      return Scaffold(
-        backgroundColor: bgColor,
-        body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF3059AA)),
-        ),
-      );
-    }
-
-    return PaceShell(
-      currentRoute: '/config',
-      username: usuarioLogado['username']?.toString() ?? 'Meu perfil',
-      avatarValue: _fotoUsuarioLogado(),
-      backgroundColor: bgColor,
-      child: Stack(
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: bg,
+      drawer: mobile ? _mobileDrawer() : null,
+      body: Row(
         children: [
-          _BackgroundDecor(darkMode: darkMode),
-          SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              mobile ? 18 : 38,
-              mobile ? 28 : 48,
-              mobile ? 18 : 42,
-              80,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1050),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHero(),
-                    const SizedBox(height: 28),
-                    _buildConfigGrid(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHero() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _Badge(text: 'Personalização'),
-        const SizedBox(height: 14),
-        Text(
-          'Configurações',
-          style: TextStyle(
-            fontSize: 42,
-            height: 1.05,
-            fontWeight: FontWeight.w800,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: 720,
-          child: Text(
-            'Ajuste sua experiência no Pace e deixe o ambiente mais confortável para sua rotina.',
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.7,
-              color: mutedColor,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildConfigGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSmall = constraints.maxWidth < 900;
-
-        if (isSmall) {
-          return Column(
-            children: [
-              _buildPasswordCard(),
-              const SizedBox(height: 20),
-              _buildAppearanceCard(),
-              const SizedBox(height: 20),
-              _buildAccessCard(),
-            ],
-          );
-        }
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 14, child: _buildPasswordCard()),
-            const SizedBox(width: 20),
-            Expanded(
-              flex: 10,
-              child: Column(
-                children: [
-                  _buildAppearanceCard(),
-                  const SizedBox(height: 20),
-                  _buildAccessCard(),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildPasswordCard() {
-    return _GlassCard(
-      darkMode: darkMode,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardTop(
-            kicker: 'Conta',
-            title: 'Alterar senha',
-            icon: Icons.key_outlined,
-          ),
-          _PasswordField(
-            controller: senhaAtualController,
-            label: 'Senha atual',
-            hint: 'Digite sua senha atual',
-            darkMode: darkMode,
-          ),
-          const SizedBox(height: 16),
-          _PasswordField(
-            controller: novaSenhaController,
-            label: 'Nova senha',
-            hint: 'Digite sua nova senha',
-            darkMode: darkMode,
-          ),
-          const SizedBox(height: 16),
-          _PasswordField(
-            controller: confirmarSenhaController,
-            label: 'Confirmar nova senha',
-            hint: 'Confirme sua nova senha',
-            darkMode: darkMode,
-          ),
-          const SizedBox(height: 22),
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: ElevatedButton.icon(
-              onPressed: isSavingPassword ? null : _alterarSenha,
-              icon: isSavingPassword
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(Icons.save_outlined),
-              label: Text(
-                isSavingPassword ? 'Salvando...' : 'Salvar alteração',
-                style: const TextStyle(fontWeight: FontWeight.w800),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3059AA),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppearanceCard() {
-    return _GlassCard(
-      darkMode: darkMode,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardTop(
-            kicker: 'Aparência',
-            title: 'Visual do app',
-            icon: Icons.dark_mode_outlined,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Modo escuro',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Ative um visual mais confortável para ambientes com pouca luz.',
-                      style: TextStyle(
-                        color: mutedColor,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: darkMode,
-                activeColor: const Color(0xFF3059AA),
-                onChanged: _toggleDarkMode,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAccessCard() {
-    return _GlassCard(
-      darkMode: darkMode,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardTop(
-            kicker: 'Sessão',
-            title: 'Acesso',
-            icon: Icons.verified_user_outlined,
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton.icon(
-              onPressed: _logout,
-              icon: const Icon(Icons.logout),
-              label: const Text(
-                'Sair da conta',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF4D4D).withOpacity(0.12),
-                foregroundColor: darkMode
-                    ? const Color(0xFFFF7B7B)
-                    : const Color(0xFFD63737),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardTop({
-    required String kicker,
-    required String title,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 22),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          if (!mobile) _sidebar(),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  kicker.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.4,
-                    color: Color(0xFF5EB1BF),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 32,
-                    height: 1.05,
-                    fontWeight: FontWeight.w800,
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: const Color(0xFF3059AA).withOpacity(0.08),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Icon(icon, color: const Color(0xFF3059AA)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
-    const collapsed = 84.0;
-    const expanded = 230.0;
-    final width = sidebarHovered ? expanded : collapsed;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarHovered = true),
-      onExit: (_) {
-        setState(() {
-          sidebarHovered = false;
-          sidebarItemHovered = null;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
-        width: width,
-        height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-        decoration: BoxDecoration(
-          color: darkMode
-              ? const Color(0xC8080A0E)
-              : Colors.white.withOpacity(0.78),
-          border: Border(
-            right: BorderSide(
-              color: darkMode
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.white.withOpacity(0.55),
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(darkMode ? 0.35 : 0.06),
-              blurRadius: 30,
-              offset: const Offset(8, 0),
-            ),
-          ],
-        ),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 104,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 4),
-                      child: Image.asset(
-                        'assets/images/pace_icon.png',
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
+                if (mobile) _mobileTopBar(),
                 Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
+                  child: Stack(
                     children: [
-                      _sidebarItem(Icons.home_outlined, 'Feed', '/feed', false),
-                      _sidebarItem(Icons.track_changes, 'Metas', '/metas', false),
-                      _sidebarItem(Icons.explore_outlined, 'Explorar', '/explorar', false),
-                      _sidebarItem(Icons.add_box_outlined, 'Postar', '/postar', false),
-                      _sidebarItem(Icons.notifications_none, 'Notificações', '/notificacoes', false),
-                      const SizedBox(height: 18),
-                      Divider(color: const Color(0xFF3059AA).withOpacity(0.10)),
-                      const SizedBox(height: 18),
-                      _sidebarItem(Icons.settings_outlined, 'Configurações', '/config', true),
-                      _sidebarProfileItem(),
-                      _sidebarItem(Icons.info_outline, 'Sobre', '/sobre', false),
-
-                      
+                      _background(),
+                      if (isLoadingUser)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            color: _primary,
+                          ),
+                        )
+                      else
+                        SingleChildScrollView(
+                          physics:
+                              const BouncingScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            mobile ? 18 : (tablet ? 28 : 38),
+                            mobile ? 20 : 28,
+                            mobile ? 18 : (tablet ? 28 : 38),
+                            70,
+                          ),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints:
+                                  const BoxConstraints(
+                                maxWidth: 1120,
+                              ),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  _hero(mobile),
+                                  const SizedBox(height: 20),
+                                  _contentGrid(
+                                    mobile,
+                                    tablet,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _background() {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: darkMode
+                  ? const [
+                      Color(0xFF081426),
+                      Color(0xFF06101F),
+                      Color(0xFF040B15),
+                    ]
+                  : const [
+                      Color(0xFFF4F8FD),
+                      Color(0xFFEAF1F9),
+                      Color(0xFFE4EDF8),
+                    ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _sidebarItem(
-    IconData icon,
-    String label,
-    String route,
-    bool active,
-  ) {
-    final isHovered = sidebarItemHovered == route;
-    final highlighted = active || isHovered;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          if (route != '/config') {
-            Navigator.of(context).pushNamed(route);
-          }
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: highlighted
-                ? darkMode
-                    ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: highlighted
-                ? Border.all(
-                    color: darkMode
-                        ? Colors.white.withOpacity(0.08)
-                        : const Color(0xFFC8D8F0),
-                  )
-                : null,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
-
-              return Row(
+  Widget _hero(bool mobile) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
                 children: [
                   SizedBox(
-                    width: 24,
-                    child: Icon(
-                      icon,
-                      color: highlighted
-                          ? const Color(0xFF3059AA)
-                          : sidebarTextColor,
-                      size: 24,
+                    width: 18,
+                    child: Divider(
+                      thickness: 3,
+                      color: _accent,
                     ),
                   ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 160),
-                        opacity: showText ? 1 : 0,
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: highlighted
-                                ? const Color(0xFF3059AA)
-                                : sidebarTextColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
+                  SizedBox(width: 8),
+                  Text(
+                    'CONTA',
+                    style: TextStyle(
+                      color: _primary,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
                     ),
-                  ],
+                  ),
                 ],
-              );
-            },
+              ),
+              const SizedBox(height: 7),
+              Text(
+                'Configurações',
+                style: TextStyle(
+                  color: text,
+                  fontSize: mobile ? 34 : 42,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1.2,
+                ),
+              ),
+              const SizedBox(height: 7),
+              Text(
+                'Gerencie sua conta, aparência e sessão.',
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _sidebarProfileItem() {
-    const route = '/perfil';
-    final isHovered = sidebarItemHovered == route;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => sidebarItemHovered = route),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pushNamed('/perfil'),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          height: 50,
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: isHovered
-                ? darkMode
+        if (!mobile)
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 11,
+            ),
+            decoration: BoxDecoration(
+              color: darkMode
+                  ? const Color(0xFF0F1B2F)
+                  : Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: darkMode
                     ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFFEAF1F7)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showText = sidebarHovered && constraints.maxWidth > 90;
-
-              return Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundImage: _avatarProvider(_fotoUsuarioLogado()),
+                    : const Color(0xFF06152D)
+                        .withOpacity(0.08),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.shield_outlined,
+                  color: _primary,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Conta e preferências',
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
                   ),
-                  if (showText) ...[
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        'Perfil',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: sidebarTextColor,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            },
+                ),
+              ],
+            ),
           ),
-        ),
+      ],
+    );
+  }
+
+  Widget _contentGrid(
+    bool mobile,
+    bool tablet,
+  ) {
+    final password = _passwordCard();
+    final side = Column(
+      children: [
+        _appearanceCard(),
+        const SizedBox(height: 12),
+        _accountSummaryCard(),
+        const SizedBox(height: 12),
+        _sessionCard(),
+      ],
+    );
+
+    if (mobile || tablet) {
+      return Column(
+        children: [
+          password,
+          const SizedBox(height: 12),
+          side,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 3, child: password),
+        const SizedBox(width: 12),
+        Expanded(flex: 2, child: side),
+      ],
+    );
+  }
+
+  Widget _passwordCard() {
+    return _panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(
+            'CONTA E SEGURANÇA',
+            'Alterar senha',
+            'Crie uma nova senha para manter sua conta protegida.',
+            Icons.key_rounded,
+          ),
+          const SizedBox(height: 18),
+          _passwordField(
+            controller: senhaAtualController,
+            label: 'Senha atual',
+            hint: 'Digite sua senha atual',
+            icon: Icons.lock_outline_rounded,
+            obscure: !showCurrentPassword,
+            onToggle: () => setState(
+              () => showCurrentPassword =
+                  !showCurrentPassword,
+            ),
+          ),
+          const SizedBox(height: 13),
+          _passwordField(
+            controller: novaSenhaController,
+            label: 'Nova senha',
+            hint: 'Digite sua nova senha',
+            icon: Icons.shield_outlined,
+            obscure: !showNewPassword,
+            onToggle: () => setState(
+              () => showNewPassword = !showNewPassword,
+            ),
+          ),
+          const SizedBox(height: 13),
+          _passwordField(
+            controller: confirmarSenhaController,
+            label: 'Confirmar nova senha',
+            hint: 'Confirme sua nova senha',
+            icon: Icons.verified_outlined,
+            obscure: !showConfirmPassword,
+            onToggle: () => setState(
+              () => showConfirmPassword =
+                  !showConfirmPassword,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: darkMode
+                  ? const Color(0xFF0B1729)
+                  : const Color(0xFFF7FBFF),
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(
+                color: darkMode
+                    ? Colors.white.withOpacity(0.05)
+                    : const Color(0xFF06152D)
+                        .withOpacity(0.06),
+              ),
+            ),
+            child: Column(
+              children: [
+                _guidance(
+                  'Use uma senha difícil de adivinhar',
+                ),
+                const SizedBox(height: 7),
+                _guidance(
+                  'Use pelo menos 6 caracteres',
+                ),
+                const SizedBox(height: 7),
+                _guidance(
+                  'Evite reutilizar sua senha atual',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed:
+                  isSavingPassword ? null : _alterarSenha,
+              icon: isSavingPassword
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.save_outlined,
+                      size: 18,
+                    ),
+              label: Text(
+                isSavingPassword
+                    ? 'Salvando...'
+                    : 'Salvar alteração',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class _PasswordField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final bool darkMode;
-
-  const _PasswordField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.darkMode,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor =
-        darkMode ? const Color(0xFFF3F6FF) : const Color(0xFF1B2233);
-
+  Widget _passwordField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: TextStyle(
-            color: textColor,
-            fontSize: 15,
+            color: text,
+            fontSize: 11,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         TextField(
           controller: controller,
-          obscureText: true,
-          style: TextStyle(color: textColor),
+          obscureText: obscure,
+          style: TextStyle(
+            color: text,
+            fontSize: 12.5,
+          ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: darkMode
-                  ? const Color(0xFF9CA7BE)
-                  : const Color(0xFF6F7B91),
+              color: muted,
+              fontSize: 11.5,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: _primary,
+              size: 18,
+            ),
+            suffixIcon: IconButton(
+              onPressed: onToggle,
+              icon: Icon(
+                obscure
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: muted,
+                size: 18,
+              ),
             ),
             filled: true,
             fillColor: darkMode
-                ? Colors.white.withOpacity(0.03)
-                : Colors.white.withOpacity(0.82),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                ? const Color(0xFF0D2341)
+                : const Color(0xFFF8FBFE),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: darkMode
                     ? Colors.white.withOpacity(0.06)
-                    : const Color(0xFF3059AA).withOpacity(0.12),
+                    : const Color(0xFF06152D)
+                        .withOpacity(0.07),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: const Color(0xFF3059AA).withOpacity(0.34),
+                color: _primary.withOpacity(0.44),
               ),
             ),
           ),
@@ -837,142 +803,848 @@ class _PasswordField extends StatelessWidget {
       ],
     );
   }
-}
 
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  final bool darkMode;
-
-  const _GlassCard({
-    required this.child,
-    required this.darkMode,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: darkMode
-            ? const Color(0xE00D0D10)
-            : Colors.white.withOpacity(0.84),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: darkMode
-              ? Colors.white.withOpacity(0.05)
-              : Colors.white.withOpacity(0.65),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14274D).withOpacity(darkMode ? 0.30 : 0.10),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
-class _BackgroundDecor extends StatelessWidget {
-  final bool darkMode;
-
-  const _BackgroundDecor({required this.darkMode});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
+  Widget _guidance(String label) {
+    return Row(
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: darkMode
-                  ? const [Color(0xFF05070C), Color(0xFF0B1018)]
-                  : const [Color(0xFFF6F9FD), Color(0xFFEEF3F9)],
+        const Icon(
+          Icons.check_circle_outline_rounded,
+          size: 15,
+          color: Color(0xFF2AA879),
+        ),
+        const SizedBox(width: 7),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: muted,
+              fontSize: 10,
             ),
-          ),
-          child: const SizedBox.expand(),
-        ),
-        const Positioned(
-          top: -120,
-          right: -80,
-          child: _SoftOrb(
-            size: 360,
-            color: Color(0x223059AA),
-            blur: 120,
-          ),
-        ),
-        const Positioned(
-          bottom: 60,
-          left: -100,
-          child: _SoftOrb(
-            size: 340,
-            color: Color(0x245EB1BF),
-            blur: 120,
           ),
         ),
       ],
     );
   }
-}
 
-class _SoftOrb extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double blur;
+  Widget _appearanceCard() {
+    return _panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(
+            'APARÊNCIA',
+            'Visual do app',
+            'Ajuste o Pace para ficar mais confortável no seu ambiente.',
+            Icons.palette_outlined,
+          ),
+          const SizedBox(height: 15),
+          _settingRow(
+            icon: darkMode
+                ? Icons.dark_mode_outlined
+                : Icons.light_mode_outlined,
+            title: 'Modo escuro',
+            description:
+                'Use uma interface mais confortável em ambientes com pouca luz.',
+            trailing: Switch(
+              value: darkMode,
+              activeColor: _primary,
+              onChanged: _toggleDarkMode,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  const _SoftOrb({
-    required this.size,
-    required this.color,
-    required this.blur,
-  });
+  Widget _accountSummaryCard() {
+    return _panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(
+            'SUA CONTA',
+            'Resumo',
+            'Informações principais da conta conectada.',
+            Icons.person_outline_rounded,
+          ),
+          const SizedBox(height: 14),
+          _summaryItem(
+            'Nome de usuário',
+            '@$_username',
+          ),
+          const SizedBox(height: 8),
+          _summaryItem(
+            'E-mail',
+            _email,
+          ),
+          const SizedBox(height: 8),
+          _summaryItem(
+            'Tema atual',
+            darkMode ? 'Escuro' : 'Claro',
+          ),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-      child: Container(
-        width: size,
-        height: size,
+  Widget _summaryItem(
+    String label,
+    String value,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0D2341)
+            : const Color(0xFFF8FBFE),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.05)
+              : const Color(0xFF06152D)
+                  .withOpacity(0.06),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: muted,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: text,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sessionCard() {
+    return _panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(
+            'SESSÃO',
+            'Acesso',
+            'Encerre a sessão atual com segurança.',
+            Icons.verified_user_outlined,
+          ),
+          const SizedBox(height: 15),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _danger.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(
+                color: _danger.withOpacity(0.13),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.logout_rounded,
+                  color: _danger,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sair da conta',
+                        style: TextStyle(
+                          color: text,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Seu token local será removido.',
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 9.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: _logout,
+                  style: TextButton.styleFrom(
+                    foregroundColor: _danger,
+                  ),
+                  child: const Text(
+                    'Sair',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingRow({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Widget trailing,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0D2341)
+            : const Color(0xFFF8FBFE),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.05)
+              : const Color(0xFF06152D)
+                  .withOpacity(0.06),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _primary.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(
+              icon,
+              color: _primary,
+              size: 19,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: text,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 9.5,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _cardHeader(
+    String kicker,
+    String title,
+    String description,
+    IconData icon,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                kicker,
+                style: const TextStyle(
+                  color: _primary,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: text,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  color: muted,
+                  fontSize: 10,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: _primary.withOpacity(0.11),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: _primary,
+            size: 20,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _panel({
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0F1B2F)
+            : Colors.white.withOpacity(0.94),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.055)
+              : const Color(0xFF06152D)
+                  .withOpacity(0.07),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(
+              darkMode ? 0.14 : 0.06,
+            ),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _sidebar() {
+    const collapsed = 88.0;
+    const expanded = 244.0;
+    final width =
+        sidebarHovered ? expanded : collapsed;
+
+    return MouseRegion(
+      onEnter: (_) =>
+          setState(() => sidebarHovered = true),
+      onExit: (_) => setState(() {
+        sidebarHovered = false;
+        sidebarItemHovered = null;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        width: width,
+        height: double.infinity,
+        padding:
+            const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
+          color: const Color(0xFF06152D),
+          border: Border(
+            right: BorderSide(
+              color: _primary.withOpacity(0.09),
+            ),
+          ),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 70,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final showBrand =
+                      constraints.maxWidth >= 150;
+
+                  return Row(
+                    children: [
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 9),
+                        child: Image.asset(
+                          'assets/images/pace_icon.png',
+                          width: 46,
+                          height: 46,
+                        ),
+                      ),
+                      if (showBrand) ...[
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Column(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pace',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight:
+                                      FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                'Evolução contínua',
+                                style: TextStyle(
+                                  color:
+                                      Color(0xFF8FA5C0),
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+            Divider(
+              color: _primary.withOpacity(0.10),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _sectionLabel('COMUNIDADE'),
+                  _navItem(
+                    Icons.home_rounded,
+                    'Feed',
+                    '/feed',
+                  ),
+                  _navItem(
+                    Icons.explore_outlined,
+                    'Explorar',
+                    '/explorar',
+                  ),
+                  _navItem(
+                    Icons.edit_square,
+                    'Postar',
+                    '/postar',
+                  ),
+                  const SizedBox(height: 8),
+                  _sectionLabel('DESENVOLVIMENTO'),
+                  _navItem(
+                    Icons.track_changes_rounded,
+                    'Metas',
+                    '/metas',
+                  ),
+                  _navItem(
+                    Icons.psychology_outlined,
+                    'Sala de foco',
+                    '/foco',
+                  ),
+                  _navItem(
+                    Icons.trending_up_rounded,
+                    'Evolução',
+                    '/evolucao',
+                  ),
+                ],
+              ),
+            ),
+            Divider(
+              color: Colors.white.withOpacity(0.08),
+            ),
+            _navItem(
+              Icons.settings_outlined,
+              'Configurações',
+              '/config',
+              active: true,
+            ),
+            _profileItem(),
+          ],
         ),
       ),
     );
   }
-}
 
-class _Badge extends StatelessWidget {
-  final String text;
+  Widget _sectionLabel(String label) {
+    return SizedBox(
+      height: 30,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final show = sidebarHovered &&
+              constraints.maxWidth > 90;
 
-  const _Badge({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3059AA).withOpacity(0.10),
-        borderRadius: BorderRadius.circular(999),
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: show
+                  ? Text(
+                      label,
+                      style: const TextStyle(
+                        color: Color(0xFF8FA5C0),
+                        fontSize: 9.5,
+                        fontWeight:
+                            FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
+        },
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF3059AA),
-          fontSize: 13,
-          fontWeight: FontWeight.w800,
+    );
+  }
+
+  Widget _navItem(
+    IconData icon,
+    String label,
+    String route, {
+    bool active = false,
+  }) {
+    final hovered =
+        sidebarItemHovered == route;
+    final highlighted = active || hovered;
+
+    return MouseRegion(
+      onEnter: (_) => setState(
+        () => sidebarItemHovered = route,
+      ),
+      onExit: (_) {
+        if (sidebarItemHovered == route) {
+          setState(() => sidebarItemHovered = null);
+        }
+      },
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          if (!active) {
+            Navigator.of(context).pushNamed(route);
+          }
+        },
+        child: AnimatedContainer(
+          duration:
+              const Duration(milliseconds: 220),
+          height: 50,
+          margin:
+              const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+          ),
+          decoration: BoxDecoration(
+            color: highlighted
+                ? (active
+                    ? const Color(0xFF174A9B)
+                    : Colors.white.withOpacity(0.07))
+                : Colors.transparent,
+            borderRadius:
+                BorderRadius.circular(12),
+            border: highlighted
+                ? Border.all(
+                    color: active
+                        ? _primary.withOpacity(0.55)
+                        : Colors.white
+                            .withOpacity(0.08),
+                  )
+                : null,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final show = sidebarHovered &&
+                  constraints.maxWidth > 90;
+
+              return Row(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      if (active)
+                        Positioned(
+                          left: -12,
+                          top: 1,
+                          bottom: 1,
+                          child: Container(
+                            width: 3,
+                            decoration: BoxDecoration(
+                              color: _accent,
+                              borderRadius:
+                                  BorderRadius.circular(
+                                999,
+                              ),
+                            ),
+                          ),
+                        ),
+                      SizedBox(
+                        width: 24,
+                        child: Icon(
+                          icon,
+                          color: highlighted
+                              ? Colors.white
+                              : const Color(
+                                  0xFFC7D5E8,
+                                ),
+                          size: 23,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (show) ...[
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow:
+                            TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: highlighted
+                              ? Colors.white
+                              : const Color(
+                                  0xFFC7D5E8,
+                                ),
+                          fontSize: 15,
+                          fontWeight:
+                              FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _profileItem() {
+    return InkWell(
+      onTap: () => Navigator.of(context)
+          .pushNamed('/perfil'),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final show = sidebarHovered &&
+                constraints.maxWidth > 90;
+
+            return Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundImage: _avatarProvider(),
+                ),
+                if (show) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment:
+                          MainAxisAlignment.center,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _username,
+                          maxLines: 1,
+                          overflow:
+                              TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight:
+                                FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const Text(
+                          'Ver perfil',
+                          style: TextStyle(
+                            color:
+                                Color(0xFF8FA5C0),
+                            fontSize: 9.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _mobileTopBar() {
+    return Container(
+      height: 64,
+      padding:
+          const EdgeInsets.symmetric(horizontal: 14),
+      color: const Color(0xFF06152D),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () =>
+                _scaffoldKey.currentState?.openDrawer(),
+            icon: const Icon(
+              Icons.menu_rounded,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Image.asset(
+            'assets/images/pace_icon.png',
+            width: 34,
+            height: 34,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mobileDrawer() {
+    return Drawer(
+      backgroundColor:
+          const Color(0xFF06152D),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(14),
+          children: [
+            const SizedBox(height: 10),
+            Image.asset(
+              'assets/images/pace_icon.png',
+              width: 52,
+              height: 52,
+              alignment: Alignment.centerLeft,
+            ),
+            const SizedBox(height: 18),
+            _drawerItem(
+              'Feed',
+              '/feed',
+              Icons.home_rounded,
+            ),
+            _drawerItem(
+              'Explorar',
+              '/explorar',
+              Icons.explore_outlined,
+            ),
+            _drawerItem(
+              'Postar',
+              '/postar',
+              Icons.edit_square,
+            ),
+            _drawerItem(
+              'Metas',
+              '/metas',
+              Icons.track_changes_rounded,
+            ),
+            _drawerItem(
+              'Sala de foco',
+              '/foco',
+              Icons.psychology_outlined,
+            ),
+            _drawerItem(
+              'Evolução',
+              '/evolucao',
+              Icons.trending_up_rounded,
+            ),
+            _drawerItem(
+              'Configurações',
+              '/config',
+              Icons.settings_outlined,
+              active: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerItem(
+    String label,
+    String route,
+    IconData icon, {
+    bool active = false,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: active
+            ? Colors.white
+            : const Color(0xFFC7D5E8),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: active
+              ? Colors.white
+              : const Color(0xFFC7D5E8),
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      tileColor:
+          active ? const Color(0xFF174A9B) : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      onTap: active
+          ? () => Navigator.pop(context)
+          : () =>
+              Navigator.of(context).pushNamed(route),
     );
   }
 }

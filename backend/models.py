@@ -99,6 +99,13 @@ class User(Base):
 class Post(Base):
     __tablename__ = "posts"
 
+    __table_args__ = (
+        CheckConstraint(
+            "tipo IN ('geral', 'conquista', 'foco')",
+            name="check_posts_tipo",
+        ),
+    )
+
     id = Column(Integer, primary_key=True, index=True)
 
     usuario_id = Column(
@@ -114,6 +121,28 @@ class Post(Base):
         nullable=True,
     )
 
+    # geral = post comum; conquista = meta concluída compartilhada
+    tipo = Column(
+        String(20),
+        nullable=False,
+        default="geral",
+        server_default="geral",
+    )
+
+    # Preenchido apenas quando o post representa uma meta concluída
+    meta_id = Column(
+        Integer,
+        ForeignKey("metas.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    # Preenchido quando o post representa uma sessão de foco
+    sessao_id = Column(
+        Integer,
+        ForeignKey("sessoes.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
     conteudo = Column(Text, nullable=False)
     imagem = Column(Text)
     data_postagem = Column(DateTime, server_default=func.now())
@@ -122,6 +151,16 @@ class Post(Base):
 
     comunidade = relationship(
         "Comunidade",
+        back_populates="posts",
+    )
+
+    meta = relationship(
+        "Meta",
+        back_populates="posts",
+    )
+
+    sessao = relationship(
+        "Sessao",
         back_populates="posts",
     )
 
@@ -289,6 +328,12 @@ class Meta(Base):
         passive_deletes=True,
     )
 
+    posts = relationship(
+        "Post",
+        back_populates="meta",
+        passive_deletes=True,
+    )
+
 
 # =========================
 # SESSÕES
@@ -320,6 +365,12 @@ class Sessao(Base):
     meta = relationship(
         "Meta",
         back_populates="sessoes",
+    )
+
+    posts = relationship(
+        "Post",
+        back_populates="sessao",
+        passive_deletes=True,
     )
 
 

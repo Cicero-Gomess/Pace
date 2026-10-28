@@ -216,6 +216,19 @@ def participar_comunidade(
     session: Session = Depends(pegar_sessao),
 ):
     comunidade = _comunidade_por_id(session, comunidade_id)
+
+    if (
+        comunidade.privacidade == "privada"
+        and comunidade.criador_id != usuario.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Esta comunidade é privada. "
+                "A entrada precisa ser aprovada pelo administrador."
+            ),
+        )
+
     membro = (
         session.query(MembroComunidade)
         .filter(

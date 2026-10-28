@@ -13,18 +13,8 @@ class ApiConfig {
   ApiConfig._();
 
   static const String _desktopHost = '127.0.0.1';
-  // IP padrão do computador que executa o backend na mesma rede do celular.
-  // Pode ser sobrescrito sem editar código:
-  // flutter run --dart-define=PACE_API_HOST=192.168.1.25
-  static const String _androidPhysicalHost = String.fromEnvironment(
-    'PACE_API_HOST',
-    defaultValue: '192.168.1.8',
-  );
-
-  static const int _port = int.fromEnvironment(
-    'PACE_API_PORT',
-    defaultValue: 8000,
-  );
+  static const String _androidPhysicalHost = '192.168.1.8';
+  static const int _port = 8000;
 
   static String get baseUrl {
     if (kIsWeb) {

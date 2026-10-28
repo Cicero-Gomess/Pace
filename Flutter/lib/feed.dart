@@ -17,6 +17,7 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _feedScrollController = ScrollController();
 
   String get apiUrl => ApiConfig.baseUrl;
 
@@ -35,6 +36,7 @@ class _FeedPageState extends State<FeedPage> {
   static const String _followingStorageKey = 'paceFollowing';
   static const String _feedFilterStorageKey = 'paceFeedFilter';
   static const String _communityFilterStorageKey = 'paceCommunityFilter';
+  static const String _contentFilterStorageKey = 'paceContentFilter';
 
   List<Map<String, dynamic>> comunidadesLocais = [];
   List<Map<String, dynamic>> membrosComunidadesLocais = [];
@@ -43,6 +45,14 @@ class _FeedPageState extends State<FeedPage> {
 
   String filtroFeedAtivo = 'general';
   String comunidadeFiltroAtiva = 'all';
+  String filtroConteudoAtivo = 'all';
+
+  static const int _postsPerPage = 4;
+  int _offsetFeed = 0;
+  bool _fimDoFeed = false;
+  bool _carregandoMaisPosts = false;
+  bool _usuarioRolouFeed = false;
+  bool _feedTransition = false;
 
   bool isLoading = true;
   bool sidebarHovered = false;
@@ -89,11 +99,16 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
     super.initState();
+    _feedScrollController.addListener(_onFeedScroll);
     _initFeed();
   }
 
   @override
   void dispose() {
+    _feedScrollController
+      ..removeListener(_onFeedScroll)
+      ..dispose();
+
     editPostController.dispose();
     editCommentController.dispose();
 
@@ -192,7 +207,25 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Map<String, dynamic> _normalizarPost(Map<String, dynamic> post) {
-    final usuario = post['usuario'];
+    final usuarioRaw = post['usuario'];
+    final usuario = usuarioRaw is Map
+        ? Map<String, dynamic>.from(usuarioRaw)
+        : <String, dynamic>{};
+
+    final comunidadeRaw = post['comunidade'];
+    final comunidade = comunidadeRaw is Map
+        ? Map<String, dynamic>.from(comunidadeRaw)
+        : <String, dynamic>{};
+
+    final metaRaw = post['meta'];
+    final meta = metaRaw is Map
+        ? Map<String, dynamic>.from(metaRaw)
+        : null;
+
+    final sessaoRaw = post['sessao'];
+    final sessao = sessaoRaw is Map
+        ? Map<String, dynamic>.from(sessaoRaw)
+        : null;
 
     return {
       'id': NumberParser.toInt(post['id']),
@@ -201,46 +234,50 @@ class _FeedPageState extends State<FeedPage> {
       'likes': NumberParser.toInt(post['likes']),
       'liked': post['liked'] ?? false,
       'commentsCount': NumberParser.toInt(
-        post['commentsCount'] ??
+        post['total_comentarios'] ??
+            post['commentsCount'] ??
             post['comentariosCount'] ??
             post['commentCount'] ??
-            post['totalComentarios'] ??
-            post['total_comentarios'],
+            post['totalComentarios'],
       ),
       'comentariosCarregados': false,
       'comentariosAbertos': false,
       'comentariosCarregando': false,
       'data': post['data_postagem'] ?? post['data'],
+      'tipo': (post['tipo'] ?? post['tipo_post'] ?? 'geral')
+          .toString()
+          .trim()
+          .toLowerCase(),
+      'metaId': post['meta_id'] ?? meta?['id'],
+      'meta': meta,
+      'sessaoId': post['sessao_id'] ?? sessao?['id'],
+      'sessao': sessao,
       'comunidadeId':
+          comunidade['id'] ??
           post['comunidadeId'] ??
           post['communityId'] ??
           post['comunidade_id'] ??
           post['community_id'],
       'comunidadeNome':
+          comunidade['nome'] ??
           post['comunidadeNome'] ??
           post['communityName'] ??
           post['comunidade_nome'] ??
           post['community_name'],
-      'seguindo': post['seguindo'] ?? post['following'] ?? false,
       'usuario': {
-        'id': usuario is Map ? usuario['id'] : post['usuario_id'],
-        'username': usuario is Map
-            ? usuario['username'] ?? 'Usuário'
-            : 'Usuário',
-        'foto_perfil': usuario is Map
-            ? usuario['foto_perfil'] ?? usuario['foto']
-            : post['foto_perfil'] ?? post['foto'],
+        'id': usuario['id'] ?? post['usuario_id'],
+        'username':
+            usuario['username'] ??
+            usuario['nome_usuario'] ??
+            post['username'] ??
+            'Usuário',
+        'foto_perfil':
+            usuario['foto_perfil'] ??
+            usuario['foto'] ??
+            post['foto_perfil'] ??
+            post['foto'],
       },
-      'comentarios': post['comentarios'] is List
-          ? (post['comentarios'] as List)
-                .where((item) => item is Map)
-                .map(
-                  (item) => _normalizarComentario(
-                    Map<String, dynamic>.from(item as Map),
-                  ),
-                )
-                .toList()
-          : <Map<String, dynamic>>[],
+      'comentarios': <Map<String, dynamic>>[],
     };
   }
 
@@ -263,70 +300,27 @@ class _FeedPageState extends State<FeedPage> {
   Future<void> _carregarDadosLocaisFeed() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final comunidades = _decodeLocalList(
-      prefs.getString(_communityStorageKey),
-    );
-
-    final membros = _decodeLocalList(
-      prefs.getString(_communityMembersStorageKey),
-    );
-
-    final vinculos = _decodeLocalList(
-      prefs.getString(_communityPostsStorageKey),
-    );
-
-    final seguindoRaw = _decodeLocalList(
-      prefs.getString(_followingStorageKey),
-    );
-
-    final seguindoIds = <String>{};
-
-    for (final item in seguindoRaw) {
-      final id =
-          item['id'] ??
-          item['usuarioId'] ??
-          item['usuario_id'] ??
-          item['userId'] ??
-          item['user_id'] ??
-          item['seguindoId'] ??
-          item['seguindo_id'];
-
-      if (id != null) seguindoIds.add(id.toString());
-    }
-
-    // Também aceita uma lista simples de IDs salva como JSON.
-    final rawFollowing = prefs.getString(_followingStorageKey);
-    if (rawFollowing != null) {
-      try {
-        final decoded = jsonDecode(rawFollowing);
-        if (decoded is List) {
-          for (final item in decoded) {
-            if (item is num || item is String) {
-              seguindoIds.add(item.toString());
-            }
-          }
-        }
-      } catch (_) {}
-    }
-
     filtroFeedAtivo = prefs.getString(_feedFilterStorageKey) ?? 'general';
     comunidadeFiltroAtiva =
         prefs.getString(_communityFilterStorageKey) ?? 'all';
+    filtroConteudoAtivo =
+        prefs.getString(_contentFilterStorageKey) ?? 'all';
 
     if (!{'general', 'following', 'communities'}.contains(filtroFeedAtivo)) {
       filtroFeedAtivo = 'general';
     }
 
-    comunidadesLocais = comunidades;
-    membrosComunidadesLocais = membros;
-    vinculosPostsComunidadesLocais = vinculos;
-    seguindoIdsLocais = seguindoIds;
+    if (!{'all', 'achievement', 'focus', 'normal'}
+        .contains(filtroConteudoAtivo)) {
+      filtroConteudoAtivo = 'all';
+    }
   }
 
   Future<void> _salvarFiltroFeed() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_feedFilterStorageKey, filtroFeedAtivo);
     await prefs.setString(_communityFilterStorageKey, comunidadeFiltroAtiva);
+    await prefs.setString(_contentFilterStorageKey, filtroConteudoAtivo);
   }
 
   String? _obterComunidadeIdDoPost(Map<String, dynamic> post) {
@@ -346,34 +340,7 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   List<Map<String, dynamic>> get _minhasComunidades {
-    final userId = _idUsuarioAtual();
-    if (userId.isEmpty) return <Map<String, dynamic>>[];
-
-    final idsParticipando = membrosComunidadesLocais
-        .where((membro) {
-          final usuarioId =
-              membro['usuarioId'] ??
-              membro['usuario_id'] ??
-              membro['userId'] ??
-              membro['user_id'];
-
-          return usuarioId?.toString() == userId;
-        })
-        .map((membro) {
-          return (
-                membro['comunidadeId'] ??
-                membro['comunidade_id'] ??
-                membro['communityId'] ??
-                membro['community_id']
-              )
-              ?.toString();
-        })
-        .whereType<String>()
-        .toSet();
-
-    return comunidadesLocais.where((comunidade) {
-      return idsParticipando.contains(comunidade['id']?.toString());
-    }).toList();
+    return comunidadesLocais;
   }
 
   Map<String, dynamic>? _comunidadePorId(String? comunidadeId) {
@@ -436,48 +403,14 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   List<Map<String, dynamic>> get _postsFiltrados {
-    if (filtroFeedAtivo == 'following') {
-      return posts.where((post) {
-        final usuario = post['usuario'];
-        final userId = usuario is Map
-            ? usuario['id']?.toString()
-            : post['usuario_id']?.toString();
-
-        if (userId == null) return false;
-
-        // Se houver IDs locais, eles são a fonte principal.
-        if (seguindoIdsLocais.isNotEmpty) {
-          return seguindoIdsLocais.contains(userId);
-        }
-
-        // Compatibilidade com feeds que já tragam a informação.
-        return post['seguindo'] == true || post['following'] == true;
-      }).toList();
-    }
-
-    if (filtroFeedAtivo == 'communities') {
-      final idsPermitidos = _minhasComunidades
-          .map((comunidade) => comunidade['id']?.toString())
-          .whereType<String>()
-          .toSet();
-
-      return posts.where((post) {
-        final comunidadeId = _obterComunidadeIdDoPost(post);
-
-        if (comunidadeId == null || !idsPermitidos.contains(comunidadeId)) {
-          return false;
-        }
-
-        return comunidadeFiltroAtiva == 'all' ||
-            comunidadeId == comunidadeFiltroAtiva;
-      }).toList();
-    }
-
     return posts;
   }
 
   Future<void> _alterarFiltroFeed(String filtro) async {
+    if (filtroFeedAtivo == filtro && filtro != 'communities') return;
+
     setState(() {
+      _feedTransition = true;
       filtroFeedAtivo = filtro;
 
       if (filtro != 'communities') {
@@ -486,16 +419,61 @@ class _FeedPageState extends State<FeedPage> {
     });
 
     await _salvarFiltroFeed();
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    await _carregarFeedAtual(resetar: true);
   }
 
   Future<void> _alterarFiltroComunidade(String comunidadeId) async {
+    if (filtroFeedAtivo == 'communities' &&
+        comunidadeFiltroAtiva == comunidadeId) {
+      return;
+    }
+
     setState(() {
+      _feedTransition = true;
       filtroFeedAtivo = 'communities';
       comunidadeFiltroAtiva = comunidadeId;
     });
 
     await _salvarFiltroFeed();
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    await _carregarFeedAtual(resetar: true);
   }
+
+  Future<void> _alterarFiltroConteudo(String filtro) async {
+    if (filtroConteudoAtivo == filtro) return;
+
+    setState(() {
+      _feedTransition = true;
+      filtroConteudoAtivo = filtro;
+    });
+
+    await _salvarFiltroFeed();
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    await _carregarFeedAtual(resetar: true);
+  }
+
+  void _onFeedScroll() {
+    if (!_feedScrollController.hasClients) return;
+
+    if (_feedScrollController.offset > 60) {
+      _usuarioRolouFeed = true;
+    }
+
+    if (_usuarioRolouFeed &&
+        _feedScrollController.position.extentAfter < 420 &&
+        !_fimDoFeed &&
+        !_carregandoMaisPosts) {
+      _carregarFeedAtual();
+    }
+  }
+
+  void _resetarPaginacaoFeed() {
+    _offsetFeed = 0;
+    _fimDoFeed = false;
+    _usuarioRolouFeed = false;
+  }
+
 
   Future<void> _initFeed() async {
     final token = await _getToken();
@@ -510,29 +488,47 @@ class _FeedPageState extends State<FeedPage> {
     try {
       await _carregarDadosLocaisFeed();
 
-      final usuarioData = await _buscarUsuarioAPI(token);
-      usuarioLogado = usuarioData;
+      final resultados = await Future.wait<dynamic>([
+        _buscarUsuarioAPI(token),
+        _buscarMinhasComunidadesAPI(token),
+        _getPostsAPI(
+          token,
+          offset: 0,
+          limit: _postsPerPage,
+        ),
+      ]);
 
-      final postsDaApi = await _getPostsAPI(token);
-      final postsData = _aplicarVinculosComunidades(postsDaApi);
+      final usuarioData =
+          Map<String, dynamic>.from(resultados[0] as Map);
+      final comunidadesData =
+          List<Map<String, dynamic>>.from(resultados[1] as List);
+      final postsData =
+          List<Map<String, dynamic>>.from(resultados[2] as List);
 
-      // Igual ao web: comentários NÃO são carregados junto com o feed.
-      // Eles só são buscados quando o usuário abre o painel de comentários.
       if (!mounted) return;
+
+      _resetarPaginacaoFeed();
+      _offsetFeed = postsData.length;
+      _fimDoFeed = postsData.length < _postsPerPage;
 
       setState(() {
         usuarioLogado = usuarioData;
+        comunidadesLocais = comunidadesData;
+
+        if (comunidadeFiltroAtiva != 'all' &&
+            !comunidadesLocais.any(
+              (item) => item['id']?.toString() == comunidadeFiltroAtiva,
+            )) {
+          comunidadeFiltroAtiva = 'all';
+        }
+
         posts = postsData;
         isLoading = false;
+        _feedTransition = false;
       });
 
-      // Atualiza somente os números dos comentários em segundo plano.
-      // As listas de comentários continuam sendo buscadas apenas ao clicar.
-      _carregarContagensComentariosEmSegundoPlano(token, postsData);
-
-      // O painel é complementar: se a API de metas/sessões falhar,
-      // o feed continua funcionando normalmente.
-      await _carregarPainelProgresso(token);
+      // Complementar: não bloqueia a entrada no feed.
+      _carregarPainelProgresso(token);
     } catch (e) {
       if (e.toString().contains('AUTH_401')) {
         if (mounted) {
@@ -545,6 +541,7 @@ class _FeedPageState extends State<FeedPage> {
 
       setState(() {
         isLoading = false;
+        _feedTransition = false;
       });
 
       _showToast('Não foi possível carregar o feed.', Colors.red);
@@ -561,21 +558,156 @@ class _FeedPageState extends State<FeedPage> {
     return Map<String, dynamic>.from(data as Map);
   }
 
-  Future<List<Map<String, dynamic>>> _getPostsAPI(String token) async {
+  Future<List<Map<String, dynamic>>> _buscarMinhasComunidadesAPI(
+    String token,
+  ) async {
     final response = await http.get(
-      Uri.parse('$apiUrl/post/feed'),
+      Uri.parse('$apiUrl/comunidades/minhas'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    final data = await _parseResponse(
+      response,
+      'Erro ao buscar comunidades.',
+    );
+
+    if (data is! List) return <Map<String, dynamic>>[];
+
+    return data
+        .where((item) => item is Map)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+  }
+
+  String? _tipoBackendSelecionado() {
+    switch (filtroConteudoAtivo) {
+      case 'achievement':
+        return 'conquista';
+      case 'focus':
+        return 'foco';
+      case 'normal':
+        return 'geral';
+      default:
+        return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _getPostsAPI(
+    String token, {
+    required int offset,
+    required int limit,
+  }) async {
+    var path = '/post/feed';
+
+    if (filtroFeedAtivo == 'following') {
+      path = '/post/feed/seguindo';
+    } else if (filtroFeedAtivo == 'communities') {
+      path = '/post/feed/comunidades';
+    }
+
+    final query = <String, String>{
+      'offset': '$offset',
+      'limit': '$limit',
+    };
+
+    final tipo = _tipoBackendSelecionado();
+    if (tipo != null) {
+      query['tipo'] = tipo;
+    }
+
+    if (filtroFeedAtivo == 'communities' &&
+        comunidadeFiltroAtiva != 'all') {
+      query['comunidade_id'] = comunidadeFiltroAtiva;
+    }
+
+    final uri = Uri.parse('$apiUrl$path').replace(
+      queryParameters: query,
+    );
+
+    final response = await http.get(
+      uri,
       headers: {'Authorization': 'Bearer $token'},
     );
 
     final data = await _parseResponse(response, 'Erro ao buscar posts.');
 
-    if (data is! List) return [];
+    if (data is! List) return <Map<String, dynamic>>[];
 
     return data
         .where((item) => item is Map)
         .map((item) => _normalizarPost(Map<String, dynamic>.from(item as Map)))
         .toList();
   }
+
+  Future<void> _carregarFeedAtual({bool resetar = false}) async {
+    if (_carregandoMaisPosts) return;
+    if (!resetar && _fimDoFeed) return;
+
+    final token = await _getToken();
+    if (token == null) return;
+
+    _carregandoMaisPosts = true;
+
+    if (resetar) {
+      _resetarPaginacaoFeed();
+    } else if (mounted) {
+      setState(() {});
+    }
+
+    try {
+      final lote = await _getPostsAPI(
+        token,
+        offset: resetar ? 0 : _offsetFeed,
+        limit: _postsPerPage,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        if (resetar) {
+          posts = lote;
+        } else {
+          final idsExistentes = posts
+              .map((item) => NumberParser.toInt(item['id']))
+              .toSet();
+
+          posts.addAll(
+            lote.where(
+              (item) => !idsExistentes.contains(
+                NumberParser.toInt(item['id']),
+              ),
+            ),
+          );
+        }
+
+        _offsetFeed = resetar
+            ? lote.length
+            : _offsetFeed + lote.length;
+        _fimDoFeed = lote.length < _postsPerPage;
+        _feedTransition = false;
+      });
+    } catch (e) {
+      if (e.toString().contains('AUTH_401')) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _feedTransition = false;
+        });
+        _showToast('Não foi possível carregar o feed.', Colors.red);
+      }
+    } finally {
+      _carregandoMaisPosts = false;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
 
   Future<List<Map<String, dynamic>>> _buscarComentariosAPI(
     String token,
@@ -1282,9 +1414,25 @@ class _FeedPageState extends State<FeedPage> {
         const SizedBox(height: 24),
         _buildFeedHeader(mobile),
         const SizedBox(height: 16),
-        postsVisiveis.isEmpty
+        postsVisiveis.isEmpty && !_carregandoMaisPosts
             ? _buildEmptyFeed()
             : _buildPosts(postsVisiveis),
+        if (_carregandoMaisPosts && !_feedTransition) ...[
+          const SizedBox(height: 10),
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  color: Color(0xFF1769E8),
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
 
@@ -1292,6 +1440,7 @@ class _FeedPageState extends State<FeedPage> {
       color: const Color(0xFF1769E8),
       onRefresh: _recarregarFeed,
       child: SingleChildScrollView(
+        controller: _feedScrollController,
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
@@ -1339,25 +1488,36 @@ class _FeedPageState extends State<FeedPage> {
     if (token == null) return;
 
     try {
-      await _carregarDadosLocaisFeed();
+      final resultados = await Future.wait<dynamic>([
+        _buscarUsuarioAPI(token),
+        _buscarMinhasComunidadesAPI(token),
+        _getPostsAPI(
+          token,
+          offset: 0,
+          limit: _postsPerPage,
+        ),
+      ]);
 
-      final usuarioData = await _buscarUsuarioAPI(token);
-      usuarioLogado = usuarioData;
+      final usuarioData =
+          Map<String, dynamic>.from(resultados[0] as Map);
+      final comunidadesData =
+          List<Map<String, dynamic>>.from(resultados[1] as List);
+      final postsData =
+          List<Map<String, dynamic>>.from(resultados[2] as List);
 
-      final postsDaApi = await _getPostsAPI(token);
-      final postsData = _aplicarVinculosComunidades(postsDaApi);
-
-      // Refresh também mantém o lazy load dos comentários.
       if (!mounted) return;
+
+      _resetarPaginacaoFeed();
+      _offsetFeed = postsData.length;
+      _fimDoFeed = postsData.length < _postsPerPage;
 
       setState(() {
         usuarioLogado = usuarioData;
+        comunidadesLocais = comunidadesData;
         posts = postsData;
       });
 
-      _carregarContagensComentariosEmSegundoPlano(token, postsData);
-
-      await _carregarPainelProgresso(token);
+      _carregarPainelProgresso(token);
     } catch (e) {
       if (e.toString().contains('AUTH_401')) {
         if (mounted) {
@@ -1373,14 +1533,24 @@ class _FeedPageState extends State<FeedPage> {
 
   Future<void> _carregarPainelProgresso(String token) async {
     try {
-      final metasResponse = await http.get(
-        Uri.parse('$apiUrl/metas/listar_metas'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final responses = await Future.wait<http.Response>([
+        http.get(
+          Uri.parse('$apiUrl/metas/listar_metas'),
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+        http.get(
+          Uri.parse('$apiUrl/sessoes/minhas'),
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      ]);
 
       final metasData = await _parseResponse(
-        metasResponse,
+        responses[0],
         'Erro ao buscar metas.',
+      );
+      final sessoesData = await _parseResponse(
+        responses[1],
+        'Erro ao buscar sessões.',
       );
 
       final metas = metasData is List
@@ -1390,15 +1560,25 @@ class _FeedPageState extends State<FeedPage> {
               .toList()
           : <Map<String, dynamic>>[];
 
+      final sessoes = sessoesData is List
+          ? sessoesData
+              .where((item) => item is Map)
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList()
+          : <Map<String, dynamic>>[];
+
       Map<String, dynamic>? metaAtiva;
 
-      final emAndamento = metas
-          .where(
-            (meta) =>
-                (meta['status'] ?? '').toString().toLowerCase() ==
-                'em andamento',
-          )
-          .toList();
+      final emAndamento = metas.where((meta) {
+        final status = (meta['status'] ?? '')
+            .toString()
+            .trim()
+            .toLowerCase();
+
+        return status == 'em andamento' ||
+            status == 'em_andamento' ||
+            status == 'andamento';
+      }).toList();
 
       if (emAndamento.isNotEmpty) {
         emAndamento.sort((a, b) {
@@ -1420,38 +1600,9 @@ class _FeedPageState extends State<FeedPage> {
         metaAtiva = emAndamento.first;
       }
 
-      final sessoes = <Map<String, dynamic>>[];
-
-      for (final meta in metas) {
-        final id = NumberParser.toInt(meta['id']);
-        if (id <= 0) continue;
-
-        try {
-          final response = await http.get(
-            Uri.parse('$apiUrl/sessoes/meta/$id'),
-            headers: {'Authorization': 'Bearer $token'},
-          );
-
-          final data = await _parseResponse(
-            response,
-            'Erro ao buscar sessões.',
-          );
-
-          if (data is List) {
-            sessoes.addAll(
-              data
-                  .where((item) => item is Map)
-                  .map((item) => Map<String, dynamic>.from(item as Map)),
-            );
-          }
-        } catch (_) {
-          // Uma meta sem sessões não deve quebrar o restante do feed.
-        }
-      }
-
       final hoje = _dateKey(DateTime.now());
 
-      final focoHoje = sessoes
+      final focoHojeMinutos = sessoes
           .where((sessao) => _dateKeyFromValue(sessao['inicio']) == hoje)
           .fold<int>(
             0,
@@ -1465,7 +1616,7 @@ class _FeedPageState extends State<FeedPage> {
 
       setState(() {
         _sequenciaAtual = sequencia;
-        _focoHojeSegundos = focoHoje;
+        _focoHojeSegundos = focoHojeMinutos * 60;
         _metaDestaque = metaAtiva;
         _progressoCarregando = false;
       });
@@ -1776,14 +1927,38 @@ class _FeedPageState extends State<FeedPage> {
   Widget _buildFeedFilters(bool mobile) {
     final comunidades = _minhasComunidades;
 
+    final filtrosPrincipais = [
+      _FeedFilterButton(
+        label: 'Feed geral',
+        icon: Icons.auto_awesome_rounded,
+        active: filtroFeedAtivo == 'general',
+        compact: mobile,
+        onTap: () => _alterarFiltroFeed('general'),
+      ),
+      _FeedFilterButton(
+        label: 'Seguindo',
+        icon: Icons.people_alt_outlined,
+        active: filtroFeedAtivo == 'following',
+        compact: mobile,
+        onTap: () => _alterarFiltroFeed('following'),
+      ),
+      _FeedFilterButton(
+        label: 'Comunidades',
+        icon: Icons.forum_outlined,
+        active: filtroFeedAtivo == 'communities',
+        compact: mobile,
+        onTap: () => _alterarFiltroFeed('communities'),
+      ),
+    ];
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(mobile ? 10 : 8),
+      padding: EdgeInsets.all(mobile ? 8 : 7),
       decoration: BoxDecoration(
         color: darkMode
             ? Colors.white.withOpacity(0.035)
             : const Color(0xFFDCE9F6),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: darkMode
               ? Colors.white.withOpacity(0.07)
@@ -1793,66 +1968,26 @@ class _FeedPageState extends State<FeedPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (mobile)
-            Row(
-              children: [
-                Expanded(
-                  child: _FeedFilterButton(
-                    label: 'Feed geral',
-                    icon: Icons.auto_awesome_rounded,
-                    active: filtroFeedAtivo == 'general',
-                    compact: true,
-                    onTap: () => _alterarFiltroFeed('general'),
-                  ),
-                ),
+          Row(
+            children: [
+              if (mobile) ...[
+                Expanded(child: filtrosPrincipais[0]),
                 const SizedBox(width: 6),
-                Expanded(
-                  child: _FeedFilterButton(
-                    label: 'Seguindo',
-                    icon: Icons.people_alt_outlined,
-                    active: filtroFeedAtivo == 'following',
-                    compact: true,
-                    onTap: () => _alterarFiltroFeed('following'),
-                  ),
-                ),
+                Expanded(child: filtrosPrincipais[1]),
                 const SizedBox(width: 6),
+                Expanded(child: filtrosPrincipais[2]),
+              ] else
                 Expanded(
-                  child: _FeedFilterButton(
-                    label: 'Comunidades',
-                    icon: Icons.forum_outlined,
-                    active: filtroFeedAtivo == 'communities',
-                    compact: true,
-                    onTap: () => _alterarFiltroFeed('communities'),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: filtrosPrincipais,
                   ),
                 ),
-              ],
-            )
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _FeedFilterButton(
-                  label: 'Feed geral',
-                  icon: Icons.auto_awesome_rounded,
-                  active: filtroFeedAtivo == 'general',
-                  onTap: () => _alterarFiltroFeed('general'),
-                ),
-                _FeedFilterButton(
-                  label: 'Seguindo',
-                  icon: Icons.people_alt_outlined,
-                  active: filtroFeedAtivo == 'following',
-                  onTap: () => _alterarFiltroFeed('following'),
-                ),
-                _FeedFilterButton(
-                  label: 'Comunidades',
-                  icon: Icons.forum_outlined,
-                  active: filtroFeedAtivo == 'communities',
-                  onTap: () => _alterarFiltroFeed('communities'),
-                ),
-              ],
-            ),
-
+              const SizedBox(width: 8),
+              _buildContentFilterButton(),
+            ],
+          ),
           if (filtroFeedAtivo == 'communities') ...[
             const SizedBox(height: 10),
             Divider(
@@ -1862,7 +1997,6 @@ class _FeedPageState extends State<FeedPage> {
                   : const Color(0xFF06152D).withOpacity(0.06),
             ),
             const SizedBox(height: 10),
-
             if (comunidades.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -1919,6 +2053,144 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentFilterButton() {
+    final ativo = filtroConteudoAtivo != 'all';
+
+    return PopupMenuButton<String>(
+      tooltip: 'Filtrar publicações',
+      onSelected: _alterarFiltroConteudo,
+      color: darkMode ? const Color(0xFF0A2245) : Colors.white,
+      elevation: 14,
+      offset: const Offset(0, 48),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: darkMode
+              ? Colors.white.withOpacity(0.08)
+              : const Color(0xFF06152D).withOpacity(0.07),
+        ),
+      ),
+      itemBuilder: (context) => [
+        _contentFilterItem(
+          value: 'all',
+          label: 'Todos',
+          icon: Icons.apps_rounded,
+        ),
+        _contentFilterItem(
+          value: 'achievement',
+          label: 'Conquistas',
+          icon: Icons.emoji_events_outlined,
+        ),
+        _contentFilterItem(
+          value: 'focus',
+          label: 'Foco',
+          icon: Icons.timer_outlined,
+        ),
+        _contentFilterItem(
+          value: 'normal',
+          label: 'Publicações',
+          icon: Icons.chat_bubble_outline_rounded,
+        ),
+      ],
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: ativo
+              ? const Color(0xFF1769E8).withOpacity(
+                  darkMode ? 0.22 : 0.12,
+                )
+              : darkMode
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.white.withOpacity(0.76),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: ativo
+                ? const Color(0xFF1769E8).withOpacity(0.28)
+                : darkMode
+                    ? Colors.white.withOpacity(0.07)
+                    : const Color(0xFF06152D).withOpacity(0.06),
+          ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(
+              Icons.tune_rounded,
+              size: 19,
+              color: ativo
+                  ? const Color(0xFF1769E8)
+                  : textColor,
+            ),
+            if (ativo)
+              Positioned(
+                top: 7,
+                right: 7,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFC928),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _contentFilterItem({
+    required String value,
+    required String label,
+    required IconData icon,
+  }) {
+    final ativo = filtroConteudoAtivo == value;
+
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: ativo
+                  ? const Color(0xFF1769E8).withOpacity(0.12)
+                  : darkMode
+                      ? Colors.white.withOpacity(0.035)
+                      : const Color(0xFFF3F7FC),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 17,
+              color: ativo ? const Color(0xFF1769E8) : mutedColor,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: ativo ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          if (ativo)
+            const Icon(
+              Icons.check_rounded,
+              size: 18,
+              color: Color(0xFF1769E8),
+            ),
         ],
       ),
     );
@@ -2050,30 +2322,6 @@ class _FeedPageState extends State<FeedPage> {
                 ],
               ),
             ),
-            Material(
-              color: const Color(0xFF0A2245),
-              borderRadius: BorderRadius.circular(13),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(13),
-                onTap: () => Navigator.of(context).pushNamed('/notificacoes'),
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(13),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.08),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Colors.white,
-                    size: 21,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -2196,11 +2444,6 @@ class _FeedPageState extends State<FeedPage> {
                 color: Colors.white.withOpacity(0.08),
               ),
               const SizedBox(height: 12),
-              _mobileDrawerItem(
-                Icons.notifications_none_rounded,
-                'Notificações',
-                '/notificacoes',
-              ),
               _mobileDrawerItem(
                 Icons.settings_outlined,
                 'Configurações',
@@ -2495,25 +2738,347 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Widget _buildPosts(List<Map<String, dynamic>> postsVisiveis) {
-    return Column(
-      children: postsVisiveis.asMap().entries.map((entry) {
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: Duration(milliseconds: 450 + entry.key * 70),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(0, 24 * (1 - value)),
-                child: child,
+    return AnimatedOpacity(
+      opacity: _feedTransition ? 0.28 : 1,
+      duration: const Duration(milliseconds: 170),
+      curve: Curves.easeOut,
+      child: Column(
+        children: postsVisiveis
+            .map(
+              (post) => KeyedSubtree(
+                key: ValueKey<int>(NumberParser.toInt(post['id'])),
+                child: _buildPostCard(post),
               ),
-            );
-          },
-          child: _buildPostCard(entry.value),
-        );
-      }).toList(),
+            )
+            .toList(),
+      ),
     );
+  }
+
+  String _tipoVisualPost(Map<String, dynamic> post) {
+    final tipo = (post['tipo'] ?? 'geral')
+        .toString()
+        .trim()
+        .toLowerCase();
+
+    if (tipo == 'conquista' || tipo == 'achievement') {
+      return 'achievement';
+    }
+
+    if (tipo == 'foco' || tipo == 'focus') {
+      return 'focus';
+    }
+
+    return 'normal';
+  }
+
+  Map<String, dynamic> _mapSeguro(dynamic value) {
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+
+    return <String, dynamic>{};
+  }
+
+  Widget _buildPostTypeBadge(String tipo) {
+    if (tipo == 'normal') return const SizedBox.shrink();
+
+    final conquista = tipo == 'achievement';
+    final color = conquista
+        ? const Color(0xFFC18A00)
+        : const Color(0xFF1769E8);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(darkMode ? 0.16 : 0.09),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(
+          color: color.withOpacity(0.22),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            conquista
+                ? Icons.emoji_events_outlined
+                : Icons.timer_outlined,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            conquista ? 'Conquista' : 'Sessão de foco',
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostSpecialSummary(
+    Map<String, dynamic> post,
+    String tipo,
+  ) {
+    if (tipo == 'achievement') {
+      final meta = _mapSeguro(post['meta']);
+      final titulo = (meta['titulo'] ?? 'Meta concluída').toString();
+      final categoria = (meta['categoria'] ?? '').toString().trim();
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFC928).withOpacity(
+            darkMode ? 0.085 : 0.08,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFFFFC928).withOpacity(0.32),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFC928),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.track_changes_rounded,
+                color: Color(0xFF06152D),
+                size: 21,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'META CONCLUÍDA',
+                    style: TextStyle(
+                      color: Color(0xFF8A6200),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.7,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    titulo,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (categoria.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      categoria,
+                      style: TextStyle(
+                        color: mutedColor,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 9,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: darkMode
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.white.withOpacity(0.72),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_rounded,
+                    size: 13,
+                    color: darkMode
+                        ? const Color(0xFFD7E8F7)
+                        : const Color(0xFF203B61),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Concluída',
+                    style: TextStyle(
+                      color: darkMode
+                          ? const Color(0xFFD7E8F7)
+                          : const Color(0xFF203B61),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (tipo == 'focus') {
+      final sessao = _mapSeguro(post['sessao']);
+      final metaSessao = _mapSeguro(sessao['meta']);
+      final metaDireta = _mapSeguro(post['meta']);
+
+      final titulo = (
+        metaSessao['titulo'] ??
+        metaDireta['titulo'] ??
+        'Sessão de foco'
+      ).toString();
+
+      final minutos = NumberParser.toInt(
+        sessao['duracao'] ??
+        sessao['duracao_minutos'] ??
+        sessao['duration'],
+      );
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1769E8).withOpacity(
+            darkMode ? 0.10 : 0.065,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFF1769E8).withOpacity(0.20),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1769E8),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.psychology_alt_outlined,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'FOCO DEDICADO A',
+                    style: TextStyle(
+                      color: Color(0xFF4D8FF2),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.7,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    titulo,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    minutos > 0 ? '$minutos min' : 'Sessão concluída',
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 9,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1769E8).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.local_fire_department_outlined,
+                    size: 13,
+                    color: Color(0xFF1769E8),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    'Foco',
+                    style: TextStyle(
+                      color: Color(0xFF1769E8),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  String _formatRelativeDate(dynamic value) {
+    if (value == null) return '';
+
+    final date = DateTime.tryParse(value.toString())?.toLocal();
+    if (date == null) return '';
+
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inSeconds < 60) {
+      return 'há poucos segundos';
+    }
+
+    if (difference.inMinutes < 60) {
+      return 'há ${difference.inMinutes} min';
+    }
+
+    if (difference.inHours < 24) {
+      return 'há ${difference.inHours} h';
+    }
+
+    if (difference.inDays < 7) {
+      return 'há ${difference.inDays} d';
+    }
+
+    return _formatDate(value);
   }
 
   Widget _buildPostCard(Map<String, dynamic> post) {
@@ -2526,6 +3091,8 @@ class _FeedPageState extends State<FeedPage> {
         : NumberParser.toInt(post['commentsCount']);
     final isMyPost = _isMine(usuario['id']);
     final postId = NumberParser.toInt(post['id']);
+    final tipo = _tipoVisualPost(post);
+    final comunidadeId = (post['comunidadeId'] ?? '').toString();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
@@ -2536,12 +3103,12 @@ class _FeedPageState extends State<FeedPage> {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 24,
+                  radius: 23,
                   backgroundImage: _avatarProvider(
                     usuario['foto_perfil']?.toString(),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 13),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2550,10 +3117,10 @@ class _FeedPageState extends State<FeedPage> {
                         usuario['username'] ?? 'Usuário',
                         style: AppText.name(darkMode),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
                       Text(
                         '@${usuario['username'] ?? 'usuario'}'
-                        '${_formatDate(post['data']).isNotEmpty ? ' • ${_formatDate(post['data'])}' : ''}',
+                        '${_formatRelativeDate(post['data']).isNotEmpty ? ' • ${_formatRelativeDate(post['data'])}' : ''}',
                         style: AppText.mutedSmall(darkMode),
                       ),
                     ],
@@ -2573,13 +3140,18 @@ class _FeedPageState extends State<FeedPage> {
                 ],
               ],
             ),
-            if ((post['comunidadeId'] ?? '').toString().isNotEmpty) ...[
+
+            if (
+              comunidadeId.isNotEmpty &&
+              !(
+                filtroFeedAtivo == 'communities' &&
+                comunidadeFiltroAtiva == comunidadeId
+              )
+            ) ...[
               const SizedBox(height: 12),
               InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap: () => _alterarFiltroComunidade(
-                  post['comunidadeId'].toString(),
-                ),
+                onTap: () => _alterarFiltroComunidade(comunidadeId),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -2605,8 +3177,10 @@ class _FeedPageState extends State<FeedPage> {
                       const SizedBox(width: 6),
                       Text(
                         'Publicado em ${post['comunidadeNome'] ?? 'Comunidade'}',
-                        style: const TextStyle(
-                          color: Color(0xFF0B3D91),
+                        style: TextStyle(
+                          color: darkMode
+                              ? const Color(0xFF76A9F2)
+                              : const Color(0xFF0B3D91),
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -2617,17 +3191,25 @@ class _FeedPageState extends State<FeedPage> {
               ),
             ],
 
+            if (tipo != 'normal') ...[
+              const SizedBox(height: 12),
+              _buildPostTypeBadge(tipo),
+              const SizedBox(height: 10),
+              _buildPostSpecialSummary(post, tipo),
+            ],
+
             if ((post['conteudo'] ?? '').toString().isNotEmpty) ...[
               const SizedBox(height: 14),
               Text(
                 post['conteudo'],
                 style: TextStyle(
                   fontSize: 15,
-                  height: 1.7,
+                  height: 1.62,
                   color: bodyTextColor,
                 ),
               ),
             ],
+
             if ((post['imagem'] ?? '').toString().isNotEmpty) ...[
               const SizedBox(height: 14),
               ClipRRect(
@@ -2654,7 +3236,9 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ),
             ],
+
             const SizedBox(height: 16),
+
             Row(
               children: [
                 _LikeButton(
@@ -2716,9 +3300,9 @@ class _FeedPageState extends State<FeedPage> {
                 ),
               ],
             ),
+
             if (comentariosAbertos) ...[
               const SizedBox(height: 14),
-
               if (comentariosCarregando)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2763,7 +3347,6 @@ class _FeedPageState extends State<FeedPage> {
                         .map((comentario) => _buildComment(comentario))
                         .toList(),
                   ),
-
                 const SizedBox(height: 4),
                 _buildCommentInput(postId),
               ],
@@ -3055,12 +3638,6 @@ class _FeedPageState extends State<FeedPage> {
                   color: Colors.white.withOpacity(0.08),
                 ),
                 const SizedBox(height: 8),
-                _sidebarItem(
-                  Icons.notifications_none_rounded,
-                  'Notificações',
-                  '/notificacoes',
-                  false,
-                ),
                 _sidebarItem(
                   Icons.settings_outlined,
                   'Configurações',

@@ -10,6 +10,10 @@ import {
 } from "./shared/services/post-service.js";
 
 import {
+  fetchMinhasComunidades,
+} from "./shared/services/community-service.js";
+
+import {
   initLucide,
   syncProfilePhotos,
 } from "./shared/ui.js";
@@ -26,16 +30,6 @@ import {
 import {
   ApiError,
 } from "./shared/api.js";
-
-
-const COMMUNITY_STORAGE_KEY =
-  "paceCommunities";
-
-const COMMUNITY_MEMBERS_STORAGE_KEY =
-  "paceCommunityMembers";
-
-const COMMUNITY_POSTS_STORAGE_KEY =
-  "paceCommunityPosts";
 
 
 const shellOk =
@@ -121,6 +115,13 @@ if (shellOk) {
     );
 
 
+  let minhasComunidades = [];
+
+
+  /* =========================================================
+     USUÁRIO
+  ========================================================= */
+
   if (
     nomeAutor &&
     user
@@ -147,156 +148,49 @@ if (shellOk) {
 
 
   /* =========================================================
-     LOCAL STORAGE
-  ========================================================= */
-
-  function obterArrayLocalStorage(
-    chave
-  ) {
-
-    try {
-
-      const valor =
-        JSON.parse(
-          localStorage.getItem(
-            chave
-          )
-        );
-
-
-      return Array.isArray(
-        valor
-      )
-        ? valor
-        : [];
-
-    }
-
-    catch {
-
-      return [];
-
-    }
-
-  }
-
-
-  function salvarArrayLocalStorage(
-    chave,
-    valor
-  ) {
-
-    localStorage.setItem(
-      chave,
-      JSON.stringify(
-        valor
-      )
-    );
-
-  }
-
-
-  function obterIdUsuarioAtual() {
-
-    const id =
-
-      user?.id ??
-
-      user?.usuario_id ??
-
-      user?.user_id;
-
-
-    return (
-
-      id === undefined ||
-
-      id === null ||
-
-      id === ""
-
-    )
-
-      ? ""
-
-      : String(
-          id
-        );
-
-  }
-
-
-  /* =========================================================
      COMUNIDADES DO USUÁRIO
   ========================================================= */
 
-  function obterMinhasComunidades() {
+  async function carregarMinhasComunidades() {
 
-    const usuarioId =
-      obterIdUsuarioAtual();
+    try {
+
+      minhasComunidades =
+        await fetchMinhasComunidades();
 
 
-    if (
-      !usuarioId
+      return minhasComunidades;
+
+    }
+
+    catch (
+      error
     ) {
+
+      if (
+        handleAuthError(
+          error
+        )
+      ) {
+
+        return [];
+
+      }
+
+
+      console.error(
+        "Erro ao carregar comunidades:",
+        error
+      );
+
+
+      minhasComunidades =
+        [];
+
 
       return [];
 
     }
-
-
-    const comunidades =
-      obterArrayLocalStorage(
-        COMMUNITY_STORAGE_KEY
-      );
-
-
-    const membros =
-      obterArrayLocalStorage(
-        COMMUNITY_MEMBERS_STORAGE_KEY
-      );
-
-
-    const idsParticipando =
-      new Set(
-
-        membros
-
-          .filter(
-            (
-              membro
-            ) =>
-
-              String(
-                membro.usuarioId
-              ) ===
-              usuarioId
-          )
-
-          .map(
-            (
-              membro
-            ) =>
-
-              String(
-                membro.comunidadeId
-              )
-          )
-
-      );
-
-
-    return comunidades.filter(
-      (
-        comunidade
-      ) =>
-
-        idsParticipando.has(
-          String(
-            comunidade.id
-          )
-        )
-    );
 
   }
 
@@ -305,7 +199,7 @@ if (shellOk) {
      DESTINO DO POST
   ========================================================= */
 
-  function renderizarDestinos() {
+  async function renderizarDestinos() {
 
     if (
       !communityOptions
@@ -317,7 +211,7 @@ if (shellOk) {
 
 
     const comunidades =
-      obterMinhasComunidades();
+      await carregarMinhasComunidades();
 
 
     communityOptions.innerHTML = `
@@ -405,12 +299,25 @@ if (shellOk) {
       "";
 
 
-    return valor
+    if (
+      !valor
+    ) {
 
-      ? String(
-          valor
-        )
+      return null;
 
+    }
+
+
+    const id =
+      Number(
+        valor
+      );
+
+
+    return Number.isFinite(
+      id
+    )
+      ? id
       : null;
 
   }
@@ -421,7 +328,7 @@ if (shellOk) {
   ) {
 
     if (
-      !comunidadeId
+      comunidadeId === null
     ) {
 
       return true;
@@ -429,145 +336,18 @@ if (shellOk) {
     }
 
 
-    return obterMinhasComunidades()
+    return minhasComunidades.some(
+      (
+        comunidade
+      ) =>
 
-      .some(
-        (
-          comunidade
-        ) =>
+        Number(
+          comunidade.id
+        ) ===
 
-          String(
-            comunidade.id
-          ) ===
-
-          String(
-            comunidadeId
-          )
-      );
-
-  }
-
-
-  /* =========================================================
-     VÍNCULO POST ↔ COMUNIDADE
-  ========================================================= */
-
-  function obterPostId(
-    postCriado
-  ) {
-
-    const id =
-
-      postCriado?.id ??
-
-      postCriado?.post_id ??
-
-      postCriado?.postId;
-
-
-    return (
-
-      id === undefined ||
-
-      id === null ||
-
-      id === ""
-
-    )
-
-      ? null
-
-      : String(
-          id
-        );
-
-  }
-
-
-  function salvarVinculoComunidade(
-    postCriado,
-    comunidadeId
-  ) {
-
-    /*
-      Post comum não precisa de associação.
-    */
-
-    if (
-      !comunidadeId
-    ) {
-
-      return;
-
-    }
-
-
-    const postId =
-      obterPostId(
-        postCriado
-      );
-
-
-    if (
-      !postId
-    ) {
-
-      throw new Error(
-        "O post foi criado, mas o Pace não recebeu o ID necessário para vinculá-lo à comunidade."
-      );
-
-    }
-
-
-    const usuarioId =
-      obterIdUsuarioAtual();
-
-
-    const vinculos =
-      obterArrayLocalStorage(
-        COMMUNITY_POSTS_STORAGE_KEY
-      );
-
-
-    /*
-      Evita vínculo duplicado caso algo
-      seja executado novamente.
-    */
-
-    const vinculosSemDuplicata =
-      vinculos.filter(
-        (
-          vinculo
-        ) =>
-
-          String(
-            vinculo.postId
-          ) !==
-          postId
-      );
-
-
-    vinculosSemDuplicata.push({
-
-      postId,
-
-      comunidadeId:
-        String(
+        Number(
           comunidadeId
-        ),
-
-      usuarioId,
-
-      dataPublicacao:
-        new Date()
-          .toISOString(),
-
-    });
-
-
-    salvarArrayLocalStorage(
-      COMMUNITY_POSTS_STORAGE_KEY,
-      vinculosSemDuplicata
+        )
     );
 
   }
@@ -780,25 +560,38 @@ if (shellOk) {
 
 
         /*
-          Confere novamente a participação
-          antes de publicar.
+          Se escolheu comunidade,
+          atualiza a lista antes de publicar.
+
+          Isso evita publicar em uma comunidade
+          da qual o usuário acabou de sair
+          em outra página/aba.
         */
 
         if (
-          comunidadeId &&
-          !usuarioParticipaDaComunidade(
-            comunidadeId
-          )
+          comunidadeId !== null
         ) {
 
-          alert(
-            "Você não participa mais desta comunidade. Escolha outro destino."
-          );
+          await carregarMinhasComunidades();
 
 
-          renderizarDestinos();
+          if (
+            !usuarioParticipaDaComunidade(
+              comunidadeId
+            )
+          ) {
 
-          return;
+            alert(
+              "Você não participa mais desta comunidade. Escolha outro destino."
+            );
+
+
+            await renderizarDestinos();
+
+
+            return;
+
+          }
 
         }
 
@@ -840,25 +633,19 @@ if (shellOk) {
 
 
           /*
-            O backend continua exatamente
-            como estava.
+            Agora o vínculo com comunidade
+            é salvo diretamente no backend.
+
+            Feed geral:
+              comunidadeId = null
+
+            Comunidade:
+              comunidadeId = ID da comunidade
           */
 
-          const postCriado =
-            await createPost(
-              texto,
-              imagemBase64
-            );
-
-
-          /*
-            Se foi publicado em comunidade,
-            guardamos apenas a associação
-            no navegador.
-          */
-
-          salvarVinculoComunidade(
-            postCriado,
+          await createPost(
+            texto,
+            imagemBase64,
             comunidadeId
           );
 
@@ -909,37 +696,6 @@ if (shellOk) {
      INICIALIZAÇÃO
   ========================================================= */
 
-  renderizarDestinos();
-
-
-  /*
-    Atualiza caso as comunidades sejam
-    modificadas em outra aba do navegador.
-  */
-
-  window.addEventListener(
-    "storage",
-    (
-      event
-    ) => {
-
-      if (
-
-        event.key ===
-          COMMUNITY_STORAGE_KEY
-
-        ||
-
-        event.key ===
-          COMMUNITY_MEMBERS_STORAGE_KEY
-
-      ) {
-
-        renderizarDestinos();
-
-      }
-
-    }
-  );
+  await renderizarDestinos();
 
 }

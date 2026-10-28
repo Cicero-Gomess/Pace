@@ -1,4 +1,7 @@
 import { initAppShell } from "./shared/app-shell.js";
+import {
+  createPost,
+} from "./shared/services/post-service.js";
 
 const API_BASE_URL =
   window.PACE_API_URL ||
@@ -53,6 +56,30 @@ const elementos = {
 
   toast:
     document.getElementById("metasToast"),
+
+  compartilharConquistaModal:
+    document.getElementById("compartilharConquistaModal"),
+
+  fecharConquistaModal:
+    document.getElementById("fecharConquistaModal"),
+
+  cancelarConquista:
+    document.getElementById("cancelarConquista"),
+
+  publicarConquista:
+    document.getElementById("publicarConquista"),
+
+  conquistaTexto:
+    document.getElementById("conquistaTexto"),
+
+  conquistaTextoContador:
+    document.getElementById("conquistaTextoContador"),
+
+  conquistaMetaTitulo:
+    document.getElementById("conquistaMetaTitulo"),
+
+  conquistaMetaCategoria:
+    document.getElementById("conquistaMetaCategoria"),
 };
 
 let metas = [];
@@ -64,6 +91,12 @@ let metaParaExcluir = null;
 let salvando = false;
 
 let toastTimer = null;
+
+let primeiraCargaMetas =
+  true;
+
+let metaParaCompartilhar =
+  null;
 
 /* =========================================================
    TOKEN
@@ -834,6 +867,21 @@ function criarMetaHTML(
 
         </button>
 
+        ${
+          concluida
+            ? `
+              <button
+                class="btn-concluir btn-compartilhar-conquista"
+                type="button"
+                data-action="compartilhar-conquista"
+              >
+                <i data-lucide="trophy"></i>
+                Compartilhar conquista
+              </button>
+            `
+            : ""
+        }
+
       </div>
 
     </article>
@@ -919,6 +967,35 @@ function renderizarMetas() {
       )
       .join("");
 
+
+  if (
+    primeiraCargaMetas
+  ) {
+
+    elementos.lista.classList.add(
+      "metas-enter"
+    );
+
+
+    requestAnimationFrame(
+      () => {
+
+        requestAnimationFrame(
+          () => {
+
+            elementos.lista.classList.remove(
+              "metas-enter"
+            );
+
+          }
+        );
+
+      }
+    );
+
+  }
+
+
   iniciarIcones();
 }
 
@@ -927,13 +1004,33 @@ function renderizarMetas() {
 ========================================================= */
 
 async function carregarMetas() {
-  elementos.loading?.classList.remove(
-    "hidden"
-  );
+
+  const jaTemConteudo =
+    Boolean(
+      elementos.lista?.children.length
+    );
+
+
+  if (
+    !jaTemConteudo
+  ) {
+
+    elementos.loading?.classList.remove(
+      "hidden"
+    );
+
+    elementos.loading?.classList.add(
+      "metas-loading-light"
+    );
+
+  }
+
 
   try {
+
     const dados =
       await listarMetasApi();
+
 
     metas =
       Array.isArray(
@@ -944,21 +1041,46 @@ async function carregarMetas() {
           )
         : [];
 
-    renderizarMetas();
-  } catch (erro) {
-    metas = [];
 
     renderizarMetas();
+
+
+  } catch (erro) {
+
+    if (
+      !jaTemConteudo
+    ) {
+
+      metas = [];
+
+      renderizarMetas();
+
+    }
+
 
     tratarErro(
       erro
     );
+
+
   } finally {
+
     elementos.loading?.classList.add(
       "hidden"
     );
+
+    elementos.loading?.classList.remove(
+      "metas-loading-light"
+    );
+
+
+    primeiraCargaMetas =
+      false;
+
   }
+
 }
+
 
 /* =========================================================
    SALVAR
@@ -1142,6 +1264,157 @@ async function alternarStatus(
 }
 
 /* =========================================================
+   COMPARTILHAR CONQUISTA
+========================================================= */
+
+function textoPadraoConquista(
+  meta
+) {
+
+  return "";
+
+}
+
+
+function atualizarContadorConquista() {
+  const tamanho =
+    elementos.conquistaTexto
+      ?.value
+      .length ||
+    0;
+
+  if (
+    elementos.conquistaTextoContador
+  ) {
+    elementos.conquistaTextoContador.textContent =
+      `${tamanho}/500`;
+  }
+}
+
+
+function abrirModalConquista(
+  meta
+) {
+  if (
+    meta.status !==
+    "concluida"
+  ) {
+    mostrarToast(
+      "Conclua a meta antes de compartilhar.",
+      "error"
+    );
+
+    return;
+  }
+
+  metaParaCompartilhar =
+    meta;
+
+  elementos.conquistaMetaTitulo.textContent =
+    meta.titulo;
+
+  elementos.conquistaMetaCategoria.textContent =
+    meta.categoria;
+
+  elementos.conquistaTexto.value =
+    textoPadraoConquista(
+      meta
+    );
+
+  elementos.conquistaTexto.placeholder =
+    "Conte do seu jeito como foi concluir essa meta...";
+
+  atualizarContadorConquista();
+
+  elementos.compartilharConquistaModal
+    ?.classList.remove(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "hidden";
+
+  setTimeout(
+    () =>
+      elementos.conquistaTexto
+        ?.focus(),
+    50
+  );
+
+  iniciarIcones();
+}
+
+
+function fecharModalConquista() {
+  elementos.compartilharConquistaModal
+    ?.classList.add(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "";
+
+  metaParaCompartilhar =
+    null;
+}
+
+
+async function publicarConquista() {
+  const meta =
+    metaParaCompartilhar;
+
+  if (!meta) {
+    return;
+  }
+
+  const conteudo =
+    elementos.conquistaTexto
+      ?.value
+      .trim() ||
+    "";
+
+  if (!conteudo) {
+    mostrarToast(
+      "Escreva algo para compartilhar.",
+      "error"
+    );
+
+    return;
+  }
+
+  elementos.publicarConquista.disabled =
+    true;
+
+  try {
+    await createPost(
+      conteudo,
+      null,
+      null,
+      "conquista",
+      meta.id
+    );
+
+    fecharModalConquista();
+
+    mostrarToast(
+      "Conquista compartilhada! 🏆"
+    );
+
+  } catch (erro) {
+
+    tratarErro(
+      erro
+    );
+
+  } finally {
+
+    elementos.publicarConquista.disabled =
+      false;
+  }
+}
+
+
+/* =========================================================
    EXCLUIR
 ========================================================= */
 
@@ -1190,6 +1463,44 @@ async function excluirMeta() {
 /* =========================================================
    EVENTOS
 ========================================================= */
+
+elementos.fecharConquistaModal
+  ?.addEventListener(
+    "click",
+    fecharModalConquista
+  );
+
+elementos.cancelarConquista
+  ?.addEventListener(
+    "click",
+    fecharModalConquista
+  );
+
+elementos.publicarConquista
+  ?.addEventListener(
+    "click",
+    publicarConquista
+  );
+
+elementos.conquistaTexto
+  ?.addEventListener(
+    "input",
+    atualizarContadorConquista
+  );
+
+elementos.compartilharConquistaModal
+  ?.addEventListener(
+    "click",
+    (evento) => {
+      if (
+        evento.target ===
+        elementos.compartilharConquistaModal
+      ) {
+        fecharModalConquista();
+      }
+    }
+  );
+
 
 elementos.abrirNovaMeta
   ?.addEventListener(
@@ -1333,6 +1644,18 @@ elementos.lista
         await alternarStatus(
           meta,
           botao
+        );
+
+        return;
+      }
+
+
+      if (
+        acao ===
+        "compartilhar-conquista"
+      ) {
+        abrirModalConquista(
+          meta
         );
       }
     }

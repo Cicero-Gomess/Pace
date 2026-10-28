@@ -5,11 +5,20 @@ from pydantic import BaseModel
 from dependencies import pegar_sessao, pegar_usuario_atual
 from models import User, Seguidor
 
-profile_router = APIRouter(prefix="/profile", tags=["profile"])
+
+profile_router = APIRouter(
+    prefix="/profile",
+    tags=["profile"]
+)
+
 
 class FotoUpdate(BaseModel):
     foto_url: str
 
+
+# ============================================================
+# MEU PERFIL
+# ============================================================
 
 @profile_router.get("/me")
 async def buscar_meu_perfil(
@@ -17,11 +26,19 @@ async def buscar_meu_perfil(
 ):
     return {
         "id": usuario_atual.id,
-        "username": usuario_atual.username,
+        "username": usuario_atual.nome_usuario,
         "email": usuario_atual.email,
-        "foto_perfil": getattr(usuario_atual, "foto_perfil", None)
+        "foto_perfil": getattr(
+            usuario_atual,
+            "foto_perfil",
+            None
+        )
     }
 
+
+# ============================================================
+# TROCAR FOTO
+# ============================================================
 
 @profile_router.post("/trocar_foto")
 async def trocar_foto(
@@ -30,28 +47,54 @@ async def trocar_foto(
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
     try:
-        if not dados.foto_url or not dados.foto_url.strip():
-            raise HTTPException(status_code=400, detail="URL da foto invalida")
+        if (
+            not dados.foto_url
+            or not dados.foto_url.strip()
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="URL da foto inválida"
+            )
 
-        usuario_atual.foto_perfil = dados.foto_url
+        usuario_atual.foto_perfil = (
+            dados.foto_url.strip()
+        )
+
         session.commit()
         session.refresh(usuario_atual)
 
         return {
-            "message": "Foto de perfil atualizada com sucesso",
-            "foto_perfil": usuario_atual.foto_perfil,
-            "username": usuario_atual.username,
+            "message": (
+                "Foto de perfil atualizada "
+                "com sucesso"
+            ),
+            "foto_perfil": (
+                usuario_atual.foto_perfil
+            ),
+            "username": (
+                usuario_atual.nome_usuario
+            ),
             "id": usuario_atual.id
         }
 
     except HTTPException:
         raise
+
     except Exception:
         session.rollback()
+
         raise HTTPException(
             status_code=500,
-            detail="Erro ao atualizar a foto de perfil"
+            detail=(
+                "Erro ao atualizar "
+                "a foto de perfil"
+            )
         )
+
+
+# ============================================================
+# BUSCAR USUÁRIOS
+# ============================================================
 
 @profile_router.get("/buscar_por_username/")
 async def buscar_por_username(
@@ -62,25 +105,38 @@ async def buscar_por_username(
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
     """
-    Busca perfis pelo `username` (query string `username`).
-    Retorna lista de usuários cujo `username` contenha o termo (case-insensitive).
-    Se username estiver vazio, retorna TODOS os usuários com paginação.
-    EXCLUI o próprio usuário logado dos resultados.
+    Busca perfis pelo username.
+
+    - Não retorna o próprio usuário.
+    - Busca por nome de usuário.
+    - Não retorna todos os usuários quando
+      a busca está vazia.
     """
+
     try:
-        query = session.query(User)
-        
-        # Excluir o usuário logado dos resultados
-        query = query.filter(User.id != usuario_atual.id)
-        
-        # Filtrar por username se fornecido
-        if username and username.strip():
-            query = query.filter(User.username.ilike(f"%{username}%"))
-        
-        # Aplicar paginação
+        termo = username.strip()
+
+        # Não carregar usuários automaticamente
+        if not termo:
+            return []
+
+        query = (
+            session.query(User)
+            .filter(
+                User.id != usuario_atual.id
+            )
+            .filter(
+                User.nome_usuario.ilike(
+                    f"%{termo}%"
+                )
+            )
+        )
+
         usuarios = (
             query
-            .order_by(User.username.asc())
+            .order_by(
+                User.nome_usuario.asc()
+            )
             .offset(skip)
             .limit(limit)
             .all()
@@ -88,25 +144,35 @@ async def buscar_por_username(
 
         resultados = [
             {
-                "id": u.id,
-                "username": u.username,
-                "email": u.email,
-                "foto_perfil": getattr(u, "foto_perfil", None)
+                "id": usuario.id,
+                "username": (
+                    usuario.nome_usuario
+                ),
+                "email": usuario.email,
+                "foto_perfil": getattr(
+                    usuario,
+                    "foto_perfil",
+                    None
+                )
             }
-            for u in usuarios
+            for usuario in usuarios
         ]
 
         return resultados
 
     except HTTPException:
         raise
+
     except Exception:
-        raise HTTPException(status_code=500, detail="Erro ao buscar usuários")
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao buscar usuários"
+        )
 
 
-# =========================
-# ENDPOINTS DE SEGUIR/DEIXAR DE SEGUIR
-# =========================
+# ============================================================
+# SEGUIR USUÁRIO
+# ============================================================
 
 @profile_router.post("/follow/{usuario_id}")
 async def seguir_usuario(
@@ -114,52 +180,83 @@ async def seguir_usuario(
     session: Session = Depends(pegar_sessao),
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
-    """
-    Segue um usuário. 
-    Retorna erro se:
-    - Tentar seguir a si mesmo
-    - Usuário não existir
-    - Já está seguindo o usuário
-    """
     try:
-        # Verificar se está tentando seguir a si mesmo
         if usuario_id == usuario_atual.id:
-            raise HTTPException(status_code=400, detail="Você não pode seguir a si mesmo")
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Você não pode seguir "
+                    "a si mesmo"
+                )
+            )
 
-        # Verificar se o usuário a ser seguido existe
-        usuario_para_seguir = session.query(User).filter(User.id == usuario_id).first()
+        usuario_para_seguir = (
+            session.query(User)
+            .filter(
+                User.id == usuario_id
+            )
+            .first()
+        )
+
         if not usuario_para_seguir:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
 
-        # Verificar se já está seguindo
-        ja_segue = session.query(Seguidor).filter(
-            Seguidor.seguidor_id == usuario_atual.id,
-            Seguidor.seguindo_id == usuario_id
-        ).first()
+        ja_segue = (
+            session.query(Seguidor)
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_atual.id,
+
+                Seguidor.seguindo_id
+                == usuario_id
+            )
+            .first()
+        )
 
         if ja_segue:
-            raise HTTPException(status_code=400, detail="Você já está seguindo este usuário")
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Você já está seguindo "
+                    "este usuário"
+                )
+            )
 
-        # Criar o relacionamento de seguidor
         novo_seguidor = Seguidor(
             seguidor_id=usuario_atual.id,
             seguindo_id=usuario_id
         )
+
         session.add(novo_seguidor)
         session.commit()
 
         return {
-            "message": f"Você agora está seguindo {usuario_para_seguir.username}",
+            "message": (
+                "Você agora está seguindo "
+                f"{usuario_para_seguir.nome_usuario}"
+            ),
             "usuario_id": usuario_id,
             "seguindo": True
         }
 
     except HTTPException:
         raise
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(status_code=500, detail="Erro ao seguir usuário")
 
+    except Exception:
+        session.rollback()
+
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao seguir usuário"
+        )
+
+
+# ============================================================
+# DEIXAR DE SEGUIR
+# ============================================================
 
 @profile_router.post("/unfollow/{usuario_id}")
 async def deixar_de_seguir_usuario(
@@ -167,43 +264,72 @@ async def deixar_de_seguir_usuario(
     session: Session = Depends(pegar_sessao),
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
-    """
-    Deixa de seguir um usuário.
-    Retorna erro se:
-    - Usuário não existir
-    - Não está seguindo o usuário
-    """
     try:
-        # Verificar se o usuário existe
-        usuario_alvo = session.query(User).filter(User.id == usuario_id).first()
-        if not usuario_alvo:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        usuario_alvo = (
+            session.query(User)
+            .filter(
+                User.id == usuario_id
+            )
+            .first()
+        )
 
-        # Verificar se está seguindo
-        seguidor = session.query(Seguidor).filter(
-            Seguidor.seguidor_id == usuario_atual.id,
-            Seguidor.seguindo_id == usuario_id
-        ).first()
+        if not usuario_alvo:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
+
+        seguidor = (
+            session.query(Seguidor)
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_atual.id,
+
+                Seguidor.seguindo_id
+                == usuario_id
+            )
+            .first()
+        )
 
         if not seguidor:
-            raise HTTPException(status_code=400, detail="Você não está seguindo este usuário")
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Você não está seguindo "
+                    "este usuário"
+                )
+            )
 
-        # Remover o relacionamento
         session.delete(seguidor)
         session.commit()
 
         return {
-            "message": f"Você deixou de seguir {usuario_alvo.username}",
+            "message": (
+                "Você deixou de seguir "
+                f"{usuario_alvo.nome_usuario}"
+            ),
             "usuario_id": usuario_id,
             "seguindo": False
         }
 
     except HTTPException:
         raise
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(status_code=500, detail="Erro ao deixar de seguir usuário")
 
+    except Exception:
+        session.rollback()
+
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Erro ao deixar de "
+                "seguir usuário"
+            )
+        )
+
+
+# ============================================================
+# LISTAR SEGUIDORES
+# ============================================================
 
 @profile_router.get("/{usuario_id}/followers")
 async def listar_seguidores(
@@ -213,21 +339,32 @@ async def listar_seguidores(
     session: Session = Depends(pegar_sessao),
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
-    """
-    Lista os seguidores de um usuário.
-    Retorna informações dos usuários que seguem o usuário especificado.
-    """
     try:
-        # Verificar se o usuário existe
-        usuario = session.query(User).filter(User.id == usuario_id).first()
-        if not usuario:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        usuario = (
+            session.query(User)
+            .filter(
+                User.id == usuario_id
+            )
+            .first()
+        )
 
-        # Buscar seguidores
+        if not usuario:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
+
         seguidores = (
             session.query(User)
-            .join(Seguidor, Seguidor.seguidor_id == User.id)
-            .filter(Seguidor.seguindo_id == usuario_id)
+            .join(
+                Seguidor,
+                Seguidor.seguidor_id
+                == User.id
+            )
+            .filter(
+                Seguidor.seguindo_id
+                == usuario_id
+            )
             .offset(skip)
             .limit(limit)
             .all()
@@ -235,7 +372,10 @@ async def listar_seguidores(
 
         total = (
             session.query(Seguidor)
-            .filter(Seguidor.seguindo_id == usuario_id)
+            .filter(
+                Seguidor.seguindo_id
+                == usuario_id
+            )
             .count()
         )
 
@@ -243,18 +383,30 @@ async def listar_seguidores(
             "total": total,
             "usuarios": [
                 {
-                    "id": s.id,
-                    "username": s.username,
-                    "email": s.email,
-                    "foto_perfil": getattr(s, "foto_perfil", None),
+                    "id": seguidor.id,
+                    "username": (
+                        seguidor.nome_usuario
+                    ),
+                    "email": seguidor.email,
+                    "foto_perfil": getattr(
+                        seguidor,
+                        "foto_perfil",
+                        None
+                    ),
                     "seguindo": bool(
-                        session.query(Seguidor).filter(
-                            Seguidor.seguidor_id == usuario_atual.id,
-                            Seguidor.seguindo_id == s.id
-                        ).first()
+                        session
+                        .query(Seguidor)
+                        .filter(
+                            Seguidor.seguidor_id
+                            == usuario_atual.id,
+
+                            Seguidor.seguindo_id
+                            == seguidor.id
+                        )
+                        .first()
                     )
                 }
-                for s in seguidores
+                for seguidor in seguidores
             ]
         }
 
@@ -262,9 +414,19 @@ async def listar_seguidores(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao buscar seguidores")
 
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Erro ao buscar seguidores"
+            )
+        )
+
+
+# ============================================================
+# LISTAR SEGUINDO
+# ============================================================
 
 @profile_router.get("/{usuario_id}/following")
 async def listar_seguindo(
@@ -274,21 +436,32 @@ async def listar_seguindo(
     session: Session = Depends(pegar_sessao),
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
-    """
-    Lista os usuários que um usuário está seguindo.
-    Retorna informações dos usuários que o usuário especificado segue.
-    """
     try:
-        # Verificar se o usuário existe
-        usuario = session.query(User).filter(User.id == usuario_id).first()
-        if not usuario:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        usuario = (
+            session.query(User)
+            .filter(
+                User.id == usuario_id
+            )
+            .first()
+        )
 
-        # Buscar quem o usuário está seguindo
+        if not usuario:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
+
         seguindo = (
             session.query(User)
-            .join(Seguidor, Seguidor.seguindo_id == User.id)
-            .filter(Seguidor.seguidor_id == usuario_id)
+            .join(
+                Seguidor,
+                Seguidor.seguindo_id
+                == User.id
+            )
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_id
+            )
             .offset(skip)
             .limit(limit)
             .all()
@@ -296,7 +469,10 @@ async def listar_seguindo(
 
         total = (
             session.query(Seguidor)
-            .filter(Seguidor.seguidor_id == usuario_id)
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_id
+            )
             .count()
         )
 
@@ -304,18 +480,32 @@ async def listar_seguindo(
             "total": total,
             "usuarios": [
                 {
-                    "id": s.id,
-                    "username": s.username,
-                    "email": s.email,
-                    "foto_perfil": getattr(s, "foto_perfil", None),
+                    "id": usuario_seguido.id,
+                    "username": (
+                        usuario_seguido.nome_usuario
+                    ),
+                    "email": (
+                        usuario_seguido.email
+                    ),
+                    "foto_perfil": getattr(
+                        usuario_seguido,
+                        "foto_perfil",
+                        None
+                    ),
                     "seguindo": bool(
-                        session.query(Seguidor).filter(
-                            Seguidor.seguidor_id == usuario_atual.id,
-                            Seguidor.seguindo_id == s.id
-                        ).first()
+                        session
+                        .query(Seguidor)
+                        .filter(
+                            Seguidor.seguidor_id
+                            == usuario_atual.id,
+
+                            Seguidor.seguindo_id
+                            == usuario_seguido.id
+                        )
+                        .first()
                     )
                 }
-                for s in seguindo
+                for usuario_seguido in seguindo
             ]
         }
 
@@ -323,9 +513,20 @@ async def listar_seguindo(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao buscar usuários seguindo")
 
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Erro ao buscar usuários "
+                "seguindo"
+            )
+        )
+
+
+# ============================================================
+# PERFIL DE OUTRO USUÁRIO
+# ============================================================
 
 @profile_router.get("/{usuario_id}")
 async def obter_perfil_usuario(
@@ -333,54 +534,88 @@ async def obter_perfil_usuario(
     session: Session = Depends(pegar_sessao),
     usuario_atual: User = Depends(pegar_usuario_atual)
 ):
-    """
-    Obtém o perfil de um usuário (diferente do /me que é o próprio).
-    Retorna informações do usuário e estatísticas (seguidores, seguindo, posts).
-    """
     try:
-        # Buscar o usuário
-        usuario = session.query(User).filter(User.id == usuario_id).first()
-        if not usuario:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        usuario = (
+            session.query(User)
+            .filter(
+                User.id == usuario_id
+            )
+            .first()
+        )
 
-        # Contar seguidores
+        if not usuario:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+            )
+
         total_seguidores = (
             session.query(Seguidor)
-            .filter(Seguidor.seguindo_id == usuario_id)
+            .filter(
+                Seguidor.seguindo_id
+                == usuario_id
+            )
             .count()
         )
 
-        # Contar seguindo
         total_seguindo = (
             session.query(Seguidor)
-            .filter(Seguidor.seguidor_id == usuario_id)
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_id
+            )
             .count()
         )
 
-        # Contar posts
-        total_posts = session.query(User).filter(User.id == usuario_id).first().posts.__len__()
+        total_posts = len(
+            usuario.posts
+        )
 
-        # Verificar se o usuário atual segue este usuário
         segue = bool(
-            session.query(Seguidor).filter(
-                Seguidor.seguidor_id == usuario_atual.id,
-                Seguidor.seguindo_id == usuario_id
-            ).first()
+            session.query(Seguidor)
+            .filter(
+                Seguidor.seguidor_id
+                == usuario_atual.id,
+
+                Seguidor.seguindo_id
+                == usuario_id
+            )
+            .first()
         )
 
         return {
             "id": usuario.id,
-            "username": usuario.username,
+            "username": (
+                usuario.nome_usuario
+            ),
             "email": usuario.email,
-            "foto_perfil": getattr(usuario, "foto_perfil", None),
-            "total_seguidores": total_seguidores,
-            "total_seguindo": total_seguindo,
+            "foto_perfil": getattr(
+                usuario,
+                "foto_perfil",
+                None
+            ),
+            "total_seguidores": (
+                total_seguidores
+            ),
+            "total_seguindo": (
+                total_seguindo
+            ),
             "total_posts": total_posts,
             "segue": segue,
-            "eh_eu": usuario_id == usuario_atual.id
+            "eh_eu": (
+                usuario_id
+                == usuario_atual.id
+            )
         }
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao buscar perfil do usuário")
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Erro ao buscar perfil "
+                "do usuário"
+            )
+        )
