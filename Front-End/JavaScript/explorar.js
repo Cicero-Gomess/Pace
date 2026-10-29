@@ -69,6 +69,42 @@ let termoAtual =
 let selectedCommunityId =
   null;
 
+let apiCommunitiesCache = [];
+
+function normalizarComunidadeApi(community) {
+  return {
+    id: community?.id,
+    nome: community?.nome ?? "Comunidade",
+    descricao: community?.descricao ?? "",
+    topicos: Array.isArray(community?.topicos) ? community.topicos : [],
+    privacidade: community?.privacidade ?? "publica",
+    criadorId: community?.criador_id ?? null,
+    dataCriacao: community?.data_criacao ?? null,
+    membrosCount: Number(community?.membros_count ?? 0),
+    souMembro: Boolean(community?.sou_membro ?? false),
+    souCriador: Boolean(community?.sou_criador ?? false),
+  };
+}
+
+async function sincronizarComunidadesApi() {
+  try {
+    const data = await apiFetch("/comunidades", {
+      auth: true,
+      fallbackMessage: "Erro ao carregar comunidades.",
+    });
+
+    apiCommunitiesCache = Array.isArray(data)
+      ? data.map(normalizarComunidadeApi)
+      : [];
+
+    saveStoredArray(COMMUNITY_STORAGE_KEY, apiCommunitiesCache);
+    return apiCommunitiesCache;
+  } catch (error) {
+    console.error("Erro ao carregar comunidades da API:", error);
+    return getCommunities();
+  }
+}
+
 
 /* =========================
    ELEMENTOS
@@ -1460,61 +1496,50 @@ function communityMatches(
 function getCommunityMembership(
   communityId
 ) {
+  const community = getCommunities().find(
+    (item) => String(item.id) === String(communityId)
+  );
 
-  const currentUserId =
-    getCurrentLocalUserId();
-
-
-  if (
-    !currentUserId
-  ) {
-
-    return null;
-
+  if (community?.souMembro || community?.souCriador) {
+    return {
+      comunidadeId: community.id,
+      usuarioId: getCurrentLocalUserId(),
+      cargo: community.souCriador ? "admin" : "membro",
+    };
   }
 
+  const currentUserId = getCurrentLocalUserId();
+
+  if (!currentUserId) {
+    return null;
+  }
 
   return getCommunityMembers()
     .find(
       (member) =>
-
-        String(
-          member.comunidadeId
-        ) ===
-        String(
-          communityId
-        )
-
-        &&
-
-        String(
-          member.usuarioId
-        ) ===
-        String(
-          currentUserId
-        )
+        String(member.comunidadeId) === String(communityId) &&
+        String(member.usuarioId) === String(currentUserId)
     );
-
 }
 
 
 function countCommunityMembers(
   communityId
 ) {
+  const community = getCommunities().find(
+    (item) => String(item.id) === String(communityId)
+  );
+
+  if (community && Number.isFinite(Number(community.membrosCount))) {
+    return Number(community.membrosCount);
+  }
 
   return getCommunityMembers()
     .filter(
       (member) =>
-
-        String(
-          member.comunidadeId
-        ) ===
-        String(
-          communityId
-        )
+        String(member.comunidadeId) === String(communityId)
     )
     .length;
-
 }
 
 
@@ -3385,232 +3410,85 @@ function closeCommunityCreationModal() {
 }
 
 
-function createCommunityFromForm(
+async function createCommunityFromForm(
   event
 ) {
-
   event.preventDefault();
 
+  const formData = new FormData(communityForm);
 
-  const formData =
-    new FormData(
-      communityForm
-    );
+  const nome = String(formData.get("nome") || "").trim();
+  const descricao = String(formData.get("descricao") || "").trim();
+  const privacidade = String(
+    formData.get("privacidade") || "publica"
+  );
+  const topicos = normalizeTopics(
+    formData.get("topicos")
+  );
 
-
-  const nome =
-    String(
-      formData.get(
-        "nome"
-      ) ||
-      ""
-    ).trim();
-
-
-  const descricao =
-    String(
-      formData.get(
-        "descricao"
-      ) ||
-      ""
-    ).trim();
-
-
-  const privacidade =
-    String(
-      formData.get(
-        "privacidade"
-      ) ||
-      "publica"
-    );
-
-
-  const topicos =
-    normalizeTopics(
-      formData.get(
-        "topicos"
-      )
-    );
-
-
-  if (
-    nome.length <
-    3
-  ) {
-
+  if (nome.length < 3) {
     showCommunityFormError(
       "O nome da comunidade precisa ter pelo menos 3 caracteres."
     );
-
     return;
-
   }
 
-
-  if (
-    descricao.length <
-    10
-  ) {
-
+  if (descricao.length < 10) {
     showCommunityFormError(
       "Escreva uma descrição um pouco mais completa."
     );
-
     return;
-
   }
 
-
-  if (
-    !topicos.length
-  ) {
-
+  if (!topicos.length) {
     showCommunityFormError(
       "Adicione pelo menos 1 tópico à comunidade."
     );
-
     return;
-
   }
 
+  showCommunityFormError("");
 
-  const communities =
-    getCommunities();
+  try {
+    const created = await apiFetch("/comunidades", {
+      method: "POST",
+      auth: true,
+      body: {
+        nome,
+        descricao,
+        topicos,
+        privacidade,
+      },
+      fallbackMessage: "Erro ao criar comunidade.",
+    });
 
+    const createdCommunity = normalizarComunidadeApi(created);
 
-  const duplicatedName =
-    communities.some(
-      (community) =>
+    await sincronizarComunidadesApi();
 
-        normalizarTexto(
-          community.nome
-        ) ===
+    closeCommunityCreationModal();
 
-        normalizarTexto(
-          nome
-        )
-    );
+    termoAtual = "";
 
+    if (searchInput) {
+      searchInput.value = "";
+    }
 
-  if (
-    duplicatedName
-  ) {
+    renderCommunities();
 
-    showCommunityFormError(
-      "Já existe uma comunidade com esse nome neste navegador."
-    );
+    if (createdCommunity?.id != null) {
+      openCommunityDetails(createdCommunity.id);
+    }
+  } catch (error) {
+    console.error("Erro ao criar comunidade:", error);
 
-    return;
+    const message =
+      error?.data?.detail ||
+      error?.message ||
+      "Não foi possível criar a comunidade.";
 
+    showCommunityFormError(String(message));
   }
-
-
-  const communityId =
-    makeCommunityId();
-
-
-  const currentUserId =
-    requireCurrentCommunityUserId();
-
-
-  if (
-    !currentUserId
-  ) {
-
-    return;
-
-  }
-
-
-  const now =
-    new Date()
-      .toISOString();
-
-
-  const newCommunity = {
-
-    id:
-      communityId,
-
-    nome,
-
-    descricao,
-
-    topicos,
-
-    privacidade,
-
-    criadorId:
-      currentUserId,
-
-    dataCriacao:
-      now,
-
-  };
-
-
-  communities.unshift(
-    newCommunity
-  );
-
-
-  saveStoredArray(
-    COMMUNITY_STORAGE_KEY,
-    communities
-  );
-
-
-  const members =
-    getCommunityMembers();
-
-
-  members.push({
-
-    comunidadeId:
-      communityId,
-
-    usuarioId:
-      currentUserId,
-
-    cargo:
-      "admin",
-
-    dataEntrada:
-      now,
-
-  });
-
-
-  saveStoredArray(
-    COMMUNITY_MEMBERS_STORAGE_KEY,
-    members
-  );
-
-
-  closeCommunityCreationModal();
-
-
-  termoAtual =
-    "";
-
-
-  if (
-    searchInput
-  ) {
-
-    searchInput.value =
-      "";
-
-  }
-
-
-  renderCommunities();
-
-
-  openCommunityDetails(
-    communityId
-  );
-
 }
 
 
@@ -3703,7 +3581,21 @@ function switchExploreTab(
 
   } else {
 
-    renderCommunities();
+    if (communitiesGrid) {
+      communitiesGrid.innerHTML = `
+        <div class="empty-state loading-state">
+          <i data-lucide="refresh-cw"></i>
+          <h3>Carregando comunidades</h3>
+          <p>Buscando comunidades reais da plataforma.</p>
+        </div>
+      `;
+      initLucide();
+    }
+
+    void sincronizarComunidadesApi()
+      .then(() => {
+        renderCommunities();
+      });
 
   }
 

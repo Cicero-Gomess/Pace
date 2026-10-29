@@ -194,6 +194,11 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
   Map<String, dynamic> _usuarioLogado = {};
   List<Map<String, dynamic>> _profiles = [];
+  List<Map<String, dynamic>> _communities = [];
+
+  String _activeExploreTab = 'people';
+  bool _loadingCommunities = false;
+  bool _creatingCommunity = false;
 
   bool get darkMode => Theme.of(context).brightness == Brightness.dark;
 
@@ -439,7 +444,711 @@ class _ExplorarPageState extends State<ExplorarPage> {
         .toList();
   }
 
+
+  Future<List<Map<String, dynamic>>> _buscarComunidades(
+    String token,
+  ) async {
+    final response = await http
+        .get(
+          ApiConfig.uri('/comunidades'),
+          headers: _authHeaders(token),
+        )
+        .timeout(const Duration(seconds: 12));
+
+    final data = await _parseResponse(
+      response,
+      'Não foi possível carregar as comunidades.',
+    );
+
+    if (data is! List) {
+      return <Map<String, dynamic>>[];
+    }
+
+    return data
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  Future<void> _carregarComunidades({
+    bool showLoading = true,
+  }) async {
+    final token = await _getToken();
+
+    if (token == null || token.isEmpty || !mounted) {
+      return;
+    }
+
+    if (showLoading) {
+      setState(() {
+        _loadingCommunities = true;
+      });
+    }
+
+    try {
+      final comunidades = await _buscarComunidades(token);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _communities = comunidades;
+      });
+    } catch (e) {
+      if (e.toString().contains('AUTH_401')) {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/entrar');
+        }
+        return;
+      }
+
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingCommunities = false;
+        });
+      }
+    }
+  }
+
+  void _trocarAbaExplorar(String tab) {
+    final next = tab == 'communities' ? 'communities' : 'people';
+
+    if (_activeExploreTab == next) {
+      return;
+    }
+
+    setState(() {
+      _activeExploreTab = next;
+      _searchController.clear();
+      _profiles = <Map<String, dynamic>>[];
+    });
+
+    if (next == 'communities') {
+      _carregarComunidades();
+    }
+  }
+
+  List<Map<String, dynamic>> get _comunidadesFiltradas {
+    final termo = _searchController.text.trim().toLowerCase();
+
+    if (termo.isEmpty) {
+      return _communities;
+    }
+
+    return _communities.where((community) {
+      final topicos = (community['topicos'] is List)
+          ? (community['topicos'] as List).join(' ')
+          : '';
+
+      final base = [
+        community['nome'],
+        community['descricao'],
+        topicos,
+      ].join(' ').toLowerCase();
+
+      return base.contains(termo);
+    }).toList();
+  }
+
+  Future<void> _toggleCommunityMembership(
+    Map<String, dynamic> community,
+  ) async {
+    if (community['sou_criador'] == true) {
+      return;
+    }
+
+    final token = await _getToken();
+
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    final id = _toInt(community['id']);
+
+    if (id <= 0) {
+      return;
+    }
+
+    final participating = community['sou_membro'] == true;
+
+    try {
+      final request = participating
+          ? http.delete(
+              ApiConfig.uri('/comunidades/$id/participar'),
+              headers: _authHeaders(token),
+            )
+          : http.post(
+              ApiConfig.uri('/comunidades/$id/participar'),
+              headers: _authHeaders(token),
+            );
+
+      final response = await request.timeout(
+        const Duration(seconds: 12),
+      );
+
+      await _parseResponse(
+        response,
+        participating
+            ? 'Não foi possível sair da comunidade.'
+            : 'Não foi possível entrar na comunidade.',
+      );
+
+      await _carregarComunidades(showLoading: false);
+    } catch (e) {
+      _showToast(
+        e.toString().replaceFirst('Exception: ', ''),
+        Colors.red,
+      );
+    }
+  }
+
+  Future<void> _abrirDetalhesComunidade(
+    Map<String, dynamic> community,
+  ) async {
+    final id = _toInt(community['id']);
+
+    if (id <= 0) {
+      return;
+    }
+
+    final token = await _getToken();
+
+    if (token == null || token.isEmpty || !mounted) {
+      return;
+    }
+
+    Map<String, dynamic> current = Map<String, dynamic>.from(community);
+
+    try {
+      final response = await http.get(
+        ApiConfig.uri('/comunidades/$id'),
+        headers: _authHeaders(token),
+      );
+
+      final data = await _parseResponse(
+        response,
+        'Não foi possível carregar a comunidade.',
+      );
+
+      if (data is Map) {
+        current = Map<String, dynamic>.from(data);
+      }
+    } catch (_) {}
+
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.62),
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: darkMode
+                    ? const Color(0xFF0C1627)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: primary.withOpacity(0.16),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(
+                      darkMode ? 0.36 : 0.12,
+                    ),
+                    blurRadius: 40,
+                    offset: const Offset(0, 18),
+                  ),
+                ],
+              ),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final topics = current['topicos'] is List
+                      ? List<dynamic>.from(current['topicos'])
+                      : <dynamic>[];
+
+                  final isCreator = current['sou_criador'] == true;
+                  final isMember = current['sou_membro'] == true;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF071A36),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.groups_2_outlined,
+                              color: accent,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              (current['nome'] ?? 'Comunidade').toString(),
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                            icon: Icon(
+                              Icons.close_rounded,
+                              color: mutedColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        (current['descricao'] ?? 'Sem descrição.').toString(),
+                        style: TextStyle(
+                          color: mutedColor,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                      ),
+                      if (topics.isNotEmpty) ...[
+                        const SizedBox(height: 18),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: topics.map((topic) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primary.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '#${topic.toString()}',
+                                style: const TextStyle(
+                                  color: Color(0xFF7EB0FF),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                      const SizedBox(height: 22),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.people_alt_outlined,
+                            color: mutedColor,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 7),
+                          Text(
+                            '${_toInt(current['membros_count'])} '
+                            '${_toInt(current['membros_count']) == 1 ? 'membro' : 'membros'}',
+                            style: TextStyle(
+                              color: mutedColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (isCreator)
+                            _CommunityStatusPill(
+                              text: 'Criador',
+                              highlighted: true,
+                              darkMode: darkMode,
+                            )
+                          else
+                            _CommunityStatusPill(
+                              text: isMember ? 'Participando' : 'Disponível',
+                              highlighted: isMember,
+                              darkMode: darkMode,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
+                      if (!isCreator)
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: () async {
+                              await _toggleCommunityMembership(current);
+
+                              final refreshed = _communities.firstWhere(
+                                (item) =>
+                                    _toInt(item['id']) == id,
+                                orElse: () => current,
+                              );
+
+                              setModalState(() {
+                                current = Map<String, dynamic>.from(refreshed);
+                              });
+                            },
+                            icon: Icon(
+                              isMember
+                                  ? Icons.logout_rounded
+                                  : Icons.group_add_outlined,
+                            ),
+                            label: Text(
+                              isMember
+                                  ? 'Sair da comunidade'
+                                  : 'Participar da comunidade',
+                            ),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: isMember
+                                  ? const Color(0xFF132742)
+                                  : primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _abrirCriarComunidade() async {
+    final nomeController = TextEditingController();
+    final descricaoController = TextEditingController();
+    final topicosController = TextEditingController();
+
+    String privacy = 'publica';
+    String? errorMessage;
+
+    final created = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.62),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> submit() async {
+              if (_creatingCommunity) {
+                return;
+              }
+
+              final nome = nomeController.text.trim();
+              final descricao = descricaoController.text.trim();
+              final topicos = topicosController.text
+                  .split(',')
+                  .map((item) => item.trim().replaceFirst(RegExp(r'^#'), ''))
+                  .where((item) => item.isNotEmpty)
+                  .toSet()
+                  .take(5)
+                  .toList();
+
+              if (nome.length < 3) {
+                setModalState(() {
+                  errorMessage = 'Use pelo menos 3 caracteres no nome.';
+                });
+                return;
+              }
+
+              if (descricao.length < 10) {
+                setModalState(() {
+                  errorMessage = 'Escreva uma descrição um pouco maior.';
+                });
+                return;
+              }
+
+              if (topicos.isEmpty) {
+                setModalState(() {
+                  errorMessage = 'Adicione pelo menos um tópico.';
+                });
+                return;
+              }
+
+              final token = await _getToken();
+
+              if (token == null || token.isEmpty) {
+                return;
+              }
+
+              setModalState(() {
+                _creatingCommunity = true;
+                errorMessage = null;
+              });
+
+              try {
+                final response = await http
+                    .post(
+                      ApiConfig.uri('/comunidades'),
+                      headers: _authHeaders(token, json: true),
+                      body: jsonEncode({
+                        'nome': nome,
+                        'descricao': descricao,
+                        'topicos': topicos,
+                        'privacidade': privacy,
+                      }),
+                    )
+                    .timeout(const Duration(seconds: 12));
+
+                await _parseResponse(
+                  response,
+                  'Não foi possível criar a comunidade.',
+                );
+
+                if (!dialogContext.mounted) {
+                  return;
+                }
+
+                Navigator.of(dialogContext).pop(true);
+              } catch (e) {
+                setModalState(() {
+                  errorMessage = e
+                      .toString()
+                      .replaceFirst('Exception: ', '');
+                  _creatingCommunity = false;
+                });
+              }
+            }
+
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 590),
+                child: Container(
+                  padding: const EdgeInsets.all(26),
+                  decoration: BoxDecoration(
+                    color: darkMode
+                        ? const Color(0xFF0C1627)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(
+                      color: primary.withOpacity(0.16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(
+                          darkMode ? 0.38 : 0.14,
+                        ),
+                        blurRadius: 44,
+                        offset: const Offset(0, 18),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'NOVA COMUNIDADE',
+                                    style: TextStyle(
+                                      color: primary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  SizedBox(height: 6),
+                                  Text(
+                                    'Criar comunidade',
+                                    style: TextStyle(
+                                      color: darkMode
+                                          ? Colors.white
+                                          : const Color(0xFF06152D),
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.7,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: mutedColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 22),
+                        _CommunityTextField(
+                          controller: nomeController,
+                          label: 'Nome da comunidade',
+                          hint: 'Ex: Clube de Literatura',
+                          maxLength: 50,
+                          darkMode: darkMode,
+                        ),
+                        const SizedBox(height: 14),
+                        _CommunityTextField(
+                          controller: descricaoController,
+                          label: 'Descrição',
+                          hint: 'Conte brevemente sobre o objetivo da comunidade.',
+                          maxLength: 220,
+                          maxLines: 4,
+                          darkMode: darkMode,
+                        ),
+                        const SizedBox(height: 14),
+                        _CommunityTextField(
+                          controller: topicosController,
+                          label: 'Tópicos',
+                          hint: 'Ex: Literatura, Livros, Escrita',
+                          darkMode: darkMode,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Privacidade',
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _PrivacyOption(
+                                selected: privacy == 'publica',
+                                icon: Icons.public_rounded,
+                                title: 'Pública',
+                                onTap: () {
+                                  setModalState(() {
+                                    privacy = 'publica';
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _PrivacyOption(
+                                selected: privacy == 'privada',
+                                icon: Icons.lock_outline_rounded,
+                                title: 'Privada',
+                                onTap: () {
+                                  setModalState(() {
+                                    privacy = 'privada';
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (errorMessage != null) ...[
+                          const SizedBox(height: 14),
+                          Text(
+                            errorMessage!,
+                            style: const TextStyle(
+                              color: Color(0xFFFF6B7A),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 22),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _creatingCommunity ? null : submit,
+                            icon: _creatingCommunity
+                                ? const SizedBox(
+                                    width: 17,
+                                    height: 17,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.add_rounded),
+                            label: const Text('Criar comunidade'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    nomeController.dispose();
+    descricaoController.dispose();
+    topicosController.dispose();
+
+    if (mounted) {
+      setState(() {
+        _creatingCommunity = false;
+      });
+    }
+
+    if (created == true) {
+      await _carregarComunidades(showLoading: false);
+
+      _showToast(
+        'Comunidade criada com sucesso.',
+        const Color(0xFF1E9E72),
+      );
+    }
+  }
+
   Future<void> _recarregar() async {
+    if (_activeExploreTab == 'communities') {
+      await _carregarComunidades();
+      return;
+    }
+
     final termo = _searchController.text.trim();
 
     if (termo.length < 2) {
@@ -930,14 +1639,19 @@ class _ExplorarPageState extends State<ExplorarPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHero(mobile),
-                SizedBox(height: mobile ? 24 : 28),
+                SizedBox(height: mobile ? 20 : 24),
+                _buildExploreTabs(),
+                SizedBox(height: mobile ? 16 : 18),
                 _buildSearch(),
-                SizedBox(height: mobile ? 24 : 34),
-                if (!mobile) ...[
-                  _buildHighlights(false),
-                  const SizedBox(height: 38),
-                ],
-                _buildProfilesSection(mobile),
+                SizedBox(height: mobile ? 24 : 30),
+                if (_activeExploreTab == 'people') ...[
+                  if (!mobile) ...[
+                    _buildHighlights(false),
+                    const SizedBox(height: 38),
+                  ],
+                  _buildProfilesSection(mobile),
+                ] else
+                  _buildCommunitiesSection(mobile),
               ],
             ),
           ),
@@ -983,6 +1697,15 @@ class _ExplorarPageState extends State<ExplorarPage> {
             letterSpacing: -1.5,
           ),
         ),
+        const SizedBox(height: 9),
+        Text(
+          'Encontre pessoas, comunidades e conteúdos para continuar evoluindo.',
+          style: TextStyle(
+            color: mutedColor,
+            fontSize: mobile ? 12.5 : 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
 
@@ -1012,6 +1735,42 @@ class _ExplorarPageState extends State<ExplorarPage> {
           onTap: () => Navigator.of(context).pushNamed('/postar'),
         ),
       ],
+    );
+  }
+
+
+  Widget _buildExploreTabs() {
+    return Container(
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: darkMode
+            ? const Color(0xFF0E1B31)
+            : Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: darkMode
+              ? Colors.white.withOpacity(0.08)
+              : const Color(0xFF06152D).withOpacity(0.08),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ExploreTabButton(
+            icon: Icons.people_outline_rounded,
+            text: 'Pessoas',
+            selected: _activeExploreTab == 'people',
+            onTap: () => _trocarAbaExplorar('people'),
+          ),
+          const SizedBox(width: 4),
+          _ExploreTabButton(
+            icon: Icons.groups_2_outlined,
+            text: 'Comunidades',
+            selected: _activeExploreTab == 'communities',
+            onTap: () => _trocarAbaExplorar('communities'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1047,15 +1806,22 @@ class _ExplorarPageState extends State<ExplorarPage> {
               child: TextField(
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
-                onSubmitted: (value) => _executarBusca(value.trim()),
+                onSubmitted: (value) {
+                  if (_activeExploreTab == 'people') {
+                    _executarBusca(value.trim());
+                  } else {
+                    setState(() {});
+                  }
+                },
                 style: TextStyle(
                   color: textColor,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
-                  hintText:
-                      'Digite um nome e toque em pesquisar',
+                  hintText: _activeExploreTab == 'people'
+                      ? 'Digite um nome e toque em pesquisar'
+                      : 'Pesquisar comunidades',
                   hintStyle: TextStyle(
                     color: mutedColor,
                     fontWeight: FontWeight.w400,
@@ -1094,9 +1860,15 @@ class _ExplorarPageState extends State<ExplorarPage> {
               const SizedBox(width: 8),
               _CircleIconButton(
                 icon: Icons.search_rounded,
-                onTap: () => _executarBusca(
-                  _searchController.text.trim(),
-                ),
+                onTap: () {
+                  if (_activeExploreTab == 'people') {
+                    _executarBusca(
+                      _searchController.text.trim(),
+                    );
+                  } else {
+                    setState(() {});
+                  }
+                },
               ),
             ],
           ],
@@ -1267,6 +2039,315 @@ class _ExplorarPageState extends State<ExplorarPage> {
             },
           ),
       ],
+    );
+  }
+
+
+  Widget _buildCommunitiesSection(bool mobile) {
+    final filtered = _comunidadesFiltradas;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'COMUNIDADES',
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    'Encontre seu espaço',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: mobile ? 28 : 31,
+                      height: 1.05,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            _PrimaryButton(
+              text: mobile ? 'Criar' : 'Criar comunidade',
+              icon: Icons.add_rounded,
+              onTap: _abrirCriarComunidade,
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        if (_loadingCommunities)
+          _EmptyStateShell(
+            darkMode: darkMode,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 30),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: primary,
+                  strokeWidth: 2.5,
+                ),
+              ),
+            ),
+          )
+        else if (filtered.isEmpty)
+          _EmptyStateShell(
+            darkMode: darkMode,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 22,
+                vertical: 34,
+              ),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.groups_2_outlined,
+                    color: primary,
+                    size: 34,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _searchController.text.trim().isEmpty
+                        ? 'Nenhuma comunidade encontrada'
+                        : 'Nenhuma comunidade corresponde à busca',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    _searchController.text.trim().isEmpty
+                        ? 'Crie a primeira comunidade ou atualize a página.'
+                        : 'Tente pesquisar por outro nome ou tópico.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              int columns;
+
+              if (constraints.maxWidth >= 980) {
+                columns = 3;
+              } else if (constraints.maxWidth >= 650) {
+                columns = 2;
+              } else {
+                columns = 1;
+              }
+
+              const gap = 16.0;
+              final width =
+                  (constraints.maxWidth - gap * (columns - 1)) / columns;
+
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: filtered.map((community) {
+                  return SizedBox(
+                    width: width,
+                    child: _buildCommunityCard(community),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCommunityCard(
+    Map<String, dynamic> community,
+  ) {
+    final topics = community['topicos'] is List
+        ? List<dynamic>.from(community['topicos'])
+        : <dynamic>[];
+
+    final isCreator = community['sou_criador'] == true;
+    final isMember = community['sou_membro'] == true;
+    final members = _toInt(community['membros_count']);
+    final privacy = (community['privacidade'] ?? 'publica').toString();
+
+    return SizedBox(
+      height: 285,
+      child: Material(
+        color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _abrirDetalhesComunidade(community),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: darkMode
+                ? const Color(0xFF0E1B31)
+                : Colors.white.withOpacity(0.94),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: darkMode
+                  ? Colors.white.withOpacity(0.08)
+                  : const Color(0xFF06152D).withOpacity(0.08),
+            ),
+            boxShadow: [
+              if (!darkMode)
+                BoxShadow(
+                  color: const Color(0xFF06152D).withOpacity(0.06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF071A36),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.groups_2_outlined,
+                      color: accent,
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  _CommunityStatusPill(
+                    text: privacy == 'privada' ? 'Privada' : 'Pública',
+                    highlighted: false,
+                    darkMode: darkMode,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                (community['nome'] ?? 'Comunidade').toString(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                (community['descricao'] ?? 'Sem descrição.').toString(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: mutedColor,
+                  fontSize: 12.5,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: topics.take(3).map((topic) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: primary.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '#${topic.toString()}',
+                      style: const TextStyle(
+                        color: Color(0xFF7EB0FF),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Text(
+                    '$members ${members == 1 ? 'membro' : 'membros'}',
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (isCreator)
+                    _CommunityStatusPill(
+                      text: 'Criador',
+                      highlighted: true,
+                      darkMode: darkMode,
+                    )
+                  else if (isMember)
+                    _CommunityStatusPill(
+                      text: 'Participando',
+                      highlighted: true,
+                      darkMode: darkMode,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Divider(
+                height: 1,
+                color: darkMode
+                    ? Colors.white.withOpacity(0.08)
+                    : const Color(0xFF06152D).withOpacity(0.08),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.auto_awesome_outlined,
+                    color: primary,
+                    size: 15,
+                  ),
+                  const SizedBox(width: 7),
+                  Text(
+                    'Clique para ver detalhes',
+                    style: TextStyle(
+                      color: mutedColor,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      ),
     );
   }
 
@@ -1849,7 +2930,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final showText = _sidebarHovered && constraints.maxWidth > 90;
+              final showText = constraints.maxWidth >= 150;
 
               return Row(
                 children: [
@@ -1934,7 +3015,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final showText = _sidebarHovered && constraints.maxWidth > 90;
+              final showText = constraints.maxWidth >= 150;
 
               return Row(
                 children: [
@@ -2023,6 +3104,255 @@ class _ExplorarPageState extends State<ExplorarPage> {
           borderRadius: BorderRadius.circular(16),
         ),
         duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+}
+
+
+class _ExploreTabButton extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ExploreTabButton({
+    required this.icon,
+    required this.text,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 17,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            color: selected
+                ? const Color(0xFF0B3D91)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: selected
+                    ? Colors.white
+                    : const Color(0xFF8FA5C0),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: TextStyle(
+                  color: selected
+                      ? Colors.white
+                      : const Color(0xFF8FA5C0),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CommunityStatusPill extends StatelessWidget {
+  final String text;
+  final bool highlighted;
+  final bool darkMode;
+
+  const _CommunityStatusPill({
+    required this.text,
+    required this.highlighted,
+    required this.darkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: highlighted
+            ? (darkMode ? const Color(0xFFEAF3FB) : const Color(0xFF0B3D91))
+            : const Color(0xFF1769E8).withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: highlighted
+              ? (darkMode ? const Color(0xFF0B3D91) : Colors.white)
+              : const Color(0xFF7EB0FF),
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _CommunityTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final int? maxLength;
+  final int maxLines;
+  final bool darkMode;
+
+  const _CommunityTextField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.darkMode,
+    this.maxLength,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = darkMode
+        ? const Color(0xFFF7FAFF)
+        : const Color(0xFF06152D);
+    final muted = darkMode
+        ? const Color(0xFF8FA5C0)
+        : const Color(0xFF61758F);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: text,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLength: maxLength,
+          maxLines: maxLines,
+          style: TextStyle(
+            color: text,
+            fontSize: 13.5,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: muted,
+              fontSize: 12.5,
+            ),
+            counterText: '',
+            filled: true,
+            fillColor: darkMode
+                ? const Color(0xFF071426)
+                : const Color(0xFFF4F8FD),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: const Color(0xFF1769E8).withOpacity(0.12),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: const Color(0xFF1769E8).withOpacity(0.12),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: Color(0xFF1769E8),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PrivacyOption extends StatelessWidget {
+  final bool selected;
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _PrivacyOption({
+    required this.selected,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 13,
+          ),
+          decoration: BoxDecoration(
+            color: selected
+                ? const Color(0xFF1769E8).withOpacity(0.13)
+                : const Color(0xFF071426),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? const Color(0xFF1769E8)
+                  : Colors.white.withOpacity(0.08),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: selected
+                    ? const Color(0xFF7EB0FF)
+                    : const Color(0xFF8FA5C0),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: selected
+                        ? Colors.white
+                        : const Color(0xFFC7D5E8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
