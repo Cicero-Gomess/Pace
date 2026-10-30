@@ -76,7 +76,9 @@ function normalizarComunidadeApi(community) {
     id: community?.id,
     nome: community?.nome ?? "Comunidade",
     descricao: community?.descricao ?? "",
-    topicos: Array.isArray(community?.topicos) ? community.topicos : [],
+    topicos: Array.isArray(community?.topicos)
+      ? community.topicos
+      : [],
     privacidade: community?.privacidade ?? "publica",
     criadorId: community?.criador_id ?? null,
     dataCriacao: community?.data_criacao ?? null,
@@ -97,10 +99,18 @@ async function sincronizarComunidadesApi() {
       ? data.map(normalizarComunidadeApi)
       : [];
 
-    saveStoredArray(COMMUNITY_STORAGE_KEY, apiCommunitiesCache);
+    saveStoredArray(
+      COMMUNITY_STORAGE_KEY,
+      apiCommunitiesCache
+    );
+
     return apiCommunitiesCache;
   } catch (error) {
-    console.error("Erro ao carregar comunidades da API:", error);
+    console.error(
+      "Erro ao carregar comunidades da API:",
+      error
+    );
+
     return getCommunities();
   }
 }
@@ -1044,7 +1054,8 @@ async function renderProfiles() {
     renderEmpty(
       profilesGrid,
       "Pesquise por perfis",
-      "Digite um nome ou usuário para encontrar pessoas no Pace."
+      "Digite um nome ou usuário para encontrar pessoas no Pace.",
+      "search"
     );
 
     return;
@@ -1497,18 +1508,26 @@ function getCommunityMembership(
   communityId
 ) {
   const community = getCommunities().find(
-    (item) => String(item.id) === String(communityId)
+    (item) =>
+      String(item.id) ===
+      String(communityId)
   );
 
-  if (community?.souMembro || community?.souCriador) {
+  if (
+    community?.souMembro ||
+    community?.souCriador
+  ) {
     return {
       comunidadeId: community.id,
       usuarioId: getCurrentLocalUserId(),
-      cargo: community.souCriador ? "admin" : "membro",
+      cargo: community.souCriador
+        ? "admin"
+        : "membro",
     };
   }
 
-  const currentUserId = getCurrentLocalUserId();
+  const currentUserId =
+    getCurrentLocalUserId();
 
   if (!currentUserId) {
     return null;
@@ -1517,8 +1536,10 @@ function getCommunityMembership(
   return getCommunityMembers()
     .find(
       (member) =>
-        String(member.comunidadeId) === String(communityId) &&
-        String(member.usuarioId) === String(currentUserId)
+        String(member.comunidadeId) ===
+          String(communityId) &&
+        String(member.usuarioId) ===
+          String(currentUserId)
     );
 }
 
@@ -1527,17 +1548,27 @@ function countCommunityMembers(
   communityId
 ) {
   const community = getCommunities().find(
-    (item) => String(item.id) === String(communityId)
+    (item) =>
+      String(item.id) ===
+      String(communityId)
   );
 
-  if (community && Number.isFinite(Number(community.membrosCount))) {
-    return Number(community.membrosCount);
+  if (
+    community &&
+    Number.isFinite(
+      Number(community.membrosCount)
+    )
+  ) {
+    return Number(
+      community.membrosCount
+    );
   }
 
   return getCommunityMembers()
     .filter(
       (member) =>
-        String(member.comunidadeId) === String(communityId)
+        String(member.comunidadeId) ===
+        String(communityId)
     )
     .length;
 }
@@ -1580,6 +1611,28 @@ function renderCommunities() {
 
   if (!communitiesGrid) {
     return;
+  }
+
+
+  const termo =
+    String(
+      termoAtual || ""
+    ).trim();
+
+
+  if (
+    termo.length < 2
+  ) {
+
+    renderEmpty(
+      communitiesGrid,
+      "Pesquise por comunidades",
+      "Digite um nome ou tópico para encontrar comunidades no Pace.",
+      "search"
+    );
+
+    return;
+
   }
 
 
@@ -1726,19 +1779,6 @@ function renderCommunities() {
 
                 </div>
 
-
-                <span class="community-badge">
-
-                  ${
-                    community.privacidade ===
-                    "privada"
-
-                      ? "Privada"
-
-                      : "Pública"
-                  }
-
-                </span>
 
               </div>
 
@@ -1981,14 +2021,7 @@ function openCommunityDetails(
 
         <span class="secao-kicker">
 
-          ${
-            community.privacidade ===
-            "privada"
-
-              ? "Comunidade privada"
-
-              : "Comunidade pública"
-          }
+          Comunidade
 
         </span>
 
@@ -2621,23 +2654,6 @@ function openCommunityManagement(
   }
 
 
-  communityManageForm
-    .querySelectorAll(
-      '[name="privacidade"]'
-    )
-    .forEach(
-      (radio) => {
-
-        radio.checked =
-          radio.value ===
-          (
-            community.privacidade ||
-            "publica"
-          );
-
-      }
-    );
-
 
   showCommunityManageError(
     ""
@@ -2735,13 +2751,7 @@ function saveManagedCommunity(
     );
 
 
-  const privacidade =
-    String(
-      formData.get(
-        "privacidade"
-      ) ||
-      "publica"
-    );
+  const privacidade = "publica";
 
 
   if (
@@ -3132,197 +3142,95 @@ function deleteManagedCommunityConfirmed() {
    PARTICIPAR / SAIR
 ========================= */
 
-function joinSelectedCommunity() {
-
-  if (
-    !selectedCommunityId
-  ) {
-
+async function joinSelectedCommunity() {
+  if (!selectedCommunityId) {
     return;
-
   }
 
-
-  const currentUserId =
-    requireCurrentCommunityUserId();
-
-
-  if (
-    !currentUserId
-  ) {
-
-    return;
-
-  }
-
-
-  const members =
-    getCommunityMembers();
-
-
-  const alreadyExists =
-    members.some(
-      (member) =>
-
-        String(
-          member.comunidadeId
-        ) ===
-        String(
-          selectedCommunityId
-        )
-
-        &&
-
-        String(
-          member.usuarioId
-        ) ===
-        String(
-          currentUserId
-        )
+  try {
+    await apiFetch(
+      `/comunidades/${selectedCommunityId}/participar`,
+      {
+        method: "POST",
+        auth: true,
+        fallbackMessage:
+          "Não foi possível entrar na comunidade.",
+      }
     );
 
+    await sincronizarComunidadesApi();
 
-  if (
-    alreadyExists
-  ) {
+    renderCommunities();
 
-    return;
+    openCommunityDetails(
+      selectedCommunityId
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao entrar na comunidade:",
+      error
+    );
 
+    alert(
+      error?.message ||
+      "Não foi possível entrar na comunidade."
+    );
   }
-
-
-  members.push({
-
-    comunidadeId:
-      selectedCommunityId,
-
-    usuarioId:
-      currentUserId,
-
-    cargo:
-      "membro",
-
-    dataEntrada:
-      new Date()
-        .toISOString(),
-
-  });
-
-
-  saveStoredArray(
-    COMMUNITY_MEMBERS_STORAGE_KEY,
-    members
-  );
-
-
-  renderCommunities();
-
-
-  openCommunityDetails(
-    selectedCommunityId
-  );
-
 }
 
 
-function leaveSelectedCommunity() {
-
-  if (
-    !selectedCommunityId
-  ) {
-
+async function leaveSelectedCommunity() {
+  if (!selectedCommunityId) {
     return;
-
   }
-
-
-  const currentUserId =
-    requireCurrentCommunityUserId();
-
-
-  if (
-    !currentUserId
-  ) {
-
-    return;
-
-  }
-
 
   const community =
     getCommunities()
       .find(
         (item) =>
-          String(
-            item.id
-          ) ===
-          String(
-            selectedCommunityId
-          )
+          String(item.id) ===
+          String(selectedCommunityId)
       );
-
 
   if (
     community &&
-    isCommunityCreator(
-      community
-    )
+    isCommunityCreator(community)
   ) {
-
     alert(
       "O criador não pode sair da própria comunidade."
     );
-
     return;
-
   }
 
+  try {
+    await apiFetch(
+      `/comunidades/${selectedCommunityId}/participar`,
+      {
+        method: "DELETE",
+        auth: true,
+        fallbackMessage:
+          "Não foi possível sair da comunidade.",
+      }
+    );
 
-  const updatedMembers =
-    getCommunityMembers()
-      .filter(
-        (member) => {
+    await sincronizarComunidadesApi();
 
-          const sameCommunity =
-            String(
-              member.comunidadeId
-            ) ===
-            String(
-              selectedCommunityId
-            );
+    renderCommunities();
 
+    openCommunityDetails(
+      selectedCommunityId
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao sair da comunidade:",
+      error
+    );
 
-          const sameUser =
-            String(
-              member.usuarioId
-            ) ===
-            String(
-              currentUserId
-            );
-
-
-          return !(
-            sameCommunity &&
-            sameUser
-          );
-
-        }
-      );
-
-
-  saveStoredArray(
-    COMMUNITY_MEMBERS_STORAGE_KEY,
-    updatedMembers
-  );
-
-
-  renderCommunities();
-
-
-  openCommunityDetails(
-    selectedCommunityId
-  );
-
+    alert(
+      error?.message ||
+      "Não foi possível sair da comunidade."
+    );
+  }
 }
 
 
@@ -3415,16 +3323,29 @@ async function createCommunityFromForm(
 ) {
   event.preventDefault();
 
-  const formData = new FormData(communityForm);
+  const formData =
+    new FormData(
+      communityForm
+    );
 
-  const nome = String(formData.get("nome") || "").trim();
-  const descricao = String(formData.get("descricao") || "").trim();
-  const privacidade = String(
-    formData.get("privacidade") || "publica"
-  );
-  const topicos = normalizeTopics(
-    formData.get("topicos")
-  );
+  const nome =
+    String(
+      formData.get("nome") ||
+      ""
+    ).trim();
+
+  const descricao =
+    String(
+      formData.get("descricao") ||
+      ""
+    ).trim();
+
+  const privacidade = "publica";
+
+  const topicos =
+    normalizeTopics(
+      formData.get("topicos")
+    );
 
   if (nome.length < 3) {
     showCommunityFormError(
@@ -3450,19 +3371,27 @@ async function createCommunityFromForm(
   showCommunityFormError("");
 
   try {
-    const created = await apiFetch("/comunidades", {
-      method: "POST",
-      auth: true,
-      body: {
-        nome,
-        descricao,
-        topicos,
-        privacidade,
-      },
-      fallbackMessage: "Erro ao criar comunidade.",
-    });
+    const created =
+      await apiFetch(
+        "/comunidades",
+        {
+          method: "POST",
+          auth: true,
+          body: {
+            nome,
+            descricao,
+            topicos,
+            privacidade,
+          },
+          fallbackMessage:
+            "Erro ao criar comunidade.",
+        }
+      );
 
-    const createdCommunity = normalizarComunidadeApi(created);
+    const createdCommunity =
+      normalizarComunidadeApi(
+        created
+      );
 
     await sincronizarComunidadesApi();
 
@@ -3476,18 +3405,26 @@ async function createCommunityFromForm(
 
     renderCommunities();
 
-    if (createdCommunity?.id != null) {
-      openCommunityDetails(createdCommunity.id);
+    if (
+      createdCommunity?.id != null
+    ) {
+      openCommunityDetails(
+        createdCommunity.id
+      );
     }
   } catch (error) {
-    console.error("Erro ao criar comunidade:", error);
+    console.error(
+      "Erro ao criar comunidade:",
+      error
+    );
 
-    const message =
-      error?.data?.detail ||
-      error?.message ||
-      "Não foi possível criar a comunidade.";
-
-    showCommunityFormError(String(message));
+    showCommunityFormError(
+      String(
+        error?.data?.detail ||
+        error?.message ||
+        "Não foi possível criar a comunidade."
+      )
+    );
   }
 }
 
@@ -3581,21 +3518,20 @@ function switchExploreTab(
 
   } else {
 
-    if (communitiesGrid) {
-      communitiesGrid.innerHTML = `
-        <div class="empty-state loading-state">
-          <i data-lucide="refresh-cw"></i>
-          <h3>Carregando comunidades</h3>
-          <p>Buscando comunidades reais da plataforma.</p>
-        </div>
-      `;
-      initLucide();
-    }
+    renderCommunities();
 
     void sincronizarComunidadesApi()
-      .then(() => {
-        renderCommunities();
-      });
+      .then(
+        () => {
+          if (
+            String(
+              termoAtual || ""
+            ).trim().length >= 2
+          ) {
+            renderCommunities();
+          }
+        }
+      );
 
   }
 

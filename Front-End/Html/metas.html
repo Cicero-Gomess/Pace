@@ -947,6 +947,117 @@
   </div>
 
 
+  <!-- =========================================
+       MODAL COMPARTILHAR CONQUISTA
+  ========================================== -->
+
+  <div
+    id="compartilharConquistaModal"
+    class="modal-overlay hidden"
+    aria-hidden="true"
+  >
+
+    <section
+      class="conquista-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="conquistaModalTitulo"
+    >
+
+      <button
+        id="fecharConquistaModal"
+        class="modal-close"
+        type="button"
+        aria-label="Fechar"
+      >
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="conquista-modal-icon">
+        <i data-lucide="trophy"></i>
+      </div>
+
+      <header class="conquista-modal-head">
+
+        <span class="modal-kicker">
+          Compartilhe seu progresso
+        </span>
+
+        <h2 id="conquistaModalTitulo">
+          Compartilhar conquista
+        </h2>
+
+        <p>
+          Sua meta foi concluída. Conte para as pessoas sobre essa conquista.
+        </p>
+
+      </header>
+
+      <div class="conquista-meta-resumo">
+
+        <span class="conquista-meta-label">
+          <i data-lucide="circle-check-big"></i>
+          Meta concluída
+        </span>
+
+        <strong id="conquistaMetaTitulo">
+          Meta concluída
+        </strong>
+
+        <span id="conquistaMetaCategoria">
+          Categoria
+        </span>
+
+      </div>
+
+      <div class="form-group conquista-texto-group">
+
+        <div class="label-row">
+
+          <label for="conquistaTexto">
+            Texto da publicação
+          </label>
+
+          <span id="conquistaTextoContador">
+            0/500
+          </span>
+
+        </div>
+
+        <textarea
+          id="conquistaTexto"
+          maxlength="500"
+          placeholder="Conte um pouco sobre essa conquista..."
+        ></textarea>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          id="cancelarConquista"
+          class="btn-secondary"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="publicarConquista"
+          class="btn-primary conquista-publicar"
+          type="button"
+        >
+          <i data-lucide="send"></i>
+          Publicar conquista
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
   <div
     id="metasToast"
     class="metas-toast hidden"

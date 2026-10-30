@@ -1175,12 +1175,134 @@
       </div>
 
 
+      <div class="conclusion-actions">
+
+        <button
+          id="compartilharFoco"
+          class="conclusion-share"
+          type="button"
+        >
+          <i data-lucide="send"></i>
+          Compartilhar foco
+        </button>
+
+        <button
+          id="fecharConclusao"
+          class="conclusion-close"
+          type="button"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =========================================
+       MODAL COMPARTILHAR FOCO
+  ========================================== -->
+
+  <div
+    id="compartilharFocoModal"
+    class="modal-overlay hidden"
+    aria-hidden="true"
+  >
+
+    <section
+      class="focus-share-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="focusShareTitle"
+    >
+
       <button
-        id="fecharConclusao"
+        id="fecharCompartilharFoco"
+        class="focus-share-close"
         type="button"
+        aria-label="Fechar"
       >
-        Fechar
+        <i data-lucide="x"></i>
       </button>
+
+      <div class="focus-share-icon">
+        <i data-lucide="zap"></i>
+      </div>
+
+      <span class="focus-share-kicker">
+        Compartilhe seu progresso
+      </span>
+
+      <h2 id="focusShareTitle">
+        Compartilhar sessão de foco
+      </h2>
+
+      <p>
+        Conte como foi sua sessão e compartilhe sua evolução no feed.
+      </p>
+
+      <div class="focus-share-summary">
+
+        <div>
+          <span>Meta</span>
+          <strong id="focoCompartilharMeta">
+            Sessão de foco
+          </strong>
+        </div>
+
+        <div>
+          <span>Tempo focado</span>
+          <strong id="focoCompartilharTempo">
+            0 min
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="focus-share-field">
+
+        <div class="focus-share-label-row">
+
+          <label for="focoCompartilharTexto">
+            Texto da publicação
+          </label>
+
+          <span id="focoCompartilharContador">
+            0/500
+          </span>
+
+        </div>
+
+        <textarea
+          id="focoCompartilharTexto"
+          maxlength="500"
+          placeholder="Conte do seu jeito como foi essa sessão de foco..."
+        ></textarea>
+
+      </div>
+
+      <div class="focus-share-actions">
+
+        <button
+          id="cancelarCompartilharFoco"
+          class="focus-share-secondary"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="publicarFoco"
+          class="focus-share-primary"
+          type="button"
+        >
+          <i data-lucide="send"></i>
+          Publicar foco
+        </button>
+
+      </div>
 
     </section>
 

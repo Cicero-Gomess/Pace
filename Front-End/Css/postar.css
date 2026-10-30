@@ -1422,7 +1422,8 @@ body.dark .card-titulo h2,
 body.dark .perfil-mini strong,
 body.dark .community-section-copy strong,
 body.dark .campo-label,
-body.dark .preview-info strong {
+body.dark .preview-info strong,
+body.dark .topbar-status strong {
   color:
     #F2F6FF;
 }
