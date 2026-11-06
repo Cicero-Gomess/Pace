@@ -1671,6 +1671,14 @@ body.dark .label-row strong {
   color: #74AFFF;
 }
 
+/* Mantém o seletor de metas escuro também durante hover e expansão. */
+body.dark .meta-picker-trigger:hover,
+body.dark .meta-picker.open .meta-picker-trigger {
+  border-color: rgba(99,161,255,.30);
+  background: #0D2341;
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+}
+
 body.dark .meta-picker-arrow {
   color: #A8B6C9;
 }

@@ -1092,3 +1092,9 @@ body.dark .danger-action {
     scroll-behavior: auto !important;
   }
 }
+
+/* Mantém a aparência e o título corretos ao trocar o tema sem recarregar. */
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+html[data-theme="light"] .page-header h1 { color: #06152D; }
+html[data-theme="dark"] .page-header h1 { color: #F7FAFE; }

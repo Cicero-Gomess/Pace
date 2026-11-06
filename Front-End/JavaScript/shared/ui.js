@@ -2,10 +2,17 @@ import { STORAGE_KEYS, AVATAR_PLACEHOLDER } from "./config.js";
 import { getCurrentUser } from "./auth.js";
 import { resolveUserPhoto } from "./users-cache.js";
 
+function applyDarkMode(enabled) {
+  document.body.classList.toggle("dark", enabled);
+  document.documentElement.dataset.theme = enabled ? "dark" : "light";
+  document.documentElement.style.backgroundColor = enabled ? "#06152D" : "#EAF3FB";
+
+  const themeMeta = document.getElementById("themeColorMeta");
+  themeMeta?.setAttribute("content", enabled ? "#06152D" : "#EAF3FB");
+}
+
 export function initDarkMode() {
-  if (localStorage.getItem(STORAGE_KEYS.darkMode) === "true") {
-    document.body.classList.add("dark");
-  }
+  applyDarkMode(localStorage.getItem(STORAGE_KEYS.darkMode) === "true");
 }
 
 export function initDarkModeToggle(toggleId = "darkModeToggle") {
@@ -15,9 +22,9 @@ export function initDarkModeToggle(toggleId = "darkModeToggle") {
   toggle.checked = localStorage.getItem(STORAGE_KEYS.darkMode) === "true";
 
   toggle.addEventListener("change", () => {
-    const ativado = toggle.checked;
-    document.body.classList.toggle("dark", ativado);
-    localStorage.setItem(STORAGE_KEYS.darkMode, String(ativado));
+    const enabled = toggle.checked;
+    applyDarkMode(enabled);
+    localStorage.setItem(STORAGE_KEYS.darkMode, String(enabled));
   });
 }
 

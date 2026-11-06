@@ -2296,6 +2296,17 @@ async function finalizarSessao(
   finalizando =
     true;
 
+  // Ao esgotar o tempo, congela a sessão enquanto aguarda o salvamento.
+  // Caso a API falhe, o usuário poderá tentar novamente sem perder os minutos.
+  if (automatico && activeSession.status === "running") {
+    activeSession.elapsedBeforeStart = activeSession.durationSeconds;
+    activeSession.startedAt = null;
+    activeSession.status = "finished-pending";
+    salvarAtiva();
+    pararTimer();
+    renderizarSessao();
+  }
+
 
   const snapshot = {
 
@@ -2476,12 +2487,20 @@ async function finalizarSessao(
     erro
   ) {
 
-    activeSession =
-      snapshot;
-
+    activeSession = {
+      ...snapshot,
+      // Não deixar uma sessão encerrada parecer ainda em andamento.
+      status: "finished-pending",
+      startedAt: null,
+      elapsedBeforeStart: Math.min(
+        snapshot.durationSeconds,
+        segundos
+      ),
+    };
 
     salvarAtiva();
-
+    pararTimer();
+    fecharImersivo();
 
     tratarErro(
       erro
@@ -2560,6 +2579,9 @@ function renderizarSessao() {
       `;
 
 
+    elementos.iniciarSessao.disabled = false;
+    elementos.immersivePause.disabled = false;
+    elementos.immersiveFinish.textContent = "Finalizar";
     elementos.finalizarSessao.disabled =
       true;
 
@@ -2618,18 +2640,20 @@ function renderizarSessao() {
   const rodando =
     activeSession.status ===
     "running";
+  const pendente = activeSession.status === "finished-pending";
 
+  elementos.iniciarSessao.disabled = pendente;
+  elementos.immersivePause.disabled = pendente;
+  elementos.immersiveFinish.textContent = pendente ? "Tentar salvar" : "Finalizar";
 
   elementos.tituloSessao.textContent =
-    rodando
-      ? "Você está em foco."
-      : "Sessão pausada.";
+    pendente ? "Tempo encerrado — salvamento pendente" :
+    rodando ? "Você está em foco." : "Sessão pausada.";
 
 
   elementos.estadoSessao.textContent =
-    rodando
-      ? "Foco ativo"
-      : "Pausado";
+    pendente ? "Aguardando salvamento" :
+    rodando ? "Foco ativo" : "Pausado";
 
 
   elementos.intencaoAtiva.textContent =
@@ -2641,6 +2665,7 @@ function renderizarSessao() {
 
 
   elementos.iniciarSessao.innerHTML =
+    pendente ? `<i data-lucide="check-circle"></i><span>Tempo encerrado</span>` :
     rodando
       ? `
 
@@ -2663,6 +2688,7 @@ function renderizarSessao() {
 
 
   elementos.immersivePause.innerHTML =
+    pendente ? `<i data-lucide="check-circle"></i> Tempo encerrado` :
     rodando
       ? `
 
@@ -3705,6 +3731,11 @@ function pedirConfirmacao(
     "finish"
   ) {
 
+    if (activeSession?.status === "finished-pending") {
+      finalizarSessao();
+      return;
+    }
+
     elementos.confirmTitulo.textContent =
       "Finalizar sessão?";
 
@@ -3915,6 +3946,11 @@ function restaurarSessao() {
 
   atualizarMetaPickerSelecionada();
 
+
+  if (activeSession.status === "finished-pending") {
+    pararTimer();
+    return;
+  }
 
   if (
     tempoRestante() <=
