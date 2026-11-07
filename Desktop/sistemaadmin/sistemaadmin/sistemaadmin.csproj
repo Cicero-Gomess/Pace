@@ -94,6 +94,12 @@
     <Compile Include="FormPrincipal.Designer.cs">
       <DependentUpon>FormPrincipal.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmComunidades.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmComunidades.Designer.cs">
+      <DependentUpon>FrmComunidades.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\PostDTO.cs" />
     <Compile Include="Models\MetaDTO.cs" />
     <Compile Include="Program.cs" />
@@ -101,6 +107,7 @@
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\BaseService.cs" />
     <Compile Include="Services\ComentarioService.cs" />
+    <Compile Include="Services\ComunidadeService.cs" />
     <Compile Include="Services\PermissionHelper.cs" />
     <Compile Include="Services\PostService.cs" />
     <Compile Include="Services\ProfileService.cs" />

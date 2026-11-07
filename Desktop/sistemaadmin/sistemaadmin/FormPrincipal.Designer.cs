@@ -31,6 +31,7 @@ namespace sistemaadmin
             this.pnlMenu = new System.Windows.Forms.Panel();
             this.btnLogout = new System.Windows.Forms.Button();
             this.btnPerfil = new System.Windows.Forms.Button();
+            this.btnComunidades = new System.Windows.Forms.Button();
             this.btnComentarios = new System.Windows.Forms.Button();
             this.btnMetas = new System.Windows.Forms.Button();
             this.btnPosts = new System.Windows.Forms.Button();
@@ -44,6 +45,7 @@ namespace sistemaadmin
             this.pnlMenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
             this.pnlMenu.Controls.Add(this.btnLogout);
             this.pnlMenu.Controls.Add(this.btnPerfil);
+            this.pnlMenu.Controls.Add(this.btnComunidades);
             this.pnlMenu.Controls.Add(this.btnComentarios);
             this.pnlMenu.Controls.Add(this.btnMetas);
             this.pnlMenu.Controls.Add(this.btnPosts);
@@ -60,10 +62,10 @@ namespace sistemaadmin
             this.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLogout.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnLogout.ForeColor = System.Drawing.Color.White;
-            this.btnLogout.Location = new System.Drawing.Point(10, 260);
+            this.btnLogout.Location = new System.Drawing.Point(10, 285);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(180, 40);
-            this.btnLogout.TabIndex = 5;
+            this.btnLogout.TabIndex = 7;
             this.btnLogout.Text = "Logout";
             this.btnLogout.UseVisualStyleBackColor = false;
             this.btnLogout.Click += new System.EventHandler(this.BtnLogout_Click);
@@ -74,10 +76,10 @@ namespace sistemaadmin
             this.btnPerfil.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPerfil.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnPerfil.ForeColor = System.Drawing.Color.White;
-            this.btnPerfil.Location = new System.Drawing.Point(10, 210);
+            this.btnPerfil.Location = new System.Drawing.Point(10, 235);
             this.btnPerfil.Name = "btnPerfil";
             this.btnPerfil.Size = new System.Drawing.Size(180, 40);
-            this.btnPerfil.TabIndex = 4;
+            this.btnPerfil.TabIndex = 5;
             this.btnPerfil.Text = "Perfil";
             this.btnPerfil.UseVisualStyleBackColor = false;
             this.btnPerfil.Click += new System.EventHandler(this.BtnPerfil_Click);
@@ -96,16 +98,30 @@ namespace sistemaadmin
             this.btnComentarios.UseVisualStyleBackColor = false;
             this.btnComentarios.Click += new System.EventHandler(this.BtnComentarios_Click);
             // 
+            // btnComunidades
+            // 
+            this.btnComunidades.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
+            this.btnComunidades.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnComunidades.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnComunidades.ForeColor = System.Drawing.Color.White;
+            this.btnComunidades.Location = new System.Drawing.Point(10, 135);
+            this.btnComunidades.Name = "btnComunidades";
+            this.btnComunidades.Size = new System.Drawing.Size(180, 40);
+            this.btnComunidades.TabIndex = 6;
+            this.btnComunidades.Text = "Comunidades";
+            this.btnComunidades.UseVisualStyleBackColor = false;
+            this.btnComunidades.Click += new System.EventHandler(this.BtnComunidades_Click);
+            // 
             // btnMetas
             // 
             this.btnMetas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
             this.btnMetas.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMetas.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnMetas.ForeColor = System.Drawing.Color.White;
-            this.btnMetas.Location = new System.Drawing.Point(10, 160);
+            this.btnMetas.Location = new System.Drawing.Point(10, 185);
             this.btnMetas.Name = "btnMetas";
             this.btnMetas.Size = new System.Drawing.Size(180, 40);
-            this.btnMetas.TabIndex = 3;
+            this.btnMetas.TabIndex = 4;
             this.btnMetas.Text = "Metas";
             this.btnMetas.UseVisualStyleBackColor = false;
             this.btnMetas.Click += new System.EventHandler(this.BtnMetas_Click);
@@ -169,6 +185,7 @@ namespace sistemaadmin
         private System.Windows.Forms.Button btnDashboard;
         private System.Windows.Forms.Button btnPosts;
         private System.Windows.Forms.Button btnComentarios;
+        private System.Windows.Forms.Button btnComunidades;
         private System.Windows.Forms.Button btnMetas;
         private System.Windows.Forms.Button btnPerfil;
         private System.Windows.Forms.Button btnLogout;

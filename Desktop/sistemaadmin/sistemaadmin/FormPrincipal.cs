@@ -67,6 +67,11 @@ namespace sistemaadmin
             AbrirFormComentarios();
         }
 
+        private void BtnComunidades_Click(object sender, EventArgs e)
+        {
+            AbrirFormComunidades();
+        }
+
         private void BtnMetas_Click(object sender, EventArgs e)
         {
             AbrirFormMetas();
@@ -95,6 +100,11 @@ namespace sistemaadmin
         private void AbrirFormComentarios()
         {
             AbrirForm(new FormComentarios(_token));
+        }
+
+        private void AbrirFormComunidades()
+        {
+            AbrirForm(new FrmComunidades(_token));
         }
 
         private void AbrirFormMetas()
