@@ -243,15 +243,35 @@ namespace sistemaadmin
             }
         }
 
-        private void PopularDetalhes(ComunidadeItem comunidade)
+        private async void PopularDetalhes(ComunidadeItem comunidade)
         {
-            txtNome.Text = comunidade.nome ?? "";
-            txtDescricao.Text = comunidade.descricao ?? "";
-            txtPrivacidade.Text = comunidade.privacidade ?? "";
-            txtMembros.Text = $"{comunidade.membros_count}";
-            txtCriador.Text = $"{comunidade.criador_id}";
-            txtCriacao.Text = comunidade.data_criacao ?? "";
-            txtTopicos.Text = comunidade.topicos ?? "";
+            try
+            {
+                txtNome.Text = comunidade.nome ?? "";
+                txtDescricao.Text = comunidade.descricao ?? "";
+                txtPrivacidade.Text = comunidade.privacidade ?? "";
+                txtMembros.Text = $"{comunidade.membros_count}";
+                txtCriacao.Text = comunidade.data_criacao ?? "";
+                txtTopicos.Text = comunidade.topicos ?? "";
+
+                // Obter nome do criador de forma assíncrona
+                try
+                {
+                    string criadorNome = await _comunidadeService.GetUserNameAsync(comunidade.criador_id).ConfigureAwait(true);
+                    txtCriador.Text = string.IsNullOrEmpty(criadorNome) 
+                        ? $"{comunidade.criador_id}" 
+                        : $"{comunidade.criador_id} - {criadorNome}";
+                }
+                catch
+                {
+                    // Se falhar ao obter o nome, exibir apenas o ID
+                    txtCriador.Text = $"{comunidade.criador_id}";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FrmComunidades] Erro ao popular detalhes: {ex.Message}");
+            }
         }
 
         private async void btnPesquisar_Click(object sender, EventArgs e)
@@ -429,7 +449,7 @@ namespace sistemaadmin
                 btnMembros.Enabled = false;
                 btnMembros.Text = "Carregando...";
 
-                var json = await _comunidadeService.GetMembersAsync(_comunidadeSelecionada.id).ConfigureAwait(false);
+                var json = await _comunidadeService.GetMembersAsync(_comunidadeSelecionada.id).ConfigureAwait(true);
 
                 if (InvokeRequired)
                 {
@@ -445,13 +465,35 @@ namespace sistemaadmin
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao obter membros:\n{ex.Message}", "Erro",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        MessageBox.Show($"Erro ao obter membros:\n{ex.Message}", "Erro",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }));
+                }
+                else
+                {
+                    MessageBox.Show($"Erro ao obter membros:\n{ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             finally
             {
-                btnMembros.Enabled = _comunidadeSelecionada != null && _comunidadeSelecionada.sou_criador;
-                btnMembros.Text = "Gerenciar Membros";
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        btnMembros.Enabled = _comunidadeSelecionada != null && _comunidadeSelecionada.sou_criador;
+                        btnMembros.Text = "Gerenciar Membros";
+                    }));
+                }
+                else
+                {
+                    btnMembros.Enabled = _comunidadeSelecionada != null && _comunidadeSelecionada.sou_criador;
+                    btnMembros.Text = "Gerenciar Membros";
+                }
             }
         }
 

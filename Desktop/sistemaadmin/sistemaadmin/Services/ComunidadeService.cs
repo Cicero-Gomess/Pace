@@ -248,5 +248,48 @@ namespace sistemaadmin.Services
                 throw new Exception($"Erro ao remover membro: {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Obtém o nome de usuário a partir do ID
+        /// </summary>
+        public async Task<string> GetUserNameAsync(int usuarioId)
+        {
+            try
+            {
+                if (usuarioId <= 0)
+                    throw new ArgumentException("ID do usuário inválido.", nameof(usuarioId));
+
+                System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Requisitando GET /profile/{usuarioId}");
+
+                var response = await HttpClient.GetAsync($"/profile/{usuarioId}").ConfigureAwait(false);
+
+                System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Response Status: {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Erro: {response.StatusCode} - {errorContent}");
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                // Parse simples para extrair "username" do JSON
+                var match = System.Text.RegularExpressions.Regex.Match(content, @"""username""\s*:\s*""([^""]*)""");
+                if (match.Success)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Username obtido: {match.Groups[1].Value}");
+                    return match.Groups[1].Value;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Username não encontrado na resposta");
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ComunidadeService] Exception: {ex.Message}");
+                throw new Exception($"Erro ao obter nome do usuário: {ex.Message}", ex);
+            }
+        }
     }
 }

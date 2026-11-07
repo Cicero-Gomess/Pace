@@ -62,7 +62,7 @@ namespace sistemaadmin
             this.btnLogout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLogout.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnLogout.ForeColor = System.Drawing.Color.White;
-            this.btnLogout.Location = new System.Drawing.Point(10, 285);
+            this.btnLogout.Location = new System.Drawing.Point(10, 310);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(180, 40);
             this.btnLogout.TabIndex = 7;
@@ -76,7 +76,7 @@ namespace sistemaadmin
             this.btnPerfil.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPerfil.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnPerfil.ForeColor = System.Drawing.Color.White;
-            this.btnPerfil.Location = new System.Drawing.Point(10, 235);
+            this.btnPerfil.Location = new System.Drawing.Point(10, 260);
             this.btnPerfil.Name = "btnPerfil";
             this.btnPerfil.Size = new System.Drawing.Size(180, 40);
             this.btnPerfil.TabIndex = 5;
@@ -104,7 +104,7 @@ namespace sistemaadmin
             this.btnComunidades.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnComunidades.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnComunidades.ForeColor = System.Drawing.Color.White;
-            this.btnComunidades.Location = new System.Drawing.Point(10, 135);
+            this.btnComunidades.Location = new System.Drawing.Point(10, 160);
             this.btnComunidades.Name = "btnComunidades";
             this.btnComunidades.Size = new System.Drawing.Size(180, 40);
             this.btnComunidades.TabIndex = 6;
@@ -118,7 +118,7 @@ namespace sistemaadmin
             this.btnMetas.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMetas.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.btnMetas.ForeColor = System.Drawing.Color.White;
-            this.btnMetas.Location = new System.Drawing.Point(10, 185);
+            this.btnMetas.Location = new System.Drawing.Point(10, 210);
             this.btnMetas.Name = "btnMetas";
             this.btnMetas.Size = new System.Drawing.Size(180, 40);
             this.btnMetas.TabIndex = 4;
