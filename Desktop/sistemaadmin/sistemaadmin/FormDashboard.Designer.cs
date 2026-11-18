@@ -30,6 +30,7 @@ namespace sistemaadmin
             this.lblCard3Titulo = new System.Windows.Forms.Label();
             this.dgvPosts = new System.Windows.Forms.DataGridView();
             this.btnRecarregar = new System.Windows.Forms.Button();
+            this.btnCarregarPosts = new System.Windows.Forms.Button();
             this.pnlTitulo.SuspendLayout();
             this.pnlCard1.SuspendLayout();
             this.pnlCard2.SuspendLayout();
@@ -195,12 +196,28 @@ namespace sistemaadmin
             this.btnRecarregar.UseVisualStyleBackColor = false;
             this.btnRecarregar.Click += new System.EventHandler(this.BtnRecarregar_Click);
             // 
+            // btnCarregarPosts
+            // 
+            this.btnCarregarPosts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnCarregarPosts.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
+            this.btnCarregarPosts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCarregarPosts.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCarregarPosts.ForeColor = System.Drawing.Color.White;
+            this.btnCarregarPosts.Location = new System.Drawing.Point(180, 550);
+            this.btnCarregarPosts.Name = "btnCarregarPosts";
+            this.btnCarregarPosts.Size = new System.Drawing.Size(150, 40);
+            this.btnCarregarPosts.TabIndex = 6;
+            this.btnCarregarPosts.Text = "Carregar Posts";
+            this.btnCarregarPosts.UseVisualStyleBackColor = false;
+            this.btnCarregarPosts.Click += new System.EventHandler(this.BtnCarregarPosts_Click);
+            // 
             // FormDashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1000, 600);
+            this.Controls.Add(this.btnCarregarPosts);
             this.Controls.Add(this.btnRecarregar);
             this.Controls.Add(this.dgvPosts);
             this.Controls.Add(this.pnlCard3);
@@ -237,5 +254,6 @@ namespace sistemaadmin
         private System.Windows.Forms.Label lblCard3Titulo;
         private System.Windows.Forms.DataGridView dgvPosts;
         private System.Windows.Forms.Button btnRecarregar;
+        private System.Windows.Forms.Button btnCarregarPosts;
     }
 }

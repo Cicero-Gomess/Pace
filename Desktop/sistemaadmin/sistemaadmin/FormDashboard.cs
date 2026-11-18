@@ -14,6 +14,12 @@ namespace sistemaadmin
         private readonly PostService _postService;
         private List<DashboardPostItem> _postItems;
 
+        // Variáveis para carregamento incremental
+        private int _currentOffset = 0;
+        private bool _isLoadingMore = false;
+        private bool _allPostsLoaded = false;
+        private HashSet<int> _loadedPostIds = new HashSet<int>();
+
         public FormDashboard(string token)
         {
             InitializeComponent();
@@ -45,6 +51,12 @@ namespace sistemaadmin
         {
             try
             {
+                // Resetar estado inicial
+                _currentOffset = 0;
+                _isLoadingMore = false;
+                _allPostsLoaded = false;
+                _loadedPostIds.Clear();
+
                 btnRecarregar.Enabled = false;
                 btnRecarregar.Text = "Carregando...";
 
@@ -62,6 +74,16 @@ namespace sistemaadmin
                     return;
                 }
 
+                // Se retornou menos de 4 posts, chegou ao fim da lista
+                if (posts.Count < 4)
+                {
+                    _allPostsLoaded = true;
+                }
+                else
+                {
+                    _currentOffset = 4;
+                }
+
                 // Calcular estatísticas
                 int totalPosts = posts.Count;
                 int totalLikes = 0;
@@ -70,6 +92,7 @@ namespace sistemaadmin
                 {
                     if (post != null)
                     {
+                        _loadedPostIds.Add(post.Id);
                         totalLikes += post.Likes;
                     }
                 }
@@ -109,6 +132,13 @@ namespace sistemaadmin
                         // Popular DataGridView com binding automático
                         dgvPosts.DataSource = null;
                         dgvPosts.DataSource = _postItems;
+
+                        // Atualizar estado do botão de carregar posts
+                        if (btnCarregarPosts != null)
+                        {
+                            btnCarregarPosts.Enabled = !_allPostsLoaded;
+                            btnCarregarPosts.Text = _allPostsLoaded ? "Todos carregados" : "Carregar Posts";
+                        }
                     }));
                 }
                 else
@@ -121,6 +151,13 @@ namespace sistemaadmin
                     // Popular DataGridView com binding automático
                     dgvPosts.DataSource = null;
                     dgvPosts.DataSource = _postItems;
+
+                    // Atualizar estado do botão de carregar posts
+                    if (btnCarregarPosts != null)
+                    {
+                        btnCarregarPosts.Enabled = !_allPostsLoaded;
+                        btnCarregarPosts.Text = _allPostsLoaded ? "Todos carregados" : "Carregar Posts";
+                    }
                 }
             }
             catch (HttpRequestException ex)
@@ -157,6 +194,165 @@ namespace sistemaadmin
         private async void BtnRecarregar_Click(object sender, EventArgs e)
         {
             await CarregarDadosAsync().ConfigureAwait(false);
+        }
+
+        private async void BtnCarregarPosts_Click(object sender, EventArgs e)
+        {
+            await CarregarPostsIncrementalAsync().ConfigureAwait(false);
+        }
+
+        private async Task CarregarPostsIncrementalAsync()
+        {
+            if (_isLoadingMore || _allPostsLoaded)
+                return;
+
+            try
+            {
+                _isLoadingMore = true;
+                btnCarregarPosts.Enabled = false;
+                btnCarregarPosts.Text = "Carregando mais...";
+
+                // Buscar próximo lote com offset
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+
+                string url = $"http://localhost:8000/post/feed?offset={_currentOffset}&limit=4";
+                var response = await httpClient.GetAsync(url).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    throw new Exception($"HTTP {response.StatusCode}: {errorContent}");
+                }
+
+                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var novosPosts = ParsearPosts(json);
+
+                if (novosPosts == null || novosPosts.Count == 0)
+                {
+                    _allPostsLoaded = true;
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            MessageBox.Show("Todos os posts foram carregados.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Todos os posts foram carregados.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    return;
+                }
+
+                // Adicionar novos posts sem duplicatas
+                int totalLikesAdicionais = 0;
+                int novosPostsCount = 0;
+
+                foreach (var post in novosPosts)
+                {
+                    if (post != null && !_loadedPostIds.Contains(post.Id))
+                    {
+                        _loadedPostIds.Add(post.Id);
+                        totalLikesAdicionais += post.Likes;
+                        novosPostsCount++;
+
+                        if (post?.Usuario != null)
+                        {
+                            string dataFormatada = FormatarData(post.DataPostagem);
+                            string conteudoTruncado = TruncarTexto(post.Conteudo, 50);
+
+                            _postItems.Add(new DashboardPostItem
+                            {
+                                Id = post.Id,
+                                Conteudo = conteudoTruncado,
+                                Likes = post.Likes,
+                                Username = post.Usuario.Username ?? "Desconhecido",
+                                Data = dataFormatada
+                            });
+                        }
+                    }
+                }
+
+                // Se menos de 4 posts foram retornados, significa fim da lista
+                if (novosPosts.Count < 4)
+                {
+                    _allPostsLoaded = true;
+                }
+                else
+                {
+                    _currentOffset += 4;
+                }
+
+                // Recalcular estatísticas
+                int totalPosts = _loadedPostIds.Count;
+                int totalLikes = 0;
+                foreach (var item in _postItems)
+                {
+                    totalLikes += item.Likes;
+                }
+                double media = totalPosts > 0 ? Math.Round((double)totalLikes / totalPosts, 2) : 0;
+
+                // Atualizar UI
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        lblCard1Valor.Text = totalPosts.ToString();
+                        lblCard2Valor.Text = totalLikes.ToString();
+                        lblCard3Valor.Text = media.ToString("F1");
+
+                        dgvPosts.DataSource = null;
+                        dgvPosts.DataSource = _postItems;
+
+                        if (_allPostsLoaded)
+                        {
+                            MessageBox.Show("Todos os posts foram carregados.", "Informação",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }));
+                }
+                else
+                {
+                    lblCard1Valor.Text = totalPosts.ToString();
+                    lblCard2Valor.Text = totalLikes.ToString();
+                    lblCard3Valor.Text = media.ToString("F1");
+
+                    dgvPosts.DataSource = null;
+                    dgvPosts.DataSource = _postItems;
+
+                    if (_allPostsLoaded)
+                    {
+                        MessageBox.Show("Todos os posts foram carregados.", "Informação",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar mais posts:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _isLoadingMore = false;
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        btnCarregarPosts.Enabled = !_allPostsLoaded;
+                        btnCarregarPosts.Text = _allPostsLoaded ? "Todos carregados" : "Carregar Posts";
+                    }));
+                }
+                else
+                {
+                    btnCarregarPosts.Enabled = !_allPostsLoaded;
+                    btnCarregarPosts.Text = _allPostsLoaded ? "Todos carregados" : "Carregar Posts";
+                }
+            }
         }
 
         /// <summary>

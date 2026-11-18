@@ -45,6 +45,7 @@ namespace sistemaadmin
             this.btnRecarregar = new System.Windows.Forms.Button();
             this.btnCurtir = new System.Windows.Forms.Button();
             this.btnDescurtir = new System.Windows.Forms.Button();
+            this.btnCarregarPosts = new System.Windows.Forms.Button();
 
             this.pnlTopo.SuspendLayout();
             this.pnlConteudo.SuspendLayout();
@@ -159,6 +160,7 @@ namespace sistemaadmin
 
             // pnlRodape
             this.pnlRodape.BackColor = System.Drawing.Color.White;
+            this.pnlRodape.Controls.Add(this.btnCarregarPosts);
             this.pnlRodape.Controls.Add(this.btnCriar);
             this.pnlRodape.Controls.Add(this.btnAtualizar);
             this.pnlRodape.Controls.Add(this.btnDeletar);
@@ -255,6 +257,20 @@ namespace sistemaadmin
             this.btnDescurtir.UseVisualStyleBackColor = false;
             this.btnDescurtir.Click += new System.EventHandler(this.btnDescurtir_Click);
 
+            // btnCarregarPosts (Azul)
+            this.btnCarregarPosts.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+            this.btnCarregarPosts.FlatAppearance.BorderSize = 0;
+            this.btnCarregarPosts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCarregarPosts.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.btnCarregarPosts.ForeColor = System.Drawing.Color.White;
+            this.btnCarregarPosts.Location = new System.Drawing.Point(735, 15);
+            this.btnCarregarPosts.Name = "btnCarregarPosts";
+            this.btnCarregarPosts.Size = new System.Drawing.Size(110, 35);
+            this.btnCarregarPosts.TabIndex = 6;
+            this.btnCarregarPosts.Text = "Carregar Posts";
+            this.btnCarregarPosts.UseVisualStyleBackColor = false;
+            this.btnCarregarPosts.Click += new System.EventHandler(this.btnCarregarPosts_Click);
+
             // FormPosts
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -297,5 +313,6 @@ namespace sistemaadmin
         private System.Windows.Forms.Button btnRecarregar;
         private System.Windows.Forms.Button btnCurtir;
         private System.Windows.Forms.Button btnDescurtir;
+        private System.Windows.Forms.Button btnCarregarPosts;
     }
 }
