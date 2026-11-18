@@ -169,6 +169,14 @@ namespace sistemaadmin
 
                 // Carregar comentários de todos os posts encontrados
                 var todosComentarios = new List<ComentarioItem>();
+
+                // ✅ CORREÇÃO: Estabelecer _postIdAtual como o primeiro post encontrado
+                // para que operações CRUD (adicionar, atualizar, deletar) funcionem corretamente
+                if (postsEncontrados.Count > 0)
+                {
+                    _postIdAtual = postsEncontrados[0].Id;
+                }
+
                 foreach (var post in postsEncontrados)
                 {
                     try
@@ -299,6 +307,7 @@ namespace sistemaadmin
         {
             try
             {
+                // ✅ Validação: Garantir que um post foi selecionado/carregado
                 if (_postIdAtual == 0)
                 {
                     MessageBox.Show("Por favor, carregue os comentários de um post primeiro.", "Atenção",
@@ -426,13 +435,36 @@ namespace sistemaadmin
 
         private void btnLimpar_Click(object sender, EventArgs e)
         {
-            LimparCampos();
+            // ✅ CORREÇÃO: O botão "Limpar" deve resetar TUDO (estado completo)
+            ResetarFormulario();
         }
 
+        /// <summary>
+        /// Limpa APENAS os campos de edição de comentário.
+        /// Utilizado após carregar comentários para preparar para novas operações CRUD.
+        /// NÃO modifica _postIdAtual ou _comentarios.
+        /// </summary>
         private void LimparCampos()
         {
             txtComentario.Clear();
             dgvComentarios.ClearSelection();
+        }
+
+        /// <summary>
+        /// Reseta o formulário COMPLETAMENTE (chamado pelo botão Limpar do usuário).
+        /// Limpa campos, UI e identidades de modo a exigir nova pesquisa de post.
+        /// </summary>
+        private void ResetarFormulario()
+        {
+            // Limpar campos de edição
+            txtComentario.Clear();
+            dgvComentarios.ClearSelection();
+            dgvComentarios.DataSource = null;
+
+            // ✅ CORREÇÃO: Reseta estado APENAS quando usuário solicita (botão Limpar)
+            // Não durante carregamentos normais
+            _postIdAtual = 0;
+            _comentarios.Clear();
         }
 
         private List<ComentarioItem> ParsearComentarios(string json)
