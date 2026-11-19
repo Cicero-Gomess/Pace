@@ -13,7 +13,7 @@ class ApiConfig {
   ApiConfig._();
 
   static const String _desktopHost = '127.0.0.1';
-  static const String _androidPhysicalHost = '192.168.1.8';
+  static const String _androidPhysicalHost = '192.168.1.13';
   static const int _port = 8000;
 
   static String get baseUrl {

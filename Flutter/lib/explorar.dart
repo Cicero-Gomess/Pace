@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 
 const Color primary = Color(0xFF1769E8);
 const Color primary2 = Color(0xFF0B3D91);
@@ -1178,69 +1179,61 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
   Future<void> _toggleFollow(Map<String, dynamic> profile) async {
     final token = await _getToken();
-    if (token == null || token.isEmpty) return;
+    if (!mounted || token == null || token.isEmpty) return;
 
     final id = _toInt(profile['id']);
-    if (id <= 0) return;
+    if (id <= 0 || id == _toInt(_usuarioLogado['id']) ||
+        profile['eh_eu'] == true || profile['segue'] is! bool) return;
 
     final wasFollowing = profile['segue'] == true;
-
-    setState(() {
-      profile['segue'] = !wasFollowing;
-
-      final seguidores = _toInt(profile['total_seguidores']);
-      profile['total_seguidores'] = wasFollowing
-          ? (seguidores > 0 ? seguidores - 1 : 0)
-          : seguidores + 1;
-    });
-
     try {
-      final response = wasFollowing
-          ? await http.post(
-              ApiConfig.uri('/profile/unfollow/$id'),
-              headers: _authHeaders(token),
-            )
-          : await http.post(
-              ApiConfig.uri('/profile/follow/$id'),
-              headers: _authHeaders(token),
-            );
-
-      await _parseResponse(
+      final response = await http.post(
+        ApiConfig.uri('/profile/${wasFollowing ? 'unfollow' : 'follow'}/$id'),
+        headers: _authHeaders(token),
+      ).timeout(const Duration(seconds: 15));
+      final data = await _parseResponse(
         response,
         wasFollowing
             ? 'Não foi possível deixar de seguir.'
             : 'Não foi possível seguir este usuário.',
       );
+      final following = data is Map && data['seguindo'] is bool
+          ? data['seguindo'] == true
+          : !wasFollowing;
+      final count = _toInt(profile['total_seguidores']);
+      final updatedCount = following == wasFollowing
+          ? count
+          : (following ? count + 1 : (count > 0 ? count - 1 : 0));
+      profile['segue'] = following;
+      profile['total_seguidores'] = updatedCount;
+      if (!mounted) return;
+      setState(() {
+        for (final item in _profiles) {
+          if (_toInt(item['id']) == id) {
+            item['segue'] = following;
+            item['total_seguidores'] = updatedCount;
+          }
+        }
+      });
     } catch (e) {
       if (!mounted) return;
-
-      setState(() {
-        profile['segue'] = wasFollowing;
-
-        final seguidores = _toInt(profile['total_seguidores']);
-        profile['total_seguidores'] = wasFollowing
-            ? seguidores + 1
-            : (seguidores > 0 ? seguidores - 1 : 0);
-      });
-
       if (e.toString().contains('AUTH_401')) {
         Navigator.of(context).pushReplacementNamed('/entrar');
         return;
       }
-
-      _showToast(
-        e.toString().replaceFirst('Exception: ', ''),
-        Colors.red,
-      );
+      _showToast(e.toString().replaceFirst('Exception: ', ''), Colors.red);
     }
   }
 
   Future<void> _abrirPerfil(Map<String, dynamic> profile) async {
     final token = await _getToken();
-    if (token == null || token.isEmpty) return;
+    if (!mounted || token == null || token.isEmpty) return;
 
     final userId = _toInt(profile['id']);
     if (userId <= 0) return;
+
+    final modalFuture = _carregarDadosModal(token, userId, profile);
+    bool followBusy = false;
 
     showGeneralDialog(
       context: context,
@@ -1252,7 +1245,7 @@ class _ExplorarPageState extends State<ExplorarPage> {
         return _ProfileModalShell(
           darkMode: darkMode,
           child: FutureBuilder<_ProfileModalData>(
-            future: _carregarDadosModal(token, userId, profile),
+            future: modalFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 return const SizedBox(
@@ -1279,10 +1272,25 @@ class _ExplorarPageState extends State<ExplorarPage> {
 
               final data = snapshot.data!;
 
-              return _buildProfileModal(
-                dialogContext,
-                data.profile,
-                data.posts,
+              return StatefulBuilder(
+                builder: (modalContext, setModalState) {
+                  return _buildProfileModal(
+                    dialogContext,
+                    data.profile,
+                    data.posts,
+                    followBusy: followBusy,
+                    onFollow: () async {
+                      if (followBusy) return;
+                      setModalState(() => followBusy = true);
+                      try {
+                        await _toggleFollow(data.profile);
+                      } finally {
+                        followBusy = false;
+                        if (modalContext.mounted) setModalState(() {});
+                      }
+                    },
+                  );
+                },
               );
             },
           ),
@@ -1377,8 +1385,15 @@ class _ExplorarPageState extends State<ExplorarPage> {
   Widget _buildProfileModal(
     BuildContext dialogContext,
     Map<String, dynamic> profile,
-    List<Map<String, dynamic>> posts,
-  ) {
+    List<Map<String, dynamic>> posts, {
+    required bool followBusy,
+    required VoidCallback onFollow,
+  }) {
+    final canFollow = profile['segue'] is bool &&
+        profile['eh_eu'] != true &&
+        _toInt(profile['id']) > 0 &&
+        _toInt(profile['id']) != _toInt(_usuarioLogado['id']);
+    final following = profile['segue'] == true;
     final username = _username(profile);
     final foto = _fotoPerfil(profile);
 
@@ -1469,6 +1484,39 @@ class _ExplorarPageState extends State<ExplorarPage> {
                             ),
                           ],
                         ),
+                        if (canFollow) ...[
+                          const SizedBox(height: 14),
+                          FilledButton.icon(
+                            onPressed: followBusy ? null : onFollow,
+                            icon: followBusy
+                                ? SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: darkMode ? Colors.white : primary,
+                                    ),
+                                  )
+                                : Icon(following
+                                    ? Icons.person_outline_rounded
+                                    : Icons.person_add_alt_1_rounded),
+                            label: Text(following ? 'Seguindo' : 'Seguir'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: following
+                                  ? (darkMode ? const Color(0xFF193655) : const Color(0xFFE8F1FF))
+                                  : primary,
+                              foregroundColor: following && !darkMode
+                                  ? primary
+                                  : Colors.white,
+                              minimumSize: const Size(132, 46),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   );
@@ -2351,358 +2399,14 @@ class _ExplorarPageState extends State<ExplorarPage> {
     );
   }
 
-  Widget _buildMobileTopBar() {
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        height: 74,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: const BoxDecoration(
-          color: Color(0xFF041126),
-          border: Border(
-            bottom: BorderSide(
-              color: Color(0xFFFFC928),
-              width: 3,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            InkWell(
-              onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Image.asset(
-                  'assets/images/pace_icon.png',
-                  width: 43,
-                  height: 43,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Pace',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  SizedBox(height: 3),
-                  Text(
-                    'Evolução contínua',
-                    style: TextStyle(
-                      color: Color(0xFF8FA5C0),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildMobileTopBar() => PaceMobileTopBar(
+        onOpen: () => _scaffoldKey.currentState?.openDrawer(),
+      );
 
-  Widget _buildMobileDrawer() {
-    return Drawer(
-      width: 292,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(10, 8, 0, 8),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF06152D),
-            borderRadius: const BorderRadius.horizontal(
-              right: Radius.circular(28),
-            ),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.07),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(darkMode ? 0.34 : 0.14),
-                blurRadius: 42,
-                offset: const Offset(12, 0),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/images/pace_icon.png',
-                    width: 46,
-                    height: 46,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Pace',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.7,
-                          ),
-                        ),
-                        Text(
-                          'Evolução contínua',
-                          style: TextStyle(
-                            color: const Color(0xFF8FA5C0),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _CircleIconButton(
-                    icon: Icons.close_rounded,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Divider(
-                height: 1,
-                color: Colors.white.withOpacity(0.08),
-              ),
-              const SizedBox(height: 18),
-
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    _drawerSectionLabel('COMUNIDADE'),
-                    _mobileDrawerItem(
-                      Icons.home_rounded,
-                      'Feed',
-                      '/feed',
-                    ),
-                    _mobileDrawerItem(
-                      Icons.explore_outlined,
-                      'Explorar',
-                      '/explorar',
-                      active: true,
-                    ),
-                    _mobileDrawerItem(Icons.edit_square, 'Postar', '/postar'),
-
-                    const SizedBox(height: 12),
-                    _drawerSectionLabel('DESENVOLVIMENTO'),
-                    _mobileDrawerItem(
-                      Icons.track_changes_rounded,
-                      'Metas',
-                      '/metas',
-                    ),
-                    _mobileDrawerItem(
-                      Icons.psychology_outlined,
-                      'Sala de foco',
-                      '/foco',
-                    ),
-                    _mobileDrawerItem(
-                      Icons.trending_up_rounded,
-                      'Evolução',
-                      '/evolucao',
-                    ),
-                  ],
-                ),
-              ),
-
-              Divider(
-                height: 1,
-                color: Colors.white.withOpacity(0.08),
-              ),
-              const SizedBox(height: 12),
-              _mobileDrawerItem(
-                Icons.settings_outlined,
-                'Configurações',
-                '/config',
-              ),
-              _mobileProfileItem(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerSectionLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: const Color(0xFF8FA5C0),
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1.25,
-        ),
-      ),
-    );
-  }
-
-  Widget _mobileDrawerItem(
-    IconData icon,
-    String label,
-    String route, {
-    bool active = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            Navigator.of(context).pop();
-
-            if (!active) {
-              Future.delayed(
-                const Duration(milliseconds: 120),
-                () {
-                  if (mounted) {
-                    Navigator.of(context).pushNamed(route);
-                  }
-                },
-              );
-            }
-          },
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 52),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: active
-                  ? const Color(0xFF174A9B)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(15),
-              border: active
-                  ? Border.all(
-                      color: const Color(0xFF1769E8).withOpacity(0.10),
-                    )
-                  : null,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: active
-                        ? const Color(0xFF1769E8).withOpacity(0.08)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(11),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: active ? Colors.white : const Color(0xFFC7D5E8),
-                    size: 21,
-                  ),
-                ),
-                const SizedBox(width: 11),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: active ? Colors.white : const Color(0xFFC7D5E8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                if (!active)
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: mutedColor.withOpacity(0.65),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _mobileProfileItem() {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).pop();
-          Future.delayed(const Duration(milliseconds: 120), () {
-            if (mounted) Navigator.of(context).pushNamed('/perfil');
-          });
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          margin: const EdgeInsets.only(top: 4),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: _cachedImageProvider(_fotoPerfil(_usuarioLogado)),
-              ),
-              const SizedBox(width: 11),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Meu perfil',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Ver perfil',
-                      style: TextStyle(
-                        color: Color(0xFF8FA5C0),
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF8FA5C0),
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildMobileDrawer() => PaceMobileDrawer(
+        currentRoute: '/explorar',
+        user: _usuarioLogado,
+      );
 
   Widget _buildSidebar() {
     const collapsed = 88.0;

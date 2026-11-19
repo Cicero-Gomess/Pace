@@ -1795,3 +1795,29 @@ body.dark .modal-comments-count {
   color: #9EB4CF;
   background: rgba(255, 255, 255, .055);
 }
+
+/* Ação de relacionamento no perfil aberto pelo Explorar */
+#profileModal .modal-follow-btn {
+  width: auto;
+  min-width: 132px;
+  margin-top: .75rem;
+  padding: .65rem 1.25rem;
+  cursor: pointer;
+}
+#profileModal .modal-follow-btn.is-following {
+  background: var(--pace-blue-soft);
+  color: var(--pace-blue-dark);
+  border: 1px solid var(--pace-blue);
+}
+body.dark #profileModal .modal-follow-btn.is-following {
+  background: #142b49;
+  color: #e5efff;
+  border-color: #315784;
+}
+#profileModal .modal-follow-btn.is-following:hover:not(:disabled) {
+  border-color: #e35b65;
+}
+#profileModal .modal-follow-btn:disabled {
+  opacity: .65;
+  cursor: wait;
+}

@@ -9,6 +9,7 @@ import {
 
 import {
   initLucide,
+  showToast,
 } from "./shared/ui.js";
 
 import {
@@ -27,6 +28,9 @@ import {
 
 import {
   searchProfiles,
+  fetchFollowing,
+  followUser,
+  unfollowUser,
 } from "./shared/services/profile-service.js";
 
 import {
@@ -784,6 +788,62 @@ function attachProfileButtons() {
 }
 
 
+// Reutiliza as mesmas rotas de relacionamento do Feed.
+async function setupProfileFollow(button, userId, currentId) {
+  let following = false;
+  const render = () => {
+    button.textContent = following ? "Seguindo" : "Seguir";
+    button.classList.toggle("is-following", following);
+    button.setAttribute("aria-pressed", String(following));
+    button.title = following ? "Deixar de seguir" : "Seguir usuário";
+  };
+  const load = async () => {
+    let page = await fetchFollowing(currentId);
+    let offset = 0;
+    while (true) {
+      const users = page?.usuarios;
+      if (!Array.isArray(users)) throw new Error("Não foi possível consultar os usuários seguidos.");
+      if (users.some(user => String(user.id) === String(userId))) return true;
+      offset += users.length;
+      if (!users.length || offset >= Number(page.total ?? offset)) return false;
+      page = await apiFetch(`/profile/${encodeURIComponent(currentId)}/following?skip=${offset}&limit=100`, { auth: true });
+    }
+  };
+  const initialize = async () => {
+    button.disabled = true;
+    button.textContent = "Carregando...";
+    try {
+      following = await load();
+      render();
+      button.onclick = toggle;
+    } catch (error) {
+      button.textContent = "Tentar novamente";
+      button.onclick = initialize;
+      showToast(error.message || "Erro ao consultar perfil.", "error");
+    } finally {
+      button.disabled = false;
+    }
+  };
+  const toggle = async () => {
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+      if (following) await unfollowUser(userId);
+      else await followUser(userId);
+      following = !following;
+      render();
+      showToast(following ? "Agora você segue este perfil!" : "Você deixou de seguir este perfil.");
+    } catch (error) {
+      showToast(error.message || "Não foi possível atualizar o perfil.", "error");
+      // Reconcilia o estado caso outra tela tenha alterado o relacionamento.
+      await initialize();
+    } finally {
+      button.disabled = false;
+    }
+  };
+  await initialize();
+}
+
 async function openProfileModal(
   profile
 ) {
@@ -803,6 +863,9 @@ async function openProfileModal(
     return;
   }
 
+
+  const currentId = getCurrentLocalUserId();
+  const canFollow = isAuthenticated() && currentId && profile.id != null && String(profile.id) !== String(currentId);
 
   body.innerHTML = `
 
@@ -836,6 +899,8 @@ async function openProfileModal(
           )}
         </p>
 
+        ${canFollow ? `<button type="button" class="profile-btn modal-follow-btn" disabled>Carregando...</button>` : ""}
+
       </div>
 
     </div>
@@ -864,6 +929,9 @@ async function openProfileModal(
     profileModal
   );
 
+
+  const followButton = body.querySelector(".modal-follow-btn");
+  if (followButton) void setupProfileFollow(followButton, profile.id, currentId);
 
   const posts =
     await fetchUserPosts(

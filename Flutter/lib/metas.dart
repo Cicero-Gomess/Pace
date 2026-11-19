@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 
 const Color _primary = Color(0xFF1769E8);
 const Color _primaryDark = Color(0xFF0B3D91);
@@ -245,7 +246,8 @@ class _MetasPageState extends State<MetasPage> {
         ? DateTime.tryParse(meta['prazo'].toString())
         : null;
 
-    final result = await showDialog<Map<String, dynamic>>(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<Map<String, dynamic>>(
       context: context,
       barrierColor: Colors.black.withOpacity(0.62),
       builder: (context) {
@@ -281,7 +283,9 @@ class _MetasPageState extends State<MetasPage> {
                       ),
                     ],
                   ),
-                  child: Column(
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
@@ -425,16 +429,17 @@ class _MetasPageState extends State<MetasPage> {
                         ],
                       ),
                       const SizedBox(height: 22),
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.end,
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                           TextButton(
                             onPressed: () =>
                                 Navigator.pop(context),
                             child: const Text('Cancelar'),
                           ),
-                          const SizedBox(width: 8),
                           FilledButton.icon(
                             style: FilledButton.styleFrom(
                               backgroundColor: _primary,
@@ -485,6 +490,7 @@ class _MetasPageState extends State<MetasPage> {
                         ],
                       ),
                     ],
+                    ),
                   ),
                 ),
               ),
@@ -494,10 +500,12 @@ class _MetasPageState extends State<MetasPage> {
       },
     );
 
+    final result = await navigator.push(route);
+    await route.completed;
     title.dispose();
     description.dispose();
 
-    if (result == null) return;
+    if (!mounted || result == null) return;
 
     final token = await _token();
     if (token == null || token.isEmpty) return;
@@ -674,7 +682,8 @@ class _MetasPageState extends State<MetasPage> {
   ) async {
     final controller = TextEditingController();
 
-    final content = await showDialog<String>(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<String>(
       context: context,
       barrierColor: Colors.black.withOpacity(0.66),
       builder: (context) {
@@ -703,7 +712,9 @@ class _MetasPageState extends State<MetasPage> {
                               .withOpacity(0.08),
                     ),
                   ),
-                  child: Column(
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
@@ -814,16 +825,17 @@ class _MetasPageState extends State<MetasPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.end,
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                           TextButton(
                             onPressed: () =>
                                 Navigator.pop(context),
                             child: const Text('Cancelar'),
                           ),
-                          const SizedBox(width: 8),
                           FilledButton.icon(
                             style: FilledButton.styleFrom(
                               backgroundColor: _primary,
@@ -847,6 +859,7 @@ class _MetasPageState extends State<MetasPage> {
                         ],
                       ),
                     ],
+                    ),
                   ),
                 ),
               ),
@@ -856,9 +869,11 @@ class _MetasPageState extends State<MetasPage> {
       },
     );
 
+    final content = await navigator.push(route);
+    await route.completed;
     controller.dispose();
 
-    if (content == null || content.trim().isEmpty) return;
+    if (!mounted || content == null || content.trim().isEmpty) return;
 
     final token = await _token();
     if (token == null || token.isEmpty) return;
@@ -1000,6 +1015,48 @@ class _MetasPageState extends State<MetasPage> {
   }
 
   Widget _hero(bool mobile) {
+    if (!mobile) return _desktopHero(mobile);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            SizedBox(width: 18, child: Divider(thickness: 3, color: _accent)),
+            SizedBox(width: 8),
+            Text('DESENVOLVIMENTO', style: TextStyle(
+              color: _primary, fontSize: 10.5, fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            )),
+          ],
+        ),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Expanded(child: Text('Metas', style: TextStyle(
+              color: text, fontSize: mobile ? 34 : 42, height: 1,
+              fontWeight: FontWeight.w900, letterSpacing: -1.2,
+            ))),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: mobile ? _primary : const Color(0xFF06152D),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: mobile ? 12 : 18, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+              ),
+              onPressed: () => _createOrEdit(),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text('Nova meta'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        Text('Organize e acompanhe seus objetivos.', style: TextStyle(color: muted, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _desktopHero(bool mobile) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -1603,30 +1660,20 @@ class _MetasPageState extends State<MetasPage> {
                             .withOpacity(0.07),
                   ),
                   const SizedBox(height: 11),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      _statusPill(concluded),
-                      const Spacer(),
-                      if (concluded) ...[
-                        _smallAction(
-                          Icons.refresh_rounded,
-                          'Reabrir meta',
-                          () => _toggleStatus(meta),
-                        ),
-                        const SizedBox(width: 8),
-                        _smallAction(
-                          Icons.emoji_events_outlined,
-                          'Compartilhar conquista',
-                          () => _shareConquest(meta),
-                          success: true,
-                        ),
-                      ] else
-                        _smallAction(
-                          Icons.check_circle_outline_rounded,
-                          'Marcar como concluída',
-                          () => _toggleStatus(meta),
-                          success: true,
-                        ),
+                        _statusPill(concluded),
+                        if (concluded) ...[
+                          _smallAction(Icons.refresh_rounded, 'Reabrir meta',
+                              () => _toggleStatus(meta)),
+                          _smallAction(Icons.emoji_events_outlined, 'Compartilhar conquista',
+                              () => _shareConquest(meta), success: true),
+                        ] else
+                          _smallAction(Icons.check_circle_outline_rounded, 'Marcar como concluída',
+                              () => _toggleStatus(meta), success: true),
                     ],
                   ),
                 ],
@@ -1756,7 +1803,8 @@ class _MetasPageState extends State<MetasPage> {
                   : _primary,
             ),
             const SizedBox(width: 6),
-            Text(
+            Flexible(
+              child: Text(
               label,
               style: TextStyle(
                 color: success
@@ -1764,6 +1812,7 @@ class _MetasPageState extends State<MetasPage> {
                     : _primary,
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
+              ),
               ),
             ),
           ],
@@ -2202,114 +2251,16 @@ class _MetasPageState extends State<MetasPage> {
     );
   }
 
-  Widget _mobileTopBar() {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      color: const Color(0xFF06152D),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () =>
-                _scaffoldKey.currentState?.openDrawer(),
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Image.asset(
-            'assets/images/pace_icon.png',
-            width: 34,
-            height: 34,
-          ),
-          const Spacer(),
-          FilledButton.icon(
-            onPressed: () => _createOrEdit(),
-            icon: const Icon(Icons.add_rounded, size: 17),
-            label: const Text('Nova meta'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _mobileTopBar() => PaceMobileTopBar(
+        onOpen: () => _scaffoldKey.currentState?.openDrawer(),
+      );
 
-  Widget _mobileDrawer() {
-    return Drawer(
-      backgroundColor: const Color(0xFF06152D),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(14),
-          children: [
-            const SizedBox(height: 10),
-            Image.asset(
-              'assets/images/pace_icon.png',
-              width: 52,
-              height: 52,
-              alignment: Alignment.centerLeft,
-            ),
-            const SizedBox(height: 18),
-            _drawerItem('Feed', '/feed', Icons.home_rounded),
-            _drawerItem(
-              'Explorar',
-              '/explorar',
-              Icons.explore_outlined,
-            ),
-            _drawerItem(
-              'Postar',
-              '/postar',
-              Icons.edit_square,
-            ),
-            _drawerItem(
-              'Metas',
-              '/metas',
-              Icons.track_changes_rounded,
-              active: true,
-            ),
-            _drawerItem(
-              'Sala de foco',
-              '/foco',
-              Icons.psychology_outlined,
-            ),
-            _drawerItem(
-              'Evolução',
-              '/evolucao',
-              Icons.trending_up_rounded,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _mobileDrawer() => PaceMobileDrawer(
+        currentRoute: '/metas',
+        user: _user,
+      );
 
-  Widget _drawerItem(
-    String label,
-    String route,
-    IconData icon, {
-    bool active = false,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: active ? Colors.white : const Color(0xFFC7D5E8),
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: active ? Colors.white : const Color(0xFFC7D5E8),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      tileColor:
-          active ? const Color(0xFF174A9B) : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      onTap: active
-          ? () => Navigator.pop(context)
-          : () => Navigator.of(context).pushNamed(route),
-    );
-  }
+
 }
 
 class _DialogField extends StatelessWidget {

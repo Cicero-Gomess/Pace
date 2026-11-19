@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -23,6 +24,7 @@ class _PerfilPageState extends State<PerfilPage> {
   static const Color texto = Color(0xFF1B2233);
   static const Color textoSuave = Color(0xFF6F7B91);
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _bioController = TextEditingController();
 
   bool _carregando = true;
@@ -527,8 +529,13 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mobile = MediaQuery.sizeOf(context).width < 760;
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: bgColor,
+      drawer: mobile
+          ? PaceMobileDrawer(currentRoute: '/perfil', user: _usuario ?? const <String, dynamic>{})
+          : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isCompact = constraints.maxWidth < 760;
@@ -541,13 +548,21 @@ class _PerfilPageState extends State<PerfilPage> {
                 children: [
                   if (!isCompact) _buildSidebar(),
                   Expanded(
-                    child: _carregando && _usuario == null
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: azulPrincipal,
-                            ),
-                          )
-                        : _buildContent(isCompact, isMedium),
+                    child: Column(
+                      children: [
+                        if (isCompact)
+                          PaceMobileTopBar(
+                            onOpen: () => _scaffoldKey.currentState?.openDrawer(),
+                          ),
+                        Expanded(
+                          child: _carregando && _usuario == null
+                              ? const Center(
+                                  child: CircularProgressIndicator(color: azulPrincipal),
+                                )
+                              : _buildContent(isCompact, isMedium),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

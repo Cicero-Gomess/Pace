@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 
 const Color _primary = Color(0xFF1769E8);
 const Color _accent = Color(0xFFFFC928);
@@ -633,25 +634,53 @@ class _EvolucaoPageState extends State<EvolucaoPage> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _cardHeader('CONSTÂNCIA', 'Resumo por semana', 'Últimas 12 semanas'),
         const SizedBox(height: 15),
-        SizedBox(
-          height: 170,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: weeks.entries.map((e) {
-              final ratio = max == 0 ? 0.0 : e.value / max;
-              return Expanded(child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  Text(e.value == 0 ? '' : '${e.value}', style: TextStyle(color: muted, fontSize: 8)),
-                  const SizedBox(height: 4),
-                  Container(height: 18 + (105 * ratio), decoration: BoxDecoration(color: e.value == 0 ? (dark ? Colors.white.withOpacity(0.05) : const Color(0xFFDCE8F5)) : _primary.withOpacity(0.35 + 0.65 * ratio), borderRadius: BorderRadius.circular(8))),
-                  const SizedBox(height: 6),
-                  Text(e.key, style: TextStyle(color: muted, fontSize: 7)),
-                ]),
-              ));
-            }).toList(),
-          ),
-        ),
+        LayoutBuilder(builder: (context, constraints) {
+          const minColumnWidth = 34.0;
+          final minWidth = weeks.length * minColumnWidth;
+          final chartWidth = constraints.maxWidth < minWidth
+              ? minWidth : constraints.maxWidth;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: SizedBox(
+                  width: chartWidth,
+                  height: 170,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: weeks.entries.map((e) {
+                      final ratio = max == 0 ? 0.0 : e.value / max;
+                      return Expanded(child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                          Text(e.value == 0 ? '' : '${e.value}', style: TextStyle(color: muted, fontSize: 9)),
+                          const SizedBox(height: 4),
+                          Container(height: 18 + (105 * ratio), decoration: BoxDecoration(color: e.value == 0 ? (dark ? Colors.white.withOpacity(0.05) : const Color(0xFFDCE8F5)) : _primary.withOpacity(0.35 + 0.65 * ratio), borderRadius: BorderRadius.circular(8))),
+                          const SizedBox(height: 6),
+                          SizedBox(
+                            height: 16,
+                            child: Center(child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(e.key, maxLines: 1, softWrap: false,
+                                style: TextStyle(color: muted, fontSize: 9, fontWeight: FontWeight.w600)),
+                            )),
+                          ),
+                        ]),
+                      ));
+                    }).toList(),
+                  ),
+                ),
+              ),
+              if (constraints.maxWidth < minWidth)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('Deslize para ver todas as semanas', style: TextStyle(color: muted, fontSize: 9)),
+                ),
+            ],
+          );
+        }),
       ]),
     );
   }
@@ -853,35 +882,14 @@ class _EvolucaoPageState extends State<EvolucaoPage> {
     );
   }
 
-  Widget _mobileTopBar() => Container(
-        height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        color: const Color(0xFF06152D),
-        child: Row(children: [IconButton(onPressed: () => _scaffoldKey.currentState?.openDrawer(), icon: const Icon(Icons.menu_rounded, color: Colors.white)), const SizedBox(width: 8), Image.asset('assets/images/pace_icon.png', width: 34, height: 34)]),
+  Widget _mobileTopBar() => PaceMobileTopBar(
+        onOpen: () => _scaffoldKey.currentState?.openDrawer(),
       );
 
-  Widget _mobileDrawer() => Drawer(
-        backgroundColor: const Color(0xFF06152D),
-        child: SafeArea(
-          child: ListView(padding: const EdgeInsets.all(14), children: [
-            const SizedBox(height: 10),
-            Image.asset('assets/images/pace_icon.png', width: 52, height: 52, alignment: Alignment.centerLeft),
-            const SizedBox(height: 18),
-            _drawerItem('Feed', '/feed', Icons.home_rounded),
-            _drawerItem('Explorar', '/explorar', Icons.explore_outlined),
-            _drawerItem('Postar', '/postar', Icons.edit_square),
-            _drawerItem('Metas', '/metas', Icons.track_changes_rounded),
-            _drawerItem('Sala de foco', '/foco', Icons.psychology_outlined),
-            _drawerItem('Evolução', '/evolucao', Icons.trending_up_rounded, active: true),
-          ]),
-        ),
+  Widget _mobileDrawer() => PaceMobileDrawer(
+        currentRoute: '/evolucao',
+        user: _user,
       );
 
-  Widget _drawerItem(String label, String route, IconData icon, {bool active = false}) => ListTile(
-        leading: Icon(icon, color: active ? Colors.white : const Color(0xFFC7D5E8)),
-        title: Text(label, style: TextStyle(color: active ? Colors.white : const Color(0xFFC7D5E8), fontWeight: FontWeight.w700)),
-        tileColor: active ? const Color(0xFF174A9B) : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onTap: active ? () => Navigator.pop(context) : () => Navigator.of(context).pushNamed(route),
-      );
+
 }

@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 import 'theme_controller.dart';
 
 const Color _primary = Color(0xFF1769E8);
 const Color _accent = Color(0xFFFFC928);
 const Color _danger = Color(0xFFD9534F);
-const String _apiUrl = 'http://127.0.0.1:8000';
 
 class ConfigPage extends StatefulWidget {
   final ThemeController themeController;
@@ -85,7 +85,7 @@ class _ConfigPageState extends State<ConfigPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('$_apiUrl/profile/me'),
+        ApiConfig.uri('/profile/me'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -280,7 +280,7 @@ class _ConfigPageState extends State<ConfigPage> {
 
     try {
       final response = await http.put(
-        Uri.parse('$_apiUrl/auth/atualizar_senha'),
+        ApiConfig.uri('/auth/atualizar_senha'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1529,122 +1529,14 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
-  Widget _mobileTopBar() {
-    return Container(
-      height: 64,
-      padding:
-          const EdgeInsets.symmetric(horizontal: 14),
-      color: const Color(0xFF06152D),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () =>
-                _scaffoldKey.currentState?.openDrawer(),
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Image.asset(
-            'assets/images/pace_icon.png',
-            width: 34,
-            height: 34,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _mobileTopBar() => PaceMobileTopBar(
+        onOpen: () => _scaffoldKey.currentState?.openDrawer(),
+      );
 
-  Widget _mobileDrawer() {
-    return Drawer(
-      backgroundColor:
-          const Color(0xFF06152D),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(14),
-          children: [
-            const SizedBox(height: 10),
-            Image.asset(
-              'assets/images/pace_icon.png',
-              width: 52,
-              height: 52,
-              alignment: Alignment.centerLeft,
-            ),
-            const SizedBox(height: 18),
-            _drawerItem(
-              'Feed',
-              '/feed',
-              Icons.home_rounded,
-            ),
-            _drawerItem(
-              'Explorar',
-              '/explorar',
-              Icons.explore_outlined,
-            ),
-            _drawerItem(
-              'Postar',
-              '/postar',
-              Icons.edit_square,
-            ),
-            _drawerItem(
-              'Metas',
-              '/metas',
-              Icons.track_changes_rounded,
-            ),
-            _drawerItem(
-              'Sala de foco',
-              '/foco',
-              Icons.psychology_outlined,
-            ),
-            _drawerItem(
-              'Evolução',
-              '/evolucao',
-              Icons.trending_up_rounded,
-            ),
-            _drawerItem(
-              'Configurações',
-              '/config',
-              Icons.settings_outlined,
-              active: true,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _mobileDrawer() => PaceMobileDrawer(
+        currentRoute: '/config',
+        user: usuarioLogado,
+      );
 
-  Widget _drawerItem(
-    String label,
-    String route,
-    IconData icon, {
-    bool active = false,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: active
-            ? Colors.white
-            : const Color(0xFFC7D5E8),
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: active
-              ? Colors.white
-              : const Color(0xFFC7D5E8),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      tileColor:
-          active ? const Color(0xFF174A9B) : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      onTap: active
-          ? () => Navigator.pop(context)
-          : () =>
-              Navigator.of(context).pushNamed(route),
-    );
-  }
+
 }

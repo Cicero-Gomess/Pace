@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_config.dart';
+import 'pace_mobile_navigation.dart';
 
 const Color _primary = Color(0xFF1769E8);
 const Color _accent = Color(0xFFFFC928);
@@ -607,7 +608,8 @@ class _FocoPageState extends State<FocoPage> {
   ) async {
     final meta = session['meta'] as Map<String, dynamic>?;
 
-    final action = await showDialog<String>(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<String>(
       context: context,
       barrierColor: Colors.black.withOpacity(0.68),
       builder: (context) {
@@ -683,32 +685,27 @@ class _FocoPageState extends State<FocoPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () =>
-                              Navigator.pop(context, 'continue'),
-                          child: const Text('Continuar evoluindo'),
-                        ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 46),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: _primary,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: () =>
-                              Navigator.pop(context, 'share'),
-                          icon: const Icon(
-                            Icons.send_rounded,
-                            size: 17,
-                          ),
-                          label: const Text('Compartilhar foco'),
-                        ),
-                      ),
-                    ],
+                      onPressed: () => Navigator.pop(context, 'share'),
+                      icon: const Icon(Icons.send_rounded, size: 17),
+                      label: const Text('Compartilhar foco', textAlign: TextAlign.center),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 46)),
+                      onPressed: () => Navigator.pop(context, 'continue'),
+                      child: const Text('Continuar evoluindo', textAlign: TextAlign.center),
+                    ),
                   ),
                 ],
               ),
@@ -718,7 +715,9 @@ class _FocoPageState extends State<FocoPage> {
       },
     );
 
-    if (action == 'share') {
+    final action = await navigator.push(route);
+    await route.completed;
+    if (mounted && action == 'share') {
       await _shareFocus(session);
     }
   }
@@ -730,7 +729,8 @@ class _FocoPageState extends State<FocoPage> {
 
     final meta = session['meta'] as Map<String, dynamic>?;
 
-    final content = await showDialog<String>(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<String>(
       context: context,
       barrierColor: Colors.black.withOpacity(0.68),
       builder: (context) {
@@ -753,7 +753,9 @@ class _FocoPageState extends State<FocoPage> {
                         : Colors.white,
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: Column(
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
@@ -823,16 +825,17 @@ class _FocoPageState extends State<FocoPage> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.end,
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                           TextButton(
                             onPressed: () =>
                                 Navigator.pop(context),
                             child: const Text('Cancelar'),
                           ),
-                          const SizedBox(width: 8),
                           FilledButton.icon(
                             onPressed:
                                 controller.text.trim().isEmpty
@@ -850,6 +853,7 @@ class _FocoPageState extends State<FocoPage> {
                         ],
                       ),
                     ],
+                    ),
                   ),
                 ),
               ),
@@ -859,9 +863,11 @@ class _FocoPageState extends State<FocoPage> {
       },
     );
 
+    final content = await navigator.push(route);
+    await route.completed;
     controller.dispose();
 
-    if (content == null || content.trim().isEmpty) return;
+    if (!mounted || content == null || content.trim().isEmpty) return;
 
     final token = await _token();
     if (token == null || token.isEmpty) return;
@@ -1838,7 +1844,7 @@ class _FocoPageState extends State<FocoPage> {
             Text(
               '$minutes',
               style: TextStyle(
-                color: selected ? Colors.white : text,
+                color: selected && dark ? Colors.white : text,
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
               ),
@@ -1846,7 +1852,7 @@ class _FocoPageState extends State<FocoPage> {
             Text(
               'min',
               style: TextStyle(
-                color: selected
+                color: selected && dark
                     ? Colors.white70
                     : muted,
                 fontSize: 8,
@@ -2494,110 +2500,14 @@ class _FocoPageState extends State<FocoPage> {
     );
   }
 
-  Widget _mobileTopBar() {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      color: const Color(0xFF06152D),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () =>
-                _scaffoldKey.currentState?.openDrawer(),
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Image.asset(
-            'assets/images/pace_icon.png',
-            width: 34,
-            height: 34,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _mobileTopBar() => PaceMobileTopBar(
+        onOpen: () => _scaffoldKey.currentState?.openDrawer(),
+      );
 
-  Widget _mobileDrawer() {
-    return Drawer(
-      backgroundColor: const Color(0xFF06152D),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(14),
-          children: [
-            const SizedBox(height: 10),
-            Image.asset(
-              'assets/images/pace_icon.png',
-              width: 52,
-              height: 52,
-              alignment: Alignment.centerLeft,
-            ),
-            const SizedBox(height: 18),
-            _drawerItem(
-              'Feed',
-              '/feed',
-              Icons.home_rounded,
-            ),
-            _drawerItem(
-              'Explorar',
-              '/explorar',
-              Icons.explore_outlined,
-            ),
-            _drawerItem(
-              'Postar',
-              '/postar',
-              Icons.edit_square,
-            ),
-            _drawerItem(
-              'Metas',
-              '/metas',
-              Icons.track_changes_rounded,
-            ),
-            _drawerItem(
-              'Sala de foco',
-              '/foco',
-              Icons.psychology_outlined,
-              active: true,
-            ),
-            _drawerItem(
-              'Evolução',
-              '/evolucao',
-              Icons.trending_up_rounded,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _mobileDrawer() => PaceMobileDrawer(
+        currentRoute: '/foco',
+        user: _user,
+      );
 
-  Widget _drawerItem(
-    String label,
-    String route,
-    IconData icon, {
-    bool active = false,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: active ? Colors.white : const Color(0xFFC7D5E8),
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: active ? Colors.white : const Color(0xFFC7D5E8),
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      tileColor:
-          active ? const Color(0xFF174A9B) : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      onTap: active
-          ? () => Navigator.pop(context)
-          : () => Navigator.of(context).pushNamed(route),
-    );
-  }
+
 }
